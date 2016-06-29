@@ -95,7 +95,6 @@ function cf_contact_civicrm_processor( $config, $form ){
     // Pass contact id if found
     $form_values['contact_id'] = $ids ? $ids[0] : 0;
     
-    file_put_contents( 'cf_civi_trans.txt', print_r( $form_values, true ), FILE_APPEND );
     // Unset 'group', for some reason Civi's Api errors if present
     // unset( $form_values['group'] );
     $create_contact = civicrm_api3( 'Contact', 'create', $form_values );
@@ -106,11 +105,7 @@ function cf_contact_civicrm_processor( $config, $form ){
     // Store $cid
     CiviCRM_Caldera_Forms::set_civi_transdata( $config['contact_link'], $create_contact['id'] );
     $transdata['civicrm'] = CiviCRM_Caldera_Forms::get_civi_transdata();
-    
-    // Dump form arrays
-    $dump = array( 'transdata' => $transdata, 'values' => $form_values, 'config' => $config, 'form' => $form );
-    //file_put_contents('cf_civi_trans.txt', print_r($transdata['civicrm'], true), FILE_APPEND);
-    file_put_contents( 'cf_civi_data.txt', print_r( $dump, true ) );
+
 }
 
 /*
@@ -331,8 +326,6 @@ function cf_pre_render_civicrm_form( $form ){
     // Get CiviCRM contact processor config
     $civicrm_contact_pr = Caldera_Forms::get_processor_by_type( 'civicrm_contact', $form );
     if( $civicrm_contact_pr ){
-
-        // file_put_contents('cf_civi_form.txt', print_r($civicrm_contact_pr, true));
         
         /*
         foreach ($civicrm_contact_pr as $key => $value) {
@@ -341,8 +334,6 @@ function cf_pre_render_civicrm_form( $form ){
             }
         }
         */
-
-        file_put_contents('cf_civi_form.txt', print_r($civicrm_contact_pr, true));
 
         // Filter empty values
         $civicrm_contact_pr = array_filter( $civicrm_contact_pr[0]['config'] );
@@ -364,8 +355,6 @@ function cf_pre_render_civicrm_form( $form ){
             $pr[$value['ID']]['config'] = $value['config'];
         }
 
-        // file_put_contents('cf_civi_form.txt', print_r($pr, true));
-
         $is_relationship = Caldera_Forms::get_processor_by_type( 'civicrm_relationship', $form );
         if( $is_relationship ){
             //$is_relationship = array_filter( $is_relationship );
@@ -382,8 +371,6 @@ function cf_pre_render_civicrm_form( $form ){
 
                 }
             }
-
-            file_put_contents('cf_civi_rel.txt', print_r($relationship, true));
         }
     }
 
