@@ -1,2 +1,3 @@
-# caldera-forms-civicrm
-Caldera Forms CiviCRM Integration
+# Caldera Forms CiviCRM Integration - ALPHA version
+Integrates Caldera Forms plugin with CiviCRM
+
