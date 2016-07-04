@@ -1,7 +1,7 @@
 <?php
   $groupsResult = civicrm_api3('Group', 'get', array(
 		'sequential' => 1,
-		'cache_date' => null,
+		'cache_date' => array('IS NULL' => 1),
 		'is_active' => 1,
 		'options' => array('limit' => 0),
 	));
