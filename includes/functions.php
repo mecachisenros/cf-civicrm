@@ -48,6 +48,14 @@ function cf_civicrm_register_processor( $processors ){
         "template"          =>  CF_CIVICRM_INTEGRATION_PATH . "includes/relationship_config.php",
     );
 
+    $processors['civicrm_entity_tag'] = array(
+        "name"              => __('CiviCRM Tag'),
+        "description"       =>  __('Add CiviCRM tags to contacts'),
+        "author"            =>  'Andrei Mondoc',
+        //"pre-processor"       =>  'cf_group_civicrm_pre_processor',
+        "processor"         =>  'cf_entity_tag_civicrm_processor',
+        "template"          =>  CF_CIVICRM_INTEGRATION_PATH . "includes/entity_tag_config.php",
+    );
 
     return $processors;
 }
@@ -164,7 +172,7 @@ function cf_group_civicrm_processor( $config, $form ){
 *
 * @returns array Fields configuration
 */
-
+/*
 function cf_civicrm_group_fields(){
 
     $groupsResult = civicrm_api3( 'Group', 'get', array(
@@ -182,7 +190,7 @@ function cf_civicrm_group_fields(){
     }
     return $groups;
 }
-
+*/
 /*
 * CiviCRM activity processor
 *
@@ -244,6 +252,33 @@ function cf_relationship_civicrm_processor( $config, $form ){
         ));
     }
 
+}
+
+/*
+* CiviCRM entity tag processor
+*
+* @config array Processor configuration
+*
+* @form array Form configuration
+*/
+
+function cf_entity_tag_civicrm_processor( $config, $form ){
+
+	global $transdata;
+
+	foreach ($config as $key=>$value) {
+		if( stristr($key, 'entity_tag') != false ){
+			$tag = civicrm_api3('Tag', 'getsingle', array(
+  				'sequential' => 1,
+  				'id' => $value,
+  				'api.EntityTag.create' => array(
+  					'entity_id' => $transdata['civicrm']['contact_id_'.$config['contact_link']], 
+  					'entity_table' => "civicrm_contact",
+  					'tag_id' => '$value.id',
+  					),
+			));
+		}
+	}
 }
 
 function get_civi_contact( $cid ){
