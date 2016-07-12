@@ -315,7 +315,6 @@ function cf_pre_render_civicrm_form( $form ){
         $civi_contact = get_civi_contact( $cid );
     }
 
-/*
     // Get request cid(contact_id) and cs(checksum)
     if( isset($_GET['cid']) && isset($_GET['cs']) ){
 
@@ -335,7 +334,6 @@ function cf_pre_render_civicrm_form( $form ){
         // Add permission check
         $permissions = CRM_Core_Permission::getPermission();
     }
-*/
 
     // Get CiviCRM contact processor config
     $civicrm_contact_pr = Caldera_Forms::get_processor_by_type( 'civicrm_contact', $form );
@@ -355,15 +353,15 @@ function cf_pre_render_civicrm_form( $form ){
         // Unset fixed config values
         unset( $civicrm_contact_pr['contact_type'], $civicrm_contact_pr['contact_sub_type'], $civicrm_contact_pr['contact_link'] );        
  		
- 		if( isset( $civicrm_contact_pr['auto_pop'] ) && $civicrm_contact_pr['auto_pop'] == 1 ){
+		if( isset( $civicrm_contact_pr['auto_pop'] ) && $civicrm_contact_pr['auto_pop'] == 1 ){
             unset( $civicrm_contact_pr['auto_pop'] );
             
 	        // Map CiviCRM contact data to form defaults
-	        if( $civi_contact ){
-	            foreach ( $civicrm_contact_pr as $field => $value ) {
-	                $form['fields'][$value]['config']['default'] = $civi_contact[$field];
-	            }
-	        }
+			if( $civi_contact ){
+    			foreach ( $civicrm_contact_pr as $field => $value ) {
+					$form['fields'][$value]['config']['default'] = $civi_contact[$field];
+    			}
+			}
  		}
 		/*
         $pr = array();
