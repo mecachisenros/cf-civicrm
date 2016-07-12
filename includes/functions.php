@@ -402,12 +402,30 @@ function cf_pre_render_civicrm_form( $form ){
 
 add_action( 'caldera_forms_autopopulate_types', 'cf_civicrm_autopoulate_options' );
 function cf_civicrm_autopoulate_options(){
-    // Membeships
-    echo "<option value=\"civicrm_memberships\"{{#is auto_type value=\"civicrm_memberships\"}} selected=\"selected\"{{/is}}>" . "CiviCRM Memberships" . "</option>";
     // Individual Prefix
     echo "<option value=\"contact_prefix_id\"{{#is auto_type value=\"contact_prefix_id\"}} selected=\"selected\"{{/is}}>" . "CiviCRM Individual Prefix" . "</option>";
+    // Individual Suffix
+    echo "<option value=\"suffix_id\"{{#is auto_type value=\"suffix_id\"}} selected=\"selected\"{{/is}}>" . "CiviCRM - Individual Suffix" . "</option>";
     // Individual Gender
     echo "<option value=\"contact_gender\"{{#is auto_type value=\"contact_gender\"}} selected=\"selected\"{{/is}}>" . "CiviCRM Individual Gender" . "</option>";
+    // Communication Style
+    echo "<option value=\"communication_style_id\"{{#is auto_type value=\"communication_style_id\"}} selected=\"selected\"{{/is}}>" . "CiviCRM - Communication Style" . "</option>";
+    // Do not Email
+    echo "<option value=\"do_not_email\"{{#is auto_type value=\"do_not_email\"}} selected=\"selected\"{{/is}}>" . "CiviCRM - Do Not Email" . "</option>";
+    // Do not Phone
+    echo "<option value=\"do_not_phone\"{{#is auto_type value=\"do_not_phone\"}} selected=\"selected\"{{/is}}>" . "CiviCRM - Do Not Phone" . "</option>";
+    // Do not Mail
+    echo "<option value=\"do_not_mail\"{{#is auto_type value=\"do_not_mail\"}} selected=\"selected\"{{/is}}>" . "CiviCRM - Do Not Mail" . "</option>";
+    // Do not SMS
+    echo "<option value=\"do_not_sms\"{{#is auto_type value=\"do_not_sms\"}} selected=\"selected\"{{/is}}>" . "CiviCRM - Do Not SMS" . "</option>";
+    // Do not Trade
+    echo "<option value=\"do_not_trade\"{{#is auto_type value=\"do_not_trade\"}} selected=\"selected\"{{/is}}>" . "CiviCRM - Do Not Trade" . "</option>";
+    // Is Opt Out
+    echo "<option value=\"is_opt_out\"{{#is auto_type value=\"is_opt_out\"}} selected=\"selected\"{{/is}}>" . "CiviCRM - No Bulk Emails (User Opt Out)" . "</option>";
+    // Country
+    echo "<option value=\"country_id\"{{#is auto_type value=\"country_id\"}} selected=\"selected\"{{/is}}>" . "CiviCRM - Country" . "</option>";
+    // State/Provine
+    echo "<option value=\"state_province_id\"{{#is auto_type value=\"state_province_id\"}} selected=\"selected\"{{/is}}>" . "CiviCRM - State/Province" . "</option>";
 }
 
 /*
@@ -427,18 +445,7 @@ function cf_civicrm_autopoulate_values( $field, $form ){
 
     if ( !empty( $field['config']['auto'] ) ){
         switch ( $field['config']['auto_type'] ){
-            // Memberships
-            case 'civicrm_memberships':
-                $memberships = civicrm_api3( 'MembershipType', 'get', array(
-                    'sequential' => 1,
-                ));
-                foreach ( $memberships['values'] as $key => $value ) {
-                    $field['config']['option'][$value['id']] = array(
-                        'value' => $value['id'],
-                        'label' => $value['name']
-                    );
-                }
-                break;
+            
             // Prefix
             case 'contact_prefix_id':
                 $prefix_id = civicrm_api3('Contact', 'getoptions', array(
@@ -454,6 +461,21 @@ function cf_civicrm_autopoulate_values( $field, $form ){
                     //}
                 }
                 break;
+                
+            // Suffix
+            case 'suffix_id':
+                $suffix_id = civicrm_api3('Contact', 'getoptions', array(
+                    'sequential' => 1,
+                    'field' => "suffix_id",
+                ));
+                foreach ($suffix_id['values'] as $index) {
+                        $field['config']['option'][$index['key']] = array(
+                            'value' => $index['key'],
+                            'label' => $index['value']
+                        );
+                }
+                break;
+                
             // Gender
             case 'contact_gender':
                 $prefix_id = civicrm_api3('Contact', 'getoptions', array(
@@ -467,6 +489,129 @@ function cf_civicrm_autopoulate_values( $field, $form ){
                             'label' => $index['value']
                         );
                     //}
+                }
+                break;
+                
+			// Communication Style
+            case 'communication_style_id':
+                $communication_style_id = civicrm_api3('Contact', 'getoptions', array(
+                    'sequential' => 1,
+                    'field' => "communication_style_id",
+                ));
+                foreach ($communication_style_id['values'] as $index) {
+                        $field['config']['option'][$index['key']] = array(
+                            'value' => $index['key'],
+                            'label' => $index['value']
+                        );
+                }
+                break;
+
+            // Do Not Email
+            case 'do_not_email':
+                $do_not_email = civicrm_api3('Contact', 'getoptions', array(
+                    'sequential' => 1,
+                    'field' => "do_not_email",
+                ));
+                foreach ($do_not_email['values'] as $index) {
+                        $field['config']['option'][$index['key']] = array(
+                            'value' => $index['key'],
+                            'label' => $index['value']
+                        );
+                }
+                break;
+
+            // Do Not Phone
+            case 'do_not_phone':
+                $do_not_phone = civicrm_api3('Contact', 'getoptions', array(
+                    'sequential' => 1,
+                    'field' => "do_not_phone",
+                ));
+                foreach ($do_not_phone['values'] as $index) {
+                        $field['config']['option'][$index['key']] = array(
+                            'value' => $index['key'],
+                            'label' => $index['value']
+                        );
+                }
+                break;
+
+            // Do Not Mail
+            case 'do_not_mail':
+                $do_not_mail = civicrm_api3('Contact', 'getoptions', array(
+                    'sequential' => 1,
+                    'field' => "do_not_mail",
+                ));
+                foreach ($do_not_mail['values'] as $index) {
+                        $field['config']['option'][$index['key']] = array(
+                            'value' => $index['key'],
+                            'label' => $index['value']
+                        );
+                }
+                break;
+
+            // Do Not SMS
+            case 'do_not_sms':
+                $do_not_sms = civicrm_api3('Contact', 'getoptions', array(
+                    'sequential' => 1,
+                    'field' => "do_not_sms",
+                ));
+                foreach ($do_not_sms['values'] as $index) {
+                        $field['config']['option'][$index['key']] = array(
+                            'value' => $index['key'],
+                            'label' => $index['value']
+                        );
+                }
+                break;
+
+            // Do Not Trade
+            case 'do_not_trade':
+                $do_not_trade = civicrm_api3('Contact', 'getoptions', array(
+                    'sequential' => 1,
+                    'field' => "do_not_trade",
+                ));
+                foreach ($do_not_trade['values'] as $index) {
+                        $field['config']['option'][$index['key']] = array(
+                            'value' => $index['key'],
+                            'label' => $index['value']
+                        );
+                }
+                break;
+
+            // Is Opt Out
+            case 'is_opt_out':
+                $is_opt_out = civicrm_api3('Contact', 'getoptions', array(
+                    'sequential' => 1,
+                    'field' => "is_opt_out",
+                ));
+                foreach ($is_opt_out['values'] as $index) {
+                        $field['config']['option'][$index['key']] = array(
+                            'value' => $index['key'],
+                            'label' => $index['value']
+                        );
+                }
+                break;
+
+            // Country
+            case 'country_id':
+                $country_id = civicrm_api3('Country', 'get', array(
+                    'sequential' => 1,
+                    'options' => array('limit' => 0),
+                ));
+                foreach ($country_id['values'] as $key=>$value) {
+                        $field['config']['option'][$value['id']] = array(
+                            'value' => $value['id'],
+                            'label' => $value['name']
+                        );
+                }
+                break;
+
+            // State/Province
+            case 'state_province_id':
+                $state_province_id = CiviCRM_Caldera_Forms::get_state_province();
+                foreach ($state_province_id as $key=>$value) {
+                        $field['config']['option'][$key] = array(
+                            'value' => $key,
+                            'label' => $value
+                        );
                 }
                 break;
         }
