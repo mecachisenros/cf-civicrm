@@ -190,7 +190,7 @@ function cf_activity_civicrm_processor( $config, $form ){
         $form_values[$key] = Caldera_Forms::get_field_data( $field_id, $form );
     }
 
-    $form_values['source_record_id'] = $transdata['civicrm']['contact_id_'.$config['contact_link']]; // Contact ID set in Contact Processor
+    $form_values['source_contact_id'] = $transdata['civicrm']['contact_id_'.$config['contact_link']]; // Contact ID set in Contact Processor
     $form_values['activity_type_id'] = $config['activity_type_id']; // Activity Type ID
     $form_values['campaign_id'] = $config['campaign_id']; // Campaign ID
 
