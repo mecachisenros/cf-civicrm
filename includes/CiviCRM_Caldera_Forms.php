@@ -1,29 +1,46 @@
 <?php
 
 /**
-* 
+* Helper Class
 */
 
 class CiviCRM_Caldera_Forms {
-
-    // public static $fields_to_unset = array('id', 'contact_type', 'contact_sub_type', 'legal_identifier', 'external_identifier', 'sort_name', 'display_name', 'legal_name', 'image_URL', 'hash', 'api_key', 'email_greeting_id', 'email_greeting_custom', 'email_greeting_display', 'postal_greeting_id', 'postal_greeting_custom', 'postal_greeting_display', 'addressee_id', 'addressee_custom', 'addressee_display', 'is_deceased', 'deceased_date', 'primary_contact_id', 'sic_code', 'user_unique_id', 'employer_id', 'is_deleted', 'created_date', 'modified_date');
     
     public static $contact_fields = array( 'prefix_id', 'first_name', 'last_name', 'middle_name', 'suffix_id', 'is_opt_out', 'nick_name', 'source', 'formal_title', 'job_title', 'gender_id', 'birth_date', 'email', 'current_employer');
 
     public static $activity_fields = array( 'activity_type_id', 'phone_id', 'phone_number', 'status_id', 'priority_id', 'parent_id', 'is_test', 'medium_id', 'is_auto', 'is_current_revision', 'result', 'is_deleted', 'campaign_id', 'engagement_level', 'weight', 'id', 'original_id');
 
+	/*
+    * @array Holds contact ids for linking processors
+    */
+
     public static $civi_transdata = array();
+    
+    /*
+    * Sets the contact_id/contact_id mapping  
+    *
+    * @contact_link Integer Contact link from processot $config
+    *
+    * @cid Integet Contact ID
+    */
 
     public static function set_civi_transdata( $contact_link, $cid ){
 
         self::$civi_transdata['contact_id_' . $contact_link] = $cid;
         
     }
+    
+    /*
+    * @array Returns the contact_link/contact_id mapping
+    */
 
     public static function get_civi_transdata(){
         return self::$civi_transdata;
     }
-
+    
+    /*
+    * Outputs HTML
+    */
 
     public static function contact_link_field(){
         ob_start();
@@ -42,7 +59,6 @@ class CiviCRM_Caldera_Forms {
                 </select>
         <?php
         $contact_link = ob_get_contents();
-        $output = ob_end_flush();
         return $contact_link;
     }
 
