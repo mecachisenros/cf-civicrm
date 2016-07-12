@@ -665,3 +665,4 @@ function cf_civicrm_fields( $fieldtypes ){
 
     return $fieldtypes;
 }
+
