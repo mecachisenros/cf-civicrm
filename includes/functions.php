@@ -1,5 +1,7 @@
 <?php
 
+if ( !civi_wp()->initialize() ) return;
+
 include CF_CIVICRM_INTEGRATION_PATH . 'includes/CiviCRM_Caldera_Forms.php';
 
 /*
@@ -34,7 +36,7 @@ function cf_civicrm_register_processor( $processors ){
         "name"              =>  __('CiviCRM Activity'),
         "description"       =>  __('Add CiviCRM activity to contact'),
         "author"            =>  'Andrei Mondoc',
-        //"pre-processor"       =>  'cf_group_civicrm_pre_processor',
+        //"pre-processor"       =>  'cf_activity_civicrm_pre_processor',
         "processor"         =>  'cf_activity_civicrm_processor',
         "template"          =>  CF_CIVICRM_INTEGRATION_PATH . "includes/activity_config.php",
     );
@@ -43,7 +45,7 @@ function cf_civicrm_register_processor( $processors ){
         "name"              => __('CiviCRM Relationship'),
         "description"       =>  __('Add CiviCRM relationship to contacts'),
         "author"            =>  'Andrei Mondoc',
-        //"pre-processor"       =>  'cf_group_civicrm_pre_processor',
+        //"pre-processor"       =>  'cf_relationship_civicrm_pre_processor',
         "processor"         =>  'cf_relationship_civicrm_processor',
         "template"          =>  CF_CIVICRM_INTEGRATION_PATH . "includes/relationship_config.php",
     );
@@ -52,7 +54,7 @@ function cf_civicrm_register_processor( $processors ){
         "name"              => __('CiviCRM Tag'),
         "description"       =>  __('Add CiviCRM tags to contacts'),
         "author"            =>  'Andrei Mondoc',
-        //"pre-processor"       =>  'cf_group_civicrm_pre_processor',
+        //"pre-processor"       =>  'cf_entity_tag_civicrm_pre_processor',
         "processor"         =>  'cf_entity_tag_civicrm_processor',
         "template"          =>  CF_CIVICRM_INTEGRATION_PATH . "includes/entity_tag_config.php",
     );
@@ -70,10 +72,6 @@ function cf_civicrm_register_processor( $processors ){
 
 function cf_contact_civicrm_processor( $config, $form ){
 
-    if( !civicrm_wp_initialize() ){
-        return;
-    }
-    //global $transdata_civi;
     global $transdata;
 
     // Get form values for each processor field
@@ -125,25 +123,6 @@ function cf_contact_civicrm_pre_processor( $config, $form ){
 }
 
 /*
-function cf_civicrm_contact_fields() {
-    // Get Contact fields
-    $contactFieldsResult = civicrm_api3( 'Contact', 'getfields', array(
-        'sequential' => 1,
-    ));
-
-    // Prepare fields array to return to Caldera_Forms_Processor_UI::config_fields( $fields )
-    $fields = array();
-
-    foreach ( $contactFieldsResult['values'] as $key => $value ) {
-        $field['id'] = $value['name'];
-        $field['label'] = $value['title'];
-        $fields[] = $field;
-    }
-    return $fields;
-}
-*/
-
-/*
 * CiviCRM Group processor
 *
 * @config array Processor configuration
@@ -191,6 +170,7 @@ function cf_civicrm_group_fields(){
     return $groups;
 }
 */
+
 /*
 * CiviCRM activity processor
 *
