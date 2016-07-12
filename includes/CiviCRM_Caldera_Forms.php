@@ -117,4 +117,23 @@ class CiviCRM_Caldera_Forms {
         return $contact_fields['values'];
 	}
 	
+	/*
+    * @states array Get State/Province from Civicrm
+    *
+    * @retunrs states
+    */
+
+    public static function get_state_province(){
+
+        $query = "SELECT name,id FROM civicrm_state_province";
+        $dao = CRM_Core_DAO::executeQuery($query);
+        $states = array();
+        
+        while ( $dao->fetch() ) {
+            $states[$dao->id] = $dao->name;
+        }
+
+        return $states;
+    }
+	
 }
