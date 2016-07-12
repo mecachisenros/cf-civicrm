@@ -619,4 +619,47 @@ function cf_civicrm_autopoulate_values( $field, $form ){
     return $field;
 }
 
+/*
+* Hook, adds custom fields to Caldera UI 
+*
+* @uses "caldera_forms_get_field_types" filter
+*
+* @fieldtypes array Fields configuration
+*
+* @returns array $fieldtypes
+*/
 
+add_filter('caldera_forms_get_field_types', 'cf_civicrm_fields');
+function cf_civicrm_fields( $fieldtypes ){
+    $fieldtypes['civicrm_country'] = array(
+        "field"         =>  "CiviCRM Country",
+        "file"          =>  CF_CIVICRM_INTEGRATION_PATH . "fields/civicrm_country/field.php",
+        "category"      =>  "CiviCRM",
+        "description"   =>  'CiviCRM Country dropdown',
+        "setup"         =>  array(
+            "template"  =>  CF_CIVICRM_INTEGRATION_PATH . "fields/civicrm_country/config.php",
+            "preview"   =>  CF_CIVICRM_INTEGRATION_PATH . "fields/civicrm_country/preview.php",
+            "default"   =>  array('placeholder' => 'Select a Country'),
+            "not_supported" =>  array(
+                'entry_list',
+            )
+        )
+    );
+
+    $fieldtypes['civicrm_state'] = array(
+        "field"         =>  "CiviCRM State/Province",
+        "file"          =>  CF_CIVICRM_INTEGRATION_PATH . "fields/civicrm_state/field.php",
+        "category"      =>  "CiviCRM",
+        "description"   => 'CiviCRM State/Province dropdown',
+        "setup"         =>  array(
+            "template"  =>  CF_CIVICRM_INTEGRATION_PATH . "fields/civicrm_state/config.php",
+            "preview"   =>  CF_CIVICRM_INTEGRATION_PATH . "fields/civicrm_state/preview.php",
+            "default"   =>  array('placeholder' => 'Select a State/Province'),
+            "not_supported" =>  array(
+                'entry_list',
+            )
+        )
+    );
+
+    return $fieldtypes;
+}
