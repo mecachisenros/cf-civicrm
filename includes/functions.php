@@ -304,7 +304,6 @@ function cf_pre_render_civicrm_form( $form ){
         $current_user = CiviCRM_Caldera_Forms::get_wp_civi_contact( $current_user->ID );        
 
         $civi_contact = get_civi_contact( $current_user );
-        $contactID = $civi_contact;
     } else {
         $civi_contact = 0;
     }
@@ -355,15 +354,18 @@ function cf_pre_render_civicrm_form( $form ){
         
         // Unset fixed config values
         unset( $civicrm_contact_pr['contact_type'], $civicrm_contact_pr['contact_sub_type'], $civicrm_contact_pr['contact_link'] );        
-        // FIXME 
-        // Map CiviCRM contact data to form defaults
-        // Custom fields are not returned by civicrm_api3
-        if( $civi_contact ){
-            foreach ( $civicrm_contact_pr as $field => $value ) {
-                $form['fields'][$value]['config']['default'] = $civi_contact[$field];
-            }
-        }
-
+ 		
+ 		if( isset( $civicrm_contact_pr['auto_pop'] ) && $civicrm_contact_pr['auto_pop'] == 1 ){
+            unset( $civicrm_contact_pr['auto_pop'] );
+            
+	        // Map CiviCRM contact data to form defaults
+	        if( $civi_contact ){
+	            foreach ( $civicrm_contact_pr as $field => $value ) {
+	                $form['fields'][$value]['config']['default'] = $civi_contact[$field];
+	            }
+	        }
+ 		}
+/*
         $pr = array();
         foreach ($form['processors'] as $pr_id => $value) {
             $pr[$value['ID']]['type'] =  $value['type'];
@@ -388,7 +390,7 @@ function cf_pre_render_civicrm_form( $form ){
             }
         }
     }
-
+*/
     
 
     return $form;
