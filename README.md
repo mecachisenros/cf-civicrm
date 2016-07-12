@@ -14,7 +14,7 @@ Currently supports:
 * **Checksum support** to auto-populate form with URLs like **example.com/support?cid={contact.contact_id}&{contact.checksum}**
 * **Contact Type**: Organization, Individual, Household, Custom Type
 * **Contact Subtypes**
-** **Custom Fields**
+* **Custom Fields**
 
 ### + Activity entity
 ### + Relationship entity
