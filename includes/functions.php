@@ -365,7 +365,7 @@ function cf_pre_render_civicrm_form( $form ){
 	            }
 	        }
  		}
-/*
+		/*
         $pr = array();
         foreach ($form['processors'] as $pr_id => $value) {
             $pr[$value['ID']]['type'] =  $value['type'];
@@ -389,8 +389,9 @@ function cf_pre_render_civicrm_form( $form ){
                 }
             }
         }
+        */
     }
-*/
+
     
 
     return $form;
