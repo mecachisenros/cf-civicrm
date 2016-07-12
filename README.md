@@ -8,18 +8,18 @@ This plugins is in development (alpha version), currently tested with CiviCRM 4.
 
 Currently supports:
 
-+### Contact entity
-..+ Up to **10 Contact** prcessors on the same form
-..+ **Auto-populate form** if the user is logged in
-..+ **Checksum support** to auto-populate form with URLs like **example.com/support?cid={contact.contact_id}&{contact.checksum}**
-..+ **Contact Type**: Organization, Individual, Household, Custom Type
-..+ **Contact Subtypes**
-..+ **Custom Fields**
++ ### Contact entity
+.. + Up to **10 Contact** prcessors on the same form
+.. + **Auto-populate form** if the user is logged in
+.. + **Checksum support** to auto-populate form with URLs like **example.com/support?cid={contact.contact_id}&{contact.checksum}**
+.. + **Contact Type**: Organization, Individual, Household, Custom Type
+.. + **Contact Subtypes**
+.. + **Custom Fields**
 
-+### Activity entity
-+### Relationship entity
-+### Group entity
-+### Tag entity
++ ### Activity entity
++ ### Relationship entity
++ ### Group entity
++ ### Tag entity
 
 ### Coming soon
 + Address processor
