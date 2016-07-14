@@ -58,6 +58,15 @@ function cf_civicrm_register_processor( $processors ){
         "processor"         =>  'cf_entity_tag_civicrm_processor',
         "template"          =>  CF_CIVICRM_INTEGRATION_PATH . "includes/entity_tag_config.php",
     );
+    
+    $processors['civicrm_address'] = array(
+        "name"              => __('CiviCRM Address'),
+        "description"       =>  __('Add CiviCRM address to contacts'),
+        "author"            =>  'Andrei Mondoc',
+        //"pre-processor"       =>  'cf_address_civicrm_pre_processor',
+        "processor"         =>  'cf_address_civicrm_processor',
+        "template"          =>  CF_CIVICRM_INTEGRATION_PATH . "includes/address_config.php",
+    );
 
     return $processors;
 }
@@ -260,6 +269,45 @@ function cf_entity_tag_civicrm_processor( $config, $form ){
 			));
 		}
 	}
+}
+
+/*
+* CiviCRM Address processor
+*
+* @config array Processor configuration
+*
+* @form array Form configuration
+*/
+
+function cf_address_civicrm_processor( $config, $form ){
+
+    global $transdata;
+
+    if ( !empty( $transdata['civicrm']['contact_id_'.$config['contact_link']] ) ){
+
+        $address = civicrm_api3('Address', 'getsingle', array(
+            'sequential' => 1,
+            'contact_id' => $transdata['civicrm']['contact_id_'.$config['contact_link']],
+            'location_type_id' => $config['location_type_id'],
+        ));
+
+        // Get form values for each processor field
+        // $value is the field id
+        $form_values = array();
+        foreach ( $config as $key => $field_id ) {
+            $form_values[$key] = Caldera_Forms::get_field_data( $field_id, $form );
+        }
+
+        $form_values['contact_id'] = $transdata['civicrm']['contact_id_'.$config['contact_link']]; // Contact ID set in Contact Processor
+        //$form_values['location_type_id'] = $config['location_type_id']; // Activity Type ID
+        $form_values['id'] = $address['id']; // Activity Status ID
+
+        // FIXME
+        // Concatenete DATE + TIME
+        // $form_values['activity_date_time'] = $form_values['activity_date_time'];
+
+        $create_address = civicrm_api3( 'Address', 'create', $form_values );
+    }
 }
 
 function get_civi_contact( $cid ){
