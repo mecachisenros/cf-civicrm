@@ -347,99 +347,110 @@ function get_civi_contact( $cid ){
 add_filter( 'caldera_forms_render_get_form', 'cf_pre_render_civicrm_form' );
 function cf_pre_render_civicrm_form( $form ){
     
-    // Get contact_id if user is logged in
-    if( is_user_logged_in() ){
-        $current_user = wp_get_current_user();
-        $current_user = CiviCRM_Caldera_Forms::get_wp_civi_contact( $current_user->ID );        
-
-        $civi_contact = get_civi_contact( $current_user );
-    } else {
-        $civi_contact = 0;
-    }
-
-    // FIXME 
-    // Just for testing, remove later
-    if( isset( $_GET['cid'] ) ){
-        $cid = $_GET['cid'];
-        $civi_contact = get_civi_contact( $cid );
-    }
-
-    // Get request cid(contact_id) and cs(checksum)
-    if( isset($_GET['cid']) && isset($_GET['cs']) ){
-
-        $cid = $_GET['cid'];
-        $cs = $_GET['cs'];
-
-        // Check for valid checksum
-        $valid_user = CRM_Contact_BAO_Contact_Utils::validChecksum( $cid, $cs );
-
-        if( $valid_user ){
-            $civi_contact = get_civi_contact( $cid );
-        }
-
-        $contactID = $civi_contact;
-        
-        // FIXME 
-        // Add permission check
-        $permissions = CRM_Core_Permission::getPermission();
-    }
-
-    // Get CiviCRM contact processor config
+    // Indexed array containing the Contact processors
     $civicrm_contact_pr = Caldera_Forms::get_processor_by_type( 'civicrm_contact', $form );
     if( $civicrm_contact_pr ){
-        
-        /*
         foreach ($civicrm_contact_pr as $key => $value) {
             if( !is_int( $key ) ){
                 unset( $civicrm_contact_pr[ $key ] );
             }
         }
-        */
-
-        // Filter empty values
-        $civicrm_contact_pr = array_filter( $civicrm_contact_pr[0]['config'] );
-        
-        // Unset fixed config values
-        unset( $civicrm_contact_pr['contact_type'], $civicrm_contact_pr['contact_sub_type'], $civicrm_contact_pr['contact_link'] );        
- 		
-		if( isset( $civicrm_contact_pr['auto_pop'] ) && $civicrm_contact_pr['auto_pop'] == 1 ){
-            unset( $civicrm_contact_pr['auto_pop'] );
-            
-	        // Map CiviCRM contact data to form defaults
-			if( $civi_contact ){
-    			foreach ( $civicrm_contact_pr as $field => $value ) {
-					$form['fields'][$value]['config']['default'] = $civi_contact[$field];
-    			}
-			}
- 		}
-		/*
-        $pr = array();
-        foreach ($form['processors'] as $pr_id => $value) {
-            $pr[$value['ID']]['type'] =  $value['type'];
-            $pr[$value['ID']]['config'] = $value['config'];
-        }
-
-        $is_relationship = Caldera_Forms::get_processor_by_type( 'civicrm_relationship', $form );
-        if( $is_relationship ){
-            //$is_relationship = array_filter( $is_relationship );
-            $is_relationship = array_filter( $is_relationship[0]['config'] );
-            $relationship = civicrm_api3('Relationship', 'get', array(
-                'sequential' => 1,
-                'contact_id_a' => $civi_contact['contact_id'],
-                // 'contact_id_b' => $transdata['civicrm']['contact_id_'.$config['contact_b']],
-                'relationship_type_id' => $is_relationship['relationship_type'],
-            ));
-
-            foreach ($pr as $pr_ID => $value) {
-                if( $value['type'] == 'civicrm_relationship'){
-
-                }
-            }
-        }
-        */
     }
 
-    
+    foreach ( $form['processors'] as $processor => $pr_id ) {
+
+        switch ( $pr_id['type'] ) {
+            // Contact Processor
+            case 'civicrm_contact':
+                
+                if( isset( $pr_id['config']['auto_pop'] ) && $pr_id['config']['auto_pop'] == 1 && $civicrm_contact_pr[0]['ID'] == $pr_id['ID'] ){
+
+                    // Get contact_id if user is logged in
+                    if( is_user_logged_in() ){
+                        $current_user = wp_get_current_user();
+                        $current_user = CiviCRM_Caldera_Forms::get_wp_civi_contact( $current_user->ID );        
+
+                        $civi_contact = get_civi_contact( $current_user );
+
+                    } else {
+                        $civi_contact = 0;
+                    }
+                }
+
+                // FIXME 
+                // Just for testing, remove later
+                // if( isset( $_GET['cid'] ) && $civicrm_contact_pr[0]['ID'] == $pr_id['ID'] ){
+                //     $cid = $_GET['cid'];
+                //     $civi_contact = get_civi_contact( $cid );
+                // }
+
+                // Get request cid(contact_id) and cs(checksum)
+                // FIXME
+                // Checksum overrides Logged in, is this what we want?
+                if( isset($_GET['cid']) && isset($_GET['cs']) && $civicrm_contact_pr[0]['ID'] == $pr_id['ID'] ){
+
+                    $cid = $_GET['cid'];
+                    $cs = $_GET['cs'];
+
+                    // Check for valid checksum
+                    $valid_user = CRM_Contact_BAO_Contact_Utils::validChecksum( $cid, $cs );
+
+                    if( $valid_user ){
+                        $civi_contact = get_civi_contact( $cid );
+                    }
+                    
+                    // FIXME 
+                    // Add permission check
+                    $permissions = CRM_Core_Permission::getPermission();
+                }
+
+                CiviCRM_Caldera_Forms::set_civi_transdata( $pr_id['config']['contact_link'], $civi_contact['contact_id']);
+                $civi_transdata = CiviCRM_Caldera_Forms::get_civi_transdata();
+
+                unset( $pr_id['config']['auto_pop'], $pr_id['config']['contact_type'], $pr_id['config']['contact_sub_type'], $pr_id['config']['contact_link'] );
+
+                // Map CiviCRM contact data to form defaults
+                if( $civi_contact ){
+                    foreach ( $pr_id['config'] as $field => $value ) {
+                        $form['fields'][$value]['config']['default'] = $civi_contact[$field];
+                    }
+                }
+                
+                // Clear Contact data
+                unset($civi_contact);
+                
+                break;
+            // Address Processor
+            case 'civicrm_address':
+
+                try {
+                    
+                    $civi_contact_address = civicrm_api3('Address', 'getsingle', array(
+                        'sequential' => 1,
+                        'contact_id' => $civi_transdata['contact_id_' . $pr_id['config']['contact_link']],
+                        'location_type_id' => $pr_id['config']['location_type_id'],
+                    ));
+
+                } catch (Exception $e) {
+                    // Igonre if we have more than one address with same location type
+                }
+                
+                if( $civi_contact_address && !isset( $civi_contact_address['count'] ) ){
+                    foreach ( $pr_id['config'] as $field => $value ) {
+                        $form['fields'][$value]['config']['default'] = $civi_contact_address[$field];
+                    }
+                }
+
+                // Clear Address data
+                unset($civi_contact_address);
+                        
+                break;
+
+            // default:
+            //     # code...
+            //     break;
+        }
+    }
 
     return $form;
 }
