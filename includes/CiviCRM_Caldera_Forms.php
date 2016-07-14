@@ -70,10 +70,21 @@ class CiviCRM_Caldera_Forms {
     */
 
 	public static function get_contact_custom_fields(){
+		
+		$contact_types = civicrm_api3('ContactType', 'get', array(
+            'sequential' => 1,
+        ));
+
+        $types = array();
+        foreach ( $contact_types['values'] as $key => $value ) {
+            $types[] = $value['name'];
+        }
+        
+        $extends = array('IN' => $types );
 
 		$custom_group = civicrm_api3( 'CustomGroup', 'get', array(
 		        'sequential' => 1,
-		        'extends' => "contact",
+		        'extends' => apply_filters( 'civicrm_custom_fields_contact_type', $extends ),
 		        'api.CustomField.get' => array(),
 		    ));
 		
