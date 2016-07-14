@@ -476,6 +476,8 @@ function cf_civicrm_autopoulate_options(){
     echo "<option value=\"country_id\"{{#is auto_type value=\"country_id\"}} selected=\"selected\"{{/is}}>" . "CiviCRM - Country" . "</option>";
     // State/Provine
     echo "<option value=\"state_province_id\"{{#is auto_type value=\"state_province_id\"}} selected=\"selected\"{{/is}}>" . "CiviCRM - State/Province" . "</option>";
+    // Address Location Type
+    echo "<option value=\"location_type_id\"{{#is auto_type value=\"location_type_id\"}} selected=\"selected\"{{/is}}>" . "CiviCRM - Address Location Type" . "</option>";
 }
 
 /*
@@ -661,6 +663,20 @@ function cf_civicrm_autopoulate_values( $field, $form ){
                         $field['config']['option'][$key] = array(
                             'value' => $key,
                             'label' => $value
+                        );
+                }
+                break;
+                
+            // Address Location Type
+            case 'location_type_id':
+                $location_type_id = civicrm_api3('Address', 'getoptions', array(
+                    'sequential' => 1,
+                    'field' => "location_type_id",
+                ));
+                foreach ($location_type_id['values'] as $index) {
+                        $field['config']['option'][$index['key']] = array(
+                            'value' => $index['key'],
+                            'label' => $index['value']
                         );
                 }
                 break;
