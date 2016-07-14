@@ -20,9 +20,9 @@ Currently supports:
 ### + Relationship entity
 ### + Group entity
 ### + Tag entity
+### + Address entity
 
 ### Coming soon
-+ Address processor
 + Email processor
 + Phone processor
 + IM processor
