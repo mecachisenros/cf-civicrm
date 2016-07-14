@@ -29,7 +29,7 @@ echo $wrapper_before; ?>
 		<?php
 			$countries = ob_get_clean();
 			if( !empty( $field_value ) ){
-				$countries = str_replace( 'value="' . $field_value . '"', 'value="' . $field_value . '" selected="selected"', $states );
+				$countries = str_replace( 'value="' . $field_value . '"', 'value="' . $field_value . '" selected="selected"', $countries );
 			}
 			echo $countries;
 		?>
