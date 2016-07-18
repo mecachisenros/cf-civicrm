@@ -9,7 +9,7 @@ echo $wrapper_before; ?>
 	<?php echo $field_label; ?>
 	<?php echo $field_before; ?>
 		<?php ob_start(); ?>
-		<select <?php echo $field_placeholder; ?> id="<?php echo $field_id; ?>" data-field="<?php echo $field_base_id; ?>" class="<?php echo $field_class; ?>" name="<?php echo $field_name; ?>" <?php echo $field_required; ?>>
+		<select <?php echo $field_placeholder; ?> id="<?php echo $field_id . '_cf_civicrm_country'; ?>" data-field="<?php echo $field_base_id; ?>" class="<?php echo $field_class; ?>" name="<?php echo $field_name; ?>" <?php echo $field_required; ?>>
 			
 			<?php if( empty( $field['config']['placeholder'] ) ){
 					echo '<option value="">' . ( !empty($field['hide_label']) ? $field['label'] : null ) . '</option>';
