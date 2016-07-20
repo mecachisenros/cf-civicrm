@@ -74,8 +74,9 @@ class CiviCRM_Caldera_Forms {
 		$contact_types = civicrm_api3('ContactType', 'get', array(
             'sequential' => 1,
         ));
-
-        $types = array();
+		
+		// Include Contact entity by default
+        $types = array('Contact');
         foreach ( $contact_types['values'] as $key => $value ) {
             $types[] = $value['name'];
         }
