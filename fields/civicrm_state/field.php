@@ -19,7 +19,7 @@ echo $wrapper_before; ?>
 				}
 
 			foreach ($state as $key=>$value) {  
-				echo '<option value="' . $key . '" data-crm-country-id="' . $value['country_id'] . '">' . $value . '</option>';
+				echo '<option value="' . $key . '" data-crm-country-id="' . $value['country_id'] . '">' . $value['name'] . '</option>';
 
 			 } ?>
 		</select>
@@ -40,7 +40,7 @@ echo $wrapper_before; ?>
 						jQuery( this ).data( 'options', jQuery('select[id*="_cf_civicrm_state"] option').clone() );
 					}
 					var id = jQuery( this ).val();
-					var options = jQuery( this ).data( 'options' ).filter( '[data-crm-country-id=' + id + ']' );
+					var options = jQuery( this ).data( 'options' ).filter( '[data-crm-country-id="' + id + '"]' );
 					cfStates.html( options );
 				});
 			});
