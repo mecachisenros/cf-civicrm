@@ -302,13 +302,17 @@ function cf_address_civicrm_processor( $config, $form ){
     global $transdata;
 
     if ( !empty( $transdata['civicrm']['contact_id_'.$config['contact_link']] ) ){
-
-        $address = civicrm_api3('Address', 'getsingle', array(
-            'sequential' => 1,
-            'contact_id' => $transdata['civicrm']['contact_id_'.$config['contact_link']],
-            'location_type_id' => $config['location_type_id'],
-        ));
-
+		
+		try {
+	        $address = civicrm_api3('Address', 'getsingle', array(
+	            'sequential' => 1,
+	            'contact_id' => $transdata['civicrm']['contact_id_'.$config['contact_link']],
+	            'location_type_id' => $config['location_type_id'],
+	        ));
+		} catch (Exception $e) {
+            // Ignore if none found
+        }
+        
         // Get form values for each processor field
         // $value is the field id
         $form_values = array();
@@ -317,7 +321,8 @@ function cf_address_civicrm_processor( $config, $form ){
         }
 
         $form_values['contact_id'] = $transdata['civicrm']['contact_id_'.$config['contact_link']]; // Contact ID set in Contact Processor
-        //$form_values['location_type_id'] = $config['location_type_id']; // Activity Type ID
+        $form_values['location_type_id'] = $config['location_type_id']; // Address Location Type
+        
         $form_values['id'] = $address['id']; // Activity Status ID
 
         // FIXME
