@@ -550,6 +550,8 @@ function cf_pre_render_civicrm_form( $form ){
                     // Igonre if we have more than one address with same location type
                 }
                 
+                unset( $pr_id['config']['contact_link'] );
+                
                 if( $civi_contact_address && !isset( $civi_contact_address['count'] ) ){
                     foreach ( $pr_id['config'] as $field => $value ) {
                         $form['fields'][$value]['config']['default'] = $civi_contact_address[$field];
