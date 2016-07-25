@@ -35,14 +35,17 @@ echo $wrapper_before; ?>
 			jQuery( document ).ready( function(){
 				var cfCountries = jQuery('select[id*="_cf_civicrm_country"]');
 				var cfStates = jQuery('select[id*="_cf_civicrm_state"]');
-				cfCountries.change( function(){
-					if ( jQuery( this ).data( 'options' ) == undefined ){
-						jQuery( this ).data( 'options', jQuery('select[id*="_cf_civicrm_state"] option').clone() );
-					}
-					var id = jQuery( this ).val();
-					var options = jQuery( this ).data( 'options' ).filter( '[data-crm-country-id="' + id + '"]' );
-					cfStates.html( options );
-				});
+				
+				if ( cfCountries !== undefined ) {
+					cfCountries.change( function(){
+						if ( jQuery( this ).data( 'options' ) == undefined ){
+							jQuery( this ).data( 'options', jQuery('select[id*="_cf_civicrm_state"] option').clone() );
+						}
+						var id = jQuery( this ).val();
+						var options = jQuery( this ).data( 'options' ).filter( '[data-crm-country-id="' + id + '"]' );
+						cfStates.html( options );
+					});
+				}
 			});
 		</script>
 
