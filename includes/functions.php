@@ -464,11 +464,11 @@ function cf_pre_render_civicrm_form( $form ){
 add_action( 'caldera_forms_autopopulate_types', 'cf_civicrm_autopoulate_options' );
 function cf_civicrm_autopoulate_options(){
     // Individual Prefix
-    echo "<option value=\"contact_prefix_id\"{{#is auto_type value=\"contact_prefix_id\"}} selected=\"selected\"{{/is}}>" . "CiviCRM Individual Prefix" . "</option>";
+    echo "<option value=\"prefix_id\"{{#is auto_type value=\"prefix_id\"}} selected=\"selected\"{{/is}}>" . "CiviCRM Individual Prefix" . "</option>";
     // Individual Suffix
     echo "<option value=\"suffix_id\"{{#is auto_type value=\"suffix_id\"}} selected=\"selected\"{{/is}}>" . "CiviCRM - Individual Suffix" . "</option>";
     // Individual Gender
-    echo "<option value=\"contact_gender\"{{#is auto_type value=\"contact_gender\"}} selected=\"selected\"{{/is}}>" . "CiviCRM Individual Gender" . "</option>";
+    echo "<option value=\"gender_id\"{{#is auto_type value=\"gender_id\"}} selected=\"selected\"{{/is}}>" . "CiviCRM Individual Gender" . "</option>";
     // Communication Style
     echo "<option value=\"communication_style_id\"{{#is auto_type value=\"communication_style_id\"}} selected=\"selected\"{{/is}}>" . "CiviCRM - Communication Style" . "</option>";
     // Do not Email
@@ -510,7 +510,7 @@ function cf_civicrm_autopoulate_values( $field, $form ){
         switch ( $field['config']['auto_type'] ){
             
             // Prefix
-            case 'contact_prefix_id':
+            case 'prefix_id':
                 $prefix_id = civicrm_api3('Contact', 'getoptions', array(
                     'sequential' => 1,
                     'field' => "prefix_id",
@@ -540,7 +540,7 @@ function cf_civicrm_autopoulate_values( $field, $form ){
                 break;
                 
             // Gender
-            case 'contact_gender':
+            case 'gender_id':
                 $prefix_id = civicrm_api3('Contact', 'getoptions', array(
                     'sequential' => 1,
                     'field' => "gender_id",
