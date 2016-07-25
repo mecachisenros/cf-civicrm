@@ -67,6 +67,15 @@ function cf_civicrm_register_processor( $processors ){
         "processor"         =>  'cf_address_civicrm_processor',
         "template"          =>  CF_CIVICRM_INTEGRATION_PATH . "includes/address_config.php",
     );
+    
+    $processors['civicrm_email'] = array(
+        "name"              => __('CiviCRM Email'),
+        "description"       =>  __('Add CiviCRM email to contacts'),
+        "author"            =>  'Andrei Mondoc',
+        //"pre-processor"       =>  'cf_email_civicrm_pre_processor',
+        "processor"         =>  'cf_email_civicrm_processor',
+        "template"          =>  CF_CIVICRM_INTEGRATION_PATH . "includes/email_config.php",
+    );
 
     return $processors;
 }
@@ -310,6 +319,51 @@ function cf_address_civicrm_processor( $config, $form ){
     }
 }
 
+/*
+* CiviCRM Email processor
+*
+* @config array Processor configuration
+*
+* @form array Form configuration
+*/
+
+function cf_email_civicrm_processor( $config, $form ){
+
+	global $transdata;
+
+	if ( !empty( $transdata['civicrm']['contact_id_'.$config['contact_link']] ) ) {
+		
+        try {
+
+            $email = civicrm_api3('Email', 'getsingle', array(
+                'sequential' => 1,
+                'contact_id' => $transdata['civicrm']['contact_id_'.$config['contact_link']],
+                'location_type_id' => $config['location_type_id'],
+            ));
+
+        } catch (Exception $e) {
+            // Ignore if none found
+        }
+
+		// Get form values for each processor field
+        // $value is the field id
+        $form_values = array();
+        foreach ( $config as $key => $field_id ) {
+            $form_values[$key] = Caldera_Forms::get_field_data( $field_id, $form );
+        }
+
+        $form_values['contact_id'] = $transdata['civicrm']['contact_id_'.$config['contact_link']]; // Contact ID set in Contact Processor
+        
+        // Pass Email ID if we got one
+        if ( $email ) {
+            $form_values['id'] = $email['id']; // Email ID
+        }
+
+        $create_email = civicrm_api3( 'Email', 'create', $form_values );
+
+	}
+}
+
 function get_civi_contact( $cid ){
 
     $fields = civicrm_api3( 'Contact', 'getsingle', array(
@@ -446,9 +500,33 @@ function cf_pre_render_civicrm_form( $form ){
                         
                 break;
 
-            // default:
-            //     # code...
-            //     break;
+            // Email Processor
+            case 'civicrm_email':
+
+                try {
+                    
+                    $civi_contact_email = civicrm_api3('Email', 'getsingle', array(
+                        'sequential' => 1,
+                        'contact_id' => $civi_transdata['contact_id_' . $pr_id['config']['contact_link']],
+                        'location_type_id' => $pr_id['config']['location_type_id'],
+                    ));
+
+                } catch (Exception $e) {
+                    // Igonre if we have more than one email with same location type or none
+                }
+                
+                unset( $pr_id['config']['contact_link'] );
+
+                if( $civi_contact_email && !isset( $civi_contact_email['count'] ) ){
+                    foreach ( $pr_id['config'] as $field => $value ) {
+                        $form['fields'][$value]['config']['default'] = $civi_contact_email[$field];
+                    }
+                }
+
+                // Clear Address data
+                unset($civi_contact_email);
+                        
+                break;
         }
     }
 
@@ -489,6 +567,8 @@ function cf_civicrm_autopoulate_options(){
     echo "<option value=\"state_province_id\"{{#is auto_type value=\"state_province_id\"}} selected=\"selected\"{{/is}}>" . "CiviCRM - State/Province" . "</option>";
     // Address Location Type
     echo "<option value=\"location_type_id\"{{#is auto_type value=\"location_type_id\"}} selected=\"selected\"{{/is}}>" . "CiviCRM - Address Location Type" . "</option>";
+    // Email Location Type
+    echo "<option value=\"e_location_type_id\"{{#is auto_type value=\"e_location_type_id\"}} selected=\"selected\"{{/is}}>" . "CiviCRM - Email Location Type" . "</option>";
 }
 
 /*
@@ -685,6 +765,20 @@ function cf_civicrm_autopoulate_values( $field, $form ){
                     'field' => "location_type_id",
                 ));
                 foreach ($location_type_id['values'] as $index) {
+                        $field['config']['option'][$index['key']] = array(
+                            'value' => $index['key'],
+                            'label' => $index['value']
+                        );
+                }
+                break;
+                
+            // Email Location Type
+            case 'e_location_type_id':
+                $e_location_type_id = civicrm_api3('Email', 'getoptions', array(
+                    'sequential' => 1,
+                    'field' => "location_type_id",
+                ));
+                foreach ($e_location_type_id['values'] as $index) {
                         $field['config']['option'][$index['key']] = array(
                             'value' => $index['key'],
                             'label' => $index['value']
