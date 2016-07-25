@@ -323,8 +323,10 @@ function cf_address_civicrm_processor( $config, $form ){
         $form_values['contact_id'] = $transdata['civicrm']['contact_id_'.$config['contact_link']]; // Contact ID set in Contact Processor
         $form_values['location_type_id'] = $config['location_type_id']; // Address Location Type
         
-        $form_values['id'] = $address['id']; // Activity Status ID
-
+        // Pass address ID if we got one
+        if ( $address ) {
+        	$form_values['id'] = $address['id']; // Activity Status ID
+        }
         // FIXME
         // Concatenete DATE + TIME
         // $form_values['activity_date_time'] = $form_values['activity_date_time'];
