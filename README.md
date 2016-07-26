@@ -21,9 +21,9 @@ Currently supports:
 ### + Group entity
 ### + Tag entity
 ### + Address entity
+### + Email entity
+### + Phone entity
 
 ### Coming soon
-+ Email processor
-+ Phone processor
 + IM processor
 + Note processor
