@@ -4,3 +4,16 @@
 		<input type="text" id="{{_id}}_placeholder" class="block-input field-config" name="{{_name}}[placeholder]" value="{{placeholder}}">
 	</div>
 </div>
+<div class="caldera-config-group">
+    <label><?php _e('Default'); ?></label>
+    <div class="caldera-config-field">
+        <select id="{{_id}}_default" class="block-input field-config" name="{{_name}}[default]" value="{{default}}">
+        <option value="" {{#is default value=""}}selected="selected"{{/is}}></option>
+        <?php 
+        $state = CiviCRM_Caldera_Forms::get_state_province();
+        foreach( $state as $key => $value) { ?>
+            <option value="<?php echo $key; ?>" {{#is default value=<?php echo $key; ?>}}selected="selected"{{/is}}><?php echo $value['name']; ?></option>
+        <?php } ?>
+        </select>
+    </div>
+</div>
