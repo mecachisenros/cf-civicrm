@@ -58,7 +58,7 @@ function cf_civicrm_register_processor( $processors ){
         "processor"         =>  'cf_entity_tag_civicrm_processor',
         "template"          =>  CF_CIVICRM_INTEGRATION_PATH . "includes/entity_tag_config.php",
     );
-    
+
     $processors['civicrm_address'] = array(
         "name"              => __('CiviCRM Address'),
         "description"       =>  __('Add CiviCRM address to contacts'),
@@ -67,7 +67,7 @@ function cf_civicrm_register_processor( $processors ){
         "processor"         =>  'cf_address_civicrm_processor',
         "template"          =>  CF_CIVICRM_INTEGRATION_PATH . "includes/address_config.php",
     );
-    
+
     $processors['civicrm_email'] = array(
         "name"              => __('CiviCRM Email'),
         "description"       =>  __('Add CiviCRM email to contacts'),
@@ -76,7 +76,7 @@ function cf_civicrm_register_processor( $processors ){
         "processor"         =>  'cf_email_civicrm_processor',
         "template"          =>  CF_CIVICRM_INTEGRATION_PATH . "includes/email_config.php",
     );
-    
+
     $processors['civicrm_phone'] = array(
         "name"              => __('CiviCRM Phone'),
         "description"       =>  __('Add CiviCRM phone to contacts'),
@@ -104,7 +104,7 @@ function cf_contact_civicrm_processor( $config, $form ){
     // Get form values for each processor field
     // $value is the field id
     $form_values = array();
-    foreach ( $config as $key => $field_id ) { 
+    foreach ( $config as $key => $field_id ) {
         $form_values[$key] = Caldera_Forms::get_field_data( $field_id, $form );
     }
 
@@ -127,14 +127,14 @@ function cf_contact_civicrm_processor( $config, $form ){
 
     // Pass contact id if found
     $form_values['contact_id'] = $ids ? $ids[0] : 0;
-    
+
     // Unset 'group', for some reason Civi's Api errors if present
     // unset( $form_values['group'] );
     $create_contact = civicrm_api3( 'Contact', 'create', $form_values );
 
     // Set retruned contact_id to $transdata for later use
     // $transdata['civicrm']['contact_id'] = $create_contact['id'];
-    
+
     // Store $cid
     CiviCRM_Caldera_Forms::set_civi_transdata( $config['contact_link'], $create_contact['id'] );
     $transdata['civicrm'] = CiviCRM_Caldera_Forms::get_civi_transdata();
@@ -146,7 +146,7 @@ function cf_contact_civicrm_processor( $config, $form ){
 */
 
 function cf_contact_civicrm_pre_processor( $config, $form ){
-    
+
 }
 
 /*
@@ -192,7 +192,7 @@ function cf_civicrm_group_fields(){
     foreach ( $groupsResult['values'] as $key => $value ) {
         $group['id'] = $value['name'];
         $group['label'] = $value['title'];
-        $groups[] = $group; 
+        $groups[] = $group;
     }
     return $groups;
 }
@@ -280,7 +280,7 @@ function cf_entity_tag_civicrm_processor( $config, $form ){
   				'sequential' => 1,
   				'id' => $value,
   				'api.EntityTag.create' => array(
-  					'entity_id' => $transdata['civicrm']['contact_id_'.$config['contact_link']], 
+  					'entity_id' => $transdata['civicrm']['contact_id_'.$config['contact_link']],
   					'entity_table' => "civicrm_contact",
   					'tag_id' => '$value.id',
   					),
@@ -302,7 +302,7 @@ function cf_address_civicrm_processor( $config, $form ){
     global $transdata;
 
     if ( !empty( $transdata['civicrm']['contact_id_'.$config['contact_link']] ) ){
-		
+
 		try {
 	        $address = civicrm_api3('Address', 'getsingle', array(
 	            'sequential' => 1,
@@ -312,7 +312,7 @@ function cf_address_civicrm_processor( $config, $form ){
 		} catch (Exception $e) {
             // Ignore if none found
         }
-        
+
         // Get form values for each processor field
         // $value is the field id
         $form_values = array();
@@ -322,7 +322,7 @@ function cf_address_civicrm_processor( $config, $form ){
 
         $form_values['contact_id'] = $transdata['civicrm']['contact_id_'.$config['contact_link']]; // Contact ID set in Contact Processor
         $form_values['location_type_id'] = $config['location_type_id']; // Address Location Type
-        
+
         // Pass address ID if we got one
         if ( $address ) {
         	$form_values['id'] = $address['id']; // Activity Status ID
@@ -348,7 +348,7 @@ function cf_email_civicrm_processor( $config, $form ){
 	global $transdata;
 
 	if ( !empty( $transdata['civicrm']['contact_id_'.$config['contact_link']] ) ) {
-		
+
         try {
 
             $email = civicrm_api3('Email', 'getsingle', array(
@@ -369,7 +369,7 @@ function cf_email_civicrm_processor( $config, $form ){
         }
 
         $form_values['contact_id'] = $transdata['civicrm']['contact_id_'.$config['contact_link']]; // Contact ID set in Contact Processor
-        
+
         // Pass Email ID if we got one
         if ( $email ) {
             $form_values['id'] = $email['id']; // Email ID
@@ -393,7 +393,7 @@ function cf_phone_civicrm_processor( $config, $form){
     global $transdata;
 
     if ( !empty( $transdata['civicrm']['contact_id_'.$config['contact_link']] ) ) {
-        
+
         try {
 
             $phone = civicrm_api3('Phone', 'getsingle', array(
@@ -414,7 +414,7 @@ function cf_phone_civicrm_processor( $config, $form){
         }
 
         $form_values['contact_id'] = $transdata['civicrm']['contact_id_'.$config['contact_link']]; // Contact ID set in Contact Processor
-        
+
         // Pass Email ID if we got one
         if ( $phone ) {
             $form_values['id'] = $phone['id']; // Email ID
@@ -437,7 +437,7 @@ function get_civi_contact( $cid ){
 
     $c_fields_string = "";
     foreach ($c_fields as $key => $value) {
-    	$c_fields_string .= $key.','; 
+    	$c_fields_string .= $key.',';
     }
 
     $custom_fields = civicrm_api3( 'Contact', 'getsingle', array(
@@ -452,7 +452,7 @@ function get_civi_contact( $cid ){
 /*
 * Hook when form is loaded and before rendering
 *
-* Validates checksum and fills in the form with Contact data 
+* Validates checksum and fills in the form with Contact data
 *
 * @uses "caldera_forms_render_get_form" filter
 *
@@ -461,7 +461,7 @@ function get_civi_contact( $cid ){
 
 add_filter( 'caldera_forms_render_get_form', 'cf_pre_render_civicrm_form' );
 function cf_pre_render_civicrm_form( $form ){
-    
+
     // Indexed array containing the Contact processors
     $civicrm_contact_pr = Caldera_Forms::get_processor_by_type( 'civicrm_contact', $form );
     if( $civicrm_contact_pr ){
@@ -477,13 +477,13 @@ function cf_pre_render_civicrm_form( $form ){
         switch ( $pr_id['type'] ) {
             // Contact Processor
             case 'civicrm_contact':
-                
+
                 if( isset( $pr_id['config']['auto_pop'] ) && $pr_id['config']['auto_pop'] == 1 && $civicrm_contact_pr[0]['ID'] == $pr_id['ID'] ){
 
                     // Get contact_id if user is logged in
                     if( is_user_logged_in() ){
                         $current_user = wp_get_current_user();
-                        $current_user = CiviCRM_Caldera_Forms::get_wp_civi_contact( $current_user->ID );        
+                        $current_user = CiviCRM_Caldera_Forms::get_wp_civi_contact( $current_user->ID );
 
                         $civi_contact = get_civi_contact( $current_user );
 
@@ -492,7 +492,7 @@ function cf_pre_render_civicrm_form( $form ){
                     }
                 }
 
-                // FIXME 
+                // FIXME
                 // Just for testing, remove later
                 // if( isset( $_GET['cid'] ) && $civicrm_contact_pr[0]['ID'] == $pr_id['ID'] ){
                 //     $cid = $_GET['cid'];
@@ -513,8 +513,8 @@ function cf_pre_render_civicrm_form( $form ){
                     if( $valid_user ){
                         $civi_contact = get_civi_contact( $cid );
                     }
-                    
-                    // FIXME 
+
+                    // FIXME
                     // Add permission check
                     $permissions = CRM_Core_Permission::getPermission();
                 }
@@ -530,16 +530,16 @@ function cf_pre_render_civicrm_form( $form ){
                         $form['fields'][$value]['config']['default'] = $civi_contact[$field];
                     }
                 }
-                
+
                 // Clear Contact data
                 unset($civi_contact);
-                
+
                 break;
             // Address Processor
             case 'civicrm_address':
 
                 try {
-                    
+
                     $civi_contact_address = civicrm_api3('Address', 'getsingle', array(
                         'sequential' => 1,
                         'contact_id' => $civi_transdata['contact_id_' . $pr_id['config']['contact_link']],
@@ -549,9 +549,9 @@ function cf_pre_render_civicrm_form( $form ){
                 } catch (Exception $e) {
                     // Igonre if we have more than one address with same location type
                 }
-                
+
                 unset( $pr_id['config']['contact_link'] );
-                
+
                 if( $civi_contact_address && !isset( $civi_contact_address['count'] ) ){
                     foreach ( $pr_id['config'] as $field => $value ) {
                         $form['fields'][$value]['config']['default'] = $civi_contact_address[$field];
@@ -560,14 +560,14 @@ function cf_pre_render_civicrm_form( $form ){
 
                 // Clear Address data
                 unset($civi_contact_address);
-                        
+
                 break;
 
             // Email Processor
             case 'civicrm_email':
 
                 try {
-                    
+
                     $civi_contact_email = civicrm_api3('Email', 'getsingle', array(
                         'sequential' => 1,
                         'contact_id' => $civi_transdata['contact_id_' . $pr_id['config']['contact_link']],
@@ -577,7 +577,7 @@ function cf_pre_render_civicrm_form( $form ){
                 } catch (Exception $e) {
                     // Igonre if we have more than one email with same location type or none
                 }
-                
+
                 unset( $pr_id['config']['contact_link'] );
 
                 if( $civi_contact_email && !isset( $civi_contact_email['count'] ) ){
@@ -588,14 +588,14 @@ function cf_pre_render_civicrm_form( $form ){
 
                 // Clear Address data
                 unset($civi_contact_email);
-                        
+
                 break;
-                
+
             // Phone Processor
             case 'civicrm_phone':
 
                 try {
-                    
+
                     $civi_contact_phone = civicrm_api3('Phone', 'getsingle', array(
                         'sequential' => 1,
                         'contact_id' => $civi_transdata['contact_id_' . $pr_id['config']['contact_link']],
@@ -605,7 +605,7 @@ function cf_pre_render_civicrm_form( $form ){
                 } catch (Exception $e) {
                     // Igonre if we have more than one phone with same location type or none
                 }
-                
+
                 unset( $pr_id['config']['contact_link'] );
 
                 if( $civi_contact_phone && !isset( $civi_contact_phone['count'] ) ){
@@ -616,7 +616,7 @@ function cf_pre_render_civicrm_form( $form ){
 
                 // Clear Address data
                 unset($civi_contact_phone);
-                        
+
                 break;
         }
     }
@@ -625,7 +625,7 @@ function cf_pre_render_civicrm_form( $form ){
 }
 
 /*
-* Hook, adds CiviCRM fields options to CF Autopopulate field type 
+* Hook, adds CiviCRM fields options to CF Autopopulate field type
 *
 * @uses "caldera_forms_autopopulate_types" action
 */
@@ -667,7 +667,7 @@ function cf_civicrm_autopoulate_options(){
 }
 
 /*
-* Hook, populates CiviCRM fields values for each CiviCRM CF Autopopulate field type 
+* Hook, populates CiviCRM fields values for each CiviCRM CF Autopopulate field type
 *
 * @uses "caldera_forms_render_get_field" filter
 *
@@ -683,7 +683,7 @@ function cf_civicrm_autopoulate_values( $field, $form ){
 
     if ( !empty( $field['config']['auto'] ) ){
         switch ( $field['config']['auto_type'] ){
-            
+
             // Prefix
             case 'prefix_id':
                 $prefix_id = civicrm_api3('Contact', 'getoptions', array(
@@ -699,7 +699,7 @@ function cf_civicrm_autopoulate_values( $field, $form ){
                     //}
                 }
                 break;
-                
+
             // Suffix
             case 'suffix_id':
                 $suffix_id = civicrm_api3('Contact', 'getoptions', array(
@@ -713,7 +713,7 @@ function cf_civicrm_autopoulate_values( $field, $form ){
                         );
                 }
                 break;
-                
+
             // Gender
             case 'gender_id':
                 $prefix_id = civicrm_api3('Contact', 'getoptions', array(
@@ -729,7 +729,7 @@ function cf_civicrm_autopoulate_values( $field, $form ){
                     //}
                 }
                 break;
-                
+
 			// Communication Style
             case 'communication_style_id':
                 $communication_style_id = civicrm_api3('Contact', 'getoptions', array(
@@ -852,7 +852,7 @@ function cf_civicrm_autopoulate_values( $field, $form ){
                         );
                 }
                 break;
-                
+
             // Address Location Type
             case 'location_type_id':
                 $location_type_id = civicrm_api3('Address', 'getoptions', array(
@@ -866,7 +866,7 @@ function cf_civicrm_autopoulate_values( $field, $form ){
                         );
                 }
                 break;
-                
+
             // Email Location Type
             case 'e_location_type_id':
                 $e_location_type_id = civicrm_api3('Email', 'getoptions', array(
@@ -880,7 +880,7 @@ function cf_civicrm_autopoulate_values( $field, $form ){
                         );
                 }
                 break;
-                
+
             // Phone Location Type
             case 'p_location_type_id':
                 $p_location_type_id = civicrm_api3('Phone', 'getoptions', array(
@@ -914,7 +914,7 @@ function cf_civicrm_autopoulate_values( $field, $form ){
 }
 
 /*
-* Hook, adds custom fields to Caldera UI 
+* Hook, adds custom fields to Caldera UI
 *
 * @uses "caldera_forms_get_field_types" filter
 *
@@ -933,7 +933,7 @@ function cf_civicrm_fields( $fieldtypes ){
         "setup"         =>  array(
             "template"  =>  CF_CIVICRM_INTEGRATION_PATH . "fields/civicrm_country/config.php",
             "preview"   =>  CF_CIVICRM_INTEGRATION_PATH . "fields/civicrm_country/preview.php",
-            "default"   =>  array('placeholder' => 'Select a Country'),
+            "default"   =>  array('placeholder' => 'Select a Country', 'default' => CiviCRM_Caldera_Forms::get_civicrm_settings('defaultContactCountry')),
             "not_supported" =>  array(
                 'entry_list',
             )
@@ -948,7 +948,7 @@ function cf_civicrm_fields( $fieldtypes ){
         "setup"         =>  array(
             "template"  =>  CF_CIVICRM_INTEGRATION_PATH . "fields/civicrm_state/config.php",
             "preview"   =>  CF_CIVICRM_INTEGRATION_PATH . "fields/civicrm_state/preview.php",
-            "default"   =>  array('placeholder' => 'Select a State/Province'),
+            "default"   =>  array('placeholder' => 'Select a State/Province', 'default' => CiviCRM_Caldera_Forms::get_civicrm_settings('defaultContactStateProvince')),
             "not_supported" =>  array(
                 'entry_list',
             )
@@ -957,4 +957,3 @@ function cf_civicrm_fields( $fieldtypes ){
 
     return $fieldtypes;
 }
-

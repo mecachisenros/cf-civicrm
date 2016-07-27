@@ -5,7 +5,7 @@
 */
 
 class CiviCRM_Caldera_Forms {
-    
+
     public static $contact_fields = array( 'prefix_id', 'first_name', 'last_name', 'middle_name', 'suffix_id', 'is_opt_out', 'nick_name', 'source', 'formal_title', 'job_title', 'gender_id', 'birth_date', 'email', 'current_employer', 'do_not_phone', 'do_not_email', 'do_not_mail', 'do_not_sms', 'do_not_trade', 'legal_identifier', 'legal_name', 'preferred_communication_method', 'preferred_language', 'preferred_mail_format', 'communication_style_id', 'household_name', 'organization_name', 'sic_code' );
 
     public static $activity_fields = array( 'activity_type_id', 'phone_id', 'phone_number', 'status_id', 'priority_id', 'parent_id', 'is_test', 'medium_id', 'is_auto', 'is_current_revision', 'result', 'is_deleted', 'campaign_id', 'engagement_level', 'weight', 'id', 'original_id', 'relationship_id');
@@ -15,9 +15,9 @@ class CiviCRM_Caldera_Forms {
     */
 
     public static $civi_transdata = array();
-    
+
     /*
-    * Sets the contact_id/contact_id mapping  
+    * Sets the contact_id/contact_id mapping
     *
     * @contact_link Integer Contact link from processot $config
     *
@@ -27,9 +27,9 @@ class CiviCRM_Caldera_Forms {
     public static function set_civi_transdata( $contact_link, $cid ){
 
         self::$civi_transdata['contact_id_' . $contact_link] = $cid;
-        
+
     }
-    
+
     /*
     * @array Returns the contact_link/contact_id mapping
     */
@@ -37,7 +37,7 @@ class CiviCRM_Caldera_Forms {
     public static function get_civi_transdata(){
         return self::$civi_transdata;
     }
-    
+
     /*
     * Outputs HTML
     */
@@ -62,25 +62,25 @@ class CiviCRM_Caldera_Forms {
         return $contact_link;
     }
 
-	
+
     /*
     * Get CiviCRM contact's custom fields
     *
-    * @returns array // "custom_x" => "Label of custom_x" 
+    * @returns array // "custom_x" => "Label of custom_x"
     */
 
 	public static function get_contact_custom_fields(){
-		
+
 		$contact_types = civicrm_api3('ContactType', 'get', array(
             'sequential' => 1,
         ));
-		
+
 		// Include Contact entity by default
         $types = array('Contact');
         foreach ( $contact_types['values'] as $key => $value ) {
             $types[] = $value['name'];
         }
-        
+
         $extends = array('IN' => $types );
 
 		$custom_group = civicrm_api3( 'CustomGroup', 'get', array(
@@ -88,7 +88,7 @@ class CiviCRM_Caldera_Forms {
 		        'extends' => apply_filters( 'civicrm_custom_fields_contact_type', $extends ),
 		        'api.CustomField.get' => array(),
 		    ));
-		
+
 		$custom_fields = array();
 		foreach ( $custom_group['values'] as $key => $value ) {
 		    foreach ( $value['api.CustomField.get']['values'] as $k => $v ) {
@@ -128,7 +128,7 @@ class CiviCRM_Caldera_Forms {
     	));
         return $contact_fields['values'];
 	}
-	
+
 	/*
     * @states array Get State/Province from Civicrm
     *
@@ -140,12 +140,27 @@ class CiviCRM_Caldera_Forms {
         $query = "SELECT name,id,country_id FROM civicrm_state_province";
         $dao = CRM_Core_DAO::executeQuery($query);
         $states = array();
-        
+
         while ( $dao->fetch() ) {
             $states[$dao->id] = array('name' => $dao->name, 'country_id' => $dao->country_id );
         }
 
         return $states;
     }
-	
+
+    /*
+    * @setting String, Name of the setting to be returned
+    *
+    * @returns setting
+    */
+
+    public static function get_civicrm_settings( $setting ){
+        $settings = civicrm_api3('Setting', 'get', array(
+            'sequential' => 1,
+            'return' => $setting,
+        ));
+
+        return $settings['values'][0][$setting];
+    }
+
 }
