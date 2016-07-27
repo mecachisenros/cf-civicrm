@@ -112,18 +112,33 @@ function cf_contact_civicrm_processor( $config, $form ){
     $form_values['contact_type'] = $config['contact_type'];
     $form_values['contact_sub_type'] = $config['contact_sub_type'];
 
-    // FIXME Add First and Last name for dedupe check
-    // Preapre array for contact dedupe
-    $contact = array();
-    $contact['email'] = $form_values['email'];
+    // Indexed array containing the Email processors
+    $civicrm_email_pr = Caldera_Forms::get_processor_by_type( 'civicrm_email', $form );
+    if( $civicrm_contact_pr ){
+        foreach ( $civicrm_contact_pr as $key => $value ) {
+            if( !is_int( $key ) ){
+                unset( $civicrm_contact_pr[ $key ] );
+            }
+        }
+    }
 
-    // FIXME Make dupe rules configurable from UI
+    // FIXME Add Email processor option to set Defaul email for deduping?
+    // Override Contact processor email address with first Email processor
+    if ( $civicrm_email_pr ) {
+        //file_put_contents('cf_civi_form.txt', print_r($civicrm_email_pr[0], true));
+        foreach ( $civicrm_email_pr[0]['config'] as $field => $value ) {
+            if ( $field === 'email') {
+                $form_values[$field] = Caldera_Forms::get_field_data( $field, $form );
+            }
+        }
+    }
+
     // Dupes params
-    $dedupeParams = CRM_Dedupe_Finder::formatParams( $contact, 'Individual' );
+    $dedupeParams = CRM_Dedupe_Finder::formatParams( $form_values, $config['contact_type'] );
     $dedupeParams['check_permission'] = FALSE;
 
     // Check dupes
-    $ids = CRM_Dedupe_Finder::dupesByParams( $dedupeParams, 'Individual', 'Unsupervised' );
+    $ids = CRM_Dedupe_Finder::dupesByParams( $dedupeParams, $config['contact_type'], NULL, array(), $config['dedupe_rule'] );
 
     // Pass contact id if found
     $form_values['contact_id'] = $ids ? $ids[0] : 0;
@@ -325,7 +340,7 @@ function cf_address_civicrm_processor( $config, $form ){
 
         // Pass address ID if we got one
         if ( $address ) {
-        	$form_values['id'] = $address['id']; // Activity Status ID
+        	$form_values['id'] = $address['id']; // Address ID
         }
         // FIXME
         // Concatenete DATE + TIME

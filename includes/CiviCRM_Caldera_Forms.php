@@ -163,4 +163,19 @@ class CiviCRM_Caldera_Forms {
         return $settings['values'][0][$setting];
     }
 
+    /*
+    * Get Deduplicate rules
+    *
+    * @returns array
+    */
+
+    public static function get_dedupe_rules(){
+
+        $dedupe_rules['Organization'] = CRM_Dedupe_BAO_RuleGroup::getByType('Organization');
+        $dedupe_rules['Individual'] = CRM_Dedupe_BAO_RuleGroup::getByType('Individual');
+        $dedupe_rules['Household'] = CRM_Dedupe_BAO_RuleGroup::getByType('Household');
+
+        return $dedupe_rules;
+    }
+
 }
