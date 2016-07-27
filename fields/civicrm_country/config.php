@@ -22,7 +22,7 @@
 	</div>
 </div>
 {{#script}}
-    if({{default}}){
-        jQuery('#{{_id}}_default').val({{default}});
+    if('{{default}}'){
+        jQuery('#{{_id}}_default').val('{{default}}');
     }
 {{/script}}
