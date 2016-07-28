@@ -155,12 +155,12 @@ class CiviCRM_Caldera_Forms {
     */
 
     public static function get_civicrm_settings( $setting ){
-        $settings = civicrm_api3('Setting', 'get', array(
+        $settings = civicrm_api3('Setting', 'getvalue', array(
             'sequential' => 1,
-            'return' => $setting,
+            'name' => $setting,
         ));
 
-        return $settings['values'][0][$setting];
+        return $settings;
     }
 
     /*
