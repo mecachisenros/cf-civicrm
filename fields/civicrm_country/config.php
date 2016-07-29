@@ -14,6 +14,7 @@
     				'sequential' => 1,
     				'return' => array("id", "name"),
     				'options' => array('limit' => 0),
+					'iso_code' => array('IN' => CRM_Core_BAO_Country::countryLimit()),
 				));
         foreach( $country['values'] as $key => $value) { ?>
             <option value="<?php echo $value['id']; ?>"><?php echo $value['name']; ?></option>
