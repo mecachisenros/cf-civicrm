@@ -145,6 +145,12 @@ class CiviCRM_Caldera_Forms {
             $states[$dao->id] = array('name' => $dao->name, 'country_id' => $dao->country_id );
         }
 
+        foreach ($states as $state_id=>$state) {
+            if ( !in_array( $state['country_id'], self::get_civicrm_settings('countryLimit') ) ){
+                unset($states[$state_id]);
+            }
+        }
+
         return $states;
     }
 
