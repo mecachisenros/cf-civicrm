@@ -86,6 +86,15 @@ function cf_civicrm_register_processor( $processors ){
         "template"          =>  CF_CIVICRM_INTEGRATION_PATH . "includes/phone_config.php",
     );
 
+    $processors['civicrm_note'] = array(
+        "name"              => __('CiviCRM Note'),
+        "description"       =>  __('Add CiviCRM note to contacts'),
+        "author"            =>  'Andrei Mondoc',
+        //"pre-processor"       =>  'cf_note_civicrm_pre_processor',
+        "processor"         =>  'cf_note_civicrm_processor',
+        "template"          =>  CF_CIVICRM_INTEGRATION_PATH . "includes/note_config.php",
+    );
+
     return $processors;
 }
 
@@ -438,6 +447,29 @@ function cf_phone_civicrm_processor( $config, $form){
         $create_phone = civicrm_api3( 'Phone', 'create', $form_values );
 
     }
+}
+
+/*
+* CiviCRM Note processor
+*
+* @config array Processor configuration
+*
+* @form array Form configuration
+*/
+
+function cf_note_civicrm_processor( $config, $form ){
+
+	global $transdata;
+
+	$form_values = array();
+    foreach ( $config as $key => $field_id ) {
+        $form_values[$key] = Caldera_Forms::get_field_data( $field_id, $form );
+    }
+
+    $form_values['entity_id'] = $transdata['civicrm']['contact_id_'.$config['contact_link']]; // Contact ID set in Contact Processor
+
+	// Add Note to contact
+    $note = civicrm_api3( 'Note', 'create', $form_values );
 }
 
 function get_civi_contact( $cid ){
