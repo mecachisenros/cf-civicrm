@@ -145,18 +145,6 @@ class CiviCRM_Caldera_Forms {
             $states[$dao->id] = array('name' => $dao->name, 'country_id' => $dao->country_id );
         }
 
-        $countries = civicrm_api3('Country', 'get', array(
-                    'return' => array("id"),
-                    'options' => array('limit' => 0),
-                    'iso_code' => array('IN' => CRM_Core_BAO_Country::countryLimit()),
-                ));
-
-        foreach ($states as $state_id=>$state) {
-            if ( !in_array( $state['country_id'], array_column( $countries['values'], 'id' ) ) ){
-                unset($states[$state_id]);
-            }
-        }
-
         return $states;
     }
 
