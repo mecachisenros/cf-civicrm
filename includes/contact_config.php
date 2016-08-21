@@ -62,6 +62,7 @@ $contactSubTypeResult = civicrm_api3( 'ContactType', 'get', array(
     <label><?php echo __('Dedupe Rule'); ?></label>
     <div class="caldera-config-field">
         <select class="block-input field-config" name="{{_name}}[dedupe_rule]">
+        <option value="" {{#is dedupe_rule value=""}}selected="selected"{{/is}}></option>
         <?php foreach( CiviCRM_Caldera_Forms::get_dedupe_rules() as $type=>$rule) {
             foreach ($rule as $key => $value) { ?>
                 <option value="<?php echo $key; ?>" {{#is dedupe_rule value=<?php echo $key; ?>}}selected="selected"{{/is}}><?php echo "[{$type}] - {$value}"; ?></option>
