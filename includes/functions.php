@@ -134,7 +134,6 @@ function cf_contact_civicrm_processor( $config, $form ){
     // FIXME Add Email processor option to set Defaul email for deduping?
     // Override Contact processor email address with first Email processor
     if ( $civicrm_email_pr ) {
-        //file_put_contents('cf_civi_form.txt', print_r($civicrm_email_pr[0], true));
         foreach ( $civicrm_email_pr[0]['config'] as $field => $value ) {
             if ( $field === 'email') {
                 $form_values[$field] = $transdata['data'][$value];
@@ -473,27 +472,30 @@ function cf_note_civicrm_processor( $config, $form ){
 }
 
 function get_civi_contact( $cid ){
-
-    $fields = civicrm_api3( 'Contact', 'getsingle', array(
-        'sequential' => 1,
-        'id' => $cid,
-     ));
-
-    // Custom fields
-    $c_fields = CiviCRM_Caldera_Forms::get_contact_custom_fields();
-
-    $c_fields_string = "";
-    foreach ($c_fields as $key => $value) {
-    	$c_fields_string .= $key.',';
+    if( $cid != 0 ){
+        $fields = civicrm_api3( 'Contact', 'getsingle', array(
+            'sequential' => 1,
+            'id' => $cid,
+         ));
+    
+        // Custom fields
+        $c_fields = CiviCRM_Caldera_Forms::get_contact_custom_fields();
+    
+        $c_fields_string = "";
+        foreach ($c_fields as $key => $value) {
+        	$c_fields_string .= $key.',';
+        }
+    
+        $custom_fields = civicrm_api3( 'Contact', 'getsingle', array(
+            'sequential' => 1,
+            'id' => $cid,
+            'return' => $c_fields_string,
+         ));
+    
+        return array_merge( $fields, $custom_fields );
+    } else {
+        return 0;
     }
-
-    $custom_fields = civicrm_api3( 'Contact', 'getsingle', array(
-        'sequential' => 1,
-        'id' => $cid,
-        'return' => $c_fields_string,
-     ));
-
-    return array_merge( $fields, $custom_fields );
 }
 
 /*
@@ -566,15 +568,19 @@ function cf_pre_render_civicrm_form( $form ){
                     $permissions = CRM_Core_Permission::getPermission();
                 }
 
-                CiviCRM_Caldera_Forms::set_civi_transdata( $pr_id['config']['contact_link'], $civi_contact['contact_id']);
-                $civi_transdata = CiviCRM_Caldera_Forms::get_civi_transdata();
-
-                unset( $pr_id['config']['auto_pop'], $pr_id['config']['contact_type'], $pr_id['config']['contact_sub_type'], $pr_id['config']['contact_link'] );
+                
 
                 // Map CiviCRM contact data to form defaults
-                if( $civi_contact ){
+                if( isset( $civi_contact ) && $civi_contact != 0 ){
+                    CiviCRM_Caldera_Forms::set_civi_transdata( $pr_id['config']['contact_link'], $civi_contact['contact_id']);
+                    $civi_transdata = CiviCRM_Caldera_Forms::get_civi_transdata();
+
+                    unset( $pr_id['config']['auto_pop'], $pr_id['config']['contact_type'], $pr_id['config']['contact_sub_type'], $pr_id['config']['contact_link'], $pr_id['config']['dedupe_rule'] );
+                
                     foreach ( $pr_id['config'] as $field => $value ) {
-                        $form['fields'][$value]['config']['default'] = $civi_contact[$field];
+                        if( !empty( $value ) ){
+                            $form['fields'][$value]['config']['default'] = $civi_contact[$field];
+                        }
                     }
                 }
 
@@ -584,24 +590,27 @@ function cf_pre_render_civicrm_form( $form ){
                 break;
             // Address Processor
             case 'civicrm_address':
-
-                try {
-
-                    $civi_contact_address = civicrm_api3('Address', 'getsingle', array(
-                        'sequential' => 1,
-                        'contact_id' => $civi_transdata['contact_id_' . $pr_id['config']['contact_link']],
-                        'location_type_id' => $pr_id['config']['location_type_id'],
-                    ));
-
-                } catch (Exception $e) {
-                    // Igonre if we have more than one address with same location type
+                if( isset( $civi_transdata['contact_id'] ) ){
+                    try {
+    
+                        $civi_contact_address = civicrm_api3('Address', 'getsingle', array(
+                            'sequential' => 1,
+                            'contact_id' => $civi_transdata['contact_id_' . $pr_id['config']['contact_link']],
+                            'location_type_id' => $pr_id['config']['location_type_id'],
+                        ));
+    
+                    } catch (Exception $e) {
+                        // Igonre if we have more than one address with same location type
+                    }
                 }
 
                 unset( $pr_id['config']['contact_link'] );
 
-                if( $civi_contact_address && !isset( $civi_contact_address['count'] ) ){
+                if( isset( $civi_contact_address ) && !isset( $civi_contact_address['count'] ) ){
                     foreach ( $pr_id['config'] as $field => $value ) {
-                        $form['fields'][$value]['config']['default'] = $civi_contact_address[$field];
+                        if( !empty( $value ) ){
+                            $form['fields'][$value]['config']['default'] = $civi_contact_address[$field];
+                        }
                     }
                 }
 
@@ -612,24 +621,27 @@ function cf_pre_render_civicrm_form( $form ){
 
             // Email Processor
             case 'civicrm_email':
-
-                try {
-
-                    $civi_contact_email = civicrm_api3('Email', 'getsingle', array(
-                        'sequential' => 1,
-                        'contact_id' => $civi_transdata['contact_id_' . $pr_id['config']['contact_link']],
-                        'location_type_id' => $pr_id['config']['location_type_id'],
-                    ));
-
-                } catch (Exception $e) {
-                    // Igonre if we have more than one email with same location type or none
+                if( isset( $civi_transdata['contact_id'] ) ){
+                    try {
+    
+                        $civi_contact_email = civicrm_api3('Email', 'getsingle', array(
+                            'sequential' => 1,
+                            'contact_id' => $civi_transdata['contact_id_' . $pr_id['config']['contact_link']],
+                            'location_type_id' => $pr_id['config']['location_type_id'],
+                        ));
+    
+                    } catch (Exception $e) {
+                        // Igonre if we have more than one email with same location type or none
+                    }
                 }
 
                 unset( $pr_id['config']['contact_link'] );
 
-                if( $civi_contact_email && !isset( $civi_contact_email['count'] ) ){
+                if( isset( $civi_contact_email ) && !isset( $civi_contact_email['count'] ) ){
                     foreach ( $pr_id['config'] as $field => $value ) {
-                        $form['fields'][$value]['config']['default'] = $civi_contact_email[$field];
+                        if( !empty( $value ) ){
+                            $form['fields'][$value]['config']['default'] = $civi_contact_email[$field];
+                        }
                     }
                 }
 
@@ -640,24 +652,27 @@ function cf_pre_render_civicrm_form( $form ){
 
             // Phone Processor
             case 'civicrm_phone':
-
-                try {
-
-                    $civi_contact_phone = civicrm_api3('Phone', 'getsingle', array(
-                        'sequential' => 1,
-                        'contact_id' => $civi_transdata['contact_id_' . $pr_id['config']['contact_link']],
-                        'location_type_id' => $pr_id['config']['location_type_id'],
-                    ));
-
-                } catch (Exception $e) {
-                    // Igonre if we have more than one phone with same location type or none
+                if( isset( $civi_transdata['contact_id'] ) ){
+                    try {
+    
+                        $civi_contact_phone = civicrm_api3('Phone', 'getsingle', array(
+                            'sequential' => 1,
+                            'contact_id' => $civi_transdata['contact_id_' . $pr_id['config']['contact_link']],
+                            'location_type_id' => $pr_id['config']['location_type_id'],
+                        ));
+    
+                    } catch (Exception $e) {
+                        // Igonre if we have more than one phone with same location type or none
+                    }
                 }
 
                 unset( $pr_id['config']['contact_link'] );
 
-                if( $civi_contact_phone && !isset( $civi_contact_phone['count'] ) ){
+                if( isset( $civi_contact_phone ) && !isset( $civi_contact_phone['count'] ) ){
                     foreach ( $pr_id['config'] as $field => $value ) {
-                        $form['fields'][$value]['config']['default'] = $civi_contact_phone[$field];
+                        if( !empty( $value ) ){
+                            $form['fields'][$value]['config']['default'] = $civi_contact_phone[$field];
+                        }
                     }
                 }
 
@@ -680,11 +695,11 @@ function cf_pre_render_civicrm_form( $form ){
 add_action( 'caldera_forms_autopopulate_types', 'cf_civicrm_autopoulate_options' );
 function cf_civicrm_autopoulate_options(){
     // Individual Prefix
-    echo "<option value=\"prefix_id\"{{#is auto_type value=\"prefix_id\"}} selected=\"selected\"{{/is}}>" . "CiviCRM Individual Prefix" . "</option>";
+    echo "<option value=\"prefix_id\"{{#is auto_type value=\"prefix_id\"}} selected=\"selected\"{{/is}}>" . "CiviCRM - Individual Prefix" . "</option>";
     // Individual Suffix
     echo "<option value=\"suffix_id\"{{#is auto_type value=\"suffix_id\"}} selected=\"selected\"{{/is}}>" . "CiviCRM - Individual Suffix" . "</option>";
     // Individual Gender
-    echo "<option value=\"gender_id\"{{#is auto_type value=\"gender_id\"}} selected=\"selected\"{{/is}}>" . "CiviCRM Individual Gender" . "</option>";
+    echo "<option value=\"gender_id\"{{#is auto_type value=\"gender_id\"}} selected=\"selected\"{{/is}}>" . "CiviCRM - Individual Gender" . "</option>";
     // Communication Style
     echo "<option value=\"communication_style_id\"{{#is auto_type value=\"communication_style_id\"}} selected=\"selected\"{{/is}}>" . "CiviCRM - Communication Style" . "</option>";
     // Do not Email
