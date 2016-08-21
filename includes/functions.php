@@ -123,10 +123,10 @@ function cf_contact_civicrm_processor( $config, $form ){
 
     // Indexed array containing the Email processors
     $civicrm_email_pr = Caldera_Forms::get_processor_by_type( 'civicrm_email', $form );
-    if( $civicrm_contact_pr ){
-        foreach ( $civicrm_contact_pr as $key => $value ) {
+    if( $civicrm_email_pr ){
+        foreach ( $civicrm_email_pr as $key => $value ) {
             if( !is_int( $key ) ){
-                unset( $civicrm_contact_pr[ $key ] );
+                unset( $civicrm_email_pr[ $key ] );
             }
         }
     }
@@ -137,7 +137,7 @@ function cf_contact_civicrm_processor( $config, $form ){
         //file_put_contents('cf_civi_form.txt', print_r($civicrm_email_pr[0], true));
         foreach ( $civicrm_email_pr[0]['config'] as $field => $value ) {
             if ( $field === 'email') {
-                $form_values[$field] = Caldera_Forms::get_field_data( $field, $form );
+                $form_values[$field] = $transdata['data'][$value];
             }
         }
     }
