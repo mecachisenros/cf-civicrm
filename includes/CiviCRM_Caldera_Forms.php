@@ -86,7 +86,7 @@ class CiviCRM_Caldera_Forms {
 		$custom_group = civicrm_api3( 'CustomGroup', 'get', array(
 		        'sequential' => 1,
 		        'extends' => apply_filters( 'civicrm_custom_fields_contact_type', $extends ),
-		        'api.CustomField.get' => array(),
+		        'api.CustomField.get' => array('is_active' => 1),
 		    ));
 
 		$custom_fields = array();
