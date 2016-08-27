@@ -976,6 +976,130 @@ function cf_civicrm_autopoulate_values( $field, $form ){
 }
 
 /*
+* Hook, adds CiviCRM custom fields options that extend Activities and any contact type to CF Autopopulate field type
+*
+* @uses "caldera_forms_autopopulate_types" action
+*/
+
+add_action( 'caldera_forms_autopopulate_types', 'cf_civicrm_autopoulate_custom_fields_options' );
+function cf_civicrm_autopoulate_custom_fields_options(){
+	// get all custom fields
+	$customFields = civicrm_api3('CustomField', 'get', array(
+    	'sequential' => 1,
+    	'options' => array('limit' => 0),
+    	'is_active' => 1,
+	));
+	$htmlTypes = array("Select", "Radio", "CheckBox", "Multi-Select", "AdvMulti-Select" );
+
+	$custom = array();
+	foreach ($customFields['values'] as $key => $field) {
+		if ( in_array( $field['html_type'], $htmlTypes ) ) {
+			// get custom group
+			$params['id'] = $field['custom_group_id'];
+			$customGroup = array();
+			CRM_Core_BAO_CustomGroup::retrieve( $params, $customGroup );
+
+			$extends = array_merge(array('Contact', 'Activity'), CRM_Contact_BAO_ContactType::basicTypes(), CRM_Contact_BAO_ContactType::subTypes());
+			if( in_array($customGroup['extends'], $extends) ){
+				echo "<option value=\"custom_{$field['id']}\"{{#is auto_type value=\"custom_{$field['id']}\"}} selected=\"selected\"{{/is}}>" . "CiviCRM - {$customGroup['title']} - {$field['label']}" . "</option>";
+			}
+		}
+	}
+}
+
+/*
+* Hook, populates CiviCRM fields values for each CiviCRM CF Autopopulate custom field type
+*
+* @uses "caldera_forms_render_get_field" filter
+*
+* @field array the field to populate
+*
+* @form array Form
+*
+* @returns array Field
+*/
+
+add_filter( 'caldera_forms_render_get_field', 'cf_civicrm_autopoulate_custom_fields_options_values', 20, 2 );
+function cf_civicrm_autopoulate_custom_fields_options_values( $field, $form ){
+
+    if ( !empty( $field['config']['auto'] ) ){
+    	// get all custom fields
+		$customFields = civicrm_api3('CustomField', 'get', array(
+			'sequential' => 1,
+			'options' => array('limit' => 0),
+			'is_active' => 1,
+		));
+		$htmlTypes = array("Select", "Radio", "CheckBox", "Multi-Select", "AdvMulti-Select" );
+
+    	foreach ($customFields['values'] as $key => $civiField) {
+			if ( in_array( $civiField['html_type'], $htmlTypes ) ) {
+				switch ( $field['config']['auto_type'] ) {
+					case 'custom_'.$civiField['id']:
+						$customOptions = CRM_Core_OptionGroup::valuesByID( $civiField['option_group_id'] );
+						foreach ($customOptions as $key=>$value) {
+	                        $field['config']['option'][$key] = array(
+	                            'value' => $key,
+	                            'label' => $value
+	                        );
+                		}
+						break;
+				}
+			}
+		}
+    }
+    return $field;
+}
+
+/*
+* Hook, adds custom fields options Presets
+*
+* @uses "caldera_forms_field_option_presets" filter
+*
+* @presets array Existing prestes
+*
+* @returns array $presets
+*/
+
+add_filter( 'caldera_forms_field_option_presets', 'cf_civicrm_custom_fields_options_presets' );
+function cf_civicrm_custom_fields_options_presets( $presets ){
+	// get all custom fields
+	$customFields = civicrm_api3('CustomField', 'get', array(
+    	'sequential' => 1,
+    	'options' => array('limit' => 0),
+    	'is_active' => 1,
+	));
+	$htmlTypes = array("Select", "Radio", "CheckBox", "Multi-Select", "AdvMulti-Select" );
+
+	$custom = array();
+	foreach ($customFields['values'] as $key => $field) {
+		if ( in_array( $field['html_type'], $htmlTypes ) ) {
+			// get custom group
+			$params['id'] = $field['custom_group_id'];
+			$customGroup = array();
+			CRM_Core_BAO_CustomGroup::retrieve( $params, $customGroup );
+			// get options
+			$customOptions = CRM_Core_OptionGroup::valuesByID( $field['option_group_id'] );
+			// contact types and activity for filtering
+			$extends = array_merge(array('Contact', 'Activity'), CRM_Contact_BAO_ContactType::basicTypes(), CRM_Contact_BAO_ContactType::subTypes());
+
+			if( in_array( $customGroup['extends'], $extends ) ){
+				$options = array();
+				foreach ($customOptions as $key => $value) {
+					$options[] = $key.'|'.$value;
+				}
+				$custom[$field['name']] = array(
+					'name' => 'CiviCRM - ' . $customGroup['title'] . ' - ' . $field['label'],
+					'data' => $options,
+				);
+			}
+		}
+	}
+
+	$presets = array_merge( $custom, $presets );
+	return $presets;
+}
+
+/*
 * Hook, adds custom fields to Caldera UI
 *
 * @uses "caldera_forms_get_field_types" filter
