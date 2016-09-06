@@ -184,4 +184,25 @@ class CiviCRM_Caldera_Forms {
         return $dedupe_rules;
     }
 
+    /*
+    * Get the 'extends' value for a given custom field, ie 'custom_1'
+    *
+    * @returns string
+    */
+
+    public static function custom_field_extends( $custom_id ){
+        $custom_id = str_replace( 'custom_', '', $custom_id );
+        $id = (int)$custom_id;
+        $result = civicrm_api3('CustomField', 'getsingle', array(
+            'sequential' => 1,
+            'id' => $id,
+            'api.CustomGroup.getsingle' => array('id' => '$value.custom_group_id', 'return' => array("extends_entity_column_value", "extends")),
+        ));
+        if( isset( $result['api.CustomGroup.getsingle']['extends_entity_column_value'] ) ){
+            return implode(',', $result['api.CustomGroup.getsingle']['extends_entity_column_value'] );
+        } else {
+            return $result['api.CustomGroup.getsingle']['extends'];
+        }
+    }
+
 }
