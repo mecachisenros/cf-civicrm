@@ -12,6 +12,9 @@ $contactSubTypeResult = civicrm_api3( 'ContactType', 'get', array(
     'parent_id' => array('IS NOT NULL' => 1),
 ));
 
+$orgStandardFields = array('organization_name', 'sic_code', 'legal_name');
+$indStandardFields = array('first_name', 'last_name', 'middle_name', 'prefix_id', 'suffix_id', 'current_employer', 'birth_date', 'gender_id', 'job_title');
+
 ?>
 
 <div class="caldera-config-group caldera-config-group-full">
@@ -65,7 +68,7 @@ $contactSubTypeResult = civicrm_api3( 'ContactType', 'get', array(
         <option value="" {{#is dedupe_rule value=""}}selected="selected"{{/is}}></option>
         <?php foreach( CiviCRM_Caldera_Forms::get_dedupe_rules() as $type=>$rule) {
             foreach ($rule as $key => $value) { ?>
-                <option value="<?php echo $key; ?>" {{#is dedupe_rule value=<?php echo $key; ?>}}selected="selected"{{/is}}><?php echo "[{$type}] - {$value}"; ?></option>
+                <option value="<?php echo $key; ?>" data-crm-type="<?php echo $type; ?>" {{#is dedupe_rule value=<?php echo $key; ?>}}selected="selected"{{/is}}><?php echo "[{$type}] - {$value}"; ?></option>
         <?php } } ?>
         </select>
     </div>
@@ -73,6 +76,7 @@ $contactSubTypeResult = civicrm_api3( 'ContactType', 'get', array(
 <hr/>
 
 <!-- Contact Fields -->
+<div class="civicrm-standard-fields">
 <h2 style="display: inline-block;">Standard Fields</h2>
 <!-- <button id="clear_fields" style="float: right;" type="button">Clear fields</button> -->
 <?php
@@ -90,7 +94,12 @@ $contactSubTypeResult = civicrm_api3( 'ContactType', 'get', array(
     $contactFields = array_diff_key( $contactFields, CiviCRM_Caldera_Forms::get_contact_custom_fields() );
 
     foreach( $contactFields as $key => $value ) { ?>
-    <div id="<?php echo $key; ?>" class="caldera-config-group">
+    <div id="<?php echo $key; ?>" class="caldera-config-group"
+        <?php
+        in_array($key, $orgStandardFields) ? $org = 'data-crm-type="Organization"' : $org = ''; echo $org;
+        $key == 'household_name' ? $house = 'data-crm-type="Household"' : $house = ''; echo $house;
+        in_array($key, $indStandardFields) ? $ind = 'data-crm-type="Individual"' : $ind = ''; echo $ind;
+        ?>>
         <label><?php echo __($value); ?> </label>
         <div class="caldera-config-field">
           <?php echo __('{{{_field slug="' . $key . '"}}}'); ?>
@@ -98,8 +107,10 @@ $contactSubTypeResult = civicrm_api3( 'ContactType', 'get', array(
     </div>
 <?php } ?>
 <hr style="clear: both;" />
+</div>
 
 <!-- Contact Custom Fields -->
+<div class="civicrm-custom-fields">
 <h2 style="display: inline-block;">Custom Fields</h2>
 <!-- <button id="clear_custom_fields" style="float: right;" type="button">Clear fields</button> -->
 <?php
@@ -107,10 +118,62 @@ $contactSubTypeResult = civicrm_api3( 'ContactType', 'get', array(
     $contactCustomFields = CiviCRM_Caldera_Forms::get_contact_custom_fields();
 
     foreach( $contactCustomFields as $key => $value ) { ?>
-    <div id="<?php echo $key; ?>" class="caldera-config-group">
+    <div id="<?php echo $key; ?>" class="caldera-config-group" data-crm-type="<?php echo CiviCRM_Caldera_Forms::custom_field_extends($key); ?>">
         <label><?php echo __($value); ?> </label>
         <div class="caldera-config-field">
           <?php echo __('{{{_field slug="' . $key . '"}}}'); ?>
         </div>
     </div>
 <?php } ?>
+</div>
+
+<script>
+	jQuery(document).ready(function(){
+            var $ = jQuery;
+            var prName = "{{_name}}";
+            var prId = prName.match(/fp_([0-9]){8}/g);
+            var prContainer = '#' + prId + '_settings_pane .caldera-config-processor-setup';
+            var cType = $('[name="config[processors][' + prId +'][config][contact_type]"]');
+            var cTypeOption = $('[name="config[processors][' + prId +'][config][contact_type]"] option');
+            var typeOptions = [];
+            var cSubType = $('[name="config[processors][' + prId +'][config][contact_sub_type]"]');
+            var cSubTypeOption = $('[name="config[processors][' + prId +'][config][contact_sub_type]"] option');
+            var subTypeOptions = [];
+            cTypeOption.each(function(){
+                if($(this).val() != ''){
+                    typeOptions.push($(this).val());
+                }
+            });
+            cSubTypeOption.each(function(){
+                if($(this).val() != ''){
+                    subTypeOptions.push($(this).val());
+                }
+            });
+            var cTypes = typeOptions.concat(subTypeOptions);
+            cType.change( function(){
+                $(prContainer + ' [data-crm-type]').each(function(i, el){
+                    if( $.inArray($(el).attr('data-crm-type'), cTypes) != -1 && $(el).attr('data-crm-type') != 'Contact' && $(el).attr('data-crm-type') == cType.val())
+                        $(el).show();
+                    if($.inArray($(el).attr('data-crm-type'), cTypes) != -1 && $(el).attr('data-crm-type') != '' && $(el).attr('data-crm-type') != cType.val())
+                        $(el).hide();
+                })
+            }).trigger('change');
+            cSubType.change( function(){
+                $(prContainer + ' .civicrm-custom-fields [data-crm-type]').each(function(i, el){
+                    if($(el).attr('data-crm-type').indexOf(',') != -1){
+                        var types = $(el).attr('data-crm-type').split(',');
+	                    if($.inArray(cSubType.val(), types) != -1){
+	                    	$(el).show();
+	                    } else {
+	                    	$(el).hide();
+	                    }
+                	} else {
+                		if( $.inArray($(el).attr('data-crm-type'), cTypes) != -1 && $(el).attr('data-crm-type') != 'Contact' && $(el).attr('data-crm-type') == cSubType.val())
+                        $(el).show();
+	                    if($.inArray($(el).attr('data-crm-type'), cTypes) != -1 && $(el).attr('data-crm-type') != 'Contact' && $(el).attr('data-crm-type') != cSubType.val())
+	                        $(el).hide();
+                	}
+                })
+            }).trigger('change');
+    });
+</script>
