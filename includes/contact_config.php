@@ -39,7 +39,8 @@ $indStandardFields = array('first_name', 'last_name', 'middle_name', 'prefix_id'
 <div id="contact_type" class="caldera-config-group">
     <label><?php echo __('Contact Type'); ?></label>
     <div class="caldera-config-field">
-        <select class="block-input field-config" name="{{_name}}[contact_type]">
+        <select class="block-input field-config required" name="{{_name}}[contact_type]">
+        <option value="" {{#is contact_type value=""}}selected="selected"{{/is}}></option>
         <?php foreach( $contactTypeResult['values'] as $key => $value) { ?>
             <option value="<?php echo $value['name']; ?>" {{#is contact_type value="<?php echo $value['name']; ?>"}}selected="selected"{{/is}}><?php echo $value['label']; ?></option>
         <?php } ?>
