@@ -989,22 +989,25 @@ function cf_civicrm_autopoulate_custom_fields_options(){
     	'options' => array('limit' => 0),
     	'is_active' => 1,
 	));
-	$htmlTypes = array("Select", "Radio", "CheckBox", "Multi-Select", "AdvMulti-Select" );
 
-	$custom = array();
-	foreach ($customFields['values'] as $key => $field) {
-		if ( in_array( $field['html_type'], $htmlTypes ) && isset($field['option_group_id']) && !empty($field['option_group_id']) ) {
-			// get custom group
-			$params['id'] = $field['custom_group_id'];
-			$customGroup = array();
-			CRM_Core_BAO_CustomGroup::retrieve( $params, $customGroup );
+    if( $customFields && !$customFields['is_error'] && $customFields['count'] != 0 ){
+    	$htmlTypes = array("Select", "Radio", "CheckBox", "Multi-Select", "AdvMulti-Select" );
 
-			$extends = array_merge(array('Contact', 'Activity'), CRM_Contact_BAO_ContactType::basicTypes(), CRM_Contact_BAO_ContactType::subTypes());
-			if( in_array($customGroup['extends'], $extends) ){
-				echo "<option value=\"custom_{$field['id']}\"{{#is auto_type value=\"custom_{$field['id']}\"}} selected=\"selected\"{{/is}}>" . "CiviCRM - {$customGroup['title']} - {$field['label']}" . "</option>";
-			}
-		}
-	}
+    	$custom = array();
+    	foreach ($customFields['values'] as $key => $field) {
+    		if ( in_array( $field['html_type'], $htmlTypes ) && isset($field['option_group_id']) && !empty($field['option_group_id']) ) {
+    			// get custom group
+    			$params['id'] = $field['custom_group_id'];
+    			$customGroup = array();
+    			CRM_Core_BAO_CustomGroup::retrieve( $params, $customGroup );
+
+    			$extends = array_merge(array('Contact', 'Activity'), CRM_Contact_BAO_ContactType::basicTypes(), CRM_Contact_BAO_ContactType::subTypes());
+    			if( in_array($customGroup['extends'], $extends) ){
+    				echo "<option value=\"custom_{$field['id']}\"{{#is auto_type value=\"custom_{$field['id']}\"}} selected=\"selected\"{{/is}}>" . "CiviCRM - {$customGroup['title']} - {$field['label']}" . "</option>";
+    			}
+    		}
+    	}
+    }
 }
 
 /*
@@ -1029,23 +1032,26 @@ function cf_civicrm_autopoulate_custom_fields_options_values( $field, $form ){
 			'options' => array('limit' => 0),
 			'is_active' => 1,
 		));
-		$htmlTypes = array("Select", "Radio", "CheckBox", "Multi-Select", "AdvMulti-Select" );
 
-    	foreach ($customFields['values'] as $key => $civiField) {
-			if ( in_array( $civiField['html_type'], $htmlTypes ) && isset($field['option_group_id']) && !empty($field['option_group_id']) ) {
-				switch ( $field['config']['auto_type'] ) {
-					case 'custom_'.$civiField['id']:
-						$customOptions = CRM_Core_OptionGroup::valuesByID( (int)$civiField['option_group_id'] );
-						foreach ($customOptions as $key=>$value) {
-	                        $field['config']['option'][$key] = array(
-	                            'value' => $key,
-	                            'label' => $value
-	                        );
-                		}
-						break;
-				}
-			}
-		}
+        if( $customFields && !$customFields['is_error'] && $customFields['count'] != 0 ){
+    		$htmlTypes = array("Select", "Radio", "CheckBox", "Multi-Select", "AdvMulti-Select" );
+
+        	foreach ($customFields['values'] as $key => $civiField) {
+    			if ( in_array( $civiField['html_type'], $htmlTypes ) && isset($field['option_group_id']) && !empty($field['option_group_id']) ) {
+    				switch ( $field['config']['auto_type'] ) {
+    					case 'custom_'.$civiField['id']:
+    						$customOptions = CRM_Core_OptionGroup::valuesByID( (int)$civiField['option_group_id'] );
+    						foreach ($customOptions as $key=>$value) {
+    	                        $field['config']['option'][$key] = array(
+    	                            'value' => $key,
+    	                            'label' => $value
+    	                        );
+                    		}
+    						break;
+    				}
+    			}
+    		}
+        }
     }
     return $field;
 }
@@ -1071,28 +1077,30 @@ function cf_civicrm_custom_fields_options_presets( $presets ){
 	$htmlTypes = array("Select", "Radio", "CheckBox", "Multi-Select", "AdvMulti-Select" );
 
 	$custom = array();
-	foreach ($customFields['values'] as $key => $field) {
-		if ( in_array( $field['html_type'], $htmlTypes ) && isset($field['option_group_id']) && !empty($field['option_group_id']) ) {
-			// get custom group
-			$params['id'] = $field['custom_group_id'];
-			$customGroup = array();
-			CRM_Core_BAO_CustomGroup::retrieve( $params, $customGroup );
-			// get options
-			$customOptions = CRM_Core_OptionGroup::valuesByID( (int)$field['option_group_id'] );
-			// contact types and activity for filtering
-			$extends = array_merge(array('Contact', 'Activity'), CRM_Contact_BAO_ContactType::basicTypes(), CRM_Contact_BAO_ContactType::subTypes());
+    if( $customFields && !$customFields['is_error'] && $customFields['count'] != 0 ){
+    	foreach ($customFields['values'] as $key => $field) {
+    		if ( in_array( $field['html_type'], $htmlTypes ) && isset($field['option_group_id']) && !empty($field['option_group_id']) ) {
+    			// get custom group
+    			$params['id'] = $field['custom_group_id'];
+    			$customGroup = array();
+    			CRM_Core_BAO_CustomGroup::retrieve( $params, $customGroup );
+    			// get options
+    			$customOptions = CRM_Core_OptionGroup::valuesByID( (int)$field['option_group_id'] );
+    			// contact types and activity for filtering
+    			$extends = array_merge(array('Contact', 'Activity'), CRM_Contact_BAO_ContactType::basicTypes(), CRM_Contact_BAO_ContactType::subTypes());
 
-			if( in_array( $customGroup['extends'], $extends ) ){
-				$options = array();
-				foreach ($customOptions as $key => $value) {
-					$options[] = $key.'|'.$value;
-				}
-				$custom[$field['name']] = array(
-					'name' => 'CiviCRM - ' . $customGroup['title'] . ' - ' . $field['label'],
-					'data' => $options,
-				);
-			}
-		}
+    			if( in_array( $customGroup['extends'], $extends ) ){
+    				$options = array();
+    				foreach ($customOptions as $key => $value) {
+    					$options[] = $key.'|'.$value;
+    				}
+    				$custom[$field['name']] = array(
+    					'name' => 'CiviCRM - ' . $customGroup['title'] . ' - ' . $field['label'],
+    					'data' => $options,
+    				);
+    			}
+    		}
+        }
 	}
 
 	$presets = array_merge( $custom, $presets );
