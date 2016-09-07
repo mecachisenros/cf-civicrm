@@ -477,21 +477,21 @@ function get_civi_contact( $cid ){
             'sequential' => 1,
             'id' => $cid,
          ));
-    
+
         // Custom fields
         $c_fields = CiviCRM_Caldera_Forms::get_contact_custom_fields();
-    
+
         $c_fields_string = "";
         foreach ($c_fields as $key => $value) {
         	$c_fields_string .= $key.',';
         }
-    
+
         $custom_fields = civicrm_api3( 'Contact', 'getsingle', array(
             'sequential' => 1,
             'id' => $cid,
             'return' => $c_fields_string,
          ));
-    
+
         return array_merge( $fields, $custom_fields );
     } else {
         return 0;
@@ -568,7 +568,7 @@ function cf_pre_render_civicrm_form( $form ){
                     $permissions = CRM_Core_Permission::getPermission();
                 }
 
-                
+
 
                 // Map CiviCRM contact data to form defaults
                 if( isset( $civi_contact ) && $civi_contact != 0 ){
@@ -576,7 +576,7 @@ function cf_pre_render_civicrm_form( $form ){
                     $civi_transdata = CiviCRM_Caldera_Forms::get_civi_transdata();
 
                     unset( $pr_id['config']['auto_pop'], $pr_id['config']['contact_type'], $pr_id['config']['contact_sub_type'], $pr_id['config']['contact_link'], $pr_id['config']['dedupe_rule'] );
-                
+
                     foreach ( $pr_id['config'] as $field => $value ) {
                         if( !empty( $value ) ){
                             $form['fields'][$value]['config']['default'] = $civi_contact[$field];
@@ -592,13 +592,13 @@ function cf_pre_render_civicrm_form( $form ){
             case 'civicrm_address':
                 if( isset( $civi_transdata['contact_id'] ) ){
                     try {
-    
+
                         $civi_contact_address = civicrm_api3('Address', 'getsingle', array(
                             'sequential' => 1,
                             'contact_id' => $civi_transdata['contact_id_' . $pr_id['config']['contact_link']],
                             'location_type_id' => $pr_id['config']['location_type_id'],
                         ));
-    
+
                     } catch (Exception $e) {
                         // Igonre if we have more than one address with same location type
                     }
@@ -623,13 +623,13 @@ function cf_pre_render_civicrm_form( $form ){
             case 'civicrm_email':
                 if( isset( $civi_transdata['contact_id'] ) ){
                     try {
-    
+
                         $civi_contact_email = civicrm_api3('Email', 'getsingle', array(
                             'sequential' => 1,
                             'contact_id' => $civi_transdata['contact_id_' . $pr_id['config']['contact_link']],
                             'location_type_id' => $pr_id['config']['location_type_id'],
                         ));
-    
+
                     } catch (Exception $e) {
                         // Igonre if we have more than one email with same location type or none
                     }
@@ -654,13 +654,13 @@ function cf_pre_render_civicrm_form( $form ){
             case 'civicrm_phone':
                 if( isset( $civi_transdata['contact_id'] ) ){
                     try {
-    
+
                         $civi_contact_phone = civicrm_api3('Phone', 'getsingle', array(
                             'sequential' => 1,
                             'contact_id' => $civi_transdata['contact_id_' . $pr_id['config']['contact_link']],
                             'location_type_id' => $pr_id['config']['location_type_id'],
                         ));
-    
+
                     } catch (Exception $e) {
                         // Igonre if we have more than one phone with same location type or none
                     }
@@ -993,7 +993,7 @@ function cf_civicrm_autopoulate_custom_fields_options(){
 
 	$custom = array();
 	foreach ($customFields['values'] as $key => $field) {
-		if ( in_array( $field['html_type'], $htmlTypes ) ) {
+		if ( in_array( $field['html_type'], $htmlTypes ) && isset($field['option_group_id']) && !empty($field['option_group_id']) ) {
 			// get custom group
 			$params['id'] = $field['custom_group_id'];
 			$customGroup = array();
@@ -1032,10 +1032,10 @@ function cf_civicrm_autopoulate_custom_fields_options_values( $field, $form ){
 		$htmlTypes = array("Select", "Radio", "CheckBox", "Multi-Select", "AdvMulti-Select" );
 
     	foreach ($customFields['values'] as $key => $civiField) {
-			if ( in_array( $civiField['html_type'], $htmlTypes ) ) {
+			if ( in_array( $civiField['html_type'], $htmlTypes ) && isset($field['option_group_id']) && !empty($field['option_group_id']) ) {
 				switch ( $field['config']['auto_type'] ) {
 					case 'custom_'.$civiField['id']:
-						$customOptions = CRM_Core_OptionGroup::valuesByID( $civiField['option_group_id'] );
+						$customOptions = CRM_Core_OptionGroup::valuesByID( (int)$civiField['option_group_id'] );
 						foreach ($customOptions as $key=>$value) {
 	                        $field['config']['option'][$key] = array(
 	                            'value' => $key,
@@ -1072,13 +1072,13 @@ function cf_civicrm_custom_fields_options_presets( $presets ){
 
 	$custom = array();
 	foreach ($customFields['values'] as $key => $field) {
-		if ( in_array( $field['html_type'], $htmlTypes ) ) {
+		if ( in_array( $field['html_type'], $htmlTypes ) && isset($field['option_group_id']) && !empty($field['option_group_id']) ) {
 			// get custom group
 			$params['id'] = $field['custom_group_id'];
 			$customGroup = array();
 			CRM_Core_BAO_CustomGroup::retrieve( $params, $customGroup );
 			// get options
-			$customOptions = CRM_Core_OptionGroup::valuesByID( $field['option_group_id'] );
+			$customOptions = CRM_Core_OptionGroup::valuesByID( (int)$field['option_group_id'] );
 			// contact types and activity for filtering
 			$extends = array_merge(array('Contact', 'Activity'), CRM_Contact_BAO_ContactType::basicTypes(), CRM_Contact_BAO_ContactType::subTypes());
 
