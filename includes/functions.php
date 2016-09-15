@@ -11,7 +11,7 @@ include CF_CIVICRM_INTEGRATION_PATH . 'includes/CiviCRM_Caldera_Forms.php';
  *
  * @since 0.1
  *
- * @uses "caldera_forms_get_form_processors" filter
+ * @uses 'caldera_forms_get_form_processors' filter
  *
  * @param array $processors The existing processors
  * @return array $processors The modified processors
@@ -19,84 +19,84 @@ include CF_CIVICRM_INTEGRATION_PATH . 'includes/CiviCRM_Caldera_Forms.php';
 function cf_civicrm_register_processor( $processors ) {
 
 	$processors['civicrm_contact'] = array(
-		"name"			  =>  __( 'CiviCRM Contact' ),
-		"description"	   =>  __( 'Create CiviCRM contact' ),
-		"author"			=>  'Andrei Mondoc',
-		"pre-processor"	 =>  'cf_contact_civicrm_pre_processor',
-		"processor"		 =>  'cf_contact_civicrm_processor',
-		"template"		  =>  CF_CIVICRM_INTEGRATION_PATH . "processors/contact_config.php",
+		'name'			  =>  __( 'CiviCRM Contact' ),
+		'description'	   =>  __( 'Create CiviCRM contact' ),
+		'author'			=>  'Andrei Mondoc',
+		'pre-processor'	 =>  'cf_contact_civicrm_pre_processor',
+		'processor'		 =>  'cf_contact_civicrm_processor',
+		'template'		  =>  CF_CIVICRM_INTEGRATION_PATH . 'processors/contact_config.php',
 	);
 
 	$processors['civicrm_group'] = array(
-		"name"			  =>  __( 'CiviCRM Group' ),
-		"description"	   =>  __( 'Add CiviCRM contact to group' ),
-		"author"			=>  'Andrei Mondoc',
-		//"pre-processor"	   =>  'cf_group_civicrm_pre_processor',
-		"processor"		 =>  'cf_group_civicrm_processor',
-		"template"		  =>  CF_CIVICRM_INTEGRATION_PATH . "processors/group_config.php",
+		'name'			  =>  __( 'CiviCRM Group' ),
+		'description'	   =>  __( 'Add CiviCRM contact to group' ),
+		'author'			=>  'Andrei Mondoc',
+		//'pre-processor'	   =>  'cf_group_civicrm_pre_processor',
+		'processor'		 =>  'cf_group_civicrm_processor',
+		'template'		  =>  CF_CIVICRM_INTEGRATION_PATH . 'processors/group_config.php',
 	);
 
 	$processors['civicrm_activity'] = array(
-		"name"			  =>  __( 'CiviCRM Activity' ),
-		"description"	   =>  __( 'Add CiviCRM activity to contact' ),
-		"author"			=>  'Andrei Mondoc',
-		//"pre-processor"	   =>  'cf_activity_civicrm_pre_processor',
-		"processor"		 =>  'cf_activity_civicrm_processor',
-		"template"		  =>  CF_CIVICRM_INTEGRATION_PATH . "processors/activity_config.php",
+		'name'			  =>  __( 'CiviCRM Activity' ),
+		'description'	   =>  __( 'Add CiviCRM activity to contact' ),
+		'author'			=>  'Andrei Mondoc',
+		//'pre-processor'	   =>  'cf_activity_civicrm_pre_processor',
+		'processor'		 =>  'cf_activity_civicrm_processor',
+		'template'		  =>  CF_CIVICRM_INTEGRATION_PATH . 'processors/activity_config.php',
 	);
 
 	$processors['civicrm_relationship'] = array(
-		"name"			  => __( 'CiviCRM Relationship' ),
-		"description"	   =>  __( 'Add CiviCRM relationship to contacts' ),
-		"author"			=>  'Andrei Mondoc',
-		//"pre-processor"	   =>  'cf_relationship_civicrm_pre_processor',
-		"processor"		 =>  'cf_relationship_civicrm_processor',
-		"template"		  =>  CF_CIVICRM_INTEGRATION_PATH . "processors/relationship_config.php",
+		'name'			  => __( 'CiviCRM Relationship' ),
+		'description'	   =>  __( 'Add CiviCRM relationship to contacts' ),
+		'author'			=>  'Andrei Mondoc',
+		//'pre-processor'	   =>  'cf_relationship_civicrm_pre_processor',
+		'processor'		 =>  'cf_relationship_civicrm_processor',
+		'template'		  =>  CF_CIVICRM_INTEGRATION_PATH . 'processors/relationship_config.php',
 	);
 
 	$processors['civicrm_entity_tag'] = array(
-		"name"			  => __( 'CiviCRM Tag' ),
-		"description"	   =>  __( 'Add CiviCRM tags to contacts' ),
-		"author"			=>  'Andrei Mondoc',
-		//"pre-processor"	   =>  'cf_entity_tag_civicrm_pre_processor',
-		"processor"		 =>  'cf_entity_tag_civicrm_processor',
-		"template"		  =>  CF_CIVICRM_INTEGRATION_PATH . "processors/entity_tag_config.php",
+		'name'			  => __( 'CiviCRM Tag' ),
+		'description'	   =>  __( 'Add CiviCRM tags to contacts' ),
+		'author'			=>  'Andrei Mondoc',
+		//'pre-processor'	   =>  'cf_entity_tag_civicrm_pre_processor',
+		'processor'		 =>  'cf_entity_tag_civicrm_processor',
+		'template'		  =>  CF_CIVICRM_INTEGRATION_PATH . 'processors/entity_tag_config.php',
 	);
 
 	$processors['civicrm_address'] = array(
-		"name"			  => __( 'CiviCRM Address' ),
-		"description"	   =>  __( 'Add CiviCRM address to contacts' ),
-		"author"			=>  'Andrei Mondoc',
-		//"pre-processor"	   =>  'cf_address_civicrm_pre_processor',
-		"processor"		 =>  'cf_address_civicrm_processor',
-		"template"		  =>  CF_CIVICRM_INTEGRATION_PATH . "processors/address_config.php",
+		'name'			  => __( 'CiviCRM Address' ),
+		'description'	   =>  __( 'Add CiviCRM address to contacts' ),
+		'author'			=>  'Andrei Mondoc',
+		//'pre-processor'	   =>  'cf_address_civicrm_pre_processor',
+		'processor'		 =>  'cf_address_civicrm_processor',
+		'template'		  =>  CF_CIVICRM_INTEGRATION_PATH . 'processors/address_config.php',
 	);
 
 	$processors['civicrm_email'] = array(
-		"name"			  => __( 'CiviCRM Email' ),
-		"description"	   =>  __( 'Add CiviCRM email to contacts' ),
-		"author"			=>  'Andrei Mondoc',
-		//"pre-processor"	   =>  'cf_email_civicrm_pre_processor',
-		"processor"		 =>  'cf_email_civicrm_processor',
-		"template"		  =>  CF_CIVICRM_INTEGRATION_PATH . "processors/email_config.php",
+		'name'			  => __( 'CiviCRM Email' ),
+		'description'	   =>  __( 'Add CiviCRM email to contacts' ),
+		'author'			=>  'Andrei Mondoc',
+		//'pre-processor'	   =>  'cf_email_civicrm_pre_processor',
+		'processor'		 =>  'cf_email_civicrm_processor',
+		'template'		  =>  CF_CIVICRM_INTEGRATION_PATH . 'processors/email_config.php',
 	);
 
 	$processors['civicrm_phone'] = array(
-		"name"			  => __( 'CiviCRM Phone' ),
-		"description"	   =>  __( 'Add CiviCRM phone to contacts' ),
-		"author"			=>  'Andrei Mondoc',
-		//"pre-processor"	   =>  'cf_phone_civicrm_pre_processor',
-		"processor"		 =>  'cf_phone_civicrm_processor',
-		"template"		  =>  CF_CIVICRM_INTEGRATION_PATH . "processors/phone_config.php",
+		'name'			  => __( 'CiviCRM Phone' ),
+		'description'	   =>  __( 'Add CiviCRM phone to contacts' ),
+		'author'			=>  'Andrei Mondoc',
+		//'pre-processor'	   =>  'cf_phone_civicrm_pre_processor',
+		'processor'		 =>  'cf_phone_civicrm_processor',
+		'template'		  =>  CF_CIVICRM_INTEGRATION_PATH . 'processors/phone_config.php',
 	);
 
 	$processors['civicrm_note'] = array(
-		"name"			  => __( 'CiviCRM Note' ),
-		"description"	   =>  __( 'Add CiviCRM note to contacts' ),
-		"author"			=>  'Andrei Mondoc',
-		//"pre-processor"	   =>  'cf_note_civicrm_pre_processor',
-		"processor"		 =>  'cf_note_civicrm_processor',
-		"template"		  =>  CF_CIVICRM_INTEGRATION_PATH . "processors/note_config.php",
+		'name'			  => __( 'CiviCRM Note' ),
+		'description'	   =>  __( 'Add CiviCRM note to contacts' ),
+		'author'			=>  'Andrei Mondoc',
+		//'pre-processor'	   =>  'cf_note_civicrm_pre_processor',
+		'processor'		 =>  'cf_note_civicrm_processor',
+		'template'		  =>  CF_CIVICRM_INTEGRATION_PATH . 'processors/note_config.php',
 	);
 
 	return $processors;
@@ -205,7 +205,7 @@ function cf_group_civicrm_processor( $config, $form ) {
 /**
  * CiviCRM Group fields callback function.
  *
- * This is used by "Caldera_Forms_Processor_UI" class to build processor fields
+ * This is used by 'Caldera_Forms_Processor_UI' class to build processor fields
  *
  * @see https://gist.github.com/Shelob9/ee2210ad15f66aee40acdc8fd23f3348
  *
@@ -319,7 +319,7 @@ function cf_entity_tag_civicrm_processor( $config, $form ) {
   				'id' => $value,
   				'api.EntityTag.create' => array(
   					'entity_id' => $transdata['civicrm']['contact_id_' . $config['contact_link']],
-  					'entity_table' => "civicrm_contact",
+  					'entity_table' => 'civicrm_contact',
   					'tag_id' => '$value.id',
   				),
 			));
@@ -513,7 +513,7 @@ function get_civi_contact( $cid ) {
 		// Custom fields
 		$c_fields = CiviCRM_Caldera_Forms::get_contact_custom_fields();
 
-		$c_fields_string = "";
+		$c_fields_string = '';
 		foreach ( $c_fields as $key => $value ) {
 			$c_fields_string .= $key . ',';
 		}
@@ -538,7 +538,7 @@ function get_civi_contact( $cid ) {
  *
  * @since 0.1
  *
- * @uses "caldera_forms_render_get_form" filter
+ * @uses 'caldera_forms_render_get_form' filter
  *
  * @param array $form The existing form array
  * @return array $form The modified form array
@@ -732,7 +732,7 @@ add_filter( 'caldera_forms_render_get_form', 'cf_pre_render_civicrm_form' );
 /**
  * Hook, adds CiviCRM fields options to CF Autopopulate field type.
  *
- * @uses "caldera_forms_autopopulate_types" action
+ * @uses 'caldera_forms_autopopulate_types' action
  *
  * @since 0.1
  */
@@ -779,7 +779,7 @@ add_action( 'caldera_forms_autopopulate_types', 'cf_civicrm_autopoulate_options'
 /**
  * Hook, populates CiviCRM fields values for each CiviCRM CF Autopopulate field type.
  *
- * @uses "caldera_forms_render_get_field" filter
+ * @uses 'caldera_forms_render_get_field' filter
  *
  * @since 0.1
  *
@@ -797,7 +797,7 @@ function cf_civicrm_autopoulate_values( $field, $form ) {
 			case 'prefix_id':
 				$prefix_id = civicrm_api3( 'Contact', 'getoptions', array(
 					'sequential' => 1,
-					'field' => "prefix_id",
+					'field' => 'prefix_id',
 				));
 				foreach ( $prefix_id['values'] as $index ) {
 					//foreach ( $index as $key => $value ) {
@@ -813,7 +813,7 @@ function cf_civicrm_autopoulate_values( $field, $form ) {
 			case 'suffix_id':
 				$suffix_id = civicrm_api3( 'Contact', 'getoptions', array(
 					'sequential' => 1,
-					'field' => "suffix_id",
+					'field' => 'suffix_id',
 				));
 				foreach ( $suffix_id['values'] as $index ) {
 						$field['config']['option'][$index['key']] = array(
@@ -827,7 +827,7 @@ function cf_civicrm_autopoulate_values( $field, $form ) {
 			case 'gender_id':
 				$prefix_id = civicrm_api3( 'Contact', 'getoptions', array(
 					'sequential' => 1,
-					'field' => "gender_id",
+					'field' => 'gender_id',
 				));
 				foreach ( $prefix_id['values'] as $index ) {
 					//foreach ( $index as $key => $value ) {
@@ -843,7 +843,7 @@ function cf_civicrm_autopoulate_values( $field, $form ) {
 			case 'communication_style_id':
 				$communication_style_id = civicrm_api3( 'Contact', 'getoptions', array(
 					'sequential' => 1,
-					'field' => "communication_style_id",
+					'field' => 'communication_style_id',
 				));
 				foreach ( $communication_style_id['values'] as $index ) {
 						$field['config']['option'][$index['key']] = array(
@@ -857,7 +857,7 @@ function cf_civicrm_autopoulate_values( $field, $form ) {
 			case 'do_not_email':
 				$do_not_email = civicrm_api3( 'Contact', 'getoptions', array(
 					'sequential' => 1,
-					'field' => "do_not_email",
+					'field' => 'do_not_email',
 				));
 				foreach ( $do_not_email['values'] as $index ) {
 						$field['config']['option'][$index['key']] = array(
@@ -871,7 +871,7 @@ function cf_civicrm_autopoulate_values( $field, $form ) {
 			case 'do_not_phone':
 				$do_not_phone = civicrm_api3( 'Contact', 'getoptions', array(
 					'sequential' => 1,
-					'field' => "do_not_phone",
+					'field' => 'do_not_phone',
 				));
 				foreach ( $do_not_phone['values'] as $index ) {
 						$field['config']['option'][$index['key']] = array(
@@ -885,7 +885,7 @@ function cf_civicrm_autopoulate_values( $field, $form ) {
 			case 'do_not_mail':
 				$do_not_mail = civicrm_api3( 'Contact', 'getoptions', array(
 					'sequential' => 1,
-					'field' => "do_not_mail",
+					'field' => 'do_not_mail',
 				));
 				foreach ( $do_not_mail['values'] as $index ) {
 						$field['config']['option'][$index['key']] = array(
@@ -899,7 +899,7 @@ function cf_civicrm_autopoulate_values( $field, $form ) {
 			case 'do_not_sms':
 				$do_not_sms = civicrm_api3( 'Contact', 'getoptions', array(
 					'sequential' => 1,
-					'field' => "do_not_sms",
+					'field' => 'do_not_sms',
 				));
 				foreach ( $do_not_sms['values'] as $index ) {
 						$field['config']['option'][$index['key']] = array(
@@ -913,7 +913,7 @@ function cf_civicrm_autopoulate_values( $field, $form ) {
 			case 'do_not_trade':
 				$do_not_trade = civicrm_api3( 'Contact', 'getoptions', array(
 					'sequential' => 1,
-					'field' => "do_not_trade",
+					'field' => 'do_not_trade',
 				));
 				foreach ( $do_not_trade['values'] as $index ) {
 						$field['config']['option'][$index['key']] = array(
@@ -927,7 +927,7 @@ function cf_civicrm_autopoulate_values( $field, $form ) {
 			case 'is_opt_out':
 				$is_opt_out = civicrm_api3( 'Contact', 'getoptions', array(
 					'sequential' => 1,
-					'field' => "is_opt_out",
+					'field' => 'is_opt_out',
 				));
 				foreach ( $is_opt_out['values'] as $index ) {
 						$field['config']['option'][$index['key']] = array(
@@ -966,7 +966,7 @@ function cf_civicrm_autopoulate_values( $field, $form ) {
 			case 'location_type_id':
 				$location_type_id = civicrm_api3( 'Address', 'getoptions', array(
 					'sequential' => 1,
-					'field' => "location_type_id",
+					'field' => 'location_type_id',
 				));
 				foreach ( $location_type_id['values'] as $index ) {
 						$field['config']['option'][$index['key']] = array(
@@ -980,7 +980,7 @@ function cf_civicrm_autopoulate_values( $field, $form ) {
 			case 'e_location_type_id':
 				$e_location_type_id = civicrm_api3( 'Email', 'getoptions', array(
 					'sequential' => 1,
-					'field' => "location_type_id",
+					'field' => 'location_type_id',
 				));
 				foreach ( $e_location_type_id['values'] as $index ) {
 						$field['config']['option'][$index['key']] = array(
@@ -994,7 +994,7 @@ function cf_civicrm_autopoulate_values( $field, $form ) {
 			case 'p_location_type_id':
 				$p_location_type_id = civicrm_api3( 'Phone', 'getoptions', array(
 					'sequential' => 1,
-					'field' => "location_type_id",
+					'field' => 'location_type_id',
 				));
 				foreach ( $p_location_type_id['values'] as $index ) {
 						$field['config']['option'][$index['key']] = array(
@@ -1008,7 +1008,7 @@ function cf_civicrm_autopoulate_values( $field, $form ) {
 			case 'phone_type_id':
 				$phone_type_id = civicrm_api3( 'Phone', 'getoptions', array(
 					'sequential' => 1,
-					'field' => "phone_type_id",
+					'field' => 'phone_type_id',
 				));
 				foreach ( $phone_type_id['values'] as $index ) {
 						$field['config']['option'][$index['key']] = array(
@@ -1031,7 +1031,7 @@ add_filter( 'caldera_forms_render_get_field', 'cf_civicrm_autopoulate_values', 2
 /**
  * Hook, adds CiviCRM custom fields options that extend Activities and any contact type to CF Autopopulate field type
  *
- * @uses "caldera_forms_autopopulate_types" action
+ * @uses 'caldera_forms_autopopulate_types' action
  *
  * @since 0.1
  */
@@ -1045,7 +1045,7 @@ function cf_civicrm_autopoulate_custom_fields_options() {
 	));
 
 	if ( $customFields && !$customFields['is_error'] && $customFields['count'] != 0 ) {
-		$htmlTypes = array( "Select", "Radio", "CheckBox", "Multi-Select", "AdvMulti-Select" );
+		$htmlTypes = array( 'Select', 'Radio', 'CheckBox', 'Multi-Select', 'AdvMulti-Select' );
 
 		$custom = array();
 		foreach ( $customFields['values'] as $key => $field ) {
@@ -1071,7 +1071,7 @@ add_action( 'caldera_forms_autopopulate_types', 'cf_civicrm_autopoulate_custom_f
 /**
  * Hook, populates CiviCRM fields values for each CiviCRM CF Autopopulate custom field type.
  *
- * @uses "caldera_forms_render_get_field" filter
+ * @uses 'caldera_forms_render_get_field' filter
  *
  * @since 0.1
  *
@@ -1091,7 +1091,7 @@ function cf_civicrm_autopoulate_custom_fields_options_values( $field, $form ) {
 		));
 
 		if ( $customFields && ! $customFields['is_error'] && $customFields['count'] != 0 ) {
-			$htmlTypes = array( "Select", "Radio", "CheckBox", "Multi-Select", "AdvMulti-Select" );
+			$htmlTypes = array( 'Select', 'Radio', 'CheckBox', 'Multi-Select', 'AdvMulti-Select' );
 
 			foreach ( $customFields['values'] as $key => $civiField ) {
 				if ( in_array( $civiField['html_type'], $htmlTypes ) && isset( $field['option_group_id'] ) && ! empty( $field['option_group_id'] ) ) {
@@ -1122,7 +1122,7 @@ add_filter( 'caldera_forms_render_get_field', 'cf_civicrm_autopoulate_custom_fie
 /**
  * Hook, adds custom fields options Presets.
  *
- * @uses "caldera_forms_field_option_presets" filter
+ * @uses 'caldera_forms_field_option_presets' filter
  *
  * @since 0.1
  *
@@ -1137,7 +1137,7 @@ function cf_civicrm_custom_fields_options_presets( $presets ) {
 		'options' => array( 'limit' => 0 ),
 		'is_active' => 1,
 	));
-	$htmlTypes = array( "Select", "Radio", "CheckBox", "Multi-Select", "AdvMulti-Select" );
+	$htmlTypes = array( 'Select', 'Radio', 'CheckBox', 'Multi-Select', 'AdvMulti-Select' );
 
 	$custom = array();
 	if ( $customFields && ! $customFields['is_error'] && $customFields['count'] != 0 ) {
@@ -1179,7 +1179,7 @@ add_filter( 'caldera_forms_field_option_presets', 'cf_civicrm_custom_fields_opti
 /**
  * Hook, adds custom fields to Caldera UI.
  *
- * @uses "caldera_forms_get_field_types" filter
+ * @uses 'caldera_forms_get_field_types' filter
  *
  * @since 0.1
  *
@@ -1189,36 +1189,36 @@ add_filter( 'caldera_forms_field_option_presets', 'cf_civicrm_custom_fields_opti
 function cf_civicrm_fields( $fieldtypes ) {
 
 	$fieldtypes['civicrm_country'] = array(
-		"field"		 =>  "CiviCRM Country",
-		"file"		  =>  CF_CIVICRM_INTEGRATION_PATH . "fields/civicrm_country/field.php",
-		"category"	  =>  "CiviCRM",
-		"description"   =>  'CiviCRM Country dropdown',
-		"setup"		 =>  array(
-			"template"  =>  CF_CIVICRM_INTEGRATION_PATH . "fields/civicrm_country/config.php",
-			"preview"   =>  CF_CIVICRM_INTEGRATION_PATH . "fields/civicrm_country/preview.php",
-			"default"   =>  array(
+		'field'		 =>  'CiviCRM Country',
+		'file'		  =>  CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_country/field.php',
+		'category'	  =>  'CiviCRM',
+		'description'   =>  'CiviCRM Country dropdown',
+		'setup'		 =>  array(
+			'template'  =>  CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_country/config.php',
+			'preview'   =>  CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_country/preview.php',
+			'default'   =>  array(
 				'placeholder' => 'Select a Country',
 				'default' => CiviCRM_Caldera_Forms::get_civicrm_settings( 'defaultContactCountry' )
 			),
-			"not_supported" =>  array(
+			'not_supported' =>  array(
 				'entry_list',
 			)
 		)
 	);
 
 	$fieldtypes['civicrm_state'] = array(
-		"field"		 =>  "CiviCRM State/Province",
-		"file"		  =>  CF_CIVICRM_INTEGRATION_PATH . "fields/civicrm_state/field.php",
-		"category"	  =>  "CiviCRM",
-		"description"   => 'CiviCRM State/Province dropdown',
-		"setup"		 =>  array(
-			"template"  =>  CF_CIVICRM_INTEGRATION_PATH . "fields/civicrm_state/config.php",
-			"preview"   =>  CF_CIVICRM_INTEGRATION_PATH . "fields/civicrm_state/preview.php",
-			"default"   =>  array(
+		'field'		 =>  'CiviCRM State/Province',
+		'file'		  =>  CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_state/field.php',
+		'category'	  =>  'CiviCRM',
+		'description'   => 'CiviCRM State/Province dropdown',
+		'setup'		 =>  array(
+			'template'  =>  CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_state/config.php',
+			'preview'   =>  CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_state/preview.php',
+			'default'   =>  array(
 				'placeholder' => 'Select a State/Province',
 				'default' => CiviCRM_Caldera_Forms::get_civicrm_settings( 'defaultContactStateProvince' )
 			),
-			"not_supported" =>  array(
+			'not_supported' =>  array(
 				'entry_list',
 			)
 		)

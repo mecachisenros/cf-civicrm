@@ -91,7 +91,7 @@ class CiviCRM_Caldera_Forms {
 	 *
 	 * @since 0.1
 	 *
-	 * @return array $custom_fields The array of custom fields - e.g. ["custom_x" => "Label of custom_x"]
+	 * @return array $custom_fields The array of custom fields - e.g. ['custom_x' => 'Label of custom_x']
 	 */
 	public static function get_contact_custom_fields() {
 
@@ -167,7 +167,7 @@ class CiviCRM_Caldera_Forms {
 	 */
 	public static function get_state_province() {
 
-		$query = "SELECT name,id,country_id FROM civicrm_state_province";
+		$query = 'SELECT name,id,country_id FROM civicrm_state_province';
 		$dao = CRM_Core_DAO::executeQuery( $query );
 		$states = array();
 
