@@ -16,23 +16,96 @@ define( 'CF_CIVICRM_INTEGRATION_URL', plugin_dir_url( __FILE__ ) );
 define( 'CF_CIVICRM_INTEGRATION_PATH', plugin_dir_path( __FILE__ ) );
 
 /**
- * Initialise this plugin.
+ * CiviCRM Caldera Forms Class.
  *
- * @since 0.1
+ * A class that encapsulates this plugin's functionality.
+ *
+ * @since 0.1.1
  */
-function cf_civicrm_integration_init() {
+class CiviCRM_Caldera_Forms {
 
-	// Include plugin functions
-	include CF_CIVICRM_INTEGRATION_PATH . 'includes/functions.php';
+	/**
+	 * The class instance.
+	 *
+	 * @since 0.1.1
+	 * @access private
+	 * @var object $instance The class instance
+	 */
+	private static $instance;
 
-	// Hook to register CiviCRM Integration add-on
-	add_filter( 'caldera_forms_get_form_processors', 'cf_civicrm_register_processor' );
+	/**
+	 * Returns a single instance of this object when called.
+	 *
+	 * @since 0.1.1
+	 *
+	 * @return object $instance CiviCRM_Caldera_Forms instance
+	 */
+	public static function instance() {
 
-	// FIXME
-	// Add example forms
-	// add_filter( 'caldera_forms_get_form_templates', 'cf_civicrm_template_examples' );
+		// do we have it?
+		if ( ! isset( self::$instance ) ) {
+
+			// instantiate
+			self::$instance = new CiviCRM_Caldera_Forms;
+
+			// initialise
+			self::$instance->includes();
+			self::$instance->register_hooks();
+
+			/**
+			 * Broadcast to other plugins that this plugin is loaded.
+			 *
+			 * @since 0.1.1
+			 */
+			do_action( 'caldera_forms_civicrm_loaded' );
+
+		}
+
+		// always return instance
+		return self::$instance;
+
+	}
+
+	/**
+	 * Include plugin files.
+	 *
+	 * @since 0.1.1
+	 */
+	private function includes() {
+
+		// Include plugin functions file
+		include CF_CIVICRM_INTEGRATION_PATH . 'includes/functions.php';
+
+	}
+
+	/**
+	 * Register the hooks that our plugin needs.
+	 *
+	 * @since 0.1.1
+	 */
+	private function register_hooks() {
+
+		// Hook to register CiviCRM Integration add-on
+		add_filter( 'caldera_forms_get_form_processors', 'cf_civicrm_register_processor' );
+
+		// FIXME
+		// Add example forms
+		// add_filter( 'caldera_forms_get_form_templates', 'cf_civicrm_template_examples' );
+
+	}
 
 }
 
-// load plugin on init
-add_action( 'init', 'cf_civicrm_integration_init' );
+/**
+ * Instantiate plugin.
+ *
+ * @since 0.1.1
+ *
+ * @return object $instance The plugin instance
+ */
+function caldera_forms_civicrm() {
+	return CiviCRM_Caldera_Forms::instance();
+}
+
+// init Caldera Forms CiviCRM
+add_action( 'init', 'caldera_forms_civicrm' );
