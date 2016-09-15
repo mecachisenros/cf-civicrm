@@ -5,7 +5,7 @@
  *
  * @since 0.1
  */
-class CiviCRM_Caldera_Forms {
+class CiviCRM_Caldera_Forms_Helper {
 
 	/**
 	 * Contact fields.

@@ -14,7 +14,7 @@
     				'sequential' => 1,
     				'return' => array("id", "name"),
     				'options' => array('limit' => 0),
-					'id' => array('IN' => CiviCRM_Caldera_Forms::get_civicrm_settings('countryLimit')),
+					'id' => array('IN' => CiviCRM_Caldera_Forms_Helper::get_civicrm_settings('countryLimit')),
 				));
         foreach( $country['values'] as $key => $value) { ?>
             <option value="<?php echo $value['id']; ?>"><?php echo $value['name']; ?></option>

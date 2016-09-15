@@ -29,7 +29,7 @@ $indStandardFields = array('first_name', 'last_name', 'middle_name', 'prefix_id'
 <div id="contact_link" class="caldera-config-group">
     <label><?php echo __('Link'); ?></label>
     <div class="caldera-config-field">
-        <?php CiviCRM_Caldera_Forms::contact_link_field(); ?>
+        <?php CiviCRM_Caldera_Forms_Helper::contact_link_field(); ?>
     </div>
 </div>
 <hr style="clear: both;" />
@@ -67,7 +67,7 @@ $indStandardFields = array('first_name', 'last_name', 'middle_name', 'prefix_id'
     <div class="caldera-config-field">
         <select class="block-input field-config" name="{{_name}}[dedupe_rule]">
         <option value="" {{#is dedupe_rule value=""}}selected="selected"{{/is}}></option>
-        <?php foreach( CiviCRM_Caldera_Forms::get_dedupe_rules() as $type=>$rule) {
+        <?php foreach( CiviCRM_Caldera_Forms_Helper::get_dedupe_rules() as $type=>$rule) {
             foreach ($rule as $key => $value) { ?>
                 <option value="<?php echo $key; ?>" data-crm-type="<?php echo $type; ?>" {{#is dedupe_rule value=<?php echo $key; ?>}}selected="selected"{{/is}}><?php echo "[{$type}] - {$value}"; ?></option>
         <?php } } ?>
@@ -87,12 +87,12 @@ $indStandardFields = array('first_name', 'last_name', 'middle_name', 'prefix_id'
 
     $contactFields = array();
     foreach ( $contactFieldsResult['values'] as $key => $value ) {
-        if( in_array( $value['name'], CiviCRM_Caldera_Forms::$contact_fields ) ){
+        if( in_array( $value['name'], CiviCRM_Caldera_Forms_Helper::$contact_fields ) ){
             $contactFields[$value['name']] = $value['title'];
         }
     }
     unset( $contactFields['id'], $contactFields['contact_type'], $contactFields['contact_sub_type'] );
-    $contactFields = array_diff_key( $contactFields, CiviCRM_Caldera_Forms::get_contact_custom_fields() );
+    $contactFields = array_diff_key( $contactFields, CiviCRM_Caldera_Forms_Helper::get_contact_custom_fields() );
 
     foreach( $contactFields as $key => $value ) { ?>
     <div id="<?php echo $key; ?>" class="caldera-config-group"
@@ -116,10 +116,10 @@ $indStandardFields = array('first_name', 'last_name', 'middle_name', 'prefix_id'
 <!-- <button id="clear_custom_fields" style="float: right;" type="button">Clear fields</button> -->
 <?php
 
-    $contactCustomFields = CiviCRM_Caldera_Forms::get_contact_custom_fields();
+    $contactCustomFields = CiviCRM_Caldera_Forms_Helper::get_contact_custom_fields();
 
     foreach( $contactCustomFields as $key => $value ) { ?>
-    <div id="<?php echo $key; ?>" class="caldera-config-group" data-crm-type="<?php echo CiviCRM_Caldera_Forms::custom_field_extends($key); ?>">
+    <div id="<?php echo $key; ?>" class="caldera-config-group" data-crm-type="<?php echo CiviCRM_Caldera_Forms_Helper::custom_field_extends($key); ?>">
         <label><?php echo __($value); ?> </label>
         <div class="caldera-config-field">
           <?php echo __('{{{_field slug="' . $key . '"}}}'); ?>

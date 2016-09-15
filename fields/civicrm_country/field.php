@@ -3,7 +3,7 @@
 $country = civicrm_api3('Country', 'get', array(
     'sequential' => 1,
     'options' => array('limit' => 0),
-    'id' => array('IN' => CiviCRM_Caldera_Forms::get_civicrm_settings('countryLimit')),
+    'id' => array('IN' => CiviCRM_Caldera_Forms_Helper::get_civicrm_settings('countryLimit')),
 ));
 
 echo $wrapper_before; ?>
