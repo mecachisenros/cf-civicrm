@@ -11,7 +11,7 @@ $relationships = civicrm_api3( 'RelationshipType', 'get', array(
 	<div class="caldera-config-field">
 		<select class="block-input field-config" name="{{_name}}[relationship_type]">
 		<?php foreach( $relationships['values'] as $key => $value ) { ?>
-			<option value="<?php echo esc_attr( $value['id'] _; ?>" {{#is relationship_type value=<?php echo $value['id']; ?>}}selected="selected"{{/is}}><?php echo esc_html( '[' . $value['contact_type_a'] . ']' . $value['label_a_b'] . ' - ['. $value['contact_type_b'] . ']' . $value['label_b_a'] ); ?></option>
+			<option value="<?php echo esc_attr( $value['id'] ); ?>" {{#is relationship_type value=<?php echo $value['id']; ?>}}selected="selected"{{/is}}><?php echo esc_html( '[' . $value['contact_type_a'] . ']' . $value['label_a_b'] . ' - ['. $value['contact_type_b'] . ']' . $value['label_b_a'] ); ?></option>
 		<?php } ?>
 		</select>
 	</div>

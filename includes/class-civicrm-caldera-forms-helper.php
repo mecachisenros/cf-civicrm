@@ -107,12 +107,6 @@ class CiviCRM_Caldera_Forms_Helper {
 
 		$extends = array( 'IN' => $types );
 
-		error_log( print_r( array(
-			'method' => __METHOD__,
-			'extends' => $extends,
-			'backtrace' => wp_debug_backtrace_summary(),
-		), true ) );
-
 		$custom_group = civicrm_api3( 'CustomGroup', 'get', array(
 			'sequential' => 1,
 			'extends' => apply_filters( 'civicrm_custom_fields_contact_type', $extends ),
