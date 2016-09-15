@@ -1,0 +1,166 @@
+# Copyright (C) 2016 Caldera Forms CiviCRM
+# This file is distributed under the same license as the Caldera Forms CiviCRM package.
+msgid ""
+msgstr ""
+"Project-Id-Version: Caldera Forms CiviCRM 0.1.1\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/caldera-forms-civicrm\n"
+"POT-Creation-Date: 2016-09-15 11:46:56+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2016-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+
+#: fields/civicrm_country/config.php:8 fields/civicrm_state/config.php:8
+msgid "Default"
+msgstr ""
+
+#: includes/functions.php:22
+msgid "CiviCRM Contact"
+msgstr ""
+
+#: includes/functions.php:23
+msgid "Create CiviCRM contact"
+msgstr ""
+
+#: includes/functions.php:31
+msgid "CiviCRM Group"
+msgstr ""
+
+#: includes/functions.php:32
+msgid "Add CiviCRM contact to group"
+msgstr ""
+
+#: includes/functions.php:40
+msgid "CiviCRM Activity"
+msgstr ""
+
+#: includes/functions.php:41
+msgid "Add CiviCRM activity to contact"
+msgstr ""
+
+#: includes/functions.php:49
+msgid "CiviCRM Relationship"
+msgstr ""
+
+#: includes/functions.php:50
+msgid "Add CiviCRM relationship to contacts"
+msgstr ""
+
+#: includes/functions.php:58
+msgid "CiviCRM Tag"
+msgstr ""
+
+#: includes/functions.php:59
+msgid "Add CiviCRM tags to contacts"
+msgstr ""
+
+#: includes/functions.php:67
+msgid "CiviCRM Address"
+msgstr ""
+
+#: includes/functions.php:68
+msgid "Add CiviCRM address to contacts"
+msgstr ""
+
+#: includes/functions.php:76
+msgid "CiviCRM Email"
+msgstr ""
+
+#: includes/functions.php:77
+msgid "Add CiviCRM email to contacts"
+msgstr ""
+
+#: includes/functions.php:85
+msgid "CiviCRM Phone"
+msgstr ""
+
+#: includes/functions.php:86
+msgid "Add CiviCRM phone to contacts"
+msgstr ""
+
+#: includes/functions.php:94
+msgid "CiviCRM Note"
+msgstr ""
+
+#: includes/functions.php:95
+msgid "Add CiviCRM note to contacts"
+msgstr ""
+
+#: processors/activity_config.php:32 processors/contact_config.php:30
+msgid "Link"
+msgstr ""
+
+#: processors/activity_config.php:43
+msgid "Activity Type"
+msgstr ""
+
+#: processors/activity_config.php:55
+msgid "Activity Status"
+msgstr ""
+
+#: processors/activity_config.php:67
+msgid "Campaign"
+msgstr ""
+
+#: processors/address_config.php:16 processors/email_config.php:16
+#: processors/entity_tag_config.php:9 processors/group_config.php:12
+#: processors/note_config.php:11 processors/phone_config.php:16
+msgid "Link to"
+msgstr ""
+
+#: processors/address_config.php:26 processors/email_config.php:26
+msgid "Address Location Type"
+msgstr ""
+
+#: processors/contact_config.php:40
+msgid "Contact Type"
+msgstr ""
+
+#: processors/contact_config.php:53
+msgid "Contact Sub-Type"
+msgstr ""
+
+#: processors/contact_config.php:66
+msgid "Dedupe Rule"
+msgstr ""
+
+#: processors/group_config.php:21
+msgid "Group"
+msgstr ""
+
+#: processors/phone_config.php:26
+msgid "Phone Location Type"
+msgstr ""
+
+#: processors/relationship_config.php:10
+msgid "Relationship Type"
+msgstr ""
+
+#: processors/relationship_config.php:21
+msgid "Contact A"
+msgstr ""
+
+#: processors/relationship_config.php:40
+msgid "Contact B"
+msgstr ""
+#. Plugin Name of the plugin/theme
+msgid "Caldera Forms CiviCRM"
+msgstr ""
+
+#. Plugin URI of the plugin/theme
+msgid "https://github.com/mecachisenros/caldera-forms-civicrm"
+msgstr ""
+
+#. Description of the plugin/theme
+msgid "CiviCRM integration for Caldera Forms."
+msgstr ""
+
+#. Author of the plugin/theme
+msgid "Andrei Mondoc"
+msgstr ""
+
+#. Author URI of the plugin/theme
+msgid "https://github.com/mecachisenros"
+msgstr ""

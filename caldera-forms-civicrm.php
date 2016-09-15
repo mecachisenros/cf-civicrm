@@ -4,6 +4,10 @@
  * Description: CiviCRM integration for Caldera Forms.
  * Version: 0.1.1
  * Author: Andrei Mondoc
+ * Author URI: https://github.com/mecachisenros
+ * Plugin URI: https://github.com/mecachisenros/caldera-forms-civicrm
+ * Text Domain: caldera-forms-civicrm
+ * Domain Path: /languages
  */
 
 /**
@@ -85,12 +89,34 @@ class CiviCRM_Caldera_Forms {
 	 */
 	private function register_hooks() {
 
+		// use translation files
+		add_action( 'plugins_loaded', array( $this, 'enable_translation' ) );
+
 		// Hook to register CiviCRM Integration add-on
 		add_filter( 'caldera_forms_get_form_processors', 'cf_civicrm_register_processor' );
 
 		// FIXME
 		// Add example forms
 		// add_filter( 'caldera_forms_get_form_templates', 'cf_civicrm_template_examples' );
+
+	}
+
+	/**
+	 * Load translation files.
+	 *
+	 * A good reference on how to implement translation in WordPress:
+	 * http://ottopress.com/2012/internationalization-youre-probably-doing-it-wrong/
+	 *
+	 * @since 0.1.1
+	 */
+	public function enable_translation() {
+
+		// load translations if present
+		load_plugin_textdomain(
+			'caldera-forms-civicrm', // unique name
+			false, // deprecated argument
+			dirname( plugin_basename( __FILE__ ) ) . '/languages/' // relative path to translation files
+		);
 
 	}
 
