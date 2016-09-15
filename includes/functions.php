@@ -19,8 +19,8 @@ include CF_CIVICRM_INTEGRATION_PATH . 'includes/class-civicrm-caldera-forms-help
 function cf_civicrm_register_processor( $processors ) {
 
 	$processors['civicrm_contact'] = array(
-		'name'			  =>  __( 'CiviCRM Contact' ),
-		'description'	   =>  __( 'Create CiviCRM contact' ),
+		'name'			  =>  __( 'CiviCRM Contact', 'caldera-forms-civicrm' ),
+		'description'	   =>  __( 'Create CiviCRM contact', 'caldera-forms-civicrm' ),
 		'author'			=>  'Andrei Mondoc',
 		'pre-processor'	 =>  'cf_contact_civicrm_pre_processor',
 		'processor'		 =>  'cf_contact_civicrm_processor',
@@ -28,8 +28,8 @@ function cf_civicrm_register_processor( $processors ) {
 	);
 
 	$processors['civicrm_group'] = array(
-		'name'			  =>  __( 'CiviCRM Group' ),
-		'description'	   =>  __( 'Add CiviCRM contact to group' ),
+		'name'			  =>  __( 'CiviCRM Group', 'caldera-forms-civicrm' ),
+		'description'	   =>  __( 'Add CiviCRM contact to group', 'caldera-forms-civicrm' ),
 		'author'			=>  'Andrei Mondoc',
 		//'pre-processor'	   =>  'cf_group_civicrm_pre_processor',
 		'processor'		 =>  'cf_group_civicrm_processor',
@@ -37,8 +37,8 @@ function cf_civicrm_register_processor( $processors ) {
 	);
 
 	$processors['civicrm_activity'] = array(
-		'name'			  =>  __( 'CiviCRM Activity' ),
-		'description'	   =>  __( 'Add CiviCRM activity to contact' ),
+		'name'			  =>  __( 'CiviCRM Activity', 'caldera-forms-civicrm' ),
+		'description'	   =>  __( 'Add CiviCRM activity to contact', 'caldera-forms-civicrm' ),
 		'author'			=>  'Andrei Mondoc',
 		//'pre-processor'	   =>  'cf_activity_civicrm_pre_processor',
 		'processor'		 =>  'cf_activity_civicrm_processor',
@@ -46,8 +46,8 @@ function cf_civicrm_register_processor( $processors ) {
 	);
 
 	$processors['civicrm_relationship'] = array(
-		'name'			  => __( 'CiviCRM Relationship' ),
-		'description'	   =>  __( 'Add CiviCRM relationship to contacts' ),
+		'name'			  => __( 'CiviCRM Relationship', 'caldera-forms-civicrm' ),
+		'description'	   =>  __( 'Add CiviCRM relationship to contacts', 'caldera-forms-civicrm' ),
 		'author'			=>  'Andrei Mondoc',
 		//'pre-processor'	   =>  'cf_relationship_civicrm_pre_processor',
 		'processor'		 =>  'cf_relationship_civicrm_processor',
@@ -55,8 +55,8 @@ function cf_civicrm_register_processor( $processors ) {
 	);
 
 	$processors['civicrm_entity_tag'] = array(
-		'name'			  => __( 'CiviCRM Tag' ),
-		'description'	   =>  __( 'Add CiviCRM tags to contacts' ),
+		'name'			  => __( 'CiviCRM Tag', 'caldera-forms-civicrm' ),
+		'description'	   =>  __( 'Add CiviCRM tags to contacts', 'caldera-forms-civicrm' ),
 		'author'			=>  'Andrei Mondoc',
 		//'pre-processor'	   =>  'cf_entity_tag_civicrm_pre_processor',
 		'processor'		 =>  'cf_entity_tag_civicrm_processor',
@@ -64,8 +64,8 @@ function cf_civicrm_register_processor( $processors ) {
 	);
 
 	$processors['civicrm_address'] = array(
-		'name'			  => __( 'CiviCRM Address' ),
-		'description'	   =>  __( 'Add CiviCRM address to contacts' ),
+		'name'			  => __( 'CiviCRM Address', 'caldera-forms-civicrm' ),
+		'description'	   =>  __( 'Add CiviCRM address to contacts', 'caldera-forms-civicrm' ),
 		'author'			=>  'Andrei Mondoc',
 		//'pre-processor'	   =>  'cf_address_civicrm_pre_processor',
 		'processor'		 =>  'cf_address_civicrm_processor',
@@ -73,8 +73,8 @@ function cf_civicrm_register_processor( $processors ) {
 	);
 
 	$processors['civicrm_email'] = array(
-		'name'			  => __( 'CiviCRM Email' ),
-		'description'	   =>  __( 'Add CiviCRM email to contacts' ),
+		'name'			  => __( 'CiviCRM Email', 'caldera-forms-civicrm' ),
+		'description'	   =>  __( 'Add CiviCRM email to contacts', 'caldera-forms-civicrm' ),
 		'author'			=>  'Andrei Mondoc',
 		//'pre-processor'	   =>  'cf_email_civicrm_pre_processor',
 		'processor'		 =>  'cf_email_civicrm_processor',
@@ -82,8 +82,8 @@ function cf_civicrm_register_processor( $processors ) {
 	);
 
 	$processors['civicrm_phone'] = array(
-		'name'			  => __( 'CiviCRM Phone' ),
-		'description'	   =>  __( 'Add CiviCRM phone to contacts' ),
+		'name'			  => __( 'CiviCRM Phone', 'caldera-forms-civicrm' ),
+		'description'	   =>  __( 'Add CiviCRM phone to contacts', 'caldera-forms-civicrm' ),
 		'author'			=>  'Andrei Mondoc',
 		//'pre-processor'	   =>  'cf_phone_civicrm_pre_processor',
 		'processor'		 =>  'cf_phone_civicrm_processor',
@@ -91,8 +91,8 @@ function cf_civicrm_register_processor( $processors ) {
 	);
 
 	$processors['civicrm_note'] = array(
-		'name'			  => __( 'CiviCRM Note' ),
-		'description'	   =>  __( 'Add CiviCRM note to contacts' ),
+		'name'			  => __( 'CiviCRM Note', 'caldera-forms-civicrm' ),
+		'description'	   =>  __( 'Add CiviCRM note to contacts', 'caldera-forms-civicrm' ),
 		'author'			=>  'Andrei Mondoc',
 		//'pre-processor'	   =>  'cf_note_civicrm_pre_processor',
 		'processor'		 =>  'cf_note_civicrm_processor',
@@ -1160,7 +1160,7 @@ function cf_civicrm_custom_fields_options_presets( $presets ) {
 						$options[] = $key.'|'.$value;
 					}
 					$custom[$field['name']] = array(
-						'name' => 'CiviCRM - ' . $customGroup['title'] . ' - ' . $field['label'],
+						'name' => sprintf( __( 'CiviCRM - %s - %s', 'caldera-forms-civicrm' ), $customGroup['title'], $field['label'] ),
 						'data' => $options,
 					);
 				}
@@ -1189,15 +1189,15 @@ add_filter( 'caldera_forms_field_option_presets', 'cf_civicrm_custom_fields_opti
 function cf_civicrm_fields( $fieldtypes ) {
 
 	$fieldtypes['civicrm_country'] = array(
-		'field'		 =>  'CiviCRM Country',
+		'field'		 =>  __( 'CiviCRM Country', 'caldera-forms-civicrm' ),
 		'file'		  =>  CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_country/field.php',
-		'category'	  =>  'CiviCRM',
-		'description'   =>  'CiviCRM Country dropdown',
+		'category'	  =>  __( 'CiviCRM', 'caldera-forms-civicrm' ),
+		'description'   =>  __( 'CiviCRM Country dropdown', 'caldera-forms-civicrm' ),
 		'setup'		 =>  array(
 			'template'  =>  CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_country/config.php',
 			'preview'   =>  CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_country/preview.php',
 			'default'   =>  array(
-				'placeholder' => 'Select a Country',
+				'placeholder' => __( 'Select a Country', 'caldera-forms-civicrm' ),
 				'default' => CiviCRM_Caldera_Forms_Helper::get_civicrm_settings( 'defaultContactCountry' )
 			),
 			'not_supported' =>  array(
@@ -1207,15 +1207,15 @@ function cf_civicrm_fields( $fieldtypes ) {
 	);
 
 	$fieldtypes['civicrm_state'] = array(
-		'field'		 =>  'CiviCRM State/Province',
+		'field'		 =>  __( 'CiviCRM State/Province', 'caldera-forms-civicrm' ),
 		'file'		  =>  CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_state/field.php',
-		'category'	  =>  'CiviCRM',
-		'description'   => 'CiviCRM State/Province dropdown',
+		'category'	  =>  __( 'CiviCRM', 'caldera-forms-civicrm' ),
+		'description'   => __( 'CiviCRM State/Province dropdown', 'caldera-forms-civicrm' ),
 		'setup'		 =>  array(
 			'template'  =>  CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_state/config.php',
 			'preview'   =>  CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_state/preview.php',
 			'default'   =>  array(
-				'placeholder' => 'Select a State/Province',
+				'placeholder' => __( 'Select a State/Province', 'caldera-forms-civicrm' ),
 				'default' => CiviCRM_Caldera_Forms_Helper::get_civicrm_settings( 'defaultContactStateProvince' )
 			),
 			'not_supported' =>  array(
