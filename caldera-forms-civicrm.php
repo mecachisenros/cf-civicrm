@@ -6,18 +6,22 @@
  * Author: Andrei Mondoc
  */
 
-/*
-* Define constants
-*/
-
-define( 'CF_CIVICRM_INTEGRATION_VER', '0.1.0' );
-define( 'CF_CIVICRM_INTEGRATION_URL',     plugin_dir_url( __FILE__ ) );
-define( 'CF_CIVICRM_INTEGRATION_PATH',    dirname( __FILE__ ) . '/' );
+/**
+ * Define constants.
+ *
+ * @since 0.1
+ */
+define( 'CF_CIVICRM_INTEGRATION_VER', '0.1.1' );
+define( 'CF_CIVICRM_INTEGRATION_URL', plugin_dir_url( __FILE__ ) );
+define( 'CF_CIVICRM_INTEGRATION_PATH', plugin_dir_path( __FILE__ ) );
 define( 'CF_CIVICRM_INTEGRATION_CORE',    dirname( __FILE__ )  );
 
-add_action('init', 'cf_civicrm_integration_init');
-
-function cf_civicrm_integration_init(){
+/**
+ * Initialise this plugin.
+ *
+ * @since 0.1
+ */
+function cf_civicrm_integration_init() {
 
 	// Include plugin functions
 	include CF_CIVICRM_INTEGRATION_PATH . 'includes/functions.php';
@@ -28,4 +32,8 @@ function cf_civicrm_integration_init(){
 	// FIXME
 	// Add example forms
 	// add_filter( 'caldera_forms_get_form_templates', 'cf_civicrm_template_examples' );
+
 }
+
+// load plugin on init
+add_action( 'init', 'cf_civicrm_integration_init' );
