@@ -69,16 +69,16 @@ class CiviCRM_Caldera_Forms_Helper {
 		ob_start();
 		?>
 				<select class="block-input field-config" name="{{_name}}[contact_link]">
-					<option value="1" {{#is contact_link value=1}}selected="selected"{{/is}}>Contact 1</option>
-					<option value="2" {{#is contact_link value=2}}selected="selected"{{/is}}>Contact 2</option>
-					<option value="3" {{#is contact_link value=3}}selected="selected"{{/is}}>Contact 3</option>
-					<option value="4" {{#is contact_link value=4}}selected="selected"{{/is}}>Contact 4</option>
-					<option value="5" {{#is contact_link value=5}}selected="selected"{{/is}}>Contact 5</option>
-					<option value="6" {{#is contact_link value=6}}selected="selected"{{/is}}>Contact 6</option>
-					<option value="7" {{#is contact_link value=7}}selected="selected"{{/is}}>Contact 7</option>
-					<option value="8" {{#is contact_link value=8}}selected="selected"{{/is}}>Contact 8</option>
-					<option value="9" {{#is contact_link value=9}}selected="selected"{{/is}}>Contact 9</option>
-					<option value="10" {{#is contact_link value=10}}selected="selected"{{/is}}>Contact 10</option>
+					<option value="1" {{#is contact_link value=1}}selected="selected"{{/is}}><?php _e( 'Contact 1', 'caldera-forms-civicrm' ); ?></option>
+					<option value="2" {{#is contact_link value=2}}selected="selected"{{/is}}><?php _e( 'Contact 2', 'caldera-forms-civicrm' ); ?></option>
+					<option value="3" {{#is contact_link value=3}}selected="selected"{{/is}}><?php _e( 'Contact 3', 'caldera-forms-civicrm' ); ?></option>
+					<option value="4" {{#is contact_link value=4}}selected="selected"{{/is}}><?php _e( 'Contact 4', 'caldera-forms-civicrm' ); ?></option>
+					<option value="5" {{#is contact_link value=5}}selected="selected"{{/is}}><?php _e( 'Contact 5', 'caldera-forms-civicrm' ); ?></option>
+					<option value="6" {{#is contact_link value=6}}selected="selected"{{/is}}><?php _e( 'Contact 6', 'caldera-forms-civicrm' ); ?></option>
+					<option value="7" {{#is contact_link value=7}}selected="selected"{{/is}}><?php _e( 'Contact 7', 'caldera-forms-civicrm' ); ?></option>
+					<option value="8" {{#is contact_link value=8}}selected="selected"{{/is}}><?php _e( 'Contact 8', 'caldera-forms-civicrm' ); ?></option>
+					<option value="9" {{#is contact_link value=9}}selected="selected"{{/is}}><?php _e( 'Contact 9', 'caldera-forms-civicrm' ); ?></option>
+					<option value="10" {{#is contact_link value=10}}selected="selected"{{/is}}><?php _e( 'Contact 10', 'caldera-forms-civicrm' ); ?></option>
 				</select>
 		<?php
 		$contact_link = ob_get_contents();
@@ -106,6 +106,12 @@ class CiviCRM_Caldera_Forms_Helper {
 		}
 
 		$extends = array( 'IN' => $types );
+
+		error_log( print_r( array(
+			'method' => __METHOD__,
+			'extends' => $extends,
+			'backtrace' => wp_debug_backtrace_summary(),
+		), true ) );
 
 		$custom_group = civicrm_api3( 'CustomGroup', 'get', array(
 			'sequential' => 1,
