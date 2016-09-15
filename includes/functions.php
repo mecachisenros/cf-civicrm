@@ -24,7 +24,7 @@ function cf_civicrm_register_processor( $processors ) {
 		"author"			=>  'Andrei Mondoc',
 		"pre-processor"	 =>  'cf_contact_civicrm_pre_processor',
 		"processor"		 =>  'cf_contact_civicrm_processor',
-		"template"		  =>  CF_CIVICRM_INTEGRATION_PATH . "includes/contact_config.php",
+		"template"		  =>  CF_CIVICRM_INTEGRATION_PATH . "processors/contact_config.php",
 	);
 
 	$processors['civicrm_group'] = array(
@@ -33,7 +33,7 @@ function cf_civicrm_register_processor( $processors ) {
 		"author"			=>  'Andrei Mondoc',
 		//"pre-processor"	   =>  'cf_group_civicrm_pre_processor',
 		"processor"		 =>  'cf_group_civicrm_processor',
-		"template"		  =>  CF_CIVICRM_INTEGRATION_PATH . "includes/group_config.php",
+		"template"		  =>  CF_CIVICRM_INTEGRATION_PATH . "processors/group_config.php",
 	);
 
 	$processors['civicrm_activity'] = array(
@@ -42,7 +42,7 @@ function cf_civicrm_register_processor( $processors ) {
 		"author"			=>  'Andrei Mondoc',
 		//"pre-processor"	   =>  'cf_activity_civicrm_pre_processor',
 		"processor"		 =>  'cf_activity_civicrm_processor',
-		"template"		  =>  CF_CIVICRM_INTEGRATION_PATH . "includes/activity_config.php",
+		"template"		  =>  CF_CIVICRM_INTEGRATION_PATH . "processors/activity_config.php",
 	);
 
 	$processors['civicrm_relationship'] = array(
@@ -51,7 +51,7 @@ function cf_civicrm_register_processor( $processors ) {
 		"author"			=>  'Andrei Mondoc',
 		//"pre-processor"	   =>  'cf_relationship_civicrm_pre_processor',
 		"processor"		 =>  'cf_relationship_civicrm_processor',
-		"template"		  =>  CF_CIVICRM_INTEGRATION_PATH . "includes/relationship_config.php",
+		"template"		  =>  CF_CIVICRM_INTEGRATION_PATH . "processors/relationship_config.php",
 	);
 
 	$processors['civicrm_entity_tag'] = array(
@@ -60,7 +60,7 @@ function cf_civicrm_register_processor( $processors ) {
 		"author"			=>  'Andrei Mondoc',
 		//"pre-processor"	   =>  'cf_entity_tag_civicrm_pre_processor',
 		"processor"		 =>  'cf_entity_tag_civicrm_processor',
-		"template"		  =>  CF_CIVICRM_INTEGRATION_PATH . "includes/entity_tag_config.php",
+		"template"		  =>  CF_CIVICRM_INTEGRATION_PATH . "processors/entity_tag_config.php",
 	);
 
 	$processors['civicrm_address'] = array(
@@ -69,7 +69,7 @@ function cf_civicrm_register_processor( $processors ) {
 		"author"			=>  'Andrei Mondoc',
 		//"pre-processor"	   =>  'cf_address_civicrm_pre_processor',
 		"processor"		 =>  'cf_address_civicrm_processor',
-		"template"		  =>  CF_CIVICRM_INTEGRATION_PATH . "includes/address_config.php",
+		"template"		  =>  CF_CIVICRM_INTEGRATION_PATH . "processors/address_config.php",
 	);
 
 	$processors['civicrm_email'] = array(
@@ -78,7 +78,7 @@ function cf_civicrm_register_processor( $processors ) {
 		"author"			=>  'Andrei Mondoc',
 		//"pre-processor"	   =>  'cf_email_civicrm_pre_processor',
 		"processor"		 =>  'cf_email_civicrm_processor',
-		"template"		  =>  CF_CIVICRM_INTEGRATION_PATH . "includes/email_config.php",
+		"template"		  =>  CF_CIVICRM_INTEGRATION_PATH . "processors/email_config.php",
 	);
 
 	$processors['civicrm_phone'] = array(
@@ -87,7 +87,7 @@ function cf_civicrm_register_processor( $processors ) {
 		"author"			=>  'Andrei Mondoc',
 		//"pre-processor"	   =>  'cf_phone_civicrm_pre_processor',
 		"processor"		 =>  'cf_phone_civicrm_processor',
-		"template"		  =>  CF_CIVICRM_INTEGRATION_PATH . "includes/phone_config.php",
+		"template"		  =>  CF_CIVICRM_INTEGRATION_PATH . "processors/phone_config.php",
 	);
 
 	$processors['civicrm_note'] = array(
@@ -96,7 +96,7 @@ function cf_civicrm_register_processor( $processors ) {
 		"author"			=>  'Andrei Mondoc',
 		//"pre-processor"	   =>  'cf_note_civicrm_pre_processor',
 		"processor"		 =>  'cf_note_civicrm_processor',
-		"template"		  =>  CF_CIVICRM_INTEGRATION_PATH . "includes/note_config.php",
+		"template"		  =>  CF_CIVICRM_INTEGRATION_PATH . "processors/note_config.php",
 	);
 
 	return $processors;
