@@ -36,13 +36,13 @@ This plugin is in active development. For feature requests and bug reports (or i
 
 = 0.2 =
 
-Plugin refactored
-Translation enabled
+* Plugin refactored
+* Translation enabled
 
 = 0.1.1 =
 
-Custom fields are filtered by Contact Type
+* Custom fields are filtered by Contact Type
 
 = 0.1 =
 
-Initial release
+* Initial release
