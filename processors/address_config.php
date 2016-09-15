@@ -15,8 +15,8 @@
 <div id="contact_link" class="caldera-config-group">
     <label><?php echo __('Link to'); ?></label>
     <div class="caldera-config-field">
-        <?php CiviCRM_Caldera_Forms::contact_link_field(); ?>
-        <p>Select witch contact you want to link this processor to.</p>   
+        <?php CiviCRM_Caldera_Forms_Helper::contact_link_field(); ?>
+        <p>Select witch contact you want to link this processor to.</p>
     </div>
 </div>
 <hr style="clear: both;" />
@@ -37,7 +37,7 @@
 
 <h2 style="display: inline-block;">Address Fields</h2>
 <?php
-    foreach( $addressFields['values'] as $key => $value ) { 
+    foreach( $addressFields['values'] as $key => $value ) {
         if( in_array($value['name'], $fields ) ){ ?>
     <div id="<?php echo $value['name']; ?>" class="caldera-config-group">
         <label><?php echo __($value['title']); ?> </label>

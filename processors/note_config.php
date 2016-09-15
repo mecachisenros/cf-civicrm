@@ -10,7 +10,7 @@
 <div id="contact_link" class="caldera-config-group">
     <label><?php echo __('Link to'); ?></label>
     <div class="caldera-config-field">
-        <?php CiviCRM_Caldera_Forms::contact_link_field(); ?>
+        <?php CiviCRM_Caldera_Forms_Helper::contact_link_field(); ?>
         <p>Select which contact you want to link this processor to.</p>
     </div>
 </div>

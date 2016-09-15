@@ -4,7 +4,7 @@
 if ( ! civi_wp()->initialize() ) return;
 
 // include helper class
-include CF_CIVICRM_INTEGRATION_PATH . 'includes/CiviCRM_Caldera_Forms.php';
+include CF_CIVICRM_INTEGRATION_PATH . 'includes/class-civicrm-caldera-forms-helper.php';
 
 /**
  * Add CiviCRM processors to Caldera Forms.
@@ -164,8 +164,8 @@ function cf_contact_civicrm_processor( $config, $form ) {
 	// $transdata['civicrm']['contact_id'] = $create_contact['id'];
 
 	// Store $cid
-	CiviCRM_Caldera_Forms::set_civi_transdata( $config['contact_link'], $create_contact['id'] );
-	$transdata['civicrm'] = CiviCRM_Caldera_Forms::get_civi_transdata();
+	CiviCRM_Caldera_Forms_Helper::set_civi_transdata( $config['contact_link'], $create_contact['id'] );
+	$transdata['civicrm'] = CiviCRM_Caldera_Forms_Helper::get_civi_transdata();
 
 }
 
@@ -511,7 +511,7 @@ function get_civi_contact( $cid ) {
 		 ));
 
 		// Custom fields
-		$c_fields = CiviCRM_Caldera_Forms::get_contact_custom_fields();
+		$c_fields = CiviCRM_Caldera_Forms_Helper::get_contact_custom_fields();
 
 		$c_fields_string = '';
 		foreach ( $c_fields as $key => $value ) {
@@ -567,7 +567,7 @@ function cf_pre_render_civicrm_form( $form ) {
 					// Get contact_id if user is logged in
 					if ( is_user_logged_in() ) {
 						$current_user = wp_get_current_user();
-						$current_user = CiviCRM_Caldera_Forms::get_wp_civi_contact( $current_user->ID );
+						$current_user = CiviCRM_Caldera_Forms_Helper::get_wp_civi_contact( $current_user->ID );
 
 						$civi_contact = get_civi_contact( $current_user );
 
@@ -607,8 +607,8 @@ function cf_pre_render_civicrm_form( $form ) {
 
 				// Map CiviCRM contact data to form defaults
 				if ( isset( $civi_contact ) && $civi_contact != 0 ) {
-					CiviCRM_Caldera_Forms::set_civi_transdata( $pr_id['config']['contact_link'], $civi_contact['contact_id'] );
-					$civi_transdata = CiviCRM_Caldera_Forms::get_civi_transdata();
+					CiviCRM_Caldera_Forms_Helper::set_civi_transdata( $pr_id['config']['contact_link'], $civi_contact['contact_id'] );
+					$civi_transdata = CiviCRM_Caldera_Forms_Helper::get_civi_transdata();
 
 					unset( $pr_id['config']['auto_pop'], $pr_id['config']['contact_type'], $pr_id['config']['contact_sub_type'], $pr_id['config']['contact_link'], $pr_id['config']['dedupe_rule'] );
 
@@ -953,7 +953,7 @@ function cf_civicrm_autopoulate_values( $field, $form ) {
 
 			// State/Province
 			case 'state_province_id':
-				$state_province_id = CiviCRM_Caldera_Forms::get_state_province();
+				$state_province_id = CiviCRM_Caldera_Forms_Helper::get_state_province();
 				foreach ( $state_province_id as $key => $value ) {
 						$field['config']['option'][$key] = array(
 							'value' => $key,
@@ -1198,7 +1198,7 @@ function cf_civicrm_fields( $fieldtypes ) {
 			'preview'   =>  CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_country/preview.php',
 			'default'   =>  array(
 				'placeholder' => 'Select a Country',
-				'default' => CiviCRM_Caldera_Forms::get_civicrm_settings( 'defaultContactCountry' )
+				'default' => CiviCRM_Caldera_Forms_Helper::get_civicrm_settings( 'defaultContactCountry' )
 			),
 			'not_supported' =>  array(
 				'entry_list',
@@ -1216,7 +1216,7 @@ function cf_civicrm_fields( $fieldtypes ) {
 			'preview'   =>  CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_state/preview.php',
 			'default'   =>  array(
 				'placeholder' => 'Select a State/Province',
-				'default' => CiviCRM_Caldera_Forms::get_civicrm_settings( 'defaultContactStateProvince' )
+				'default' => CiviCRM_Caldera_Forms_Helper::get_civicrm_settings( 'defaultContactStateProvince' )
 			),
 			'not_supported' =>  array(
 				'entry_list',
