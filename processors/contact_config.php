@@ -71,7 +71,7 @@ $indStandardFields = array( 'first_name', 'last_name', 'middle_name', 'prefix_id
 		<option value="" {{#is dedupe_rule value=""}}selected="selected"{{/is}}></option>
 		<?php foreach( CiviCRM_Caldera_Forms_Helper::get_dedupe_rules() as $type => $rule ) {
 			foreach ( $rule as $key => $value ) { ?>
-				<option value="<?php echo esc_attr( $key _; ?>" data-crm-type="<?php echo esc_attr( $type ); ?>" {{#is dedupe_rule value=<?php echo $key; ?>}}selected="selected"{{/is}}><?php echo esc_html( "[{$type}] - {$value}" ); ?></option>
+				<option value="<?php echo esc_attr( $key ); ?>" data-crm-type="<?php echo esc_attr( $type ); ?>" {{#is dedupe_rule value=<?php echo $key; ?>}}selected="selected"{{/is}}><?php echo esc_html( "[{$type}] - {$value}" ); ?></option>
 		<?php } } ?>
 		</select>
 	</div>
