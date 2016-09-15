@@ -2,9 +2,9 @@
 # This file is distributed under the same license as the Caldera Forms CiviCRM package.
 msgid ""
 msgstr ""
-"Project-Id-Version: Caldera Forms CiviCRM 0.1.1\n"
+"Project-Id-Version: Caldera Forms CiviCRM 0.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/caldera-forms-civicrm\n"
-"POT-Creation-Date: 2016-09-15 11:46:56+00:00\n"
+"POT-Creation-Date: 2016-09-15 17:36:02+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -12,8 +12,62 @@ msgstr ""
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 
+#: fields/civicrm_country/config.php:2 fields/civicrm_state/config.php:2
+msgid "Placeholder"
+msgstr ""
+
 #: fields/civicrm_country/config.php:8 fields/civicrm_state/config.php:8
 msgid "Default"
+msgstr ""
+
+#: includes/class-civicrm-caldera-forms-helper.php:72
+#: processors/relationship_config.php:24 processors/relationship_config.php:42
+msgid "Contact 1"
+msgstr ""
+
+#: includes/class-civicrm-caldera-forms-helper.php:73
+#: processors/relationship_config.php:25 processors/relationship_config.php:43
+msgid "Contact 2"
+msgstr ""
+
+#: includes/class-civicrm-caldera-forms-helper.php:74
+#: processors/relationship_config.php:26 processors/relationship_config.php:44
+msgid "Contact 3"
+msgstr ""
+
+#: includes/class-civicrm-caldera-forms-helper.php:75
+#: processors/relationship_config.php:27 processors/relationship_config.php:45
+msgid "Contact 4"
+msgstr ""
+
+#: includes/class-civicrm-caldera-forms-helper.php:76
+#: processors/relationship_config.php:28 processors/relationship_config.php:46
+msgid "Contact 5"
+msgstr ""
+
+#: includes/class-civicrm-caldera-forms-helper.php:77
+#: processors/relationship_config.php:29 processors/relationship_config.php:47
+msgid "Contact 6"
+msgstr ""
+
+#: includes/class-civicrm-caldera-forms-helper.php:78
+#: processors/relationship_config.php:30 processors/relationship_config.php:48
+msgid "Contact 7"
+msgstr ""
+
+#: includes/class-civicrm-caldera-forms-helper.php:79
+#: processors/relationship_config.php:31 processors/relationship_config.php:49
+msgid "Contact 8"
+msgstr ""
+
+#: includes/class-civicrm-caldera-forms-helper.php:80
+#: processors/relationship_config.php:32 processors/relationship_config.php:50
+msgid "Contact 9"
+msgstr ""
+
+#: includes/class-civicrm-caldera-forms-helper.php:81
+#: processors/relationship_config.php:33 processors/relationship_config.php:51
+msgid "Contact 10"
 msgstr ""
 
 #: includes/functions.php:22
@@ -88,50 +142,134 @@ msgstr ""
 msgid "Add CiviCRM note to contacts"
 msgstr ""
 
-#: processors/activity_config.php:32 processors/contact_config.php:30
-msgid "Link"
+#: includes/functions.php:1163
+msgid "CiviCRM - %s - %s"
 msgstr ""
 
-#: processors/activity_config.php:43
-msgid "Activity Type"
+#: includes/functions.php:1192
+msgid "CiviCRM Country"
 msgstr ""
 
-#: processors/activity_config.php:55
-msgid "Activity Status"
+#: includes/functions.php:1194 includes/functions.php:1212
+msgid "CiviCRM"
 msgstr ""
 
-#: processors/activity_config.php:67
-msgid "Campaign"
+#: includes/functions.php:1195
+msgid "CiviCRM Country dropdown"
 msgstr ""
 
-#: processors/address_config.php:16 processors/email_config.php:16
+#: includes/functions.php:1200
+msgid "Select a Country"
+msgstr ""
+
+#: includes/functions.php:1210
+msgid "CiviCRM State/Province"
+msgstr ""
+
+#: includes/functions.php:1213
+msgid "CiviCRM State/Province dropdown"
+msgstr ""
+
+#: includes/functions.php:1218
+msgid "Select a State/Province"
+msgstr ""
+
+#: processors/activity_config.php:30 processors/address_config.php:16
+#: processors/contact_config.php:29 processors/email_config.php:14
 #: processors/entity_tag_config.php:9 processors/group_config.php:12
 #: processors/note_config.php:11 processors/phone_config.php:16
+msgid "Contact Link"
+msgstr ""
+
+#: processors/activity_config.php:32 processors/address_config.php:18
+#: processors/contact_config.php:31 processors/email_config.php:16
+#: processors/entity_tag_config.php:11 processors/group_config.php:14
+#: processors/note_config.php:13 processors/phone_config.php:18
 msgid "Link to"
 msgstr ""
 
-#: processors/address_config.php:26 processors/email_config.php:26
+#: processors/activity_config.php:35 processors/address_config.php:21
+#: processors/contact_config.php:34 processors/email_config.php:19
+#: processors/entity_tag_config.php:14 processors/group_config.php:17
+#: processors/note_config.php:16 processors/phone_config.php:21
+msgid "Select which contact you want to link this processor to."
+msgstr ""
+
+#: processors/activity_config.php:42
+msgid "Activity"
+msgstr ""
+
+#: processors/activity_config.php:44
+msgid "Activity Type"
+msgstr ""
+
+#: processors/activity_config.php:56
+msgid "Activity Status"
+msgstr ""
+
+#: processors/activity_config.php:68
+msgid "Campaign"
+msgstr ""
+
+#: processors/activity_config.php:81
+msgid "Activity fields"
+msgstr ""
+
+#: processors/activity_config.php:89
+msgid "Default is set to the Contact that submits the form."
+msgstr ""
+
+#: processors/address_config.php:27 processors/address_config.php:29
+#: processors/email_config.php:26
 msgid "Address Location Type"
 msgstr ""
 
-#: processors/contact_config.php:40
+#: processors/address_config.php:42
+msgid "Address Fields"
+msgstr ""
+
+#: processors/contact_config.php:22
+msgid "Auto populate contact data with CiviCRM data if user is logged in. (Only for the first contact processor)"
+msgstr ""
+
+#: processors/contact_config.php:40 processors/contact_config.php:42
 msgid "Contact Type"
 msgstr ""
 
-#: processors/contact_config.php:53
+#: processors/contact_config.php:55
 msgid "Contact Sub-Type"
 msgstr ""
 
-#: processors/contact_config.php:66
+#: processors/contact_config.php:68
 msgid "Dedupe Rule"
 msgstr ""
 
-#: processors/group_config.php:21
+#: processors/contact_config.php:83
+msgid "Standard Fields"
+msgstr ""
+
+#: processors/contact_config.php:121
+msgid "Custom Fields"
+msgstr ""
+
+#: processors/entity_tag_config.php:20
+msgid "Tag(s)"
+msgstr ""
+
+#: processors/group_config.php:24
 msgid "Group"
 msgstr ""
 
-#: processors/phone_config.php:26
+#: processors/note_config.php:22
+msgid "Note Fields"
+msgstr ""
+
+#: processors/phone_config.php:27 processors/phone_config.php:29
 msgid "Phone Location Type"
+msgstr ""
+
+#: processors/phone_config.php:40
+msgid "Phone Fields"
 msgstr ""
 
 #: processors/relationship_config.php:10
@@ -142,7 +280,7 @@ msgstr ""
 msgid "Contact A"
 msgstr ""
 
-#: processors/relationship_config.php:40
+#: processors/relationship_config.php:39
 msgid "Contact B"
 msgstr ""
 #. Plugin Name of the plugin/theme
