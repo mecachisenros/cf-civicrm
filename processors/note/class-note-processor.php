@@ -44,7 +44,7 @@ class CiviCRM_Caldera_Forms_Note_Processor {
 			'name' => __( 'CiviCRM Note', 'caldera-forms-civicrm' ),
 			'description' => __( 'Add CiviCRM note to contacts', 'caldera-forms-civicrm' ),
 			'author' => 'Andrei Mondoc',
-			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/note_config.php',
+			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/note/note_config.php',
 			'processor' => array( $this, 'processor' ),
 		);
 

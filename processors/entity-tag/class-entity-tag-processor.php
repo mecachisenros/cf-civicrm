@@ -44,7 +44,7 @@ class CiviCRM_Caldera_Forms_Entity_Tag_Processor {
 			'name' => __( 'CiviCRM Tag', 'caldera-forms-civicrm' ),
 			'description' => __( 'Add CiviCRM tags to contacts', 'caldera-forms-civicrm' ),
 			'author' => 'Andrei Mondoc',
-			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/entity_tag_config.php',
+			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/entity-tag/entity_tag_config.php',
 			'processor' => array( $this, 'processor' ),
 		);
 

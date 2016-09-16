@@ -37,15 +37,15 @@ class CiviCRM_Caldera_Forms_Processors {
 	private function include_files() {
 
 		// Include processor classes
-		include CF_CIVICRM_INTEGRATION_PATH . 'includes/class-contact-processor.php';
-		include CF_CIVICRM_INTEGRATION_PATH . 'includes/class-group-processor.php';
-		include CF_CIVICRM_INTEGRATION_PATH . 'includes/class-activity-processor.php';
-		include CF_CIVICRM_INTEGRATION_PATH . 'includes/class-relationship-processor.php';
-		include CF_CIVICRM_INTEGRATION_PATH . 'includes/class-entity-tag-processor.php';
-		include CF_CIVICRM_INTEGRATION_PATH . 'includes/class-address-processor.php';
-		include CF_CIVICRM_INTEGRATION_PATH . 'includes/class-email-processor.php';
-		include CF_CIVICRM_INTEGRATION_PATH . 'includes/class-phone-processor.php';
-		include CF_CIVICRM_INTEGRATION_PATH . 'includes/class-note-processor.php';
+		include CF_CIVICRM_INTEGRATION_PATH . 'processors/contact/class-contact-processor.php';
+		include CF_CIVICRM_INTEGRATION_PATH . 'processors/group/class-group-processor.php';
+		include CF_CIVICRM_INTEGRATION_PATH . 'processors/activity/class-activity-processor.php';
+		include CF_CIVICRM_INTEGRATION_PATH . 'processors/relationship/class-relationship-processor.php';
+		include CF_CIVICRM_INTEGRATION_PATH . 'processors/entity-tag/class-entity-tag-processor.php';
+		include CF_CIVICRM_INTEGRATION_PATH . 'processors/address/class-address-processor.php';
+		include CF_CIVICRM_INTEGRATION_PATH . 'processors/email/class-email-processor.php';
+		include CF_CIVICRM_INTEGRATION_PATH . 'processors/phone/class-phone-processor.php';
+		include CF_CIVICRM_INTEGRATION_PATH . 'processors/note/class-note-processor.php';
 
 	}
 

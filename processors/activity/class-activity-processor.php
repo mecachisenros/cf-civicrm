@@ -44,7 +44,7 @@ class CiviCRM_Caldera_Forms_Activity_Processor {
 			'name' => __( 'CiviCRM Activity', 'caldera-forms-civicrm' ),
 			'description' => __( 'Add CiviCRM activity to contact', 'caldera-forms-civicrm' ),
 			'author' => 'Andrei Mondoc',
-			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/activity_config.php',
+			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/activity/activity_config.php',
 			'processor' =>  array( $this, 'processor' ),
 		);
 

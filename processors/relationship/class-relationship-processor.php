@@ -44,7 +44,7 @@ class CiviCRM_Caldera_Forms_Relationship_Processor {
 			'name' => __( 'CiviCRM Relationship', 'caldera-forms-civicrm' ),
 			'description' => __( 'Add CiviCRM relationship to contacts', 'caldera-forms-civicrm' ),
 			'author' => 'Andrei Mondoc',
-			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/relationship_config.php',
+			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/relationship/relationship_config.php',
 			'processor' => array( $this, 'processor' ),
 		);
 
