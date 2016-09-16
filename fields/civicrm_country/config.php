@@ -11,12 +11,24 @@
         <option value="" {{#is default value=""}}selected="selected"{{/is}}></option>
         <?php
 
-        $country = civicrm_api3( 'Country', 'get', array(
-			'sequential' => 1,
-			'return' => array( 'id', 'name' ),
-			'options' => array( 'limit' => 0 ),
-			'id' => array( 'IN' => CiviCRM_Caldera_Forms_Helper::get_civicrm_settings( 'countryLimit' ) ),
-		));
+		try {
+
+			$country = civicrm_api3( 'Country', 'get', array(
+				'sequential' => 1,
+				'return' => array( 'id', 'name' ),
+				'options' => array( 'limit' => 0 ),
+				'id' => array( 'IN' => CiviCRM_Caldera_Forms_Helper::get_civicrm_settings( 'countryLimit' ) ),
+			));
+
+		} catch ( Exception $e ) {
+			// If no countries enabled in CiviCRM localization settings (CiviCRM_Caldera_Forms::get_civicrm_settings('countryLimit')) get all countries instead
+			$country = civicrm_api3( 'Country', 'get', array(
+				'sequential' => 1,
+				'return' => array( 'id', 'name' ),
+				'options' => array( 'limit' => 0 ),
+			));
+
+		}
 
         foreach( $country['values'] as $key => $value ) { ?>
             <option value="<?php echo esc_attr( $value['id'] ); ?>"><?php echo esc_html( $value['name'] ); ?></option>
