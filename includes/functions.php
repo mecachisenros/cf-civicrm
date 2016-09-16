@@ -1,11 +1,5 @@
 <?php
 
-// bail if CiviCRM is not available
-if ( ! civi_wp()->initialize() ) return;
-
-// include helper class
-include CF_CIVICRM_INTEGRATION_PATH . 'includes/class-civicrm-caldera-forms-helper.php';
-
 /**
  * Add CiviCRM processors to Caldera Forms.
  *

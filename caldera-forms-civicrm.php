@@ -52,9 +52,11 @@ class CiviCRM_Caldera_Forms {
 			// instantiate
 			self::$instance = new CiviCRM_Caldera_Forms;
 
-			// initialise
-			self::$instance->includes();
-			self::$instance->register_hooks();
+			// initialise if the environment allows
+			if ( self::$instance->check_dependencies() ) {
+				self::$instance->includes();
+				self::$instance->register_hooks();
+			}
 
 			/**
 			 * Broadcast to other plugins that this plugin is loaded.
@@ -71,11 +73,38 @@ class CiviCRM_Caldera_Forms {
 	}
 
 	/**
+	 * Check our plugin dependencies.
+	 *
+	 * @since 0.2
+	 *
+	 * @return bool True if dependencies exist, false otherwise
+	 */
+	private function check_dependencies() {
+
+		// Bail if Caldera Forms is not available
+		if ( ! defined( 'CFCORE_VER' ) ) return false;
+
+		// Bail if CiviCRM is not available
+		if ( ! function_exists( 'civi_wp' ) ) return false;
+
+		// Bail if unable to init CiviCRM
+		// FIXME This should only be called when needed
+		if ( ! civi_wp()->initialize() ) return $processors;
+
+		// we're good
+		return true;
+
+	}
+
+	/**
 	 * Include plugin files.
 	 *
 	 * @since 0.1.1
 	 */
 	private function includes() {
+
+		// Include helper class
+		include CF_CIVICRM_INTEGRATION_PATH . 'includes/class-civicrm-caldera-forms-helper.php';
 
 		// Include plugin functions file
 		include CF_CIVICRM_INTEGRATION_PATH . 'includes/functions.php';
