@@ -135,7 +135,7 @@ class CiviCRM_Caldera_Forms_Fields {
 							$options[] = $key.'|'.$value;
 						}
 						$custom[$field['name']] = array(
-							'name' => sprintf( __( 'CiviCRM - %s - %s', 'caldera-forms-civicrm' ), $customGroup['title'], $field['label'] ),
+							'name' => sprintf( __( 'CiviCRM - %1$s - %2$s', 'caldera-forms-civicrm' ), $customGroup['title'], $field['label'] ),
 							'data' => $options,
 						);
 					}
