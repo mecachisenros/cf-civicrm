@@ -3,9 +3,18 @@
 /**
  * CiviCRM Caldera Forms Contact Processor Class.
  *
- * @since 0.1
+ * @since 0.2
  */
 class CiviCRM_Caldera_Forms_Contact_Processor {
+
+	/**
+	 * The processor key.
+	 *
+	 * @since 0.2
+	 * @access public
+	 * @var str $key_name The processor key
+	 */
+	public $key_name = 'civicrm_contact';
 
 	/**
 	 * Initialises this object.
@@ -20,7 +29,7 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 	}
 
 	/**
-	 * Add CiviCRM processor to Caldera Forms.
+	 * Adds this processor to Caldera Forms.
 	 *
 	 * @since 0.2
 	 *
@@ -31,13 +40,12 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 	 */
 	public function register_processor( $processors ) {
 
-		$processors['civicrm_contact'] = array(
-			'name'			=>  __( 'CiviCRM Contact', 'caldera-forms-civicrm' ),
-			'description'	=>  __( 'Create CiviCRM contact', 'caldera-forms-civicrm' ),
-			'author'		=>  'Andrei Mondoc',
-			'pre-processor'	=>  array( $this, 'pre_processor' ),
-			'processor'		=>  array( $this, 'processor' ),
-			'template'		=>  CF_CIVICRM_INTEGRATION_PATH . 'processors/contact_config.php',
+		$processors[$this->key_name] = array(
+			'name' =>  __( 'CiviCRM Contact', 'caldera-forms-civicrm' ),
+			'description' =>  __( 'Create CiviCRM contact', 'caldera-forms-civicrm' ),
+			'author' =>  'Andrei Mondoc',
+			'template' =>  CF_CIVICRM_INTEGRATION_PATH . 'processors/contact_config.php',
+			'processor' =>  array( $this, 'processor' ),
 		);
 
 		return $processors;
@@ -45,27 +53,16 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 	}
 
 	/**
-	 * CiviCRM Contact pre-processor.
+	 * Form processor callback.
 	 *
-	 * @since 0.1
-	 *
-	 * @param array $config Processor configuration
-	 * @param array $form Form configuration
-	 */
-	public function pre_processor( $config, $form ) {
-
-	}
-
-	/**
-	 * CiviCRM Contact processor.
-	 *
-	 * @since 0.1
+	 * @since 0.2
 	 *
 	 * @param array $config Processor configuration
 	 * @param array $form Form configuration
 	 */
 	public function processor( $config, $form ) {
 
+		// globalised transient object
 		global $transdata;
 
 		// Get form values for each processor field
@@ -119,18 +116,6 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 		// Store $cid
 		CiviCRM_Caldera_Forms_Helper::set_civi_transdata( $config['contact_link'], $create_contact['id'] );
 		$transdata['civicrm'] = CiviCRM_Caldera_Forms_Helper::get_civi_transdata();
-
-	}
-
-	/**
-	 * CiviCRM Contact post-processor.
-	 *
-	 * @since 0.2
-	 *
-	 * @param array $config Processor configuration
-	 * @param array $form Form configuration
-	 */
-	public function post_processor( $config, $form ) {
 
 	}
 
