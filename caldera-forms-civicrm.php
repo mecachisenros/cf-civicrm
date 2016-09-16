@@ -38,6 +38,15 @@ class CiviCRM_Caldera_Forms {
 	private static $instance;
 
 	/**
+	 * The processor management object.
+	 *
+	 * @since 0.2
+	 * @access public
+	 * @var object $processors The processor management object
+	 */
+	public static $processors;
+
+	/**
 	 * Returns a single instance of this object when called.
 	 *
 	 * @since 0.1.1
@@ -54,7 +63,8 @@ class CiviCRM_Caldera_Forms {
 
 			// initialise if the environment allows
 			if ( self::$instance->check_dependencies() ) {
-				self::$instance->includes();
+				self::$instance->include_files();
+				self::$instance->setup_objects();
 				self::$instance->register_hooks();
 			}
 
@@ -101,13 +111,28 @@ class CiviCRM_Caldera_Forms {
 	 *
 	 * @since 0.1.1
 	 */
-	private function includes() {
+	private function include_files() {
 
 		// Include helper class
 		include CF_CIVICRM_INTEGRATION_PATH . 'includes/class-civicrm-caldera-forms-helper.php';
 
+		// Include processor management class
+		include CF_CIVICRM_INTEGRATION_PATH . 'includes/class-civicrm-caldera-forms-processors.php';
+
 		// Include plugin functions file
 		include CF_CIVICRM_INTEGRATION_PATH . 'includes/functions.php';
+
+	}
+
+	/**
+	 * Set up plugin objects.
+	 *
+	 * @since 0.2
+	 */
+	private function setup_objects() {
+
+		// init processors manager
+		self::$processors = new CiviCRM_Caldera_Forms_Processors;
 
 	}
 
