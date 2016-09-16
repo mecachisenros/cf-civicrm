@@ -39,7 +39,7 @@ class CiviCRM_Caldera_Forms_Helper {
 	 *
 	 * @since 0.1
 	 *
-	 * @param int $contact_link The Contact link from processot $config
+	 * @param int $contact_link The Contact link from processor $config
 	 * @param int $cid The Contact ID
 	 */
 	public static function set_civi_transdata( $contact_link, $cid ) {
@@ -47,7 +47,7 @@ class CiviCRM_Caldera_Forms_Helper {
 	}
 
 	/**
-	 * Returns the contact_link/contact_id mapping.
+	 * Returns all contact_link/contact_id mappings.
 	 *
 	 * @since 0.1
 	 *
