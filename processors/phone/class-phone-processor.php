@@ -1,11 +1,11 @@
 <?php
 
 /**
- * CiviCRM Caldera Forms Email Processor Class.
+ * CiviCRM Caldera Forms Phone Processor Class.
  *
  * @since 0.2
  */
-class CiviCRM_Caldera_Forms_Email_Processor {
+class CiviCRM_Caldera_Forms_Phone_Processor {
 
 	/**
 	 * The processor key.
@@ -14,7 +14,7 @@ class CiviCRM_Caldera_Forms_Email_Processor {
 	 * @access public
 	 * @var str $key_name The processor key
 	 */
-	public $key_name = 'civicrm_email';
+	public $key_name = 'civicrm_phone';
 
 	/**
 	 * Initialises this object.
@@ -41,10 +41,10 @@ class CiviCRM_Caldera_Forms_Email_Processor {
 	public function register_processor( $processors ) {
 
 		$processors[$this->key_name] = array(
-			'name' => __( 'CiviCRM Email', 'caldera-forms-civicrm' ),
-			'description' => __( 'Add CiviCRM email to contacts', 'caldera-forms-civicrm' ),
+			'name' => __( 'CiviCRM Phone', 'caldera-forms-civicrm' ),
+			'description' => __( 'Add CiviCRM phone to contacts', 'caldera-forms-civicrm' ),
 			'author' => 'Andrei Mondoc',
-			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/email_config.php',
+			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/phone/phone_config.php',
 			'processor' => array( $this, 'processor' ),
 		);
 
@@ -69,7 +69,7 @@ class CiviCRM_Caldera_Forms_Email_Processor {
 
 			try {
 
-				$email = civicrm_api3( 'Email', 'getsingle', array(
+				$phone = civicrm_api3( 'Phone', 'getsingle', array(
 					'sequential' => 1,
 					'contact_id' => $transdata['civicrm']['contact_id_' . $config['contact_link']],
 					'location_type_id' => $config['location_type_id'],
@@ -89,11 +89,11 @@ class CiviCRM_Caldera_Forms_Email_Processor {
 			$form_values['contact_id'] = $transdata['civicrm']['contact_id_' . $config['contact_link']]; // Contact ID set in Contact Processor
 
 			// Pass Email ID if we got one
-			if ( $email ) {
-				$form_values['id'] = $email['id']; // Email ID
+			if ( $phone ) {
+				$form_values['id'] = $phone['id']; // Email ID
 			}
 
-			$create_email = civicrm_api3( 'Email', 'create', $form_values );
+			$create_phone = civicrm_api3( 'Phone', 'create', $form_values );
 
 		}
 

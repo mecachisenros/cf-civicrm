@@ -1,11 +1,11 @@
 <?php
 
 /**
- * CiviCRM Caldera Forms Phone Processor Class.
+ * CiviCRM Caldera Forms Address Processor Class.
  *
  * @since 0.2
  */
-class CiviCRM_Caldera_Forms_Phone_Processor {
+class CiviCRM_Caldera_Forms_Address_Processor {
 
 	/**
 	 * The processor key.
@@ -14,7 +14,7 @@ class CiviCRM_Caldera_Forms_Phone_Processor {
 	 * @access public
 	 * @var str $key_name The processor key
 	 */
-	public $key_name = 'civicrm_phone';
+	public $key_name = 'civicrm_address';
 
 	/**
 	 * Initialises this object.
@@ -41,10 +41,10 @@ class CiviCRM_Caldera_Forms_Phone_Processor {
 	public function register_processor( $processors ) {
 
 		$processors[$this->key_name] = array(
-			'name' => __( 'CiviCRM Phone', 'caldera-forms-civicrm' ),
-			'description' => __( 'Add CiviCRM phone to contacts', 'caldera-forms-civicrm' ),
+			'name' => __( 'CiviCRM Address', 'caldera-forms-civicrm' ),
+			'description' => __( 'Add CiviCRM address to contacts', 'caldera-forms-civicrm' ),
 			'author' => 'Andrei Mondoc',
-			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/phone_config.php',
+			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/address/address_config.php',
 			'processor' => array( $this, 'processor' ),
 		);
 
@@ -68,13 +68,11 @@ class CiviCRM_Caldera_Forms_Phone_Processor {
 		if ( ! empty( $transdata['civicrm']['contact_id_' . $config['contact_link']] ) ) {
 
 			try {
-
-				$phone = civicrm_api3( 'Phone', 'getsingle', array(
+				$address = civicrm_api3( 'Address', 'getsingle', array(
 					'sequential' => 1,
 					'contact_id' => $transdata['civicrm']['contact_id_' . $config['contact_link']],
 					'location_type_id' => $config['location_type_id'],
 				));
-
 			} catch ( Exception $e ) {
 				// Ignore if none found
 			}
@@ -87,13 +85,18 @@ class CiviCRM_Caldera_Forms_Phone_Processor {
 			}
 
 			$form_values['contact_id'] = $transdata['civicrm']['contact_id_' . $config['contact_link']]; // Contact ID set in Contact Processor
+			$form_values['location_type_id'] = $config['location_type_id']; // Address Location Type
 
-			// Pass Email ID if we got one
-			if ( $phone ) {
-				$form_values['id'] = $phone['id']; // Email ID
+			// Pass address ID if we got one
+			if ( $address ) {
+				$form_values['id'] = $address['id']; // Address ID
 			}
 
-			$create_phone = civicrm_api3( 'Phone', 'create', $form_values );
+			// FIXME
+			// Concatenate DATE + TIME
+			// $form_values['activity_date_time'] = $form_values['activity_date_time'];
+
+			$create_address = civicrm_api3( 'Address', 'create', $form_values );
 
 		}
 

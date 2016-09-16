@@ -44,7 +44,7 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 			'name' =>  __( 'CiviCRM Contact', 'caldera-forms-civicrm' ),
 			'description' =>  __( 'Create CiviCRM contact', 'caldera-forms-civicrm' ),
 			'author' =>  'Andrei Mondoc',
-			'template' =>  CF_CIVICRM_INTEGRATION_PATH . 'processors/contact_config.php',
+			'template' =>  CF_CIVICRM_INTEGRATION_PATH . 'processors/contact/contact_config.php',
 			'processor' =>  array( $this, 'processor' ),
 		);
 

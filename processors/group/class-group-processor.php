@@ -44,7 +44,7 @@ class CiviCRM_Caldera_Forms_Group_Processor {
 			'name' => __( 'CiviCRM Group', 'caldera-forms-civicrm' ),
 			'description' => __( 'Add CiviCRM contact to group', 'caldera-forms-civicrm' ),
 			'author' => 'Andrei Mondoc',
-			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/group_config.php',
+			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/group/group_config.php',
 			'processor' => array( $this, 'processor' ),
 		);
 
