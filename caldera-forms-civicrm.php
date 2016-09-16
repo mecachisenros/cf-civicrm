@@ -47,6 +47,15 @@ class CiviCRM_Caldera_Forms {
 	public static $processors;
 
 	/**
+	 * The fields management object.
+	 *
+	 * @since 0.2
+	 * @access public
+	 * @var object $fields The fields management object
+	 */
+	public static $fields;
+
+	/**
 	 * Returns a single instance of this object when called.
 	 *
 	 * @since 0.1.1
@@ -119,6 +128,9 @@ class CiviCRM_Caldera_Forms {
 		// Include processor management class
 		include CF_CIVICRM_INTEGRATION_PATH . 'includes/class-civicrm-caldera-forms-processors.php';
 
+		// Include field management class
+		include CF_CIVICRM_INTEGRATION_PATH . 'includes/class-civicrm-caldera-forms-fields.php';
+
 		// Include plugin functions file
 		include CF_CIVICRM_INTEGRATION_PATH . 'includes/functions.php';
 
@@ -133,6 +145,9 @@ class CiviCRM_Caldera_Forms {
 
 		// init processors manager
 		self::$processors = new CiviCRM_Caldera_Forms_Processors;
+
+		// init fields manager
+		self::$fields = new CiviCRM_Caldera_Forms_Fields;
 
 	}
 
