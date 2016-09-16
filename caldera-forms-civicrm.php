@@ -146,9 +146,6 @@ class CiviCRM_Caldera_Forms {
 		// use translation files
 		add_action( 'plugins_loaded', array( $this, 'enable_translation' ) );
 
-		// Hook to register CiviCRM Integration add-on
-		add_filter( 'caldera_forms_get_form_processors', 'cf_civicrm_register_processor' );
-
 		// FIXME
 		// Add example forms
 		// add_filter( 'caldera_forms_get_form_templates', 'cf_civicrm_template_examples' );
