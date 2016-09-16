@@ -142,6 +142,44 @@ class CiviCRM_Caldera_Forms_Helper {
 	}
 
 	/**
+	 * Get a CiviCRM Contact.
+	 *
+	 * @since 0.1
+	 *
+	 * @param int $cid The numeric Contact ID
+	 * @param bool|array The Contact data array, or 0 if none retrieved
+	 */
+	public static function get_civi_contact( $cid ) {
+
+		if ( $cid != 0 ) {
+
+			$fields = civicrm_api3( 'Contact', 'getsingle', array(
+				'sequential' => 1,
+				'id' => $cid,
+			 ));
+
+			// Custom fields
+			$c_fields = CiviCRM_Caldera_Forms_Helper::get_contact_custom_fields();
+
+			$c_fields_string = '';
+			foreach ( $c_fields as $key => $value ) {
+				$c_fields_string .= $key . ',';
+			}
+
+			$custom_fields = civicrm_api3( 'Contact', 'getsingle', array(
+				'sequential' => 1,
+				'id' => $cid,
+				'return' => $c_fields_string,
+			 ));
+
+			return array_merge( $fields, $custom_fields );
+
+		} else {
+			return 0;
+		}
+	}
+
+	/**
 	 * Get all CiviCRM Contact fields.
 	 *
 	 * @since 0.1

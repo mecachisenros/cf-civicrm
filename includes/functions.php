@@ -1,44 +1,6 @@
 <?php
 
 /**
- * Get a CiviCRM Contact.
- *
- * @since 0.1
- *
- * @param int $cid The numeric Contact ID
- * @param bool|array The Contact data array, or 0 if none retrieved
- */
-function get_civi_contact( $cid ) {
-
-	if ( $cid != 0 ) {
-
-		$fields = civicrm_api3( 'Contact', 'getsingle', array(
-			'sequential' => 1,
-			'id' => $cid,
-		 ));
-
-		// Custom fields
-		$c_fields = CiviCRM_Caldera_Forms_Helper::get_contact_custom_fields();
-
-		$c_fields_string = '';
-		foreach ( $c_fields as $key => $value ) {
-			$c_fields_string .= $key . ',';
-		}
-
-		$custom_fields = civicrm_api3( 'Contact', 'getsingle', array(
-			'sequential' => 1,
-			'id' => $cid,
-			'return' => $c_fields_string,
-		 ));
-
-		return array_merge( $fields, $custom_fields );
-
-	} else {
-		return 0;
-	}
-}
-
-/**
  * Hook when form is loaded and before rendering.
  *
  * Validates checksum and fills in the form with Contact data.
@@ -76,7 +38,7 @@ function cf_pre_render_civicrm_form( $form ) {
 						$current_user = wp_get_current_user();
 						$current_user = CiviCRM_Caldera_Forms_Helper::get_wp_civi_contact( $current_user->ID );
 
-						$civi_contact = get_civi_contact( $current_user );
+						$civi_contact = CiviCRM_Caldera_Forms_Helper::get_civi_contact( $current_user );
 
 					} else {
 						$civi_contact = 0;
@@ -88,7 +50,7 @@ function cf_pre_render_civicrm_form( $form ) {
 				// Just for testing, remove later
 				// if ( isset( $_GET['cid'] ) && $civicrm_contact_pr[0]['ID'] == $pr_id['ID'] ) {
 				//	 $cid = $_GET['cid'];
-				//	 $civi_contact = get_civi_contact( $cid );
+				//	 $civi_contact = CiviCRM_Caldera_Forms_Helper::get_civi_contact( $cid );
 				// }
 
 				// Get request cid(contact_id) and cs(checksum)
@@ -103,7 +65,7 @@ function cf_pre_render_civicrm_form( $form ) {
 					$valid_user = CRM_Contact_BAO_Contact_Utils::validChecksum( $cid, $cs );
 
 					if ( $valid_user ) {
-						$civi_contact = get_civi_contact( $cid );
+						$civi_contact = CiviCRM_Caldera_Forms_Helper::get_civi_contact( $cid );
 					}
 
 					// FIXME
