@@ -131,9 +131,6 @@ class CiviCRM_Caldera_Forms {
 		// Include field management class
 		include CF_CIVICRM_INTEGRATION_PATH . 'includes/class-civicrm-caldera-forms-fields.php';
 
-		// Include plugin functions file
-		include CF_CIVICRM_INTEGRATION_PATH . 'includes/functions.php';
-
 	}
 
 	/**
