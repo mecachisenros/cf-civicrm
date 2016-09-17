@@ -25,6 +25,8 @@ class CiviCRM_Caldera_Forms_Phone_Processor {
 
 		// register this processor
 		add_filter( 'caldera_forms_get_form_processors', array( $this, 'register_processor' ) );
+		// filter form before rendering
+		add_filter( 'caldera_forms_render_get_form', array( $this, 'pre_render') );
 
 	}
 
@@ -97,6 +99,54 @@ class CiviCRM_Caldera_Forms_Phone_Processor {
 
 		}
 
+	}
+
+	/**
+	 * Autopopulates Form with Civi data
+	 *
+	 * @uses 'caldera_forms_render_get_form' filter
+	 *
+	 * @since 0.2
+	 *
+	 * @param array $form The form
+	 * @return array $form The modified form
+	 */
+	public function pre_render( $form ){
+
+		foreach ( $form['processors'] as $processor => $pr_id ) {
+			if( $pr_id['type'] == $this->key_name ){
+
+				if ( isset( $civi_transdata['contact_id'] ) ) {
+					try {
+
+						$civi_contact_phone = civicrm_api3( 'Phone', 'getsingle', array(
+							'sequential' => 1,
+							'contact_id' => $civi_transdata['contact_id_' . $pr_id['config']['contact_link']],
+							'location_type_id' => $pr_id['config']['location_type_id'],
+						));
+
+					} catch ( Exception $e ) {
+						// Ignore if we have more than one phone with same location type or none
+					}
+				}
+
+				unset( $pr_id['config']['contact_link'] );
+
+				if ( isset( $civi_contact_phone ) && ! isset( $civi_contact_phone['count'] ) ) {
+					foreach ( $pr_id['config'] as $field => $value ) {
+						if ( ! empty( $value ) ) {
+							$form['fields'][$value]['config']['default'] = $civi_contact_phone[$field];
+						}
+					}
+				}
+
+				// Clear Phone data
+				unset( $civi_contact_phone );
+			}
+
+		}
+
+		return $form;
 	}
 
 }
