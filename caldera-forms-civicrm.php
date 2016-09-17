@@ -38,6 +38,24 @@ class CiviCRM_Caldera_Forms {
 	private static $instance;
 
 	/**
+	 * The processor management object.
+	 *
+	 * @since 0.2
+	 * @access public
+	 * @var object $processors The processor management object
+	 */
+	public static $processors;
+
+	/**
+	 * The fields management object.
+	 *
+	 * @since 0.2
+	 * @access public
+	 * @var object $fields The fields management object
+	 */
+	public static $fields;
+
+	/**
 	 * Returns a single instance of this object when called.
 	 *
 	 * @since 0.1.1
@@ -52,9 +70,12 @@ class CiviCRM_Caldera_Forms {
 			// instantiate
 			self::$instance = new CiviCRM_Caldera_Forms;
 
-			// initialise
-			self::$instance->includes();
-			self::$instance->register_hooks();
+			// initialise if the environment allows
+			if ( self::$instance->check_dependencies() ) {
+				self::$instance->include_files();
+				self::$instance->setup_objects();
+				self::$instance->register_hooks();
+			}
 
 			/**
 			 * Broadcast to other plugins that this plugin is loaded.
@@ -71,14 +92,62 @@ class CiviCRM_Caldera_Forms {
 	}
 
 	/**
+	 * Check our plugin dependencies.
+	 *
+	 * @since 0.2
+	 *
+	 * @return bool True if dependencies exist, false otherwise
+	 */
+	private function check_dependencies() {
+
+		// Bail if Caldera Forms is not available
+		if ( ! defined( 'CFCORE_VER' ) ) return false;
+
+		// Bail if CiviCRM is not available
+		if ( ! function_exists( 'civi_wp' ) ) return false;
+
+		// Bail if unable to init CiviCRM
+		// FIXME This should only be called when needed
+		if ( ! civi_wp()->initialize() ) return $processors;
+
+		// we're good
+		return true;
+
+	}
+
+	/**
 	 * Include plugin files.
 	 *
 	 * @since 0.1.1
 	 */
-	private function includes() {
+	private function include_files() {
+
+		// Include helper class
+		include CF_CIVICRM_INTEGRATION_PATH . 'includes/class-civicrm-caldera-forms-helper.php';
+
+		// Include processor management class
+		include CF_CIVICRM_INTEGRATION_PATH . 'includes/class-civicrm-caldera-forms-processors.php';
+
+		// Include field management class
+		include CF_CIVICRM_INTEGRATION_PATH . 'includes/class-civicrm-caldera-forms-fields.php';
 
 		// Include plugin functions file
 		include CF_CIVICRM_INTEGRATION_PATH . 'includes/functions.php';
+
+	}
+
+	/**
+	 * Set up plugin objects.
+	 *
+	 * @since 0.2
+	 */
+	private function setup_objects() {
+
+		// init processors manager
+		self::$processors = new CiviCRM_Caldera_Forms_Processors;
+
+		// init fields manager
+		self::$fields = new CiviCRM_Caldera_Forms_Fields;
 
 	}
 
@@ -91,9 +160,6 @@ class CiviCRM_Caldera_Forms {
 
 		// use translation files
 		add_action( 'plugins_loaded', array( $this, 'enable_translation' ) );
-
-		// Hook to register CiviCRM Integration add-on
-		add_filter( 'caldera_forms_get_form_processors', 'cf_civicrm_register_processor' );
 
 		// FIXME
 		// Add example forms
