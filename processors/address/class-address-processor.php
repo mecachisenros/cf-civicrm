@@ -116,15 +116,18 @@ class CiviCRM_Caldera_Forms_Address_Processor {
 	 */
 	public function pre_render( $form ){
 
+		// globalised transient object
+		global $transdata;
+
 		foreach ( $form['processors'] as $processor => $pr_id ) {
 
 			if( $pr_id['type'] == $this->key_name ){
-				if ( isset( $civi_transdata['contact_id'] ) ) {
+				if ( isset( $transdata['civicrm']['contact_id_' . $pr_id['config']['contact_link']] ) ) {
 					try {
 
 						$civi_contact_address = civicrm_api3( 'Address', 'getsingle', array(
 							'sequential' => 1,
-							'contact_id' => $civi_transdata['contact_id_' . $pr_id['config']['contact_link']],
+							'contact_id' => $transdata['civicrm']['contact_id_' . $pr_id['config']['contact_link']],
 							'location_type_id' => $pr_id['config']['location_type_id'],
 						));
 

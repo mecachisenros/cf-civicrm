@@ -133,6 +133,9 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 	 */
 	public function pre_render( $form ){
 
+		// globalised transient object
+		global $transdata;
+
 		// Indexed array containing the Contact processors
 		$civicrm_contact_pr = Caldera_Forms::get_processor_by_type( 'civicrm_contact', $form );
 		if ( $civicrm_contact_pr ) {
@@ -192,7 +195,7 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 				// Map CiviCRM contact data to form defaults
 				if ( isset( $civi_contact ) && $civi_contact != 0 ) {
 					CiviCRM_Caldera_Forms_Helper::set_civi_transdata( $pr_id['config']['contact_link'], $civi_contact['contact_id'] );
-					$civi_transdata = CiviCRM_Caldera_Forms_Helper::get_civi_transdata();
+					$transdata['civicrm'] = CiviCRM_Caldera_Forms_Helper::get_civi_transdata();
 
 					unset( $pr_id['config']['auto_pop'], $pr_id['config']['contact_type'], $pr_id['config']['contact_sub_type'], $pr_id['config']['contact_link'], $pr_id['config']['dedupe_rule'] );
 
