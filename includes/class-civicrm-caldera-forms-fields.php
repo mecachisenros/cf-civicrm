@@ -226,7 +226,7 @@ class CiviCRM_Caldera_Forms_Fields {
 
 					$extends = array_merge( array( 'Contact', 'Activity' ), CRM_Contact_BAO_ContactType::basicTypes(), CRM_Contact_BAO_ContactType::subTypes() );
 					if ( in_array( $customGroup['extends'], $extends ) ) {
-						echo "<option value=\"custom_{$field['id']}\"{{#is auto_type value=\"custom_{$field['id']}\"}} selected=\"selected\"{{/is}}>" . sprintf( __( 'CiviCRM - %1$s - %2$s', $customGroup['title'], $field['label'] ) . "</option>";
+						echo "<option value=\"custom_{$field['id']}\"{{#is auto_type value=\"custom_{$field['id']}\"}} selected=\"selected\"{{/is}}>" . sprintf( __( 'CiviCRM - %1$s - %2$s', 'caldera-forms-civicrm' ), $customGroup['title'], $field['label'] ) . "</option>";
 					}
 				}
 			}
