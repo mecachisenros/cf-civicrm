@@ -133,7 +133,7 @@ class CiviCRM_Caldera_Forms_Email_Processor {
 					}
 				}
 
-				unset( $pr_id['config']['contact_link'] );
+				unset( $pr_id['config']['contact_link'], $pr_id['config']['location_type_id'] );
 
 				if ( isset( $civi_contact_email ) && ! isset( $civi_contact_email['count'] ) ) {
 					foreach ( $pr_id['config'] as $field => $value ) {
