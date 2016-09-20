@@ -39,7 +39,7 @@ class CiviCRM_Caldera_Forms_Helper {
 	 *
 	 * @since 0.1
 	 *
-	 * @param int $contact_link The Contact link from processot $config
+	 * @param int $contact_link The Contact link from processor $config
 	 * @param int $cid The Contact ID
 	 */
 	public static function set_civi_transdata( $contact_link, $cid ) {
@@ -47,7 +47,7 @@ class CiviCRM_Caldera_Forms_Helper {
 	}
 
 	/**
-	 * Returns the contact_link/contact_id mapping.
+	 * Returns all contact_link/contact_id mappings.
 	 *
 	 * @since 0.1
 	 *
@@ -139,6 +139,44 @@ class CiviCRM_Caldera_Forms_Helper {
 		));
 		return $wp_civicrm_contact['contact_id'];
 
+	}
+
+	/**
+	 * Get a CiviCRM Contact.
+	 *
+	 * @since 0.1
+	 *
+	 * @param int $cid The numeric Contact ID
+	 * @param bool|array The Contact data array, or 0 if none retrieved
+	 */
+	public static function get_civi_contact( $cid ) {
+
+		if ( $cid != 0 ) {
+
+			$fields = civicrm_api3( 'Contact', 'getsingle', array(
+				'sequential' => 1,
+				'id' => $cid,
+			 ));
+
+			// Custom fields
+			$c_fields = CiviCRM_Caldera_Forms_Helper::get_contact_custom_fields();
+
+			$c_fields_string = '';
+			foreach ( $c_fields as $key => $value ) {
+				$c_fields_string .= $key . ',';
+			}
+
+			$custom_fields = civicrm_api3( 'Contact', 'getsingle', array(
+				'sequential' => 1,
+				'id' => $cid,
+				'return' => $c_fields_string,
+			 ));
+
+			return array_merge( $fields, $custom_fields );
+
+		} else {
+			return 0;
+		}
 	}
 
 	/**
