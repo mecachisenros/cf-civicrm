@@ -178,7 +178,7 @@ jQuery(document).ready( function() {
 			} else {
 				if( $( el ).attr( 'data-crm-type' ) == cSubType.val() || $( el ).attr( 'data-crm-type' ) == cType.val()){
 					$(el).show();
-				} else if($( el ).attr( 'data-crm-type' ) != 'Contact')
+				} else if($( el ).attr( 'data-crm-type' ) != 'Contact'){
 					$( el ).hide();
 				}
 			}
