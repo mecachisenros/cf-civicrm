@@ -165,22 +165,28 @@ jQuery(document).ready( function() {
 				$(el).hide();
 		})
 	}).trigger('change');
+
 	cSubType.change( function(){
-		$(prContainer + ' .civicrm-custom-fields [data-crm-type]').each(function(i, el){
+		$(prContainer + ' .civicrm-custom-fields [data-crm-type]').filter(function(i, el){
 			if($(el).attr('data-crm-type').indexOf(',') != -1){
 				var types = $(el).attr('data-crm-type').split(',');
-				if($.inArray(cSubType.val(), types) != -1){
+				if($.inArray( cSubType.val(), types ) != -1 || $.inArray( cType.val(), types ) != -1){
 					$(el).show();
 				} else {
 					$(el).hide();
 				}
 			} else {
-				if( $.inArray($(el).attr('data-crm-type'), cTypes) != -1 && $(el).attr('data-crm-type') != 'Contact' && $(el).attr('data-crm-type') == cSubType.val())
-				$(el).show();
-				if($.inArray($(el).attr('data-crm-type'), cTypes) != -1 && $(el).attr('data-crm-type') != 'Contact' && $(el).attr('data-crm-type') != cSubType.val())
-					$(el).hide();
+				if( $( el ).attr( 'data-crm-type' ) == cSubType.val() || $( el ).attr( 'data-crm-type' ) == cType.val()){
+					$(el).show();
+				} else if($( el ).attr( 'data-crm-type' ) != 'Contact')
+					$( el ).hide();
+				}
 			}
 		})
 	}).trigger('change');
+
+	$( prContainer + ' #contact_link select' ).change( function(){
+		$('#processors-config-panel .' + prId + ' a span').text( $( prContainer + ' #contact_link select' ).val() );
+	}).trigger( 'change' );
 });
 </script>
