@@ -23,7 +23,7 @@ Currently supports:
 ### + Address entity
 ### + Email entity
 ### + Phone entity
+### + Note processor
 
 ### Coming soon
 + IM processor
-+ Note processor
