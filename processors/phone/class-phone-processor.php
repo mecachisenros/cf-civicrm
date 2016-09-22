@@ -90,9 +90,11 @@ class CiviCRM_Caldera_Forms_Phone_Processor {
 
 			$form_values['contact_id'] = $transdata['civicrm']['contact_id_' . $config['contact_link']]; // Contact ID set in Contact Processor
 
-			// Pass Email ID if we got one
+			// Pass Phone ID if we got one
 			if ( $phone ) {
-				$form_values['id'] = $phone['id']; // Email ID
+				$form_values['id'] = $phone['id']; // Phone ID
+			} else {
+				$form_values['location_type_id'] = $config['location_type_id'];
 			}
 
 			$create_phone = civicrm_api3( 'Phone', 'create', $form_values );
