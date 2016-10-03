@@ -1,11 +1,11 @@
 <?php
 
 /**
- * CiviCRM Caldera Forms Address Processor Class.
+ * CiviCRM Caldera Forms Website Processor Class.
  *
  * @since 0.2
  */
-class CiviCRM_Caldera_Forms_Address_Processor {
+class CiviCRM_Caldera_Forms_Website_Processor {
 
 	/**
 	 * The processor key.
@@ -14,7 +14,7 @@ class CiviCRM_Caldera_Forms_Address_Processor {
 	 * @access public
 	 * @var str $key_name The processor key
 	 */
-	public $key_name = 'civicrm_address';
+	public $key_name = 'civicrm_website';
 
 	/**
 	 * Initialises this object.
@@ -43,10 +43,10 @@ class CiviCRM_Caldera_Forms_Address_Processor {
 	public function register_processor( $processors ) {
 
 		$processors[$this->key_name] = array(
-			'name' => __( 'CiviCRM Address', 'caldera-forms-civicrm' ),
-			'description' => __( 'Add CiviCRM address to contacts', 'caldera-forms-civicrm' ),
+			'name' => __( 'CiviCRM Website', 'caldera-forms-civicrm' ),
+			'description' => __( 'Add CiviCRM website to contacts', 'caldera-forms-civicrm' ),
 			'author' => 'Andrei Mondoc',
-			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/address/address_config.php',
+			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/website/website_config.php',
 			'processor' => array( $this, 'processor' ),
 		);
 
@@ -70,11 +70,13 @@ class CiviCRM_Caldera_Forms_Address_Processor {
 		if ( ! empty( $transdata['civicrm']['contact_id_' . $config['contact_link']] ) ) {
 
 			try {
-				$address = civicrm_api3( 'Address', 'getsingle', array(
+
+				$website = civicrm_api3( 'Website', 'getsingle', array(
 					'sequential' => 1,
 					'contact_id' => $transdata['civicrm']['contact_id_' . $config['contact_link']],
-					'location_type_id' => $config['location_type_id'],
+					'website_type_id' => $config['website_type_id'],
 				));
+
 			} catch ( Exception $e ) {
 				// Ignore if none found
 			}
@@ -87,18 +89,15 @@ class CiviCRM_Caldera_Forms_Address_Processor {
 			}
 
 			$form_values['contact_id'] = $transdata['civicrm']['contact_id_' . $config['contact_link']]; // Contact ID set in Contact Processor
-			$form_values['location_type_id'] = $config['location_type_id']; // Address Location Type
 
-			// Pass address ID if we got one
-			if ( isset( $address ) && is_array( $address ) ) {
-				$form_values['id'] = $address['id']; // Address ID
-			}
+			// Pass Website ID if we got one
+			if ( $website ) {
+				$form_values['id'] = $website['id']; // Website ID
+			} else {
+                $form_values['website_type_id'] = $config['website_type_id'];
+            }
 
-			// FIXME
-			// Concatenate DATE + TIME
-			// $form_values['activity_date_time'] = $form_values['activity_date_time'];
-
-			$create_address = civicrm_api3( 'Address', 'create', $form_values );
+			$create_email = civicrm_api3( 'Website', 'create', $form_values );
 
 		}
 
@@ -120,34 +119,34 @@ class CiviCRM_Caldera_Forms_Address_Processor {
 		global $transdata;
 
 		foreach ( $form['processors'] as $processor => $pr_id ) {
-
 			if( $pr_id['type'] == $this->key_name ){
+
 				if ( isset( $transdata['civicrm']['contact_id_' . $pr_id['config']['contact_link']] ) ) {
 					try {
 
-						$civi_contact_address = civicrm_api3( 'Address', 'getsingle', array(
+						$civi_contact_website = civicrm_api3( 'Website', 'getsingle', array(
 							'sequential' => 1,
 							'contact_id' => $transdata['civicrm']['contact_id_' . $pr_id['config']['contact_link']],
-							'location_type_id' => $pr_id['config']['location_type_id'],
+							'website_type_id' => $pr_id['config']['website_type_id'],
 						));
 
 					} catch ( Exception $e ) {
-						// Ignore if we have more than one address with same location type
+						// Ignore if we have more than one website with same location type or none
 					}
 				}
 
-				unset( $pr_id['config']['contact_link'], $pr_id['config']['location_type_id'] );
+				unset( $pr_id['config']['contact_link'], $pr_id['config']['website_type_id'] );
 
-				if ( isset( $civi_contact_address ) && ! isset( $civi_contact_address['count'] ) ) {
+				if ( isset( $civi_contact_website ) && ! isset( $civi_contact_website['count'] ) ) {
 					foreach ( $pr_id['config'] as $field => $value ) {
 						if ( ! empty( $value ) ) {
-							$form['fields'][$value]['config']['default'] = $civi_contact_address[$field];
+							$form['fields'][$value]['config']['default'] = $civi_contact_website[$field];
 						}
 					}
 				}
 
-				// Clear Address data
-				unset( $civi_contact_address );
+				// Clear Website data
+				unset( $civi_contact_website );
 			}
 
 		}
