@@ -8,14 +8,60 @@
 class CiviCRM_Caldera_Forms_Fields {
 
 	/**
+	 * The custom field objects reference array.
+	 *
+	 * @since 0.2
+	 * @access public
+	 * @var array $field_objects The custom field objects reference array
+	 */
+	public $field_objects = array();
+
+	/**
+	 * The custom fields data array.
+	 *
+	 * @since 0.2
+	 * @access public
+	 * @var array $processors The custom fields data array
+	 */
+	public $custom_fields_data = array();
+
+	/**
 	 * Initialises this object.
 	 *
 	 * @since 0.2
 	 */
 	public function __construct() {
 
-		// register Caldera Forms callbacks
+		// initialise this object
+		$this->include_files();
+		$this->setup_objects();
 		$this->register_hooks();
+
+	}
+
+	/**
+	 * Include field class files.
+	 *
+	 * @since 0.2
+	 */
+	private function include_files() {
+
+		// include field class files
+		include CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_country/class-civicrm-country.php';
+		include CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_state/class-civicrm-state.php';
+
+	}
+
+	/**
+	 * Initialise field objects.
+	 *
+	 * @since 0.2
+	 */
+	private function setup_objects() {
+
+		// add to custom fields array
+		$this->field_objects['civicrm_country'] = new CiviCRM_Caldera_Forms_Field_Country;
+		$this->field_objects['civicrm_state'] = new CiviCRM_Caldera_Forms_Field_State;
 
 	}
 
@@ -25,9 +71,6 @@ class CiviCRM_Caldera_Forms_Fields {
 	 * @since 0.2
 	 */
 	public function register_hooks() {
-
-		// add custom fields to Caldera UI
-		add_filter( 'caldera_forms_get_field_types', array( $this, 'custom_fields_register' ) );
 
 		// adds custom fields options Presets
 		add_filter( 'caldera_forms_field_option_presets', array( $this, 'custom_fields_options_presets' ) );
@@ -39,58 +82,6 @@ class CiviCRM_Caldera_Forms_Fields {
 		// auto-populate CiviCRM values
 		add_filter( 'caldera_forms_render_get_field', array( $this, 'values_autopopulate' ), 20, 2 );
 		add_action( 'caldera_forms_autopopulate_types', array( $this, 'values_autopopulate_options' ) );
-
-	}
-
-	/**
-	 * Adds custom fields to Caldera UI.
-	 *
-	 * @uses 'caldera_forms_get_field_types' filter
-	 *
-	 * @since 0.2
-	 *
-	 * @param array $fieldtypes The existing fields configuration
-	 * @return array $fieldtypes The modified fields configuration
-	 */
-	public function custom_fields_register( $fieldtypes ) {
-
-		$fieldtypes['civicrm_country'] = array(
-			'field'		 =>  __( 'CiviCRM Country', 'caldera-forms-civicrm' ),
-			'file'		  =>  CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_country/field.php',
-			'category'	  =>  __( 'CiviCRM', 'caldera-forms-civicrm' ),
-			'description'   =>  __( 'CiviCRM Country dropdown', 'caldera-forms-civicrm' ),
-			'setup'		 =>  array(
-				'template'  =>  CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_country/config.php',
-				'preview'   =>  CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_country/preview.php',
-				'default'   =>  array(
-					'placeholder' => __( 'Select a Country', 'caldera-forms-civicrm' ),
-					'default' => CiviCRM_Caldera_Forms_Helper::get_civicrm_settings( 'defaultContactCountry' )
-				),
-				'not_supported' =>  array(
-					'entry_list',
-				)
-			)
-		);
-
-		$fieldtypes['civicrm_state'] = array(
-			'field'		 =>  __( 'CiviCRM State/Province', 'caldera-forms-civicrm' ),
-			'file'		  =>  CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_state/field.php',
-			'category'	  =>  __( 'CiviCRM', 'caldera-forms-civicrm' ),
-			'description'   => __( 'CiviCRM State/Province dropdown', 'caldera-forms-civicrm' ),
-			'setup'		 =>  array(
-				'template'  =>  CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_state/config.php',
-				'preview'   =>  CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_state/preview.php',
-				'default'   =>  array(
-					'placeholder' => __( 'Select a State/Province', 'caldera-forms-civicrm' ),
-					'default' => CiviCRM_Caldera_Forms_Helper::get_civicrm_settings( 'defaultContactStateProvince' )
-				),
-				'not_supported' =>  array(
-					'entry_list',
-				)
-			)
-		);
-
-		return $fieldtypes;
 
 	}
 
@@ -107,11 +98,7 @@ class CiviCRM_Caldera_Forms_Fields {
 	public function custom_fields_options_presets( $presets ) {
 
 		// get all custom fields
-		$customFields = civicrm_api3( 'CustomField', 'get', array(
-			'sequential' => 1,
-			'options' => array( 'limit' => 0 ),
-			'is_active' => 1,
-		));
+		$customFields = $this->custom_fields_data_get();
 		$htmlTypes = array( 'Select', 'Radio', 'CheckBox', 'Multi-Select', 'AdvMulti-Select' );
 
 		$custom = array();
@@ -164,11 +151,7 @@ class CiviCRM_Caldera_Forms_Fields {
 		if ( ! empty( $field['config']['auto'] ) ) {
 
 			// get all custom fields
-			$customFields = civicrm_api3( 'CustomField', 'get', array(
-				'sequential' => 1,
-				'options' => array('limit' => 0),
-				'is_active' => 1,
-			));
+			$customFields = $this->custom_fields_data_get();
 
 			if ( $customFields && ! $customFields['is_error'] && $customFields['count'] != 0 ) {
 				$htmlTypes = array( 'Select', 'Radio', 'CheckBox', 'Multi-Select', 'AdvMulti-Select' );
@@ -207,11 +190,7 @@ class CiviCRM_Caldera_Forms_Fields {
 	public function custom_fields_autopopulate_options() {
 
 		// get all custom fields
-		$customFields = civicrm_api3( 'CustomField', 'get', array(
-			'sequential' => 1,
-			'options' => array('limit' => 0),
-			'is_active' => 1,
-		));
+		$customFields = $this->custom_fields_data_get();
 
 		if ( $customFields && !$customFields['is_error'] && $customFields['count'] != 0 ) {
 			$htmlTypes = array( 'Select', 'Radio', 'CheckBox', 'Multi-Select', 'AdvMulti-Select' );
@@ -540,6 +519,27 @@ class CiviCRM_Caldera_Forms_Fields {
 		echo "<option value=\"phone_type_id\"{{#is auto_type value=\"phone_type_id\"}} selected=\"selected\"{{/is}}>" . __( 'CiviCRM - Phone Type', 'caldera-forms-civicrm' ) . "</option>";
 		// Website Type
 		echo "<option value=\"website_type_id\"{{#is auto_type value=\"website_type_id\"}} selected=\"selected\"{{/is}}>" . __( 'CiviCRM - Website Type', 'caldera-forms-civicrm' ) . "</option>";
+
+	}
+
+	/**
+	 * Retrieves custom field data from CiviCRM.
+	 *
+	 * @since 0.2
+	 *
+	 * @return array $presets The modified presets
+	 */
+	public function custom_fields_data_get() {
+
+		// return data if it's already retrieved
+		if ( ! empty( $this->custom_fields_data ) ) return $this->custom_fields_data;
+
+		// get all custom fields
+		$this->custom_fields_data = civicrm_api3( 'CustomField', 'get', array(
+			'sequential' => 1,
+			'options' => array( 'limit' => 0 ),
+			'is_active' => 1,
+		));
 
 	}
 
