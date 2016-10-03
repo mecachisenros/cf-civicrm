@@ -90,7 +90,7 @@ class CiviCRM_Caldera_Forms_Address_Processor {
 			$form_values['location_type_id'] = $config['location_type_id']; // Address Location Type
 
 			// Pass address ID if we got one
-			if ( $address ) {
+			if ( isset( $address ) && is_array( $address ) ) {
 				$form_values['id'] = $address['id']; // Address ID
 			}
 
