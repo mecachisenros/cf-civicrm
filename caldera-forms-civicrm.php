@@ -15,7 +15,7 @@
  *
  * @since 0.1
  */
-define( 'CF_CIVICRM_INTEGRATION_VER', '0.2' );
+define( 'CF_CIVICRM_INTEGRATION_VER', '0.3' );
 define( 'CF_CIVICRM_INTEGRATION_URL', plugin_dir_url( __FILE__ ) );
 define( 'CF_CIVICRM_INTEGRATION_PATH', plugin_dir_path( __FILE__ ) );
 
