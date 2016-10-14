@@ -9,10 +9,13 @@ return array(
 	'name' => __( 'CiviCRM Organisation and Contact', 'caldera-forms-civicrm' ),
 	'description' => __( 'CiviCRM organisation form with primary contact.', 'caldera-forms-civicrm' ),
 	'db_support' => 1,
+	'pinned' => 0,
 	'hide_form' => 1,
+	'check_honey' => 0,
 	'success' => __( 'Form has been successfully submitted. Thank you.', 'caldera-forms-civicrm' ),
 	'avatar_field' => '',
 	'form_ajax' => 1,
+	'custom_callback' => '',
 	'layout_grid' =>
 	array(
 		'fields' =>
@@ -29,7 +32,7 @@ return array(
 			'prefix' => '4:1',
 			'first_name' => '4:2',
 			'last_name' => '4:3',
-			'email' => '5:1',
+			'contact_email' => '5:1',
 			'submit' => '6:1',
 		),
 		'structure' => '12|6:6|12|2:5:5|12|12',
@@ -279,12 +282,12 @@ return array(
 				'type_override' => 'text',
 			),
 		),
-		'email' =>
+		'contact_email' =>
 		array(
-			'ID' => 'email',
+			'ID' => 'contact_email',
 			'type' => 'email',
 			'label' => __( 'Contact Email', 'caldera-forms-civicrm' ),
-			'slug' => 'email',
+			'slug' => 'contact_email',
 			'conditions' =>
 			array(
 				'type' => '',
@@ -335,6 +338,107 @@ return array(
 	),
 	'processors' =>
 	array(
+		'fp_57688899' =>
+		array(
+			'ID' => 'fp_57688899',
+			'runtimes' =>
+			array(
+				'insert' => 1,
+			),
+			'type' => 'civicrm_contact',
+			'config' =>
+			array(
+				'auto_pop' => 1,
+				'email_enabled' => 1,
+				'contact_link' => 1,
+				'civicrm_contact' =>
+				array(
+					'contact_type' => 'Individual',
+					'contact_sub_type' => '',
+					'dedupe_rule' => '',
+					'do_not_email' => '',
+					'do_not_phone' => '',
+					'do_not_mail' => '',
+					'do_not_sms' => '',
+					'do_not_trade' => '',
+					'is_opt_out' => '',
+					'legal_identifier' => '',
+					'nick_name' => '',
+					'legal_name' => '',
+					'preferred_communication_method' => '',
+					'preferred_language' => '',
+					'preferred_mail_format' => '',
+					'source' => '',
+					'first_name' => '%first_name%',
+					'middle_name' => '',
+					'last_name' => '%last_name%',
+					'prefix_id' => '%prefix%',
+					'suffix_id' => '',
+					'formal_title' => '',
+					'communication_style_id' => '',
+					'job_title' => '',
+					'gender_id' => '',
+					'birth_date' => '',
+					'household_name' => '',
+					'organization_name' => '',
+					'sic_code' => '',
+					'current_employer' => '',
+					'email' => '%contact_email%',
+					'custom_1' => '',
+					'custom_2' => '',
+					'custom_3' => '',
+				),
+				'civicrm_address' =>
+				array(
+					'location_type_id' => '',
+					'is_primary' => '',
+					'is_billing' => '',
+					'street_address' => '',
+					'supplemental_address_1' => '',
+					'supplemental_address_2' => '',
+					'city' => '',
+					'state_province_id' => '',
+					'postal_code' => '',
+					'country_id' => '',
+				),
+				'civicrm_phone' =>
+				array(
+					'location_type_id' => '',
+					'is_primary' => '',
+					'is_billing' => '',
+					'phone' => '',
+					'phone_numeric' => '',
+					'phone_type_id' => '',
+				),
+				'civicrm_note' =>
+				array(
+					'note' => '',
+					'subject' => '',
+				),
+				'civicrm_email' =>
+				array(
+					'location_type_id' => 2,
+					'email' => '%contact_email%',
+					'is_primary' => '',
+					'is_billing' => '',
+					'on_hold' => '',
+					'is_bulkmail' => '',
+				),
+				'civicrm_website' =>
+				array(
+					'website_type_id' => '',
+					'url' => '',
+				),
+				'civicrm_group' =>
+				array(
+					'contact_group' => '',
+				),
+			),
+			'conditions' =>
+			array(
+				'type' => '',
+			),
+		),
 		'fp_76099928' =>
 		array(
 			'ID' => 'fp_76099928',
@@ -347,7 +451,7 @@ return array(
 			array(
 				'address_enabled' => 1,
 				'email_enabled' => 1,
-				'contact_link' => 1,
+				'contact_link' => 2,
 				'civicrm_contact' =>
 				array(
 					'contact_type' => 'Organization',
@@ -436,107 +540,6 @@ return array(
 				'type' => '',
 			),
 		),
-		'fp_57688899' =>
-		array(
-			'ID' => 'fp_57688899',
-			'runtimes' =>
-			array(
-				'insert' => 1,
-			),
-			'type' => 'civicrm_contact',
-			'config' =>
-			array(
-				'auto_pop' => 1,
-				'email_enabled' => 1,
-				'contact_link' => 2,
-				'civicrm_contact' =>
-				array(
-					'contact_type' => 'Individual',
-					'contact_sub_type' => '',
-					'dedupe_rule' => '',
-					'do_not_email' => '',
-					'do_not_phone' => '',
-					'do_not_mail' => '',
-					'do_not_sms' => '',
-					'do_not_trade' => '',
-					'is_opt_out' => '',
-					'legal_identifier' => '',
-					'nick_name' => '',
-					'legal_name' => '',
-					'preferred_communication_method' => '',
-					'preferred_language' => '',
-					'preferred_mail_format' => '',
-					'source' => '',
-					'first_name' => '%first_name%',
-					'middle_name' => '',
-					'last_name' => '%last_name%',
-					'prefix_id' => '%prefix%',
-					'suffix_id' => '',
-					'formal_title' => '',
-					'communication_style_id' => '',
-					'job_title' => '',
-					'gender_id' => '',
-					'birth_date' => '',
-					'household_name' => '',
-					'organization_name' => '',
-					'sic_code' => '',
-					'current_employer' => '',
-					'email' => '%email%',
-					'custom_1' => '',
-					'custom_2' => '',
-					'custom_3' => '',
-				),
-				'civicrm_address' =>
-				array(
-					'location_type_id' => '',
-					'is_primary' => '',
-					'is_billing' => '',
-					'street_address' => '',
-					'supplemental_address_1' => '',
-					'supplemental_address_2' => '',
-					'city' => '',
-					'state_province_id' => '',
-					'postal_code' => '',
-					'country_id' => '',
-				),
-				'civicrm_phone' =>
-				array(
-					'location_type_id' => '',
-					'is_primary' => '',
-					'is_billing' => '',
-					'phone' => '',
-					'phone_numeric' => '',
-					'phone_type_id' => '',
-				),
-				'civicrm_note' =>
-				array(
-					'note' => '',
-					'subject' => '',
-				),
-				'civicrm_email' =>
-				array(
-					'location_type_id' => 2,
-					'email' => '%email%',
-					'is_primary' => '',
-					'is_billing' => '',
-					'on_hold' => '',
-					'is_bulkmail' => '',
-				),
-				'civicrm_website' =>
-				array(
-					'website_type_id' => '',
-					'url' => '',
-				),
-				'civicrm_group' =>
-				array(
-					'contact_group' => '',
-				),
-			),
-			'conditions' =>
-			array(
-				'type' => '',
-			),
-		),
 		'fp_72121786' =>
 		array(
 			'ID' => 'fp_72121786',
@@ -548,8 +551,8 @@ return array(
 			'config' =>
 			array(
 				'relationship_type' => 5,
-				'contact_a' => 2,
-				'contact_b' => 1,
+				'contact_a' => 1,
+				'contact_b' => 2,
 			),
 			'conditions' =>
 			array(

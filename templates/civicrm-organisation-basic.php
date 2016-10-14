@@ -9,16 +9,19 @@ return array(
 	'name' => __( 'CiviCRM Organisation', 'caldera-forms-civicrm' ),
 	'description' => __( 'Basic CiviCRM organisation form.', 'caldera-forms-civicrm' ),
 	'db_support' => 1,
+	'pinned' => 0,
 	'hide_form' => 1,
+	'check_honey' => 0,
 	'success' => __( 'Form has been successfully submitted. Thank you.', 'caldera-forms-civicrm' ),
 	'avatar_field' => '',
 	'form_ajax' => 1,
+	'custom_callback' => '',
 	'layout_grid' =>
 	array(
 		'fields' =>
 		array(
 			'organisation_name' => '1:1',
-			'email' => '1:1',
+			'org_email' => '1:1',
 			'street_address' => '2:1',
 			'supplemental_address' => '2:1',
 			'city' => '2:1',
@@ -51,12 +54,12 @@ return array(
 				'type_override' => 'text',
 			),
 		),
-		'email' =>
+		'org_email' =>
 		array(
-			'ID' => 'email',
+			'ID' => 'org_email',
 			'type' => 'email',
 			'label' => __( 'Contact Email', 'caldera-forms-civicrm' ),
-			'slug' => 'email',
+			'slug' => 'org_email',
 			'conditions' =>
 			array(
 				'type' => '',
@@ -131,6 +134,24 @@ return array(
 				'type_override' => 'text',
 			),
 		),
+		'state' =>
+		array(
+			'ID' => 'state',
+			'type' => 'civicrm_state',
+			'label' => __( 'State', 'caldera-forms-civicrm' ),
+			'slug' => 'state',
+			'conditions' =>
+			array(
+				'type' => '',
+			),
+			'caption' => '',
+			'config' =>
+			array(
+				'custom_class' => '',
+				'placeholder' => __( 'Select a State/Province', 'caldera-forms-civicrm' ),
+				'default' => '',
+			),
+		),
 		'country' =>
 		array(
 			'ID' => 'country',
@@ -147,24 +168,6 @@ return array(
 			array(
 				'custom_class' => '',
 				'placeholder' => __( 'Select a Country', 'caldera-forms-civicrm' ),
-				'default' => '',
-			),
-		),
-		'state' =>
-		array(
-			'ID' => 'state',
-			'type' => 'civicrm_state',
-			'label' => __( 'State', 'caldera-forms-civicrm' ),
-			'slug' => 'state',
-			'conditions' =>
-			array(
-				'type' => '',
-			),
-			'caption' => '',
-			'config' =>
-			array(
-				'custom_class' => '',
-				'placeholder' => __( 'Select a State/Province', 'caldera-forms-civicrm' ),
 				'default' => '',
 			),
 		),
@@ -251,7 +254,7 @@ return array(
 					'organization_name' => '%organisation_name%',
 					'sic_code' => '',
 					'current_employer' => '',
-					'email' => '%email%',
+					'email' => '%org_email%',
 					'custom_1' => '',
 					'custom_2' => '',
 					'custom_3' => '',
@@ -286,7 +289,7 @@ return array(
 				'civicrm_email' =>
 				array(
 					'location_type_id' => 2,
-					'email' => '%email%',
+					'email' => '%org_email%',
 					'is_primary' => '',
 					'is_billing' => '',
 					'on_hold' => '',

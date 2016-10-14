@@ -9,10 +9,13 @@ return array(
 	'name' => __( 'CiviCRM Contact and Address', 'caldera-forms-civicrm' ),
 	'description' => __( 'CiviCRM contact form with address.', 'caldera-forms-civicrm' ),
 	'db_support' => 1,
+	'pinned' => 0,
 	'hide_form' => 1,
+	'check_honey' => 0,
 	'success' => __( 'Form has been successfully submitted. Thank you.', 'caldera-forms-civicrm' ),
 	'avatar_field' => '',
 	'form_ajax' => 1,
+	'custom_callback' => '',
 	'layout_grid' =>
 	array(
 		'fields' =>
@@ -20,7 +23,7 @@ return array(
 			'prefix' => '1:1',
 			'first_name' => '1:2',
 			'last_name' => '1:3',
-			'email' => '2:1',
+			'contact_email' => '2:1',
 			'street_address' => '3:1',
 			'supplemental_address' => '3:1',
 			'city' => '3:1',
@@ -100,12 +103,12 @@ return array(
 				'type_override' => 'text',
 			),
 		),
-		'email' =>
+		'contact_email' =>
 		array(
-			'ID' => 'email',
+			'ID' => 'contact_email',
 			'type' => 'email',
 			'label' => __( 'Email', 'caldera-forms-civicrm' ),
-			'slug' => 'email',
+			'slug' => 'contact_email',
 			'conditions' =>
 			array(
 				'type' => '',
@@ -117,25 +120,6 @@ return array(
 				'custom_class' => '',
 				'placeholder' => '',
 				'default' => '',
-			),
-		),
-		'submit' =>
-		array(
-			'ID' => 'submit',
-			'type' => 'button',
-			'label' => __( 'Submit', 'caldera-forms-civicrm' ),
-			'slug' => 'submit',
-			'conditions' =>
-			array(
-				'type' => '',
-			),
-			'caption' => '',
-			'config' =>
-			array(
-				'custom_class' => '',
-				'type' => 'submit',
-				'class' => 'btn btn-default',
-				'target' => '',
 			),
 		),
 		'street_address' =>
@@ -234,6 +218,25 @@ return array(
 				'default' => 1228,
 			),
 		),
+		'submit' =>
+		array(
+			'ID' => 'submit',
+			'type' => 'button',
+			'label' => __( 'Submit', 'caldera-forms-civicrm' ),
+			'slug' => 'submit',
+			'conditions' =>
+			array(
+				'type' => '',
+			),
+			'caption' => '',
+			'config' =>
+			array(
+				'custom_class' => '',
+				'type' => 'submit',
+				'class' => 'btn btn-default',
+				'target' => '',
+			),
+		),
 	),
 	'page_names' =>
 	array(
@@ -299,7 +302,7 @@ return array(
 					'organization_name' => '',
 					'sic_code' => '',
 					'current_employer' => '',
-					'email' => '%email%',
+					'email' => '%contact_email%',
 					'custom_1' => '',
 					'custom_2' => '',
 					'custom_3' => '',
@@ -334,7 +337,7 @@ return array(
 				'civicrm_email' =>
 				array(
 					'location_type_id' => 1,
-					'email' => '%email%',
+					'email' => '%contact_email%',
 					'is_primary' => '',
 					'is_billing' => '',
 					'on_hold' => '',
