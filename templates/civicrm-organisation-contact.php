@@ -10,7 +10,6 @@ return array(
 	'description' => __( 'CiviCRM organisation form with primary contact.', 'caldera-forms-civicrm' ),
 	'db_support' => 1,
 	'hide_form' => 1,
-	'check_honey' => 1,
 	'success' => __( 'Form has been successfully submitted. Thank you.', 'caldera-forms-civicrm' ),
 	'avatar_field' => '',
 	'form_ajax' => 1,
