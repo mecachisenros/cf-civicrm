@@ -9,10 +9,13 @@ return array(
 	'name' => __( 'CiviCRM Contact Form', 'caldera-forms-civicrm' ),
 	'description' => __( 'Basic CiviCRM contact form.', 'caldera-forms-civicrm' ),
 	'db_support' => 1,
+	'pinned' => 0,
 	'hide_form' => 1,
+	'check_honey' => 0,
 	'success' => __( 'Form has been successfully submitted. Thank you.', 'caldera-forms-civicrm' ),
 	'avatar_field' => '',
 	'form_ajax' => 1,
+	'custom_callback' => '',
 	'layout_grid' =>
 	array(
 		'fields' =>
@@ -20,7 +23,7 @@ return array(
 			'prefix' => '1:1',
 			'first_name' => '1:2',
 			'last_name' => '1:3',
-			'email' => '2:1',
+			'contact_email' => '2:1',
 			'submit' => '3:1',
 		),
 		'structure' => '2:5:5|12|12',
@@ -95,12 +98,12 @@ return array(
 				'type_override' => 'text',
 			),
 		),
-		'email' =>
+		'contact_email' =>
 		array(
-			'ID' => 'email',
+			'ID' => 'contact_email',
 			'type' => 'email',
 			'label' => __( 'Email', 'caldera-forms-civicrm' ),
-			'slug' => 'email',
+			'slug' => 'contact_email',
 			'conditions' =>
 			array(
 				'type' => '',
@@ -197,7 +200,7 @@ return array(
 					'organization_name' => '',
 					'sic_code' => '',
 					'current_employer' => '',
-					'email' => '%email%',
+					'email' => '%contact_email%',
 					'custom_1' => '',
 					'custom_2' => '',
 					'custom_3' => '',
@@ -232,7 +235,7 @@ return array(
 				'civicrm_email' =>
 				array(
 					'location_type_id' => 3,
-					'email' => '%email%',
+					'email' => '%contact_email%',
 					'is_primary' => '',
 					'is_billing' => '',
 					'on_hold' => '',
