@@ -396,7 +396,7 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 	 *
 	 * @since 0.3
 	 */
-	public function process_group( $config, $form){
+	public function process_group( $config, $form, $transdata, $form_values ){
 
 		if ( ! empty( $transdata['civicrm']['contact_id_' . $config['contact_link']] ) ) {
 			$result = civicrm_api3( 'GroupContact', 'create', array(
