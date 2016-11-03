@@ -115,7 +115,7 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 		$ids = CRM_Dedupe_Finder::dupesByParams( $dedupeParams, $config['civicrm_contact']['contact_type'], NULL, array(), $config['civicrm_contact']['dedupe_rule'] );
 
 		// Pass contact id if found
-		$form_values['contact_id'] = $ids ? $ids[0] : 0;
+		$form_values['civicrm_contact']['contact_id'] = $ids ? $ids[0] : 0;
 
 		$create_contact = civicrm_api3( 'Contact', 'create', $form_values['civicrm_contact'] );
 
