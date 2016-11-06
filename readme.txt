@@ -35,7 +35,9 @@ This plugin is in active development. For feature requests and bug reports (or i
 == Changelog ==
 
 = 0.3 =
+* Form Templates
 * Contact processor UI improvements
+* IM processor
 
 = 0.2 =
 

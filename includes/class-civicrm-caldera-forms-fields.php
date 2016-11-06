@@ -468,6 +468,19 @@ class CiviCRM_Caldera_Forms_Fields {
 							);
 					}
 					break;
+				// IM Type
+				case 'provider_id':
+					$provider_id = civicrm_api3( 'Im', 'getoptions', array(
+						'sequential' => 1,
+						'field' => 'provider_id',
+					));
+					foreach ( $provider_id['values'] as $index ) {
+							$field['config']['option'][$index['key']] = array(
+								'value' => $index['key'],
+								'label' => $index['value']
+							);
+					}
+					break;
 			}
 
 		}
@@ -519,6 +532,8 @@ class CiviCRM_Caldera_Forms_Fields {
 		echo "<option value=\"phone_type_id\"{{#is auto_type value=\"phone_type_id\"}} selected=\"selected\"{{/is}}>" . __( 'CiviCRM - Phone Type', 'caldera-forms-civicrm' ) . "</option>";
 		// Website Type
 		echo "<option value=\"website_type_id\"{{#is auto_type value=\"website_type_id\"}} selected=\"selected\"{{/is}}>" . __( 'CiviCRM - Website Type', 'caldera-forms-civicrm' ) . "</option>";
+		// IM Type
+		echo "<option value=\"provider_id\"{{#is auto_type value=\"provider_id\"}} selected=\"selected\"{{/is}}>" . __( 'CiviCRM - Im Type', 'caldera-forms-civicrm' ) . "</option>";
 
 	}
 

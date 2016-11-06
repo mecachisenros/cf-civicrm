@@ -31,6 +31,11 @@
 	</div>
 	<div class="caldera-config-group caldera-config-group-full">
 		<div class="caldera-config-field">
+			<label><input id="im_enabled" data-entity-accordion="civicrm-im-entity" type="checkbox" name="{{_name}}[enabled_entities][process_im]" value="1" {{#if enabled_entities/process_im}}checked="checked"{{/if}}><?php _e( 'Process Im for this contact.', 'caldera-forms-civicrm' ); ?></label>
+		</div>
+	</div>
+	<div class="caldera-config-group caldera-config-group-full">
+		<div class="caldera-config-field">
 			<label><input id="group_enabled" data-entity-accordion="civicrm-group-entity" type="checkbox" name="{{_name}}[enabled_entities][process_group]" value="1" {{#if enabled_entities/process_group}}checked="checked"{{/if}}><?php _e( 'Process group for this contact.', 'caldera-forms-civicrm' ); ?></label>
 		</div>
 	</div>
@@ -372,6 +377,53 @@ $indStandardFields = array( 'first_name', 'last_name', 'middle_name', 'prefix_id
 				<label><?php echo __($value['title']); ?> </label>
 				<div class="caldera-config-field">
 					<input type="text" class="block-input field-config magic-tag-enabled caldera-field-bind" id="{{_id}}" name="{{_name}}[civicrm_website][<?php echo $value['name']; ?>]" value="{{<?php echo 'civicrm_website/' . $value['name']; ?>}}">
+				</div>
+			</div>
+		<?php } } ?>
+		<hr style="clear: both;" />
+	</div>
+</div>
+
+
+<!-- === Im entity === -->
+<?php
+	$imFields = civicrm_api3('Im', 'getfields', array(
+		'sequential' => 1,
+	));
+
+	$imType = civicrm_api3('Im', 'getoptions', array(
+		'sequential' => 1,
+		'field' => "location_type_id",
+	));
+
+	$iFields = array( 'name', 'provider_id', 'is_primary', 'is_billing' );
+?>
+
+<div class="civicrm-im-entity">
+	<a id="civicrm-im-fields-button" class="button civicrm-accordion" style="width: 100%; margin-bottom: 5px;"><?php _e( 'Contact Im', 'caldera-forms-civicrm' ); ?></a>
+	<div class="civicrm-im-fields" style="display: none;">
+		<h2><?php _e( 'Im Location Type', 'caldera-forms-civicrm' ); ?></h2>
+		<div id="location_type_id" class="caldera-config-group">
+			<label><?php echo __('Im Location Type'); ?></label>
+			<div class="caldera-config-field">
+				<select class="block-input field-config" name="{{_name}}[civicrm_im][location_type_id]">
+				<option value="" {{#is civicrm_im/location_type_id value=""}}selected="selected"{{/is}}></option>
+				<?php foreach( $imType['values'] as $key => $value) { ?>
+					<option value="<?php echo $value['key']; ?>" {{#is civicrm_im/location_type_id value=<?php echo $value['key']; ?>}}selected="selected"{{/is}}><?php echo $value['value']; ?></option>
+				<?php } ?>
+				</select>
+			</div>
+		</div>
+		<hr style="clear: both;" />
+
+		<h2><?php _e( 'Im Fields', 'caldera-forms-civicrm' ); ?></h2>
+		<?php
+			foreach( $imFields['values'] as $key => $value ) {
+				if( in_array($value['name'], $iFields ) ){ ?>
+			<div id="<?php echo esc_attr( $value['name'] ); ?>" class="caldera-config-group">
+				<label><?php echo __($value['title']); ?> </label>
+				<div class="caldera-config-field">
+					<input type="text" class="block-input field-config magic-tag-enabled caldera-field-bind" id="{{_id}}" name="{{_name}}[civicrm_im][<?php echo $value['name']; ?>]" value="{{<?php echo 'civicrm_im/' . $value['name']; ?>}}">
 				</div>
 			</div>
 		<?php } } ?>

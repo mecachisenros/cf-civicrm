@@ -25,6 +25,7 @@ Currently supports:
 ### + Phone entity
 ### + Note entity
 ### + Website entity
+### + IM (Instant Messenger) entity
 
 ### Coming soon
-+ IM processor
++ Request a feature
