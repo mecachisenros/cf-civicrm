@@ -68,21 +68,24 @@ class CiviCRM_Caldera_Forms_Activity_Processor {
 		// Get form values for each processor field
 		// $value is the field id
 		$form_values = array();
-		foreach ( $config as $key => $field_id ) {
-			$form_values[$key] = Caldera_Forms::get_field_data( $field_id, $form );
+		foreach( $config as $key => $field_id ) {
+			$mapped_field = Caldera_Forms::get_field_data( $field_id, $form );
+			if( ! empty( $mapped_field ) ){
+				$form_values[$key] = $mapped_field;
+			}
 		}
 
-		$form_values['source_contact_id'] = $transdata['civicrm']['contact_id_'.$config['contact_link']]; // Contact ID set in Contact Processor
-		$form_values['activity_type_id'] = $config['activity_type_id']; // Activity Type ID
-		$form_values['status_id'] = $config['status_id']; // Activity Status ID
-		$form_values['campaign_id'] = $config['campaign_id']; // Campaign ID
+		if( ! empty( $form_values ) ) {
+			$form_values['source_contact_id'] = $transdata['civicrm']['contact_id_'.$config['contact_link']]; // Contact ID set in Contact Processor
+			$form_values['activity_type_id'] = $config['activity_type_id']; // Activity Type ID
+			$form_values['status_id'] = $config['status_id']; // Activity Status ID
+			$form_values['campaign_id'] = $config['campaign_id']; // Campaign ID
 
-		// FIXME
-		// Concatenate DATE + TIME
-		// $form_values['activity_date_time'] = $form_values['activity_date_time'];
+			// FIXME
+			// Concatenate DATE + TIME
+			// $form_values['activity_date_time'] = $form_values['activity_date_time'];
 
-		$create_activity = civicrm_api3( 'Activity', 'create', $form_values );
-
+			$create_activity = civicrm_api3( 'Activity', 'create', $form_values );
+		}
 	}
-
 }

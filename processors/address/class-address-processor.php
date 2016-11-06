@@ -82,26 +82,30 @@ class CiviCRM_Caldera_Forms_Address_Processor {
 			// Get form values for each processor field
 			// $value is the field id
 			$form_values = array();
-			foreach ( $config as $key => $field_id ) {
-				$form_values[$key] = Caldera_Forms::get_field_data( $field_id, $form );
+			foreach( $config as $key => $field_id ) {
+				$mapped_field = Caldera_Forms::get_field_data( $field_id, $form );
+				if( ! empty( $mapped_field ) ){
+					$form_values[$key] = $mapped_field;
+				}
 			}
 
-			$form_values['contact_id'] = $transdata['civicrm']['contact_id_' . $config['contact_link']]; // Contact ID set in Contact Processor
-			$form_values['location_type_id'] = $config['location_type_id']; // Address Location Type
+			if( ! empty( $form_values ) ) {
+				$form_values['contact_id'] = $transdata['civicrm']['contact_id_' . $config['contact_link']]; // Contact ID set in Contact Processor
 
-			// Pass address ID if we got one
-			if ( isset( $address ) && is_array( $address ) ) {
-				$form_values['id'] = $address['id']; // Address ID
+				// Pass address ID if we got one
+				if ( isset( $address ) && is_array( $address ) ) {
+					$form_values['id'] = $address['id']; // Address ID
+				} else {
+					$form_values['location_type_id'] = $config['location_type_id']; // Address Location Type
+				}
+
+				// FIXME
+				// Concatenate DATE + TIME
+				// $form_values['activity_date_time'] = $form_values['activity_date_time'];
+
+				$create_address = civicrm_api3( 'Address', 'create', $form_values );
 			}
-
-			// FIXME
-			// Concatenate DATE + TIME
-			// $form_values['activity_date_time'] = $form_values['activity_date_time'];
-
-			$create_address = civicrm_api3( 'Address', 'create', $form_values );
-
 		}
-
 	}
 
 	/**
@@ -149,10 +153,8 @@ class CiviCRM_Caldera_Forms_Address_Processor {
 				// Clear Address data
 				unset( $civi_contact_address );
 			}
-
 		}
 
 		return $form;
 	}
-
 }
