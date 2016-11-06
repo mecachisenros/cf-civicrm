@@ -84,23 +84,26 @@ class CiviCRM_Caldera_Forms_Phone_Processor {
 			// Get form values for each processor field
 			// $value is the field id
 			$form_values = array();
-			foreach ( $config as $key => $field_id ) {
-				$form_values[$key] = Caldera_Forms::get_field_data( $field_id, $form );
+			foreach( $config as $key => $field_id ) {
+				$mapped_field = Caldera_Forms::get_field_data( $field_id, $form );
+				if( ! empty( $mapped_field ) ){
+					$form_values[$key] = $mapped_field;
+				}
 			}
 
-			$form_values['contact_id'] = $transdata['civicrm']['contact_id_' . $config['contact_link']]; // Contact ID set in Contact Processor
+			if( ! empty( $form_values ) ) {
+				$form_values['contact_id'] = $transdata['civicrm']['contact_id_' . $config['contact_link']]; // Contact ID set in Contact Processor
 
-			// Pass Phone ID if we got one
-			if ( $phone ) {
-				$form_values['id'] = $phone['id']; // Phone ID
-			} else {
-				$form_values['location_type_id'] = $config['location_type_id'];
+				// Pass Phone ID if we got one
+				if ( isset( $phone ) && is_array( $phone ) ) {
+					$form_values['id'] = $phone['id']; // Phone ID
+				} else {
+					$form_values['location_type_id'] = $config['location_type_id'];
+				}
+
+				$create_phone = civicrm_api3( 'Phone', 'create', $form_values );
 			}
-
-			$create_phone = civicrm_api3( 'Phone', 'create', $form_values );
-
 		}
-
 	}
 
 	/**
@@ -148,10 +151,8 @@ class CiviCRM_Caldera_Forms_Phone_Processor {
 				// Clear Phone data
 				unset( $civi_contact_phone );
 			}
-
 		}
 
 		return $form;
 	}
-
 }
