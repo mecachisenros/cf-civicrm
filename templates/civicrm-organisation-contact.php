@@ -349,7 +349,10 @@ return array(
 			'config' =>
 			array(
 				'auto_pop' => 1,
-				'email_enabled' => 1,
+				'enabled_entities' =>
+				array(
+					'email_enabled' => 1
+				),
 				'contact_link' => 1,
 				'civicrm_contact' =>
 				array(

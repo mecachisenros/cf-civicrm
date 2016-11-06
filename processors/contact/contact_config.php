@@ -6,37 +6,37 @@
 	</div>
 	<div class="caldera-config-group caldera-config-group-full">
 		<div class="caldera-config-field">
-			<label><input id="address_enabled" data-entity-accordion="civicrm-address-entity" type="checkbox" name="{{_name}}[address_enabled]" value="1" {{#if address_enabled}}checked="checked"{{/if}}><?php _e( 'Process address for this contact.', 'caldera-forms-civicrm' ); ?></label>
+			<label><input id="address_enabled" data-entity-accordion="civicrm-address-entity" type="checkbox" name="{{_name}}[enabled_entities][process_address]" value="1" {{#if enabled_entities/process_address}}checked="checked"{{/if}}><?php _e( 'Process address for this contact.', 'caldera-forms-civicrm' ); ?></label>
 		</div>
 	</div>
 	<div class="caldera-config-group caldera-config-group-full">
 		<div class="caldera-config-field">
-			<label><input id="phone_enabled" data-entity-accordion="civicrm-phone-entity" type="checkbox" name="{{_name}}[phone_enabled]" value="1" {{#if phone_enabled}}checked="checked"{{/if}}><?php _e( 'Process phone for this contact.', 'caldera-forms-civicrm' ); ?></label>
+			<label><input id="phone_enabled" data-entity-accordion="civicrm-phone-entity" type="checkbox" name="{{_name}}[enabled_entities][process_phone]" value="1" {{#if enabled_entities/process_phone}}checked="checked"{{/if}}><?php _e( 'Process phone for this contact.', 'caldera-forms-civicrm' ); ?></label>
 		</div>
 	</div>
 	<div class="caldera-config-group caldera-config-group-full">
 		<div class="caldera-config-field">
-			<label><input id="note_enabled" data-entity-accordion="civicrm-note-entity" type="checkbox" name="{{_name}}[note_enabled]" value="1" {{#if note_enabled}}checked="checked"{{/if}}><?php _e( 'Process note for this contact.', 'caldera-forms-civicrm' ); ?></label>
+			<label><input id="note_enabled" data-entity-accordion="civicrm-note-entity" type="checkbox" name="{{_name}}[enabled_entities][process_note]" value="1" {{#if enabled_entities/process_note}}checked="checked"{{/if}}><?php _e( 'Process note for this contact.', 'caldera-forms-civicrm' ); ?></label>
 		</div>
 	</div>
 	<div class="caldera-config-group caldera-config-group-full">
 		<div class="caldera-config-field">
-			<label><input id="email_enabled" data-entity-accordion="civicrm-email-entity" type="checkbox" name="{{_name}}[email_enabled]" value="1" {{#if email_enabled}}checked="checked"{{/if}}><?php _e( 'Process email for this contact.', 'caldera-forms-civicrm' ); ?></label>
+			<label><input id="email_enabled" data-entity-accordion="civicrm-email-entity" type="checkbox" name="{{_name}}[enabled_entities][process_email]" value="1" {{#if enabled_entities/process_email}}checked="checked"{{/if}}><?php _e( 'Process email for this contact.', 'caldera-forms-civicrm' ); ?></label>
 		</div>
 	</div>
 	<div class="caldera-config-group caldera-config-group-full">
 		<div class="caldera-config-field">
-			<label><input id="website_enabled" data-entity-accordion="civicrm-website-entity" type="checkbox" name="{{_name}}[website_enabled]" value="1" {{#if website_enabled}}checked="checked"{{/if}}><?php _e( 'Process website for this contact.', 'caldera-forms-civicrm' ); ?></label>
+			<label><input id="website_enabled" data-entity-accordion="civicrm-website-entity" type="checkbox" name="{{_name}}[enabled_entities][process_website]" value="1" {{#if enabled_entities/process_website}}checked="checked"{{/if}}><?php _e( 'Process website for this contact.', 'caldera-forms-civicrm' ); ?></label>
 		</div>
 	</div>
 	<div class="caldera-config-group caldera-config-group-full">
 		<div class="caldera-config-field">
-			<label><input id="group_enabled" data-entity-accordion="civicrm-group-entity" type="checkbox" name="{{_name}}[group_enabled]" value="1" {{#if group_enabled}}checked="checked"{{/if}}><?php _e( 'Process group for this contact.', 'caldera-forms-civicrm' ); ?></label>
+			<label><input id="group_enabled" data-entity-accordion="civicrm-group-entity" type="checkbox" name="{{_name}}[enabled_entities][process_group]" value="1" {{#if enabled_entities/process_group}}checked="checked"{{/if}}><?php _e( 'Process group for this contact.', 'caldera-forms-civicrm' ); ?></label>
 		</div>
 	</div>
 	<div class="caldera-config-group caldera-config-group-full">
 		<div class="caldera-config-field">
-			<label><input id="tag_enabled" data-entity-accordion="civicrm-tag-entity" type="checkbox" name="{{_name}}[tag_enabled]" value="1" {{#if tag_enabled}}checked="checked"{{/if}}><?php _e( 'Process tag for this contact.', 'caldera-forms-civicrm' ); ?></label>
+			<label><input id="tag_enabled" data-entity-accordion="civicrm-tag-entity" type="checkbox" name="{{_name}}[enabled_entities][process_tag]" value="1" {{#if enabled_entities/process_tag}}checked="checked"{{/if}}><?php _e( 'Process tag for this contact.', 'caldera-forms-civicrm' ); ?></label>
 		</div>
 	</div>
 </div>

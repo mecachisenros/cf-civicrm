@@ -17,6 +17,15 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 	public $key_name = 'civicrm_contact';
 
 	/**
+	 * Entities that are allowed to pre-render CiviCRM data, excluding the Contact itself ie. 'civicrm_contact'.
+	 *
+	 * @since 0.3
+	 * @access private
+	 * @var array $entities_to_prerender
+	 */
+	private $entities_to_prerender = array( 'process_address', 'process_phone', 'process_email', 'process_website' );
+
+	/**
 	 * Initialises this object.
 	 *
 	 * @since 0.2
@@ -71,129 +80,74 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 		// $value is the field id
 		$form_values = array();
 		foreach ( $config['civicrm_contact'] as $key => $field_id ) {
-			$form_values['civicrm_contact'][$key] = Caldera_Forms::get_field_data( $field_id, $form );
-		}
-
-		// Set Contact type and sub-type from prcessor config
-		$form_values['civicrm_contact']['contact_type'] = $config['civicrm_contact']['contact_type'];
-		$form_values['civicrm_contact']['contact_sub_type'] = $config['civicrm_contact']['contact_sub_type'];
-
-		// Use 'Process email' field for deduping if enabled
-		if ( isset( $config['email_enabled'] ) ) {
-			foreach ( $config['civicrm_email'] as $key => $field_id ) {
-				if ( $key === 'email' ) {
-					$form_values['civicrm_contact'][$key] = Caldera_Forms::get_field_data( $field_id, $form );
-				}
+			$mapped_field = Caldera_Forms::get_field_data( $field_id, $form );
+			if( ! empty( $mapped_field ) ){
+				$form_values['civicrm_contact'][$key] = $mapped_field;
 			}
 		}
 
-		// Indexed array containing the Email processors
-		$civicrm_email_pr = Caldera_Forms::get_processor_by_type( 'civicrm_email', $form );
-		if ( $civicrm_email_pr ) {
-			foreach ( $civicrm_email_pr as $key => $value ) {
-				if ( ! is_int( $key ) ) {
-					unset( $civicrm_email_pr[$key] );
+		if ( ! empty( $form_values['civicrm_contact'] ) ) {
+
+			// Set Contact type and sub-type from prcessor config
+			$form_values['civicrm_contact']['contact_type'] = $config['civicrm_contact']['contact_type'];
+			$form_values['civicrm_contact']['contact_sub_type'] = $config['civicrm_contact']['contact_sub_type'];
+
+			// Use 'Process email' field for deduping if enabled
+			if ( isset( $config['email_enabled'] ) ) {
+				foreach ( $config['civicrm_email'] as $key => $field_id ) {
+					if ( $key === 'email' ) {
+						$form_values['civicrm_contact'][$key] = Caldera_Forms::get_field_data( $field_id, $form );
+					}
 				}
 			}
-		}
 
-		// FIXME Add Email processor option to set Defaul email for deduping?
-		// Override Contact processor email address with first Email processor
-		if ( $civicrm_email_pr ) {
-			foreach ( $civicrm_email_pr[0]['config'] as $field => $value ) {
-				if ( $field === 'email' ) {
-					$form_values[$field] = $transdata['data'][$value];
+			// Indexed array containing the Email processors
+			$civicrm_email_pr = Caldera_Forms::get_processor_by_type( 'civicrm_email', $form );
+			if ( $civicrm_email_pr ) {
+				foreach ( $civicrm_email_pr as $key => $value ) {
+					if ( ! is_int( $key ) ) {
+						unset( $civicrm_email_pr[$key] );
+					}
 				}
 			}
-		}
 
-		// Dupes params
-		$dedupeParams = CRM_Dedupe_Finder::formatParams( $form_values['civicrm_contact'], $config['civicrm_contact']['contact_type'] );
-		$dedupeParams['check_permission'] = FALSE;
+			// FIXME Add Email processor option to set Defaul email for deduping?
+			// Override Contact processor email address with first Email processor
+			if ( $civicrm_email_pr ) {
+				foreach ( $civicrm_email_pr[0]['config'] as $field => $value ) {
+					if ( $field === 'email' ) {
+						$form_values[$field] = $transdata['data'][$value];
+					}
+				}
+			}
 
-		// Check dupes
-		$ids = CRM_Dedupe_Finder::dupesByParams( $dedupeParams, $config['civicrm_contact']['contact_type'], NULL, array(), $config['civicrm_contact']['dedupe_rule'] );
+			// Dupes params
+			$dedupeParams = CRM_Dedupe_Finder::formatParams( $form_values['civicrm_contact'], $config['civicrm_contact']['contact_type'] );
+			$dedupeParams['check_permission'] = FALSE;
 
-		// Pass contact id if found
-		$form_values['civicrm_contact']['contact_id'] = $ids ? $ids[0] : 0;
+			// Check dupes
+			$ids = CRM_Dedupe_Finder::dupesByParams( $dedupeParams, $config['civicrm_contact']['contact_type'], NULL, array(), $config['civicrm_contact']['dedupe_rule'] );
 
-		$create_contact = civicrm_api3( 'Contact', 'create', $form_values['civicrm_contact'] );
+			// Pass contact id if found
+			$form_values['civicrm_contact']['contact_id'] = $ids ? $ids[0] : 0;
 
-		// Store $cid
-		CiviCRM_Caldera_Forms_Helper::set_civi_transdata( $config['contact_link'], $create_contact['id'] );
-		$transdata['civicrm'] = CiviCRM_Caldera_Forms_Helper::get_civi_transdata();
+			$create_contact = civicrm_api3( 'Contact', 'create', $form_values['civicrm_contact'] );
 
-		/**
-		 * Process Address if enabled.
-		 *
-		 * @since 0.3
-		 */
-		if ( isset( $config['address_enabled'] ) ) {
+			// Store $cid
+			CiviCRM_Caldera_Forms_Helper::set_civi_transdata( $config['contact_link'], $create_contact['id'] );
+			$transdata['civicrm'] = CiviCRM_Caldera_Forms_Helper::get_civi_transdata();
 
-			$this->process_address( $config, $form, $transdata, $form_values );
-
-		}
-
-		/**
-		 * Process Phone if enabled.
-		 *
-		 * @since 0.3
-		 */
-		if ( isset( $config['phone_enabled'] ) ) {
-
-			$this->process_phone( $config, $form, $transdata, $form_values );
-
-		}
-
-		/**
-		 * Process Note if enabled.
-		 *
-		 * @since 0.3
-		 */
-		if ( isset( $config['note_enabled'] ) ) {
-
-			$this->process_note( $config, $form, $transdata, $form_values );
-		}
-
-		/**
-		 * Process Email if enabled.
-		 *
-		 * @since 0.3
-		 */
-		if ( isset( $config['email_enabled'] ) ) {
-
-			$this->process_email( $config, $form, $transdata, $form_values );
-		}
-
-		/**
-		 * Process Website if enabled.
-		 *
-		 * @since 0.3
-		 */
-		if ( isset( $config['website_enabled'] ) ) {
-
-			$this->process_website( $config, $form, $transdata, $form_values );
-
-		}
-
-		/**
-		 * Process Group if enabled.
-		 *
-		 * @since 0.3
-		 */
-		if ( isset( $config['group_enabled'] ) ) {
-
-			$this->process_group( $config, $form, $transdata, $form_values );
-		}
-
-		/**
-		 * Process Tag if enabled.
-		 *
-		 * @since 0.3
-		 */
-		if ( isset( $config['tag_enabled'] ) ) {
-
-			$this->process_tag( $config, $form, $transdata, $form_values );
+			/**
+			 * Process enabled entities.
+			 * @since 0.3
+			 */
+			if ( isset( $config['enabled_entities'] ) ){
+				foreach ( $config['enabled_entities'] as $entity => $value ) {
+					if( isset( $entity ) && $value == 1 ){
+						$this->$entity( $config, $form, $transdata, $form_values );
+					}
+				}
+			}
 
 		}
 
@@ -203,6 +157,10 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 	 * Process Address.
 	 *
 	 * @since 0.3
+	 * @param array $config Processor configuration
+	 * @param array $form Form configuration
+	 * @param array $transdata The globalised transient object
+	 * @param array $form_values The field values beeing submitted
 	 */
 	public function process_address( $config, $form, $transdata, $form_values ){
 
@@ -250,6 +208,10 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 	 * Process Phone.
 	 *
 	 * @since 0.3
+	 * @param array $config Processor configuration
+	 * @param array $form Form configuration
+	 * @param array $transdata The globalised transient object
+	 * @param array $form_values The field values beeing submitted
 	 */
 	public function process_phone( $config, $form, $transdata, $form_values ){
 
@@ -295,6 +257,10 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 	 * Process Note.
 	 *
 	 * @since 0.3
+	 * @param array $config Processor configuration
+	 * @param array $form Form configuration
+	 * @param array $transdata The globalised transient object
+	 * @param array $form_values The field values beeing submitted
 	 */
 	public function process_note( $config, $form, $transdata, $form_values ){
 
@@ -320,6 +286,10 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 	 * Process Email.
 	 *
 	 * @since 0.3
+	 * @param array $config Processor configuration
+	 * @param array $form Form configuration
+	 * @param array $transdata The globalised transient object
+	 * @param array $form_values The field values beeing submitted
 	 */
 	public function process_email( $config, $form, $transdata, $form_values ){
 
@@ -365,6 +335,10 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 	 * Process Website.
 	 *
 	 * @since 0.3
+	 * @param array $config Processor configuration
+	 * @param array $form Form configuration
+	 * @param array $transdata The globalised transient object
+	 * @param array $form_values The field values beeing submitted
 	 */
 	public function process_website( $config, $form, $transdata, $form_values ){
 
@@ -410,6 +384,10 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 	 * Process Group.
 	 *
 	 * @since 0.3
+	 * @param array $config Processor configuration
+	 * @param array $form Form configuration
+	 * @param array $transdata The globalised transient object
+	 * @param array $form_values The field values beeing submitted
 	 */
 	public function process_group( $config, $form, $transdata, $form_values ){
 
@@ -427,6 +405,10 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 	 * Process Tag.
 	 *
 	 * @since 0.3
+	 * @param array $config Processor configuration
+	 * @param array $form Form configuration
+	 * @param array $transdata The globalised transient object
+	 * @param array $form_values The field values beeing submitted
 	 */
 	public function process_tag( $config, $form, $transdata, $form_values ){
 
@@ -538,142 +520,185 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 				// Clear Contact data
 				unset( $civi_contact );
 
-				/**
-				 * Autopopulate Address if enabled.
-				 *
-				 * @since 0.3
-				 */
-				if( isset( $pr_id['config']['address_enabled'] ) ){
-					if ( isset( $transdata['civicrm']['contact_id_' . $pr_id['config']['contact_link']] ) ) {
-						try {
-
-							$civi_contact_address = civicrm_api3( 'Address', 'getsingle', array(
-								'sequential' => 1,
-								'contact_id' => $transdata['civicrm']['contact_id_' . $pr_id['config']['contact_link']],
-								'location_type_id' => $pr_id['config']['civicrm_address']['location_type_id'],
-							));
-
-						} catch ( Exception $e ) {
-							// Ignore if we have more than one address with same location type
+				// Map CiviCRM data for the enabled entities/processors
+				if ( isset( $pr_id['config']['enabled_entities'] ) ){
+					foreach ( $pr_id['config']['enabled_entities'] as $entity => $value) {
+						if( isset( $entity ) && in_array( $entity, $this->entities_to_prerender ) ){
+							$pre_render_entity = str_replace( 'process_', 'pre_render_', $entity );
+							$this->$pre_render_entity( $pr_id, $transdata, $form, $ignore_fields );
 						}
 					}
-
-					if ( isset( $civi_contact_address ) && ! isset( $civi_contact_address['count'] ) ) {
-						foreach ( $pr_id['config']['civicrm_address'] as $field => $value ) {
-							if ( ! empty( $value ) && ! in_array( $field, $ignore_fields ) ) {
-								$mapped_field = Caldera_Forms::get_field_by_slug(str_replace( '%', '', $value ), $form );
-								$form['fields'][$mapped_field['ID']]['config']['default'] = $civi_contact_address[$field];
-							}
-						}
-					}
-
-					// Clear Address data
-					unset( $civi_contact_address );
-				}
-
-				/**
-				 * Autopopulate Phone if enabled.
-				 *
-				 * @since 0.3
-				 */
-				if( isset( $pr_id['config']['phone_enabled'] ) ){
-					if ( isset( $transdata['civicrm']['contact_id_' . $pr_id['config']['contact_link']] ) ) {
-						try {
-
-							$civi_contact_phone = civicrm_api3( 'Phone', 'getsingle', array(
-								'sequential' => 1,
-								'contact_id' => $transdata['civicrm']['contact_id_' . $pr_id['config']['contact_link']],
-								'location_type_id' => $pr_id['config']['civicrm_phone']['location_type_id'],
-							));
-
-						} catch ( Exception $e ) {
-							// Ignore if we have more than one phone with same location type or none
-						}
-					}
-
-					if ( isset( $civi_contact_phone ) && ! isset( $civi_contact_phone['count'] ) ) {
-						foreach ( $pr_id['config']['civicrm_phone'] as $field => $value ) {
-							if ( ! empty( $value ) && ! in_array( $field, $ignore_fields ) ) {
-								$mapped_field = Caldera_Forms::get_field_by_slug(str_replace( '%', '', $value ), $form );
-								$form['fields'][$mapped_field['ID']]['config']['default'] = $civi_contact_phone[$field];
-							}
-						}
-					}
-
-					// Clear Phone data
-					unset( $civi_contact_phone );
-				}
-
-				/**
-				 * Autopopulate Email if enabled.
-				 *
-				 * @since 0.3
-				 */
-				if( isset( $pr_id['config']['email_enabled'] ) ){
-					if ( isset( $transdata['civicrm']['contact_id_' . $pr_id['config']['contact_link']] ) ) {
-						try {
-
-							$civi_contact_email = civicrm_api3( 'Email', 'getsingle', array(
-								'sequential' => 1,
-								'contact_id' => $transdata['civicrm']['contact_id_' . $pr_id['config']['contact_link']],
-								'location_type_id' => $pr_id['config']['civicrm_email']['location_type_id'],
-							));
-
-						} catch ( Exception $e ) {
-							// Ignore if we have more than one email with same location type or none
-						}
-					}
-
-					if ( isset( $civi_contact_email ) && ! isset( $civi_contact_email['count'] ) ) {
-						foreach ( $pr_id['config']['civicrm_email'] as $field => $value ) {
-							if ( ! empty( $value ) && ! in_array( $field, $ignore_fields ) ) {
-								$mapped_field = Caldera_Forms::get_field_by_slug(str_replace( '%', '', $value ), $form );
-								$form['fields'][$mapped_field['ID']]['config']['default'] = $civi_contact_email[$field];
-							}
-						}
-					}
-
-					// Clear Email data
-					unset( $civi_contact_email );
-				}
-
-				/**
-				 * Autopopulate Website if enabled.
-				 *
-				 * @since 0.3
-				 */
-				if( isset( $pr_id['config']['website_enabled'] ) ){
-					if ( isset( $transdata['civicrm']['contact_id_' . $pr_id['config']['contact_link']] ) ) {
-						try {
-
-							$civi_contact_website = civicrm_api3( 'Website', 'getsingle', array(
-								'sequential' => 1,
-								'contact_id' => $transdata['civicrm']['contact_id_' . $pr_id['config']['contact_link']],
-								'website_type_id' => $pr_id['config']['civicrm_website']['website_type_id'],
-							));
-
-						} catch ( Exception $e ) {
-							// Ignore if we have more than one website with same location type or none
-						}
-					}
-
-					if ( isset( $civi_contact_website ) && ! isset( $civi_contact_website['count'] ) ) {
-						foreach ( $pr_id['config']['civicrm_website'] as $field => $value ) {
-							if ( ! empty( $value ) && ! in_array( $field, $ignore_fields ) ) {
-								$mapped_field = Caldera_Forms::get_field_by_slug(str_replace( '%', '', $value ), $form );
-								$form['fields'][$mapped_field['ID']]['config']['default'] = $civi_contact_website[$field];
-							}
-						}
-					}
-
-					// Clear Website data
-					unset( $civi_contact_website );
 				}
 
 			}
 		}
 
 		return $form;
+	}
+
+	/**
+	 * Pre-render Address data.
+	 *
+	 * @since 0.3
+	 *
+	 * @param array $pr_id The processor
+	 * @param array $transdata The globalised transient object
+	 * @param array $form The Form object
+	 * @param array $ignore_fields Fields to ignore when mapping Civi data into the form
+	 */
+	public function pre_render_address( $pr_id, $transdata, &$form, $ignore_fields ){
+
+		if( isset( $pr_id['config']['enabled_entities']['process_address'] ) ){
+			if ( isset( $transdata['civicrm']['contact_id_' . $pr_id['config']['contact_link']] ) ) {
+				try {
+
+					$civi_contact_address = civicrm_api3( 'Address', 'getsingle', array(
+						'sequential' => 1,
+						'contact_id' => $transdata['civicrm']['contact_id_' . $pr_id['config']['contact_link']],
+						'location_type_id' => $pr_id['config']['civicrm_address']['location_type_id'],
+					));
+
+				} catch ( Exception $e ) {
+					// Ignore if we have more than one address with same location type
+				}
+			}
+
+			if ( isset( $civi_contact_address ) && ! isset( $civi_contact_address['count'] ) ) {
+				foreach ( $pr_id['config']['civicrm_address'] as $field => $value ) {
+					if ( ! empty( $value ) && ! in_array( $field, $ignore_fields ) ) {
+						$mapped_field = Caldera_Forms::get_field_by_slug(str_replace( '%', '', $value ), $form );
+						$form['fields'][$mapped_field['ID']]['config']['default'] = $civi_contact_address[$field];
+					}
+				}
+			}
+
+			// Clear Address data
+			unset( $civi_contact_address );
+
+		}
+	}
+
+	/**
+	 * Pre-render Phone data.
+	 *
+	 * @since 0.3
+	 *
+	 * @param array $pr_id The processor
+	 * @param array $transdata The globalised transient object
+	 * @param array $form The Form object
+	 * @param array $ignore_fields Fields to ignore when mapping Civi data into the form
+	 */
+	public function pre_render_phone( $pr_id, $transdata, &$form, $ignore_fields ){
+
+		if( isset( $pr_id['config']['enabled_entities']['process_phone'] ) ){
+			if ( isset( $transdata['civicrm']['contact_id_' . $pr_id['config']['contact_link']] ) ) {
+				try {
+
+					$civi_contact_phone = civicrm_api3( 'Phone', 'getsingle', array(
+						'sequential' => 1,
+						'contact_id' => $transdata['civicrm']['contact_id_' . $pr_id['config']['contact_link']],
+						'location_type_id' => $pr_id['config']['civicrm_phone']['location_type_id'],
+					));
+
+				} catch ( Exception $e ) {
+					// Ignore if we have more than one phone with same location type or none
+				}
+			}
+
+			if ( isset( $civi_contact_phone ) && ! isset( $civi_contact_phone['count'] ) ) {
+				foreach ( $pr_id['config']['civicrm_phone'] as $field => $value ) {
+					if ( ! empty( $value ) && ! in_array( $field, $ignore_fields ) ) {
+						$mapped_field = Caldera_Forms::get_field_by_slug(str_replace( '%', '', $value ), $form );
+						$form['fields'][$mapped_field['ID']]['config']['default'] = $civi_contact_phone[$field];
+					}
+				}
+			}
+
+			// Clear Phone data
+			unset( $civi_contact_phone );
+		}
+	}
+
+	/**
+	 * Pre-render Email data.
+	 *
+	 * @since 0.3
+	 *
+	 * @param array $pr_id The processor
+	 * @param array $transdata The globalised transient object
+	 * @param array $form The Form object
+	 * @param array $ignore_fields Fields to ignore when mapping Civi data into the form
+	 */
+	public function pre_render_email( $pr_id, $transdata, &$form, $ignore_fields ){
+
+		if( isset( $pr_id['config']['enabled_entities']['process_email'] ) ){
+			if ( isset( $transdata['civicrm']['contact_id_' . $pr_id['config']['contact_link']] ) ) {
+				try {
+
+					$civi_contact_email = civicrm_api3( 'Email', 'getsingle', array(
+						'sequential' => 1,
+						'contact_id' => $transdata['civicrm']['contact_id_' . $pr_id['config']['contact_link']],
+						'location_type_id' => $pr_id['config']['civicrm_email']['location_type_id'],
+					));
+
+				} catch ( Exception $e ) {
+					// Ignore if we have more than one email with same location type or none
+				}
+			}
+
+			if ( isset( $civi_contact_email ) && ! isset( $civi_contact_email['count'] ) ) {
+				foreach ( $pr_id['config']['civicrm_email'] as $field => $value ) {
+					if ( ! empty( $value ) && ! in_array( $field, $ignore_fields ) ) {
+						$mapped_field = Caldera_Forms::get_field_by_slug(str_replace( '%', '', $value ), $form );
+						$form['fields'][$mapped_field['ID']]['config']['default'] = $civi_contact_email[$field];
+					}
+				}
+			}
+
+			// Clear Email data
+			unset( $civi_contact_email );
+		}
+	}
+
+	/**
+	 * Pre-render Website data.
+	 *
+	 * @since 0.3
+	 *
+	 * @param array $pr_id The processor
+	 * @param array $transdata The globalised transient object
+	 * @param array $form The Form object
+	 * @param array $ignore_fields Fields to ignore when mapping Civi data into the form
+	 */
+	public function pre_render_website( $pr_id, $transdata, &$form, $ignore_fields ){
+
+		if( isset( $pr_id['config']['enabled_entities']['process_website'] ) ){
+			if ( isset( $transdata['civicrm']['contact_id_' . $pr_id['config']['contact_link']] ) ) {
+				try {
+
+					$civi_contact_website = civicrm_api3( 'Website', 'getsingle', array(
+						'sequential' => 1,
+						'contact_id' => $transdata['civicrm']['contact_id_' . $pr_id['config']['contact_link']],
+						'website_type_id' => $pr_id['config']['civicrm_website']['website_type_id'],
+					));
+
+				} catch ( Exception $e ) {
+					// Ignore if we have more than one website with same location type or none
+				}
+			}
+
+			if ( isset( $civi_contact_website ) && ! isset( $civi_contact_website['count'] ) ) {
+				foreach ( $pr_id['config']['civicrm_website'] as $field => $value ) {
+					if ( ! empty( $value ) && ! in_array( $field, $ignore_fields ) ) {
+						$mapped_field = Caldera_Forms::get_field_by_slug(str_replace( '%', '', $value ), $form );
+						$form['fields'][$mapped_field['ID']]['config']['default'] = $civi_contact_website[$field];
+					}
+				}
+			}
+
+			// Clear Website data
+			unset( $civi_contact_website );
+		}
 	}
 
 }
