@@ -23,7 +23,7 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 	 * @access private
 	 * @var array $entities_to_prerender
 	 */
-	private $entities_to_prerender = array( 'process_address', 'process_phone', 'process_email', 'process_website' );
+	private $entities_to_prerender = array( 'process_address', 'process_phone', 'process_email', 'process_website', 'process_im' );
 
 	/**
 	 * Initialises this object.
@@ -381,6 +381,54 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 	}
 
 	/**
+	 * Process Im.
+	 *
+	 * @since 0.3
+	 * @param array $config Processor configuration
+	 * @param array $form Form configuration
+	 * @param array $transdata The globalised transient object
+	 * @param array $form_values The field values beeing submitted
+	 */
+	public function process_im( $config, $form, $transdata, $form_values ){
+
+		if ( ! empty( $transdata['civicrm']['contact_id_' . $config['contact_link']] ) ) {
+
+			try {
+
+				$im = civicrm_api3( 'Im', 'getsingle', array(
+					'sequential' => 1,
+					'contact_id' => $transdata['civicrm']['contact_id_' . $config['contact_link']],
+					'location_type_id' => $config['civicrm_im']['location_type_id'],
+				));
+
+			} catch ( Exception $e ) {
+				// Ignore if none found
+			}
+
+			// Get form values for each processor field
+			// $value is the field id
+			foreach ( $config['civicrm_im'] as $key => $field_id ) {
+				$mapped_field = Caldera_Forms::get_field_data( $field_id, $form );
+				if ( ! empty( $mapped_field ) ){
+					$form_values['civicrm_im'][$key] = $mapped_field;
+				}
+			}
+			if( ! empty( $form_values['civicrm_im'] ) ){
+				$form_values['civicrm_im']['contact_id'] = $transdata['civicrm']['contact_id_' . $config['contact_link']]; // Contact ID set in Contact Processor
+
+				// Pass Im ID if we got one
+				if ( isset( $im ) && is_array( $im ) ) {
+					$form_values['civicrm_im']['id'] = $im['id']; // Im ID
+				} else {
+	                $form_values['civicrm_im']['location_type_id'] = $config['civicrm_im']['location_type_id']; // IM Location type set in Processor config
+	            }
+
+				$create_im = civicrm_api3( 'Im', 'create', $form_values['civicrm_im'] );
+			}
+		}
+	}
+
+	/**
 	 * Process Group.
 	 *
 	 * @since 0.3
@@ -698,6 +746,47 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 
 			// Clear Website data
 			unset( $civi_contact_website );
+		}
+	}
+
+	/**
+	 * Pre-render Im data.
+	 *
+	 * @since 0.3
+	 *
+	 * @param array $pr_id The processor
+	 * @param array $transdata The globalised transient object
+	 * @param array $form The Form object
+	 * @param array $ignore_fields Fields to ignore when mapping Civi data into the form
+	 */
+	public function pre_render_im( $pr_id, $transdata, &$form, $ignore_fields ){
+
+		if( isset( $pr_id['config']['enabled_entities']['process_im'] ) ){
+			if ( isset( $transdata['civicrm']['contact_id_' . $pr_id['config']['contact_link']] ) ) {
+				try {
+
+					$civi_contact_im = civicrm_api3( 'Im', 'getsingle', array(
+						'sequential' => 1,
+						'contact_id' => $transdata['civicrm']['contact_id_' . $pr_id['config']['contact_link']],
+						'location_type_id' => $pr_id['config']['civicrm_im']['location_type_id'],
+					));
+
+				} catch ( Exception $e ) {
+					// Ignore if we have more than one Im with same location type or none
+				}
+			}
+
+			if ( isset( $civi_contact_im ) && ! isset( $civi_contact_im['count'] ) ) {
+				foreach ( $pr_id['config']['civicrm_im'] as $field => $value ) {
+					if ( ! empty( $value ) && ! in_array( $field, $ignore_fields ) ) {
+						$mapped_field = Caldera_Forms::get_field_by_slug(str_replace( '%', '', $value ), $form );
+						$form['fields'][$mapped_field['ID']]['config']['default'] = $civi_contact_im[$field];
+					}
+				}
+			}
+
+			// Clear Im data
+			unset( $civi_contact_im );
 		}
 	}
 
