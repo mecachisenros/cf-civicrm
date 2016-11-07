@@ -219,10 +219,10 @@ return array(
 			'type' => 'civicrm_contact',
 			'config' =>
 			array(
-				'address_enabled' => 1,
 				'enabled_entities' =>
 				array(
-					'process_email' => 1
+					'process_email' => 1,
+					'process_address' => 1
 				),
 				'contact_link' => 1,
 				'civicrm_contact' =>

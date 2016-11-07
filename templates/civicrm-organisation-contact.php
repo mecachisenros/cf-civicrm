@@ -452,8 +452,11 @@ return array(
 			'type' => 'civicrm_contact',
 			'config' =>
 			array(
-				'address_enabled' => 1,
-				'email_enabled' => 1,
+				'enabled_entities' =>
+				array(
+					'process_address' => 1,
+					'process_email' => 1
+				),
 				'contact_link' => 2,
 				'civicrm_contact' =>
 				array(
