@@ -82,6 +82,13 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 		foreach ( $config['civicrm_contact'] as $key => $field_id ) {
 			$mapped_field = Caldera_Forms::get_field_data( $field_id, $form );
 			if( ! empty( $mapped_field ) ){
+
+				// If field is checkbox convert submitted string to array
+				$field_conf = Caldera_Forms::get_field_by_slug(str_replace( '%', '', $field_id ), $form );
+				if( $field_conf['type'] == 'checkbox' ){
+                    $mapped_field = explode( ', ', $mapped_field );
+                } 
+
 				$form_values['civicrm_contact'][$key] = $mapped_field;
 			}
 		}
