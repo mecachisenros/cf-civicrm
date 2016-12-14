@@ -485,9 +485,8 @@ $indStandardFields = array( 'first_name', 'last_name', 'middle_name', 'prefix_id
 
 <script>
 jQuery(document).ready( function($) {
-	// Processor ID/name and container
-	var prName = "{{_name}}";
-	var prId = prName.match(/fp_([0-9]){8}/g);
+	// Processor ID and container
+	var prId = "{{_id}}";
 	var prContainer = '#' + prId + '_settings_pane .caldera-config-processor-setup';
 
 	// Show/hide accordions
