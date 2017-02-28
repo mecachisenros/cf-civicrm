@@ -17,6 +17,15 @@ class CiviCRM_Caldera_Forms_Phone_Processor {
 	public $key_name = 'civicrm_phone';
 
 	/**
+	 * Fields to ignore while prepopulating
+	 *
+	 * @since 0.4
+	 * @access public
+	 * @var array $fields_to_ignore Fields to ignore
+	 */
+	public $fields_to_ignore = array( 'contact_link', 'location_type_id' );
+
+	/**
 	 * Initialises this object.
 	 *
 	 * @since 0.2
@@ -81,15 +90,8 @@ class CiviCRM_Caldera_Forms_Phone_Processor {
 				// Ignore if none found
 			}
 
-			// Get form values for each processor field
-			// $value is the field id
-			$form_values = array();
-			foreach( $config as $key => $field_id ) {
-				$mapped_field = Caldera_Forms::get_field_data( $field_id, $form );
-				if( ! empty( $mapped_field ) ){
-					$form_values[$key] = $mapped_field;
-				}
-			}
+			// Get form values
+			$form_values = CiviCRM_Caldera_Forms_Helper::map_fields_to_processor( $config, $form, $form_values );
 
 			if( ! empty( $form_values ) ) {
 				$form_values['contact_id'] = $transdata['civicrm']['contact_id_' . $config['contact_link']]; // Contact ID set in Contact Processor
@@ -138,14 +140,13 @@ class CiviCRM_Caldera_Forms_Phone_Processor {
 					}
 				}
 
-				unset( $pr_id['config']['contact_link'], $pr_id['config']['location_type_id'] );
-
 				if ( isset( $civi_contact_phone ) && ! isset( $civi_contact_phone['count'] ) ) {
-					foreach ( $pr_id['config'] as $field => $value ) {
-						if ( ! empty( $value ) ) {
-							$form['fields'][$value]['config']['default'] = $civi_contact_phone[$field];
-						}
-					}
+					$form = CiviCRM_Caldera_Forms_Helper::map_fields_to_prerender(
+						$pr_id['config'],
+						$form,
+						$this->fields_to_ignore,
+						$civi_contact_phone
+					);
 				}
 
 				// Clear Phone data
