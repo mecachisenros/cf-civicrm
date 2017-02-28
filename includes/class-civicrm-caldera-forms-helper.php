@@ -329,4 +329,80 @@ class CiviCRM_Caldera_Forms_Helper {
 
 	}
 
+	/**
+	 * Helper method to map fields values to processor
+	 *
+	 * @since 0.4
+	 *
+	 * @param array $config The processor settings
+	 * @param array $form The form settings
+	 * @param array $form_values The submitted form values
+	 * @param string $processor The processor key, only necessary for the Contact processor class
+	 * @return array $form_values
+	 */
+	public static function map_fields_to_processor( $config, $form, &$form_values, $processor = null ){
+
+		foreach ( ( $processor ? $config[$processor] : $config ) as $key => $field_id ) {
+			if ( ! empty( $field_id ) ) {
+
+				// Get field by ID or slug
+				$mapped_field =
+					Caldera_Forms_Field_Util::get_field( $field_id, $form ) ?
+					Caldera_Forms_Field_Util::get_field( $field_id, $form ) :
+					Caldera_Forms::get_field_by_slug(str_replace( '%', '', $field_id ), $form );
+
+				// Get field type
+				$field_type = Caldera_Forms_Field_Util::get_type( $mapped_field, $form );
+
+				// Get field data
+				$mapped_field = Caldera_Forms::get_field_data( $mapped_field['ID'], $form );
+
+            	if( ! empty( $mapped_field ) ){
+
+            		if( ! empty( $field_type ) && $field_type == 'checkbox' ){
+						$mapped_field = explode( ', ', $mapped_field );
+                	}
+
+					if ( $processor ) {
+						$form_values[$processor][$key] = $mapped_field;
+					} else {
+						$form_values[$key] = $mapped_field;
+					}
+				}
+			}
+		}
+
+		return $form_values;
+	}
+
+	/**
+	 * Helper method to map CiviCRM data to form fields (autopopulate/prerender)
+	 *
+	 * @since 0.4
+	 *
+	 * @param array $config The processor settings
+	 * @param array $form The form settings
+	 * @param array $ignore_fields The fields to be ignored during data mapping
+	 * @param string $processor The processor key, only necessary for the Contact processor class
+	 * @return array $form The form settings
+	 */
+	public static function map_fields_to_prerender( $config, &$form, $ignore_fields, $entity, $processor = null ){
+
+		foreach ( ( $processor ? $config[$processor] : $config ) as $field => $value ) {
+			if ( ! empty( $value ) && ! in_array( $field, $ignore_fields ) ) {
+
+				// Get field by ID or slug
+				$mapped_field =
+					Caldera_Forms_Field_Util::get_field( $value, $form ) ?
+					Caldera_Forms_Field_Util::get_field( $value, $form ) :
+					Caldera_Forms::get_field_by_slug(str_replace( '%', '', $value ), $form );
+
+				// Set default value
+				$form['fields'][$mapped_field['ID']]['config']['default'] = $entity[$field];
+			}
+		}
+
+		return $form;
+	}
+
 }
