@@ -65,6 +65,15 @@ class CiviCRM_Caldera_Forms {
 	public static $templates;
 
 	/**
+	 * The form management object.
+	 *
+	 * @since 0.4
+	 * @access public
+	 * @var object $templates The form management object
+	 */
+	public static $forms;
+
+	/**
 	 * Returns a single instance of this object when called.
 	 *
 	 * @since 0.1.1
@@ -143,6 +152,9 @@ class CiviCRM_Caldera_Forms {
 		// Include template management class
 		include CF_CIVICRM_INTEGRATION_PATH . 'includes/class-civicrm-caldera-forms-templates.php';
 
+		// Include forms management class
+		include CF_CIVICRM_INTEGRATION_PATH . 'includes/class-civicrm-caldera-forms-forms.php';
+
 	}
 
 	/**
@@ -160,6 +172,9 @@ class CiviCRM_Caldera_Forms {
 
 		// init templates manager
 		self::$templates = new CiviCRM_Caldera_Forms_Templates;
+
+		// init forms manager
+		self::$forms = new CiviCRM_Caldera_Forms_Forms;
 
 	}
 
