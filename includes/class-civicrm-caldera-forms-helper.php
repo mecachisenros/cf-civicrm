@@ -26,6 +26,15 @@ class CiviCRM_Caldera_Forms_Helper {
 	public static $activity_fields = array( 'activity_type_id', 'phone_id', 'phone_number', 'status_id', 'priority_id', 'parent_id', 'is_test', 'medium_id', 'is_auto', 'is_current_revision', 'result', 'is_deleted', 'campaign_id', 'engagement_level', 'weight', 'id', 'original_id', 'relationship_id');
 
 	/**
+	 * Holds CiviCRM state/province data which only needs a single lookup.
+	 *
+	 * @since 0.2
+	 * @access public
+	 * @var array $states The CiviCRM state/province data
+	 */
+	public static $states;
+
+	/**
 	 * Holds contact ids for linking processors.
 	 *
 	 * @since 0.1
@@ -197,6 +206,34 @@ class CiviCRM_Caldera_Forms_Helper {
 	}
 
 	/**
+	 * Get Countries from CiviCRM.
+	 *
+	 * @since 0.2
+	 *
+	 * @return array $states The array of countries
+	 */
+	public static function get_countries() {
+
+		// define basic API vars
+		$api_vars = array(
+			'sequential' => 1,
+			'options' => array( 'limit' => 0 ),
+		);
+
+		// get the countries enabled in CiviCRM localization settings
+		$countries_enabled = CiviCRM_Caldera_Forms_Helper::get_civicrm_settings( 'countryLimit' );
+
+		// limit to these if there are some defined
+		if ( ! empty( $countries_enabled ) ) {
+			$api_vars['id'] = array( 'IN' => $countries_enabled );
+		}
+
+		// okay, let's hit the API
+		return civicrm_api3( 'Country', 'get', $api_vars );
+
+	}
+
+	/**
 	 * Get State/Province from CiviCRM.
 	 *
 	 * @since 0.1
@@ -205,21 +242,24 @@ class CiviCRM_Caldera_Forms_Helper {
 	 */
 	public static function get_state_province() {
 
+		// send data back if already retrieved
+		if ( isset( self::$states ) ) return self::$states;
+
 		$query = 'SELECT name,id,country_id FROM civicrm_state_province';
 		$dao = CRM_Core_DAO::executeQuery( $query );
-		$states = array();
+		self::$states = array();
 
 		while ( $dao->fetch() ) {
-			$states[$dao->id] = array( 'name' => $dao->name, 'country_id' => $dao->country_id );
+			self::$states[$dao->id] = array( 'name' => $dao->name, 'country_id' => $dao->country_id );
 		}
 
-		foreach ( $states as $state_id => $state ) {
+		foreach ( self::$states as $state_id => $state ) {
 			if ( ! in_array( $state['country_id'], self::get_civicrm_settings( 'countryLimit' ) ) ) {
-				unset( $states[$state_id] );
+				unset( self::$states[$state_id] );
 			}
 		}
 
-		return $states;
+		return self::$states;
 
 	}
 
@@ -287,6 +327,82 @@ class CiviCRM_Caldera_Forms_Helper {
 			return $result['api.CustomGroup.getsingle']['extends'];
 		}
 
+	}
+
+	/**
+	 * Helper method to map fields values to processor
+	 *
+	 * @since 0.4
+	 *
+	 * @param array $config The processor settings
+	 * @param array $form The form settings
+	 * @param array $form_values The submitted form values
+	 * @param string $processor The processor key, only necessary for the Contact processor class
+	 * @return array $form_values
+	 */
+	public static function map_fields_to_processor( $config, $form, &$form_values, $processor = null ){
+
+		foreach ( ( $processor ? $config[$processor] : $config ) as $key => $field_id ) {
+			if ( ! empty( $field_id ) ) {
+
+				// Get field by ID or slug
+				$mapped_field =
+					Caldera_Forms_Field_Util::get_field( $field_id, $form ) ?
+					Caldera_Forms_Field_Util::get_field( $field_id, $form ) :
+					Caldera_Forms::get_field_by_slug(str_replace( '%', '', $field_id ), $form );
+
+				// Get field type
+				$field_type = Caldera_Forms_Field_Util::get_type( $mapped_field, $form );
+
+				// Get field data
+				$mapped_field = Caldera_Forms::get_field_data( $mapped_field['ID'], $form );
+
+            	if( ! empty( $mapped_field ) ){
+
+            		if( ! empty( $field_type ) && $field_type == 'checkbox' ){
+						$mapped_field = explode( ', ', $mapped_field );
+                	}
+
+					if ( $processor ) {
+						$form_values[$processor][$key] = $mapped_field;
+					} else {
+						$form_values[$key] = $mapped_field;
+					}
+				}
+			}
+		}
+
+		return $form_values;
+	}
+
+	/**
+	 * Helper method to map CiviCRM data to form fields (autopopulate/prerender)
+	 *
+	 * @since 0.4
+	 *
+	 * @param array $config The processor settings
+	 * @param array $form The form settings
+	 * @param array $ignore_fields The fields to be ignored during data mapping
+	 * @param string $processor The processor key, only necessary for the Contact processor class
+	 * @return array $form The form settings
+	 */
+	public static function map_fields_to_prerender( $config, &$form, $ignore_fields, $entity, $processor = null ){
+
+		foreach ( ( $processor ? $config[$processor] : $config ) as $field => $value ) {
+			if ( ! empty( $value ) && ! in_array( $field, $ignore_fields ) ) {
+
+				// Get field by ID or slug
+				$mapped_field =
+					Caldera_Forms_Field_Util::get_field( $value, $form ) ?
+					Caldera_Forms_Field_Util::get_field( $value, $form ) :
+					Caldera_Forms::get_field_by_slug(str_replace( '%', '', $value ), $form );
+
+				// Set default value
+				$form['fields'][$mapped_field['ID']]['config']['default'] = $entity[$field];
+			}
+		}
+
+		return $form;
 	}
 
 }

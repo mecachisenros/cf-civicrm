@@ -65,16 +65,14 @@ class CiviCRM_Caldera_Forms_Note_Processor {
 		// globalised transient object
 		global $transdata;
 
-		$form_values = array();
-		foreach ( $config as $key => $field_id ) {
-			$form_values[$key] = Caldera_Forms::get_field_data( $field_id, $form );
+		// Get form values
+		$form_values = CiviCRM_Caldera_Forms_Helper::map_fields_to_processor( $config, $form, $form_values );
+
+		if ( ! empty( $form_values ) ) {
+			$form_values['entity_id'] = $transdata['civicrm']['contact_id_' . $config['contact_link']]; // Contact ID set in Contact Processor
+
+			// Add Note to contact
+			$note = civicrm_api3( 'Note', 'create', $form_values );
 		}
-
-		$form_values['entity_id'] = $transdata['civicrm']['contact_id_' . $config['contact_link']]; // Contact ID set in Contact Processor
-
-		// Add Note to contact
-		$note = civicrm_api3( 'Note', 'create', $form_values );
-
 	}
-
 }
