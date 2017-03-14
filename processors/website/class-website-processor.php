@@ -17,6 +17,15 @@ class CiviCRM_Caldera_Forms_Website_Processor {
 	public $key_name = 'civicrm_website';
 
 	/**
+	 * Fields to ignore while prepopulating
+	 *
+	 * @since 0.4
+	 * @access public
+	 * @var array $fields_to_ignore Fields to ignore
+	 */
+	public $fields_to_ignore = array( 'contact_link', 'website_type_id' );
+
+	/**
 	 * Initialises this object.
 	 *
 	 * @since 0.2
@@ -81,26 +90,22 @@ class CiviCRM_Caldera_Forms_Website_Processor {
 				// Ignore if none found
 			}
 
-			// Get form values for each processor field
-			// $value is the field id
-			$form_values = array();
-			foreach ( $config as $key => $field_id ) {
-				$form_values[$key] = Caldera_Forms::get_field_data( $field_id, $form );
+			// Get form values
+			$form_values = CiviCRM_Caldera_Forms_Helper::map_fields_to_processor( $config, $form, $form_values );
+
+			if( ! empty( $form_values ) ){
+				$form_values['contact_id'] = $transdata['civicrm']['contact_id_' . $config['contact_link']]; // Contact ID set in Contact Processor
+
+				// Pass Website ID if we got one
+				if ( isset( $website ) && is_array( $website ) ) {
+					$form_values['id'] = $website['id']; // Website ID
+				} else {
+	                $form_values['website_type_id'] = $config['website_type_id'];
+	            }
+
+				$create_email = civicrm_api3( 'Website', 'create', $form_values );
 			}
-
-			$form_values['contact_id'] = $transdata['civicrm']['contact_id_' . $config['contact_link']]; // Contact ID set in Contact Processor
-
-			// Pass Website ID if we got one
-			if ( $website ) {
-				$form_values['id'] = $website['id']; // Website ID
-			} else {
-                $form_values['website_type_id'] = $config['website_type_id'];
-            }
-
-			$create_email = civicrm_api3( 'Website', 'create', $form_values );
-
 		}
-
 	}
 
 	/**
@@ -135,23 +140,20 @@ class CiviCRM_Caldera_Forms_Website_Processor {
 					}
 				}
 
-				unset( $pr_id['config']['contact_link'], $pr_id['config']['website_type_id'] );
-
 				if ( isset( $civi_contact_website ) && ! isset( $civi_contact_website['count'] ) ) {
-					foreach ( $pr_id['config'] as $field => $value ) {
-						if ( ! empty( $value ) ) {
-							$form['fields'][$value]['config']['default'] = $civi_contact_website[$field];
-						}
-					}
+					$form = CiviCRM_Caldera_Forms_Helper::map_fields_to_prerender(
+						$pr_id['config'],
+						$form,
+						$this->fields_to_ignore,
+						$civi_contact_website
+					);
 				}
 
 				// Clear Website data
 				unset( $civi_contact_website );
 			}
-
 		}
 
 		return $form;
 	}
-
 }
