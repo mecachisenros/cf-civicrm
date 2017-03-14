@@ -142,10 +142,21 @@ class CiviCRM_Caldera_Forms_Helper {
 	 */
 	public static function get_wp_civi_contact( $id ) {
 
-		$wp_civicrm_contact = civicrm_api3( 'UFMatch', 'getsingle', array(
+		$params = array(
 			'sequential' => 1,
 			'uf_id' => $id,
-		));
+		);
+
+		// Multisite setting
+		$multisite = self::get_civicrm_settings( 'is_enabled' );
+
+		if( $multisite ){
+			// Add domain id to params
+			$domain = CRM_Core_BAO_Domain::getDomain();
+			$params['domain_id'] = $domain->id;
+		}
+
+		$wp_civicrm_contact = civicrm_api3( 'UFMatch', 'getsingle', $params );
 		return $wp_civicrm_contact['contact_id'];
 
 	}
