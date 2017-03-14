@@ -139,6 +139,16 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 			CiviCRM_Caldera_Forms_Helper::set_civi_transdata( $config['contact_link'], $create_contact['id'] );
 			$transdata['civicrm'] = CiviCRM_Caldera_Forms_Helper::get_civi_transdata();
 
+			// Add contact to Domain group if set, if not set 'domain_group_id' should be 0
+			$domain_group_id = CiviCRM_Caldera_Forms_Helper::get_civicrm_settings( 'domain_group_id' );
+			if( $domain_group_id ){
+				$group_contact = civicrm_api3( 'GroupContact', 'create', array(
+					'sequential' => 1,
+  					'group_id' => $domain_group_id,
+  					'contact_id' => $create_contact['id'],
+				));
+			}
+
 			/**
 			 * Process enabled entities.
 			 * @since 0.3
@@ -547,7 +557,7 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 
 			}
 		}
-		
+
 		return $form;
 	}
 
