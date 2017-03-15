@@ -133,11 +133,31 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 			// Pass contact id if found
 			$form_values['civicrm_contact']['contact_id'] = $ids ? $ids[0] : 0;
 
+			// Prevent API overriding exisiting contact_sub_type
+			// If we have a contact_id, get the contact and push the sub-type set in Contact config
+			if( $form_values['civicrm_contact']['contact_id'] && ! empty( $config['civicrm_contact']['contact_sub_type'] ) ){
+				$existing_contact = CiviCRM_Caldera_Forms_Helper::get_civi_contact( $form_values['civicrm_contact']['contact_id'] );
+				if ( is_array( $existing_contact['contact_sub_type'] ) ) {
+					array_push( $existing_contact['contact_sub_type'], $config['civicrm_contact']['contact_sub_type'] );
+					$form_values['civicrm_contact']['contact_sub_type'] = $existing_contact['contact_sub_type'];
+				}
+			}
+
 			$create_contact = civicrm_api3( 'Contact', 'create', $form_values['civicrm_contact'] );
 
 			// Store $cid
 			CiviCRM_Caldera_Forms_Helper::set_civi_transdata( $config['contact_link'], $create_contact['id'] );
 			$transdata['civicrm'] = CiviCRM_Caldera_Forms_Helper::get_civi_transdata();
+
+			// Add contact to Domain group if set, if not set 'domain_group_id' should be 0
+			$domain_group_id = CiviCRM_Caldera_Forms_Helper::get_civicrm_settings( 'domain_group_id' );
+			if( $domain_group_id ){
+				$group_contact = civicrm_api3( 'GroupContact', 'create', array(
+					'sequential' => 1,
+  					'group_id' => $domain_group_id,
+  					'contact_id' => $create_contact['id'],
+				));
+			}
 
 			/**
 			 * Process enabled entities.
@@ -547,7 +567,7 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 
 			}
 		}
-		
+
 		return $form;
 	}
 

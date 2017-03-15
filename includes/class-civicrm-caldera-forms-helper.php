@@ -142,10 +142,13 @@ class CiviCRM_Caldera_Forms_Helper {
 	 */
 	public static function get_wp_civi_contact( $id ) {
 
-		$wp_civicrm_contact = civicrm_api3( 'UFMatch', 'getsingle', array(
+		$params = array(
 			'sequential' => 1,
 			'uf_id' => $id,
-		));
+			'domain_id' => CRM_Core_BAO_Domain::getDomain()->id,
+		);
+
+		$wp_civicrm_contact = civicrm_api3( 'UFMatch', 'getsingle', $params );
 		return $wp_civicrm_contact['contact_id'];
 
 	}
@@ -358,10 +361,6 @@ class CiviCRM_Caldera_Forms_Helper {
 				$mapped_field = Caldera_Forms::get_field_data( $mapped_field['ID'], $form );
 
             	if( ! empty( $mapped_field ) ){
-
-            		if( ! empty( $field_type ) && $field_type == 'checkbox' ){
-						$mapped_field = explode( ', ', $mapped_field );
-                	}
 
 					if ( $processor ) {
 						$form_values[$processor][$key] = $mapped_field;
