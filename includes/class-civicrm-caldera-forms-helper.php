@@ -362,6 +362,10 @@ class CiviCRM_Caldera_Forms_Helper {
 
             	if( ! empty( $mapped_field ) ){
 
+            		if( ! empty( $field_type ) && $field_type == 'checkbox' ){
+						$mapped_field = explode( ', ', $mapped_field );
+                	}
+
 					if ( $processor ) {
 						$form_values[$processor][$key] = $mapped_field;
 					} else {
