@@ -560,7 +560,7 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 					foreach ( $pr_id['config']['enabled_entities'] as $entity => $value) {
 						if( isset( $entity ) && in_array( $entity, $this->entities_to_prerender ) ){
 							$pre_render_entity = str_replace( 'process_', 'pre_render_', $entity );
-							$this->$pre_render_entity( $pr_id, $transdata, $form, $ignore_fields );
+							$this->$pre_render_entity( $pr_id, $transdata, $form, $this->fields_to_ignore );
 						}
 					}
 				}
