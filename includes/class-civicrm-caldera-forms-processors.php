@@ -46,6 +46,8 @@ class CiviCRM_Caldera_Forms_Processors {
 		include CF_CIVICRM_INTEGRATION_PATH . 'processors/email/class-email-processor.php';
 		include CF_CIVICRM_INTEGRATION_PATH . 'processors/phone/class-phone-processor.php';
 		include CF_CIVICRM_INTEGRATION_PATH . 'processors/note/class-note-processor.php';
+		include CF_CIVICRM_INTEGRATION_PATH . 'processors/website/class-website-processor.php';
+		include CF_CIVICRM_INTEGRATION_PATH . 'processors/im/class-im-processor.php';
 
 	}
 
@@ -66,6 +68,8 @@ class CiviCRM_Caldera_Forms_Processors {
 		$this->processors['email'] = new CiviCRM_Caldera_Forms_Email_Processor;
 		$this->processors['phone'] = new CiviCRM_Caldera_Forms_Phone_Processor;
 		$this->processors['note'] = new CiviCRM_Caldera_Forms_Note_Processor;
+		$this->processors['website'] = new CiviCRM_Caldera_Forms_Website_Processor;
+		$this->processors['im'] = new CiviCRM_Caldera_Forms_Im_Processor;
 
 	}
 

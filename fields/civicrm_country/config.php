@@ -1,3 +1,4 @@
+<?php $countries = CiviCRM_Caldera_Forms_Helper::get_countries(); ?>
 <div class="caldera-config-group">
 	<label><?php _e( 'Placeholder', 'caldera-forms-civicrm' ); ?></label>
 	<div class="caldera-config-field">
@@ -9,28 +10,7 @@
 	<div class="caldera-config-field">
 		<select id="{{_id}}_default" class="block-input field-config" name="{{_name}}[default]" value="{{default}}">
         <option value="" {{#is default value=""}}selected="selected"{{/is}}></option>
-        <?php
-
-		try {
-
-			$country = civicrm_api3( 'Country', 'get', array(
-				'sequential' => 1,
-				'return' => array( 'id', 'name' ),
-				'options' => array( 'limit' => 0 ),
-				'id' => array( 'IN' => CiviCRM_Caldera_Forms_Helper::get_civicrm_settings( 'countryLimit' ) ),
-			));
-
-		} catch ( Exception $e ) {
-			// If no countries enabled in CiviCRM localization settings (CiviCRM_Caldera_Forms::get_civicrm_settings('countryLimit')) get all countries instead
-			$country = civicrm_api3( 'Country', 'get', array(
-				'sequential' => 1,
-				'return' => array( 'id', 'name' ),
-				'options' => array( 'limit' => 0 ),
-			));
-
-		}
-
-        foreach( $country['values'] as $key => $value ) { ?>
+        <?php foreach( $countries['values'] as $key => $value ) { ?>
             <option value="<?php echo esc_attr( $value['id'] ); ?>"><?php echo esc_html( $value['name'] ); ?></option>
         <?php } ?>
         </select>
