@@ -65,15 +65,8 @@ class CiviCRM_Caldera_Forms_Activity_Processor {
 		// globalised transient object
 		global $transdata;
 
-		// Get form values for each processor field
-		// $value is the field id
-		$form_values = array();
-		foreach( $config as $key => $field_id ) {
-			$mapped_field = Caldera_Forms::get_field_data( $field_id, $form );
-			if( ! empty( $mapped_field ) ){
-				$form_values[$key] = $mapped_field;
-			}
-		}
+		// Get form values
+		$form_values = CiviCRM_Caldera_Forms_Helper::map_fields_to_processor( $config, $form, $form_values );
 
 		if( ! empty( $form_values ) ) {
 			$form_values['source_contact_id'] = $transdata['civicrm']['contact_id_'.$config['contact_link']]; // Contact ID set in Contact Processor
