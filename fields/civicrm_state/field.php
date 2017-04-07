@@ -32,7 +32,7 @@
 						var id = jQuery(this).val();
 						var options = jQuery(this).data( 'options' ).filter( '[data-crm-country-id="' + id + '"]' );
 						cfStates.html( options );
-					});
+					}).trigger('change');
 				}
 			});
 		</script>
