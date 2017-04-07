@@ -1,25 +1,25 @@
 <?php
 
 /**
- * CiviCRM Caldera Forms Address Processor Class.
+ * CiviCRM Caldera Forms Im Processor Class.
  *
- * @since 0.2
+ * @since 0.3
  */
-class CiviCRM_Caldera_Forms_Address_Processor {
+class CiviCRM_Caldera_Forms_Im_Processor {
 
 	/**
 	 * The processor key.
 	 *
-	 * @since 0.2
+	 * @since 0.3
 	 * @access public
 	 * @var str $key_name The processor key
 	 */
-	public $key_name = 'civicrm_address';
+	public $key_name = 'civicrm_im';
 
 	/**
 	 * Initialises this object.
 	 *
-	 * @since 0.2
+	 * @since 0.3
 	 */
 	public function __construct() {
 
@@ -33,7 +33,7 @@ class CiviCRM_Caldera_Forms_Address_Processor {
 	/**
 	 * Adds this processor to Caldera Forms.
 	 *
-	 * @since 0.2
+	 * @since 0.3
 	 *
 	 * @uses 'caldera_forms_get_form_processors' filter
 	 *
@@ -43,10 +43,10 @@ class CiviCRM_Caldera_Forms_Address_Processor {
 	public function register_processor( $processors ) {
 
 		$processors[$this->key_name] = array(
-			'name' => __( 'CiviCRM Address', 'caldera-forms-civicrm' ),
-			'description' => __( 'Add CiviCRM address to contacts', 'caldera-forms-civicrm' ),
+			'name' => __( 'CiviCRM Im (Instant Messenger)', 'caldera-forms-civicrm' ),
+			'description' => __( 'Add CiviCRM Im to contacts', 'caldera-forms-civicrm' ),
 			'author' => 'Andrei Mondoc',
-			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/address/address_config.php',
+			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/im/im_config.php',
 			'processor' => array( $this, 'processor' ),
 		);
 
@@ -57,7 +57,7 @@ class CiviCRM_Caldera_Forms_Address_Processor {
 	/**
 	 * Form processor callback.
 	 *
-	 * @since 0.2
+	 * @since 0.3
 	 *
 	 * @param array $config Processor configuration
 	 * @param array $form Form configuration
@@ -70,17 +70,18 @@ class CiviCRM_Caldera_Forms_Address_Processor {
 		if ( ! empty( $transdata['civicrm']['contact_id_' . $config['contact_link']] ) ) {
 
 			try {
-				$address = civicrm_api3( 'Address', 'getsingle', array(
+
+				$im = civicrm_api3( 'Im', 'getsingle', array(
 					'sequential' => 1,
 					'contact_id' => $transdata['civicrm']['contact_id_' . $config['contact_link']],
 					'location_type_id' => $config['location_type_id'],
 				));
+
 			} catch ( Exception $e ) {
 				// Ignore if none found
 			}
 
 			// Get form values for each processor field
-			// $value is the field id
 			$form_values = array();
 			foreach( $config as $key => $field_id ) {
 				$mapped_field = Caldera_Forms::get_field_data( $field_id, $form );
@@ -89,21 +90,17 @@ class CiviCRM_Caldera_Forms_Address_Processor {
 				}
 			}
 
-			if( ! empty( $form_values ) ) {
+			if( ! empty( $form_values ) ){
 				$form_values['contact_id'] = $transdata['civicrm']['contact_id_' . $config['contact_link']]; // Contact ID set in Contact Processor
 
-				// Pass address ID if we got one
-				if ( isset( $address ) && is_array( $address ) ) {
-					$form_values['id'] = $address['id']; // Address ID
+				// Pass Im ID if we got one
+				if ( isset( $im ) && is_array( $im ) ) {
+					$form_values['id'] = $im['id']; // Im ID
 				} else {
-					$form_values['location_type_id'] = $config['location_type_id']; // Address Location Type
-				}
+	                $form_values['location_type_id'] = $config['location_type_id']; // Im Location type set in Processor config
+	            }
 
-				// FIXME
-				// Concatenate DATE + TIME
-				// $form_values['activity_date_time'] = $form_values['activity_date_time'];
-
-				$create_address = civicrm_api3( 'Address', 'create', $form_values );
+				$create_im = civicrm_api3( 'Im', 'create', $form_values );
 			}
 		}
 	}
@@ -113,7 +110,7 @@ class CiviCRM_Caldera_Forms_Address_Processor {
 	 *
 	 * @uses 'caldera_forms_render_get_form' filter
 	 *
-	 * @since 0.2
+	 * @since 0.3
 	 *
 	 * @param array $form The form
 	 * @return array $form The modified form
@@ -124,34 +121,34 @@ class CiviCRM_Caldera_Forms_Address_Processor {
 		global $transdata;
 
 		foreach ( $form['processors'] as $processor => $pr_id ) {
-
 			if( $pr_id['type'] == $this->key_name ){
+
 				if ( isset( $transdata['civicrm']['contact_id_' . $pr_id['config']['contact_link']] ) ) {
 					try {
 
-						$civi_contact_address = civicrm_api3( 'Address', 'getsingle', array(
+						$civi_contact_im = civicrm_api3( 'Im', 'getsingle', array(
 							'sequential' => 1,
 							'contact_id' => $transdata['civicrm']['contact_id_' . $pr_id['config']['contact_link']],
 							'location_type_id' => $pr_id['config']['location_type_id'],
 						));
 
 					} catch ( Exception $e ) {
-						// Ignore if we have more than one address with same location type
+						// Ignore if we have more than one Im with same location type or none
 					}
 				}
 
 				unset( $pr_id['config']['contact_link'], $pr_id['config']['location_type_id'] );
 
-				if ( isset( $civi_contact_address ) && ! isset( $civi_contact_address['count'] ) ) {
+				if ( isset( $civi_contact_im ) && ! isset( $civi_contact_im['count'] ) ) {
 					foreach ( $pr_id['config'] as $field => $value ) {
 						if ( ! empty( $value ) ) {
-							$form['fields'][$value]['config']['default'] = $civi_contact_address[$field];
+							$form['fields'][$value]['config']['default'] = $civi_contact_im[$field];
 						}
 					}
 				}
 
-				// Clear Address data
-				unset( $civi_contact_address );
+				// Clear Im data
+				unset( $civi_contact_im );
 			}
 		}
 
