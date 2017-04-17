@@ -135,10 +135,12 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 
 			// Prevent API overriding exisiting contact_sub_type
 			// If we have a contact_id, get the contact and push the sub-type set in Contact config
-			if( $form_values['civicrm_contact']['contact_id'] && ! empty( $config['civicrm_contact']['contact_sub_type'] ) ){
+			if( $form_values['civicrm_contact']['contact_id'] ){
 				$existing_contact = CiviCRM_Caldera_Forms_Helper::get_civi_contact( $form_values['civicrm_contact']['contact_id'] );
 				if ( is_array( $existing_contact['contact_sub_type'] ) ) {
-					array_push( $existing_contact['contact_sub_type'], $config['civicrm_contact']['contact_sub_type'] );
+					if ( ! empty( $config['civicrm_contact']['contact_sub_type'] ) ) {
+						array_push( $existing_contact['contact_sub_type'], $config['civicrm_contact']['contact_sub_type'] );
+					}
 					$form_values['civicrm_contact']['contact_sub_type'] = $existing_contact['contact_sub_type'];
 				}
 			}
