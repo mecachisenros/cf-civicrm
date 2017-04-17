@@ -348,19 +348,22 @@ class CiviCRM_Caldera_Forms_Helper {
 		foreach ( ( $processor ? $config[$processor] : $config ) as $key => $field_id ) {
 			if ( ! empty( $field_id ) ) {
 
-				// Get field by ID or slug
-				$mapped_field =
-					Caldera_Forms_Field_Util::get_field( $field_id, $form ) ?
-					Caldera_Forms_Field_Util::get_field( $field_id, $form ) :
-					Caldera_Forms::get_field_by_slug(str_replace( '%', '', $field_id ), $form );
+				// If we have a bracket magic tag, do bracket magic tag
+				if ( strpos( $field_id, '{' ) !== false ) {
+					$mapped_field = Caldera_Forms_Magic_Doer::do_bracket_magic( $field_id, $form, NULL, NULL, NULL );
+				} else {
+					
+					// Get field by ID or slug
+					$mapped_field =
+						Caldera_Forms_Field_Util::get_field( $field_id, $form ) ?
+						Caldera_Forms_Field_Util::get_field( $field_id, $form ) :
+						Caldera_Forms::get_field_by_slug(str_replace( '%', '', $field_id ), $form );
 
-				// Get field type
-				$field_type = Caldera_Forms_Field_Util::get_type( $mapped_field, $form );
+					// Get field data
+					$mapped_field = Caldera_Forms::get_field_data( $mapped_field['ID'], $form );
+				}
 
-				// Get field data
-				$mapped_field = Caldera_Forms::get_field_data( $mapped_field['ID'], $form );
-
-            	if( ! empty( $mapped_field ) ){
+        	if( ! empty( $mapped_field ) ){
 
 					if ( $processor ) {
 						$form_values[$processor][$key] = $mapped_field;
