@@ -8,7 +8,7 @@ This processor is the one that needs to be used before others can be used, as it
 
 ![CiviCRM Contact Processor](./images/caldera-contact-processor.jpg)
 
-Magic Tags are used to map the fields created in the Caldera form with fields in CiviCRM, see [overview of Caldera Forms](/overview.md) for more detail on Magic Tags.
+Magic Tags are used to map the fields created in the Caldera form with fields in CiviCRM, see [overview of Caldera Forms](./overview.md) for more detail on Magic Tags.
 
 ![Caldera Forms Magic Tags](./images/contact-processor-magic-tags.jpg)
 
@@ -16,7 +16,7 @@ The contact processor has some of the processors outlined below built in, so tha
 
 ![CiviCRM Contact additional Checked Processors](./images/caldera-contact-checked-selections.jpg)
 
-However, keep in mind that if some of the fields are not required separate processors may need to be used with condition set, see [overview of Caldera Forms](/overview.md).
+However, keep in mind that if some of the fields are not required separate processors may need to be used with condition set, see [overview of Caldera Forms](./overview.md).
 
 ### Activity entity
 
