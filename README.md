@@ -26,12 +26,12 @@ To use this plugin, the following is needed:
 
 ### Using Caldera Forms CiviCRM
 
-* Get an [overview of Caldera Forms](/overview)
-* Setup [CiviCRM Processors](/processors) on you form
-* Use [Custom Fields](/custom-fields)
+* Get an [overview of Caldera Forms](/docs/overview.md)
+* Setup [CiviCRM Processors](/docs/processors.md) on you form
+* Use [Custom Fields](/docs/custom-fields.md)
 
 ### Contribute
 
 Please help improve this plugin by using the extension issue queue to report any troubles and to make requests for feature improvements. The issue queue is here: https://github.com/mecachisenros/caldera-forms-civicrm/issues
 
-Issues submitted to the issue queue will be addressed based on time and interest. If you are a [developer contributions](/dev/contribute) are welcome.
+Issues submitted to the issue queue will be addressed based on time and interest. If you are a [developer contributions](/docs/dev/contribute.md) are welcome.
