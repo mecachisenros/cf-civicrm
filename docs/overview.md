@@ -10,7 +10,7 @@ _To get acquainted with Caldera Forms check out their [getting started guide](ht
 
 #### Settings
 
-Settings are outlined in more detail in each processor see [CiviCRM Processors](/processors)
+Settings are outlined in more detail in each processor see [CiviCRM Processors](/processors.md)
 
 It is important to also note that processors initiate in order from top to bottom as listed underneath the “Add Processor” button and that you can drag-and-drop the order of the processors in the list.
 
