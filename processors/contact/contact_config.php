@@ -109,7 +109,7 @@ $indStandardFields = array( 'first_name', 'last_name', 'middle_name', 'prefix_id
 <div id="dedupe_rule" class="caldera-config-group">
 	<label><?php _e( 'Dedupe Rule', 'caldera-forms-civicrm' ); ?></label>
 	<div class="caldera-config-field">
-		<select class="block-input field-config" name="{{_name}}[civicrm_contact][dedupe_rule]">
+		<select class="block-input field-config required" name="{{_name}}[civicrm_contact][dedupe_rule]">
 		<option value="" {{#is dedupe_rule value=""}}selected="selected"{{/is}}></option>
 		<?php foreach( CiviCRM_Caldera_Forms_Helper::get_dedupe_rules() as $type => $rule ) {
 			foreach ( $rule as $key => $value ) { ?>
