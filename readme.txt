@@ -34,6 +34,14 @@ This plugin is in active development. For feature requests and bug reports (or i
 
 == Changelog ==
 
+= 0.4 =
+* Refactored processors fields mapping
+* Added documentation. Big thanks to @danaskallman!!!
+* Fixed magic tags not being parsed
+* Support CiviCRM on multisite (hopefully)
+* Fixed Contact type being overridden
+
+
 = 0.3 =
 * Form Templates
 * Contact processor UI improvements
