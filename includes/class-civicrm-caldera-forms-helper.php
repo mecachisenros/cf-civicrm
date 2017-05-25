@@ -352,7 +352,7 @@ class CiviCRM_Caldera_Forms_Helper {
 				if ( strpos( $field_id, '{' ) !== false ) {
 					$mapped_field = Caldera_Forms_Magic_Doer::do_bracket_magic( $field_id, $form, NULL, NULL, NULL );
 				} else {
-					
+
 					// Get field by ID or slug
 					$mapped_field =
 						Caldera_Forms_Field_Util::get_field( $field_id, $form ) ?
@@ -405,6 +405,34 @@ class CiviCRM_Caldera_Forms_Helper {
 		}
 
 		return $form;
+	}
+
+	/**
+	 * Get CiviCRM enabled extensions.
+	 *
+	 * @since 0.4.1
+	 * @return array $enabled_extensions Array of enabled extensions containing the 'key'
+	 */
+	public static function get_enabled_extensions(){
+		try {
+			$result = civicrm_api3( 'Extension', 'get', array(
+				'sequential' => 1,
+  				'is_active' => 1,
+
+			));
+		} catch ( Exception $e ) {
+
+		}
+
+		$enabled_extensions = array();
+		if( $result['is_error'] == 0 ){
+			foreach ( $result['values'] as $key => $extension) {
+				$enabled_extensions[] = $extension['key'];
+			}
+			return $enabled_extensions;
+		}
+
+		return false;
 	}
 
 }
