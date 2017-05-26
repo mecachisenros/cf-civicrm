@@ -75,9 +75,9 @@ foreach ( $caseFieldsResult['values'] as $key => $value ) {
 	foreach ( $caseFields as $key => $value ) {
 		if( $key != 'creator_id' ){ ?>
 		<div id="<?php echo esc_attr( $key ); ?>" class="caldera-config-group">
-			<label><?php echo esc_html( $value ); ?> </label>
+			<label><?php _e( $value, 'caldera-forms-civicrm' ); ?></label>
 			<div class="caldera-config-field">
-				<?php echo '{{{_field slug="' . $key . '"}}}'; ?>
+				<<input type="text" class="block-input field-config magic-tag-enabled caldera-field-bind <?php if( $key == 'subject') echo 'required'; ?>" id="{{_id}}" name="{{_name}}[<?php echo $key; ?>]" value="{{<?php echo $key; ?>}}">
 			</div>
 		</div>
 <?php } } ?>
