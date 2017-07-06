@@ -314,7 +314,7 @@ $indStandardFields = array( 'first_name', 'last_name', 'middle_name', 'prefix_id
 			<label><?php echo __('Email Location Type'); ?></label>
 			<div class="caldera-config-field">
 				<select class="block-input field-config" name="{{_name}}[civicrm_email][location_type_id]">
-				<option value="" {{#is civicrm_email/location_type_id value=""}}selected="selected"{{/is}}></option>
+				<!-- <option value="" {{#is civicrm_email/location_type_id value=""}}selected="selected"{{/is}}></option> -->
 				<?php foreach( $emailLocationType['values'] as $key => $value) { ?>
 					<option value="<?php echo $value['key']; ?>" {{#is civicrm_email/location_type_id value=<?php echo $value['key']; ?>}}selected="selected"{{/is}}><?php echo $value['value']; ?></option>
 				<?php } ?>
