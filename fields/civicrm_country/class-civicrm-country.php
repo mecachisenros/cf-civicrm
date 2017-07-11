@@ -31,6 +31,8 @@ class CiviCRM_Caldera_Forms_Field_Country {
 
 		// render country name
 		add_filter( 'caldera_forms_view_field_civicrm_country', array( $this, 'field_render_view' ), 10, 3 );
+		// render country name in email summary
+		add_filter( 'caldera_forms_magic_summary_field_value', array( $this, 'field_render_summary' ), 10, 3 );
 
 	}
 
@@ -89,6 +91,25 @@ class CiviCRM_Caldera_Forms_Field_Country {
 
 		return $field_value;
 
+	}
+
+	/**
+	 * Renders the label for this field type in the email summary.
+	 *
+	 * @since 0.4.1
+	 *
+	 * @param  string $field_value The field value
+	 * @param  array $field The field config
+	 * @param  array $form The form config
+	 * @return string $field_value The modified field value
+	 */
+	public function field_render_summary( $field_value, $field, $form ){
+
+		if ( $field['type'] == 'civicrm_country' ){
+			$field_value = $this->field_render_view( $field_value, $field, $form );
+		}
+
+		return $field_value;
 	}
 
 }
