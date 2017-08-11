@@ -106,6 +106,8 @@ class CiviCRM_Caldera_Forms_Helper {
 
 		$contact_types = civicrm_api3( 'ContactType', 'get', array(
 			'sequential' => 1,
+			'is_active' => 1,
+			'options' => array( 'limit' => 0 ),
 		));
 
 		// Include Contact entity by default
@@ -118,6 +120,7 @@ class CiviCRM_Caldera_Forms_Helper {
 
 		$custom_group = civicrm_api3( 'CustomGroup', 'get', array(
 			'sequential' => 1,
+			'is_active' => 1,
 			'extends' => apply_filters( 'civicrm_custom_fields_contact_type', $extends ),
 			'api.CustomField.get' => array( 'is_active' => 1, 'options' => array( 'limit' => 0 ) ),
 			'options' => array( 'limit' => 0 ),
@@ -418,8 +421,7 @@ class CiviCRM_Caldera_Forms_Helper {
 		try {
 			$result = civicrm_api3( 'Extension', 'get', array(
 				'sequential' => 1,
-  				'is_active' => 1,
-
+				'options' => array( 'limit' => 0 ),
 			));
 		} catch ( Exception $e ) {
 

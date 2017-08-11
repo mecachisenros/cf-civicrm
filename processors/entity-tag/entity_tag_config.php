@@ -2,6 +2,8 @@
 
 $tagResult = $result = civicrm_api3( 'Tag', 'get', array(
 	'sequential' => 1,
+	'used_for' => 'civicrm_contact',
+	'options' => array( 'limit' => 0 ),
 ));
 
 ?>

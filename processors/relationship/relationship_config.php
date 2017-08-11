@@ -2,6 +2,8 @@
 
 $relationships = civicrm_api3( 'RelationshipType', 'get', array(
 	'sequential' => 1,
+	'is_active' => 1,
+	'options' => array( 'limit' => 0 ),
 ));
 
 ?>

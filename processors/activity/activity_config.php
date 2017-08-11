@@ -12,6 +12,8 @@ $activity_status = civicrm_api3( 'Activity', 'getoptions', array(
 
 $campaign_id = civicrm_api3( 'Campaign', 'get', array(
 	'sequential' => 1,
+	'is_active' => 1,
+	'options' => array( 'limit' => 0 ),
 ));
 
 $activityFieldsResult = civicrm_api3( 'Activity', 'getfields', array(

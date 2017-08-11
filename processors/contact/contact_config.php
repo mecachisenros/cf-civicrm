@@ -55,11 +55,14 @@ $contactTypeResult = civicrm_api3( 'ContactType', 'get', array(
 	'sequential' => 0,
 	'is_active' => 1,
 	'parent_id' => array( 'IS NULL' => 1 ),
+	'options' => array( 'limit' => 0 ),
 ));
 
 $contactSubTypeResult = civicrm_api3( 'ContactType', 'get', array(
 	'sequential' => 1,
 	'parent_id' => array( 'IS NOT NULL' => 1 ),
+	'is_active' => 1,
+	'options' => array( 'limit' => 0 ),
 ));
 
 $orgStandardFields = array( 'organization_name', 'sic_code', 'legal_name' );
@@ -465,6 +468,8 @@ $indStandardFields = array( 'first_name', 'last_name', 'middle_name', 'prefix_id
 <?php
 	$tagResult = $result = civicrm_api3( 'Tag', 'get', array(
 		'sequential' => 1,
+		'used_for' => 'civicrm_contact',
+		'options' => array( 'limit' => 0 ), 
 	));
 ?>
 
