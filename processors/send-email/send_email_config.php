@@ -20,15 +20,6 @@ $messageTemplates = civicrm_api3('MessageTemplate', 'get', array(
 </div>
 
 <hr style="clear: both;" />
-<?php
-
-if( function_exists('civicrm_api3_email_send')){
-	echo "Yes";
-} else {
-	echo "No";
-}
-
-?>
 
 <div class="caldera-config-group">
 	<label><?php _e('Message Template', 'caldera-forms-civicrm' ); ?></label>
