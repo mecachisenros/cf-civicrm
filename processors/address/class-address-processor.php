@@ -121,6 +121,8 @@ class CiviCRM_Caldera_Forms_Address_Processor {
 	 * @return array $form The modified form
 	 */
 	public function pre_render( $form ){
+		// continue as normal if form has no processors
+		if( empty( $form['processors'] ) ) return $form;
 
 		// globalised transient object
 		global $transdata;

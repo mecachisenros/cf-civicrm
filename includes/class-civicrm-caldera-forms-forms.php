@@ -38,7 +38,9 @@ class CiviCRM_Caldera_Forms_Forms {
 	 * @return array $form The modified form
 	 */
 	public function reorder_contact_processors( $form ) {
-
+    // continue as normal if form has no processors
+		if( empty( $form['processors'] ) ) return $form;
+    
 		$contact_processors = $rest_processors = array();
 		foreach ( $form['processors'] as $pId => $processor ) {
 			if( $processor['type'] == 'civicrm_contact' ){
