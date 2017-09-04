@@ -129,7 +129,7 @@ class CiviCRM_Caldera_Forms_Address_Processor {
 
 		foreach ( $form['processors'] as $processor => $pr_id ) {
 
-			if( $pr_id['type'] == $this->key_name ){
+			if( $pr_id['type'] == $this->key_name && isset( $pr_id['runtimes'] ) ){
 				if ( isset( $transdata['civicrm']['contact_id_' . $pr_id['config']['contact_link']] ) ) {
 					try {
 
