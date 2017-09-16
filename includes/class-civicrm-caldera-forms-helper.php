@@ -169,24 +169,20 @@ class CiviCRM_Caldera_Forms_Helper {
 
 		if ( $cid != 0 ) {
 
-			$fields = civicrm_api3( 'Contact', 'getsingle', array(
+			$params = array(
 				'sequential' => 1,
 				'id' => $cid,
-			 ));
+			);
+
+			$fields = civicrm_api3( 'Contact', 'getsingle', $params );
 
 			// Custom fields
-			$c_fields = CiviCRM_Caldera_Forms_Helper::get_contact_custom_fields();
+			$c_fields = implode( ',', CiviCRM_Caldera_Forms_Helper::get_contact_custom_fields() );
 
-			$c_fields_string = '';
-			foreach ( $c_fields as $key => $value ) {
-				$c_fields_string .= $key . ',';
-			}
+			if ( empty( $c_fields ) ) return $fields;
 
-			$custom_fields = civicrm_api3( 'Contact', 'getsingle', array(
-				'sequential' => 1,
-				'id' => $cid,
-				'return' => $c_fields_string,
-			 ));
+			$params['return'] = $c_fields;
+			$custom_fields = civicrm_api3( 'Contact', 'getsingle', $params );
 
 			return array_merge( $fields, $custom_fields );
 
