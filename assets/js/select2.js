@@ -6,6 +6,12 @@
  * https://github.com/select2/select2/blob/master/LICENSE.md
  */
 (function (factory) {
+  // Hack to prevent slect2 colision
+  var existingSelect2 = jQuery.fn.select2 || null;
+  // delete if exists
+  if (existingSelect2) {
+    delete jQuery.fn.select2;
+  }
   if (typeof define === 'function' && define.amd) {
     // AMD. Register as an anonymous module.
     define(['jquery'], factory);
@@ -15,6 +21,13 @@
   } else {
     // Browser globals
     factory(jQuery);
+  }
+  // register own name
+  jQuery.fn.civiSelect2 = jQuery.fn.select2;
+  // restore exisitng version
+  if (existingSelect2) {
+    delete jQuery.fn.select2;
+    jQuery.fn.select2 = existingSelect2;
   }
 }(function (jQuery) {
   // This is needed so we can catch the AMD loader configuration and use it
