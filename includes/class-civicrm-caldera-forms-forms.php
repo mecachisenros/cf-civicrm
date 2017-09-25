@@ -8,7 +8,7 @@
 class CiviCRM_Caldera_Forms_Forms {
 
     /**
-     * Initialises this object
+     * Initialises this object.
      *
      * @since 0.4
      */
@@ -17,7 +17,7 @@ class CiviCRM_Caldera_Forms_Forms {
     }
 
     /**
-     * Register hooks
+     * Register hooks.
      *
      * @since 0.4
      */
@@ -25,11 +25,14 @@ class CiviCRM_Caldera_Forms_Forms {
 
         // reorder processors on save form
         add_filter( 'caldera_forms_presave_form', array( $this, 'reorder_contact_processors' ), 20 );
+        // enqueue scripts and js in form editor
+        add_action( 'caldera_forms_admin_assets_scripts_registered', array( $this, 'enqueue_civicrm_scripts' ) );
+		add_action( 'caldera_forms_admin_assets_styles_registered', array( $this, 'enqueue_civicrm_styles' ) );
 
     }
 
     /**
-	 * Reorder Contact processors, fires when a form is saved
+	 * Reorder Contact processors, fires when a form is saved.
 	 *
 	 * @uses 'caldera_forms_presave_form' filter
 	 * @since 0.4
@@ -59,5 +62,28 @@ class CiviCRM_Caldera_Forms_Forms {
 		$form['processors'] = array_merge( $contact_processors, $rest_processors);
 
 		return $form;
+	}
+
+	/**
+	 * Enqueue scripts.
+	 *
+	 * @uses 'caldera_forms_admin_assets_scripts_registered' action
+	 * @since 0.4.2
+	 */
+	public function enqueue_civicrm_scripts(){
+		// select2 4.0.3 script
+		wp_enqueue_script( 'civicrm-select2', CF_CIVICRM_INTEGRATION_URL . 'assets/js/select2.min.js', array( 'jquery' ), CF_CIVICRM_INTEGRATION_VER );
+	}
+
+	/**
+	 * Enqueue styles.
+	 *
+	 * @uses 'caldera_forms_admin_assets_scripts_registered' action
+	 * @since 0.4.2
+	 */
+	public function enqueue_civicrm_styles(){
+		// select2 4.0.3 style
+		wp_enqueue_style( 'civicrm-select2', CF_CIVICRM_INTEGRATION_URL . 'assets/css/select2.min.css', array(), CF_CIVICRM_INTEGRATION_VER );
+
 	}
 }

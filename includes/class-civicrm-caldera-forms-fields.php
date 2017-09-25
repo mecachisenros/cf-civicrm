@@ -49,6 +49,7 @@ class CiviCRM_Caldera_Forms_Fields {
 		// include field class files
 		include CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_country/class-civicrm-country.php';
 		include CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_state/class-civicrm-state.php';
+		include CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_file/class-civicrm-file.php';
 
 	}
 
@@ -62,6 +63,7 @@ class CiviCRM_Caldera_Forms_Fields {
 		// add to custom fields array
 		$this->field_objects['civicrm_country'] = new CiviCRM_Caldera_Forms_Field_Country;
 		$this->field_objects['civicrm_state'] = new CiviCRM_Caldera_Forms_Field_State;
+		$this->field_objects['civicrm_file'] = new CiviCRM_Caldera_Forms_Field_File;
 
 	}
 
@@ -481,6 +483,16 @@ class CiviCRM_Caldera_Forms_Fields {
 							);
 					}
 					break;
+				// Preferred Language
+				case 'preferred_language':
+					$preferred_language = CRM_Contact_BAO_Contact::buildOptions('preferred_language');
+					foreach ( $preferred_language as $key => $value ) {
+							$field['config']['option'][$key] = array(
+								'value' => $key,
+								'label' => $value
+							);
+					}
+					break;
 			}
 
 		}
@@ -534,6 +546,8 @@ class CiviCRM_Caldera_Forms_Fields {
 		echo "<option value=\"website_type_id\"{{#is auto_type value=\"website_type_id\"}} selected=\"selected\"{{/is}}>" . __( 'CiviCRM - Website Type', 'caldera-forms-civicrm' ) . "</option>";
 		// IM Type
 		echo "<option value=\"provider_id\"{{#is auto_type value=\"provider_id\"}} selected=\"selected\"{{/is}}>" . __( 'CiviCRM - Im Type', 'caldera-forms-civicrm' ) . "</option>";
+		// Preferred Language
+		echo "<option value=\"preferred_language\"{{#is auto_type value=\"preferred_language\"}} selected=\"selected\"{{/is}}>" . __( 'CiviCRM - Preferred Language', 'caldera-forms-civicrm' ) . "</option>";
 
 	}
 

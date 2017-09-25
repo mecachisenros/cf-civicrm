@@ -78,7 +78,7 @@ class CiviCRM_Caldera_Forms_Case_Processor {
 		}
 
 		$form_values['contact_id'] = $transdata['civicrm']['contact_id_'.$config['contact_link']]; // Contact ID set in Contact Processor
-		$form_values['creator_id'] = $transdata['civicrm']['contact_id_'.$config['contact_link']];
+		$form_values['creator_id'] = ! empty( $config['creator_id'] ) ? $config['creator_id'] : $transdata['civicrm']['contact_id_'.$config['contact_link']]; // Case Manager
 		$form_values['case_type_id'] = $config['case_type_id']; // Case Type ID
 		$form_values['case_status_id'] = $config['case_status_id']; // Case Status ID
 

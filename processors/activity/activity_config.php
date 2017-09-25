@@ -86,7 +86,11 @@ foreach ( $activityFieldsResult['values'] as $key => $value ) {
 	<div id="<?php echo esc_attr( $key ); ?>" class="caldera-config-group">
 		<label><?php echo esc_html( $value ); ?> </label>
 		<div class="caldera-config-field">
-			<?php echo '{{{_field slug="' . $key . '"}}}'; ?>
+			<?php
+				echo '{{{_field ';
+				if ( $key == 'file_id' ) echo 'type="advanced_file,file" ';
+				echo 'slug="' . $key . '"}}}';
+			?>
 			<?php if ( $key == 'source_record_id' ) { ?>
 				<p><?php _e( 'Default is set to the Contact that submits the form.', 'caldera-forms-civicrm' ); ?></p>
 			<?php } ?>

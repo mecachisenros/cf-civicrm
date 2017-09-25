@@ -77,7 +77,77 @@ foreach ( $caseFieldsResult['values'] as $key => $value ) {
 		<div id="<?php echo esc_attr( $key ); ?>" class="caldera-config-group">
 			<label><?php _e( $value, 'caldera-forms-civicrm' ); ?></label>
 			<div class="caldera-config-field">
-				<<input type="text" class="block-input field-config magic-tag-enabled caldera-field-bind <?php if( $key == 'subject') echo 'required'; ?>" id="{{_id}}" name="{{_name}}[<?php echo $key; ?>]" value="{{<?php echo $key; ?>}}">
+				<input type="text" class="block-input field-config magic-tag-enabled caldera-field-bind <?php if( $key == 'subject') echo 'required'; ?>" id="{{_id}}" name="{{_name}}[<?php echo $key; ?>]" value="{{<?php echo $key; ?>}}">
 			</div>
 		</div>
 <?php } } ?>
+
+<!-- Case Manager -->
+<div class="caldera-config-group">
+	<label><?php _e( 'Case Created By', 'caldera-forms-civicrm' ); ?></label>
+	<div class="caldera-config-field">
+		<select id="{{_id}}_creator_id" class="block-input field-config" style="width: 100%;" nonce="<?php echo wp_create_nonce('admin_get_civi_contact'); ?>" name="{{_name}}[creator_id]">
+		</select>
+	</div>
+</div>
+
+{{#script}}
+jQuery( document ).ready( function( $ ){
+	var creator_id = '{{creator_id}}' ? '{{creator_id}}' : null;
+	if ( creator_id ) {
+		$.ajax({
+            url : ajaxurl,
+            type : 'post',
+            data : {
+            	contact_id: creator_id,
+                action : 'civicrm_get_contacts',
+                nonce: $('#{{_id}}_creator_id').attr('nonce')
+            },
+            success : function( response ) {
+            	var result = JSON.parse(response);
+
+            	var data = {
+				    id: result[0]['id'],
+				    text: result[0]['sort_name']
+				};
+            	var default_option = new Option(data.text, data.id, false, false);
+				$('#{{_id}}_creator_id').append(default_option).trigger('change');
+            }
+        });
+    }
+
+	$('#{{_id}}_creator_id').select2();
+
+	$('#{{_id}}_creator_id').select2({
+  		ajax: {
+    			url: ajaxurl,
+    			dataType: 'json',
+    			type: 'post',
+    			delay: 250,
+    			data: function (params) {
+      				return {
+        				search: params.term,
+        				action: 'civicrm_get_contacts',
+        				nonce: $('#{{_id}}_creator_id').attr('nonce')
+      				};
+    			},
+    			processResults: function( data ) {
+				var options = [];
+				if ( data ) {
+					$.each( data, function( index, contact ) {
+						options.push( { id: contact['id'], text: contact['sort_name'] } );
+					});
+				}
+				return {
+					results: options
+				};
+			},
+			cache: true
+		},
+		minimumInputLength: 3,
+		allowClear: true,
+		placeholder: 'Search for a Contact',
+	});
+} );
+{{/script}}
+

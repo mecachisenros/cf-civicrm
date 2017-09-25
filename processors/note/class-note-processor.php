@@ -73,6 +73,20 @@ class CiviCRM_Caldera_Forms_Note_Processor {
 
 			// Add Note to contact
 			$note = civicrm_api3( 'Note', 'create', $form_values );
+
+			// handle attachment using CRM_Core_DAO_EntityFile
+			if ( ! empty( $config['note_attachment'] ) ) {
+
+				$transdata['civicrm']['civicrm_files'] = CiviCRM_Caldera_Forms_Helper::get_file_entity_ids();
+
+				foreach ( $transdata['civicrm']['civicrm_files'] as $field_number => $file ) {
+					if ( $config['note_attachment'] == $file['field_id'] && ! empty( $file['file_id'] ) ) {
+
+						CiviCRM_Caldera_Forms_Helper::create_civicrm_entity_file( 'civicrm_note', $note['id'], $file['file_id'] );
+
+					}
+				}
+			}
 		}
 	}
 }

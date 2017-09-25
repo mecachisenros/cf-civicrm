@@ -3,7 +3,7 @@ Contributors: mecachisenros, needle
 Tags: civicrm, caldera, forms, integration
 Requires at least: 4.5
 Tested up to: 4.6
-Stable tag: 0.4.1
+Stable tag: 0.4.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -33,6 +33,12 @@ This plugin is in active development. For feature requests and bug reports (or i
 
 
 == Changelog ==
+
+= 0.4.2 =
+* Added support for CiviCRM file uploads, Advanced File field (allowing multiple uploads for Activities) and File field (for custom fields and notes)
+* Added CiviCRM Preferred Language as autopopulate option
+* Added Contact Reference (select2 widget) for the Case Created by field in the Case processor
+* Fixed pre-populate form issue
 
 = 0.4.1 =
 * Case processor - creates/adds case to contact
