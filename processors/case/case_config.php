@@ -116,9 +116,9 @@ jQuery( document ).ready( function( $ ){
         });
     }
 
-	$('#{{_id}}_creator_id').select2();
+	$('#{{_id}}_creator_id').civiSelect2();
 
-	$('#{{_id}}_creator_id').select2({
+	$('#{{_id}}_creator_id').civiSelect2({
   		ajax: {
     			url: ajaxurl,
     			dataType: 'json',
@@ -150,4 +150,3 @@ jQuery( document ).ready( function( $ ){
 	});
 } );
 {{/script}}
-
