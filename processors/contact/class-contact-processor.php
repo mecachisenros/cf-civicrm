@@ -163,6 +163,44 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 			}
 
 			/**
+			 * Hnadle File fields for attachments.
+			 * @since 0.4.2
+			 */
+			foreach ( $config['civicrm_contact'] as $c_field => $val ) {
+				if ( ! empty( $val ) && substr( $c_field, 0, 7 ) === 'custom_' ) {
+
+					$transdata['civicrm']['civicrm_files'] = CiviCRM_Caldera_Forms_Helper::get_file_entity_ids();
+					// get field config
+					$cf_field = Caldera_Forms::get_field_by_slug(str_replace( '%', '', $val ), $form );
+
+					foreach ( $transdata['civicrm']['civicrm_files'] as $field_number => $file ) {
+
+						if ( $cf_field['ID'] == $file['field_id'] && ! empty( $file['file_id'] ) ) {
+
+							// custom field id
+							$c_field_id = preg_replace('/\D/', '', $c_field);
+
+							$field_type = civicrm_api3( 'CustomField', 'getsingle', array(
+								'id' => $c_field_id,
+								'return' => array( 'custom_group_id', 'data_type' ),
+							));
+
+							if ( $field_type['data_type'] == 'File' ) {
+								// custom group
+								$custom_group = civicrm_api3( 'CustomGroup', 'getsingle', array(
+			  						'id' => $field_type['custom_group_id'],
+			  						'return' => array( 'table_name' ),
+								));
+
+								CiviCRM_Caldera_Forms_Helper::create_civicrm_entity_file( $custom_group['table_name'], $custom_group['id'], $file['file_id'] );
+
+							}
+						}
+					}
+				}
+			}
+
+			/**
 			 * Process enabled entities.
 			 * @since 0.3
 			 */
@@ -498,6 +536,16 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 		}
 
 		foreach ( $form['processors'] as $processor => $pr_id ) {
+			// this would be a good place to set form defaults based on Civi data
+
+			// get and set 'contact_default_language' if the contact doesn't have one set
+			if ( ! empty( $pr_id['config']['civicrm_contact']['preferred_language'] ) ) {
+				$preferred_language = Caldera_Forms::get_field_by_slug(str_replace( '%', '', $pr_id['config']['civicrm_contact']['preferred_language'] ), $form );
+				if ( empty( $preferred_language['config']['default'] ) ) {
+					$form['fields'][$preferred_language['ID']]['config']['default'] = CRM_Core_Config::singleton()->lcMessages;
+				}
+			}
+
 			if( $pr_id['type'] == $this->key_name && isset( $pr_id['runtimes'] ) ){
 
 				if ( isset( $pr_id['config']['auto_pop'] ) && $pr_id['config']['auto_pop'] == 1 && $civicrm_contact_pr[0]['ID'] == $pr_id['ID'] ) {
@@ -555,6 +603,17 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 						$civi_contact,
 						'civicrm_contact'
 					);
+
+					// FIXME
+					// add filter hook here for this kind of things
+
+					// get and set 'contact_default_language' if the contact doesn't have one set
+					if ( ! empty( $pr_id['config']['civicrm_contact']['preferred_language'] ) ) {
+						$preferred_language = Caldera_Forms::get_field_by_slug(str_replace( '%', '', $pr_id['config']['civicrm_contact']['preferred_language'] ), $form );
+						if ( empty( $preferred_language['config']['default'] ) ) {
+							$form['fields'][$preferred_language['ID']]['config']['default'] = CRM_Core_Config::singleton()->lcMessages;
+						}
+					}
 				}
 
 				// Clear Contact data

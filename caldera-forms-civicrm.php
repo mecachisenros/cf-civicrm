@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Caldera Forms CiviCRM
  * Description: CiviCRM integration for Caldera Forms.
- * Version: 0.4.1
+ * Version: 0.4.2
  * Author: Andrei Mondoc
  * Author URI: https://github.com/mecachisenros
  * Plugin URI: https://github.com/mecachisenros/caldera-forms-civicrm
@@ -15,7 +15,7 @@
  *
  * @since 0.1
  */
-define( 'CF_CIVICRM_INTEGRATION_VER', '0.4.1' );
+define( 'CF_CIVICRM_INTEGRATION_VER', '0.4.2' );
 define( 'CF_CIVICRM_INTEGRATION_URL', plugin_dir_url( __FILE__ ) );
 define( 'CF_CIVICRM_INTEGRATION_PATH', plugin_dir_path( __FILE__ ) );
 
@@ -72,6 +72,24 @@ class CiviCRM_Caldera_Forms {
 	 * @var object $templates The form management object
 	 */
 	public static $forms;
+
+	/**
+	 * The entries management object.
+	 *
+	 * @since 0.4.2
+	 * @access public
+	 * @var object $entries The entries management object
+	 */
+	public static $entries;
+
+	/**
+	 * The ajax management object.
+	 *
+	 * @since 0.4.2
+	 * @access public
+	 * @var object $entries The entries management object
+	 */
+	public static $ajax;
 
 	/**
 	 * Returns a single instance of this object when called.
@@ -155,6 +173,12 @@ class CiviCRM_Caldera_Forms {
 		// Include forms management class
 		include CF_CIVICRM_INTEGRATION_PATH . 'includes/class-civicrm-caldera-forms-forms.php';
 
+		// Include entries management class
+		include CF_CIVICRM_INTEGRATION_PATH . 'includes/class-civicrm-caldera-forms-entries.php';
+
+		// Include ajax management class
+		include CF_CIVICRM_INTEGRATION_PATH . 'includes/class-civicrm-caldera-forms-ajax.php';
+
 	}
 
 	/**
@@ -176,6 +200,11 @@ class CiviCRM_Caldera_Forms {
 		// init forms manager
 		self::$forms = new CiviCRM_Caldera_Forms_Forms;
 
+		// init entries manager
+		self::$entries = new CiviCRM_Caldera_Forms_Entries;
+
+		// init ajax manager
+		self::$ajax = new CiviCRM_Caldera_Forms_AJAX;
 	}
 
 	/**

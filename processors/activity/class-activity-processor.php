@@ -79,6 +79,30 @@ class CiviCRM_Caldera_Forms_Activity_Processor {
 			// $form_values['activity_date_time'] = $form_values['activity_date_time'];
 
 			$create_activity = civicrm_api3( 'Activity', 'create', $form_values );
+
+			if ( ! empty( $config['file_id'] ) ) {
+
+				$transdata['civicrm']['civicrm_files'] = CiviCRM_Caldera_Forms_Helper::get_file_entity_ids();
+
+				if ( is_array( $transdata['data'][$config['file_id']] ) ) {
+
+					// handle multiple upload file 'advanced_file', limit to 3 files
+					$file_ids = $transdata['data'][$config['file_id']];
+					for ( $x = 0; $x < CiviCRM_Caldera_Forms_Helper::get_civicrm_settings( 'max_attachments' ); $x++ ) {
+  						CiviCRM_Caldera_Forms_Helper::create_civicrm_entity_file( 'civicrm_activity', $create_activity['id'], $file_ids[$x] );
+					}
+
+				} else {
+					// single file
+					foreach ( $transdata['civicrm']['civicrm_files'] as $field_number => $file ) {
+						if ( $config['file_id'] == $file['field_id'] && ! empty( $file['file_id'] ) ) {
+
+							CiviCRM_Caldera_Forms_Helper::create_civicrm_entity_file( 'civicrm_activity', $create_activity['id'], $file['file_id'] );
+
+						}
+					}
+				}
+			}
 		}
 	}
 }

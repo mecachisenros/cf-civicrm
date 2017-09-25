@@ -44,6 +44,15 @@ class CiviCRM_Caldera_Forms_Helper {
 	public static $civi_transdata = array();
 
 	/**
+	 * Holds field/file ids for attachments.
+	 *
+	 * @since 0.4.2
+	 * @access public
+	 * @var array $file_entity_transdata File entity ids
+	 */
+	public static $file_entity_transdata = array();
+
+	/**
 	 * Sets the contact_id/contact_id mapping.
 	 *
 	 * @since 0.1
@@ -64,6 +73,28 @@ class CiviCRM_Caldera_Forms_Helper {
 	 */
 	public static function get_civi_transdata() {
 		return self::$civi_transdata;
+	}
+
+	/**
+	 * Sets the field/file ids.
+	 *
+	 * @since 0.4.2
+	 *
+	 * @param array $params
+	 */
+	public static function set_file_entity_ids( $params ){
+		self::$file_entity_transdata = $params;
+	}
+
+	/**
+	 * Returns the field/file ids.
+	 *
+	 * @since 0.4.2
+	 *
+	 * @return array $params
+	 */
+	public static function get_file_entity_ids(){
+		return self::$file_entity_transdata;
 	}
 
 	/**
@@ -169,24 +200,20 @@ class CiviCRM_Caldera_Forms_Helper {
 
 		if ( $cid != 0 ) {
 
-			$fields = civicrm_api3( 'Contact', 'getsingle', array(
+			$params = array(
 				'sequential' => 1,
 				'id' => $cid,
-			 ));
+			);
+
+			$fields = civicrm_api3( 'Contact', 'getsingle', $params );
 
 			// Custom fields
-			$c_fields = CiviCRM_Caldera_Forms_Helper::get_contact_custom_fields();
+			$c_fields = implode( ',', array_keys( CiviCRM_Caldera_Forms_Helper::get_contact_custom_fields() ) );
 
-			$c_fields_string = '';
-			foreach ( $c_fields as $key => $value ) {
-				$c_fields_string .= $key . ',';
-			}
+			if ( empty( $c_fields ) ) return $fields;
 
-			$custom_fields = civicrm_api3( 'Contact', 'getsingle', array(
-				'sequential' => 1,
-				'id' => $cid,
-				'return' => $c_fields_string,
-			 ));
+			$params['return'] = $c_fields;
+			$custom_fields = civicrm_api3( 'Contact', 'getsingle', $params );
 
 			return array_merge( $fields, $custom_fields );
 
@@ -405,6 +432,11 @@ class CiviCRM_Caldera_Forms_Helper {
 
 				// Set default value
 				$form['fields'][$mapped_field['ID']]['config']['default'] = $entity[$field];
+
+				if ( $mapped_field['type'] == 'radio' ) {
+					$options = Caldera_Forms_Field_Util::find_option_values( $mapped_field );
+					$form['fields'][$mapped_field['ID']]['config']['default'] = array_search( $entity[$field], $options );
+				}
 			}
 		}
 
@@ -436,6 +468,22 @@ class CiviCRM_Caldera_Forms_Helper {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Create entity file.
+	 *
+	 * @since 0.4.2
+	 * @param string $entity The entity table name
+	 * @param int $entity_id The entity id
+	 * @return int $file_id The file id
+	 */
+	public static function create_civicrm_entity_file( $entity, $entity_id, $file_id ){
+		$entityFileDAO = new CRM_Core_DAO_EntityFile();
+		$entityFileDAO->entity_table = $entity;
+		$entityFileDAO->entity_id = $entity_id;
+		$entityFileDAO->file_id = $file_id;
+		$entityFileDAO->save();
 	}
 
 }

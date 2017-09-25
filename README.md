@@ -22,7 +22,7 @@ To use this plugin, the following is needed:
 * CiviCRM 4.6.x or 4.7.x
 * [Caldera Forms](https://wordpress.org/plugins/caldera-forms/ "Caldera Forms WordPress plugin") to be installed
 
-*WARNING* This plugin is at a very early stage of development (bleeding edge alpha) and is currently being tested with CiviCRM versions 4.6.x and 4.7.x.
+*WARNING* This plugin is in active development (stable beta) and is currently being tested with CiviCRM versions 4.6.x and 4.7.x.
 
 ### Using Caldera Forms CiviCRM
 
