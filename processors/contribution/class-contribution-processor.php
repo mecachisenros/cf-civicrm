@@ -68,9 +68,6 @@ class CiviCRM_Caldera_Forms_Contribution_Processor {
 		// Get form values
 		$form_values = CiviCRM_Caldera_Forms_Helper::map_fields_to_processor( $config, $form, $form_values );
 
-		error_reporting(E_ALL);
-		ini_set('display_errors', 1);
-
 		if( ! empty( $form_values ) ) {
 			$form_values['financial_type_id'] = $config['financial_type']; // Financial Type ID
 			$form_values['total_amount'] = Caldera_Forms::get_field_data($config["amount"], $form); // Amount
