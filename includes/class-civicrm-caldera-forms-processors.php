@@ -64,6 +64,7 @@ class CiviCRM_Caldera_Forms_Processors {
 		include CF_CIVICRM_INTEGRATION_PATH . 'processors/relationship/class-relationship-processor.php';
 		include CF_CIVICRM_INTEGRATION_PATH . 'processors/entity-tag/class-entity-tag-processor.php';
 		include CF_CIVICRM_INTEGRATION_PATH . 'processors/address/class-address-processor.php';
+		include CF_CIVICRM_INTEGRATION_PATH . 'processors/contribution/class-contribution-processor.php';
 		include CF_CIVICRM_INTEGRATION_PATH . 'processors/email/class-email-processor.php';
 		include CF_CIVICRM_INTEGRATION_PATH . 'processors/phone/class-phone-processor.php';
 		include CF_CIVICRM_INTEGRATION_PATH . 'processors/note/class-note-processor.php';
@@ -87,6 +88,7 @@ class CiviCRM_Caldera_Forms_Processors {
 		$this->processors['contact'] = new CiviCRM_Caldera_Forms_Contact_Processor;
 		$this->processors['group'] = new CiviCRM_Caldera_Forms_Group_Processor;
 		$this->processors['activity'] = new CiviCRM_Caldera_Forms_Activity_Processor;
+		$this->processors['contribution'] = new CiviCRM_Caldera_Forms_Contribution_Processor;
 		$this->processors['relationship'] = new CiviCRM_Caldera_Forms_Relationship_Processor;
 		$this->processors['entity_tag'] = new CiviCRM_Caldera_Forms_Entity_Tag_Processor;
 		$this->processors['address'] = new CiviCRM_Caldera_Forms_Address_Processor;
