@@ -45,7 +45,7 @@ class CiviCRM_Caldera_Forms_Contribution_Processor {
 			'description' => __( 'Add CiviCRM contribution to contact', 'caldera-forms-civicrm' ),
 			'author' => 'Agileware',
 			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/contribution/contribution_config.php',
-			'post_processor' =>  array( $this, 'postProcessor' ),
+			'post_processor' =>  array( $this, 'post_processor' ),
 		);
 
 		return $processors;
@@ -60,7 +60,7 @@ class CiviCRM_Caldera_Forms_Contribution_Processor {
 	 * @param array $config Processor configuration
 	 * @param array $form Form configuration
 	 */
-	public function postProcessor( $config, $form) {
+	public function post_processor( $config, $form) {
 
 		// globalised transient object
 		global $transdata;
@@ -69,19 +69,11 @@ class CiviCRM_Caldera_Forms_Contribution_Processor {
 		$form_values = CiviCRM_Caldera_Forms_Helper::map_fields_to_processor( $config, $form, $form_values );
 
 		if( ! empty( $form_values ) ) {
-			$form_values['financial_type_id'] = $config['financial_type']; // Financial Type ID
-			$form_values['total_amount'] = Caldera_Forms::get_field_data($config["amount"], $form); // Amount
-
-			$form_values['currency'] = Caldera_Forms::get_field_data($config["currency"], $form); // Currency
-			$form_values['trxn_id'] = Caldera_Forms::get_field_data($config["transaction_id"], $form); // Transaction ID
-			$source = Caldera_Forms::get_field_data($config["source"], $form); // Source
-			if($source == "") {
-				$source = $form["name"];
+			$form_values['financial_type_id'] = $config['financial_type_id']; // Financial Type ID
+			if($form_values["source"] == "") {
+				$form_values["source"] = $form["name"];
 			}
-
-			$form_values['source'] = $source;
 			$form_values['contact_id'] = $transdata['civicrm']['contact_id_'.$config['contact_link']]; // Contact ID
-
 			$credit_card_id = civicrm_api3( 'OptionValue', 'get', array(
 				'sequential'           => 1,
 				'option_group_id.name' => 'payment_instrument',
