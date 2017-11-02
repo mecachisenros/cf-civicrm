@@ -26,6 +26,15 @@ class CiviCRM_Caldera_Forms_Helper {
 	public static $activity_fields = array( 'activity_type_id', 'phone_id', 'phone_number', 'status_id', 'priority_id', 'parent_id', 'is_test', 'medium_id', 'is_auto', 'is_current_revision', 'result', 'is_deleted', 'campaign_id', 'engagement_level', 'weight', 'id', 'original_id', 'relationship_id');
 
 	/**
+	 * Contribution fields.
+	 *
+	 * @since 0.1
+	 * @access public
+	 * @var aray $contribution_fields The contribution fields
+	 */
+	public static $contribution_fields = array('financial_type_id', 'currency', 'total_amount', 'source', 'trxn_id');
+
+	/**
 	 * Holds CiviCRM state/province data which only needs a single lookup.
 	 *
 	 * @since 0.2
