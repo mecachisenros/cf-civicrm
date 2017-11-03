@@ -3,14 +3,14 @@
 /**
  * CiviCRM Caldera Forms Contribution Processor Class.
  *
- * @since 0.2
+ * @since 0.4.2
  */
 class CiviCRM_Caldera_Forms_Contribution_Processor {
 
 	/**
 	 * The processor key.
 	 *
-	 * @since 0.2
+	 * @since 0.4.2
 	 * @access public
 	 * @var str $key_name The processor key
 	 */
@@ -19,7 +19,7 @@ class CiviCRM_Caldera_Forms_Contribution_Processor {
 	/**
 	 * Initialises this object.
 	 *
-	 * @since 0.2
+	 * @since 0.4.2
 	 */
 	public function __construct() {
 
@@ -31,7 +31,7 @@ class CiviCRM_Caldera_Forms_Contribution_Processor {
 	/**
 	 * Adds this processor to Caldera Forms.
 	 *
-	 * @since 0.2
+	 * @since 0.4.2
 	 *
 	 * @uses 'caldera_forms_get_form_processors' filter
 	 *
@@ -55,7 +55,7 @@ class CiviCRM_Caldera_Forms_Contribution_Processor {
 	/**
 	 * Form processor callback.
 	 *
-	 * @since 0.2
+	 * @since 0.4.2
 	 *
 	 * @param array $config Processor configuration
 	 * @param array $form Form configuration

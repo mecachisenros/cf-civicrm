@@ -28,7 +28,7 @@ class CiviCRM_Caldera_Forms_Helper {
 	/**
 	 * Contribution fields.
 	 *
-	 * @since 0.1
+	 * @since 0.4.2
 	 * @access public
 	 * @var aray $contribution_fields The contribution fields
 	 */
