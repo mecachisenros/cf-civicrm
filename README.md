@@ -27,7 +27,7 @@ To use this plugin, the following is needed:
 ### Using Caldera Forms CiviCRM
 
 * Get an [overview of Caldera Forms](/docs/overview.md)
-* Setup [CiviCRM Processors](/docs/processors.md) on you form
+* Setup [CiviCRM Processors](/docs/processors.md) on your form
 * Use [Custom Fields](/docs/custom-fields.md)
 
 ### Contribute
