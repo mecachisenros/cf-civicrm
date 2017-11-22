@@ -46,6 +46,9 @@ class CiviCRM_Caldera_Forms_Case_Processor {
 			'author' => 'Andrei Mondoc',
 			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/case/case_config.php',
 			'processor' =>  array( $this, 'processor' ),
+			'magic_tags' => array(
+				"case_id"
+			),
 		);
 
 		return $processors;
@@ -91,6 +94,9 @@ class CiviCRM_Caldera_Forms_Case_Processor {
 		} else {
 			try {
 				$create_case = civicrm_api3( 'Case', 'create', $form_values );
+				return array(
+					"case_id"  =>  $create_case["id"]
+				);
 			} catch (Exception $e) {
 
 			}
