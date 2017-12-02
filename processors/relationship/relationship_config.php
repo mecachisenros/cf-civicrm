@@ -54,3 +54,42 @@ $relationships = civicrm_api3( 'RelationshipType', 'get', array(
 		</select>
 	</div>
 </div>
+
+<!-- Relationship details -->
+<?php
+
+$relationshipFieldsResult = civicrm_api3( 'Relationship', 'getfields', array(
+	'sequential' => 1,
+));
+
+$relationshipFields = array();
+
+foreach ( $relationshipFieldsResult['values'] as $key => $value ) {
+ if ( ! in_array( $value['name'], CiviCRM_Caldera_Forms_Helper::$relationship_fields ) ) {
+		$relationshipFields[$value['name']] = $value['title'];
+ }
+}
+?>
+
+<hr style="clear: both;" />
+
+<h2><?php _e( 'Relationship fields', 'caldera-forms-civicrm' ); ?></h2>
+<?php
+	foreach ( $relationshipFields as $key => $value ) { ?>
+	<div id="<?php echo esc_attr( $key ); ?>" class="caldera-config-group">
+		<label><?php echo esc_html( $value ); ?> </label>
+		<div class="caldera-config-field">
+			<?php
+				echo '{{{_field ';
+				if ( $key == 'file_id' ) echo 'type="advanced_file,file" ';
+				echo 'slug="' . $key . '"}}}';
+			?>
+		</div>
+	</div>
+<?php } ?>
+
+<script>
+	jQuery(document).ready( function() {
+		jQuery('#source_record_id select').prop( 'disabled', true );
+	} );
+</script>
