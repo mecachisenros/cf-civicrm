@@ -24,7 +24,16 @@ class CiviCRM_Caldera_Forms_Helper {
 	 * @var aray $activity_fields The activity fields
 	 */
 	public static $activity_fields = array( 'activity_type_id', 'phone_id', 'phone_number', 'status_id', 'priority_id', 'parent_id', 'is_test', 'medium_id', 'is_auto', 'is_current_revision', 'result', 'is_deleted', 'campaign_id', 'engagement_level', 'weight', 'id', 'original_id', 'relationship_id');
-
+	
+	/**
+	 * Relationship fields.
+	 *
+	 * @since 0.X
+	 * @access public
+	 * @var aray $relationship_fields The activity fields
+	 */
+	public static $relationship_fields = array( 'relationship_type_id', 'contact_id_a', 'contact_id_b', 'id', 'case_id');
+	
 	/**
 	 * Contribution fields.
 	 *
