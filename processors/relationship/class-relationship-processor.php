@@ -76,15 +76,40 @@ class CiviCRM_Caldera_Forms_Relationship_Processor {
 			return;
 		} else {
 
-			$create_relationship = civicrm_api3( 'Relationship', 'create', array(
-				'sequential' => 1,
-				'contact_id_a' => $transdata['civicrm']['contact_id_'.$config['contact_a']],
-				'contact_id_b' => $transdata['civicrm']['contact_id_'.$config['contact_b']],
-				'relationship_type_id' => $config['relationship_type'],
-			));
-
-		}
-
-	}
-
+  		// Get form values
+  		$form_values = CiviCRM_Caldera_Forms_Helper::map_fields_to_processor( $config, $form, $form_values );
+  
+  		if( ! empty( $form_values ) ) {
+     
+        // Set the generic form values
+  			$form_values['sequential'] = 1;
+  			$form_values['contact_id_a'] = $transdata['civicrm']['contact_id_'.$config['contact_a']];
+  			$form_values['contact_id_b'] = $transdata['civicrm']['contact_id_'.$config['contact_b']];
+  			$form_values['relationship_type_id'] = $config['relationship_type']; // Campaign ID
+        
+  			// FIXME
+  			// Concatenate DATE + TIME
+  			// $form_values['activity_date_time'] = $form_values['activity_date_time'];
+  			        
+        $create_relationship = civicrm_api3( 'Relationship', 'create', $form_values );
+  			if ( ! empty( $config['file_id'] ) ) {
+  				$transdata['civicrm']['civicrm_files'] = CiviCRM_Caldera_Forms_Helper::get_file_entity_ids();
+  				if ( is_array( $transdata['data'][$config['file_id']] ) ) {
+  					// handle multiple upload file 'advanced_file', limit to 3 files
+  					$file_ids = $transdata['data'][$config['file_id']];
+  					for ( $x = 0; $x < CiviCRM_Caldera_Forms_Helper::get_civicrm_settings( 'max_attachments' ); $x++ ) {
+    						CiviCRM_Caldera_Forms_Helper::create_civicrm_entity_file( 'civicrm_relationship', $create_relationship['id'], $file_ids[$x] );
+  					}
+  				} else {
+  					// single file
+  					foreach ( $transdata['civicrm']['civicrm_files'] as $field_number => $file ) {
+  						if ( $config['file_id'] == $file['field_id'] && ! empty( $file['file_id'] ) ) {
+  							CiviCRM_Caldera_Forms_Helper::create_civicrm_entity_file( 'civicrm_relationship', $create_relationship['id'], $file['file_id'] );
+  						}
+  					}
+  				}
+  	   	}
+      }	
+    }
+  }
 }
