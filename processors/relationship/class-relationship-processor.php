@@ -45,7 +45,7 @@ class CiviCRM_Caldera_Forms_Relationship_Processor {
 			'description' => __( 'Add CiviCRM relationship to contacts', 'caldera-forms-civicrm' ),
 			'author' => 'Andrei Mondoc',
 			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/relationship/relationship_config.php',
-			'processor' => array( $this, 'processor' ),
+			'pre_processor' => array( $this, 'pre_processor' ),
 		);
 
 		return $processors;
@@ -60,7 +60,7 @@ class CiviCRM_Caldera_Forms_Relationship_Processor {
 	 * @param array $config Processor configuration
 	 * @param array $form Form configuration
 	 */
-	public function processor( $config, $form ) {
+	public function pre_processor( $config, $form ) {
 
 		// globalised transient object
 		global $transdata;
@@ -75,14 +75,17 @@ class CiviCRM_Caldera_Forms_Relationship_Processor {
 		if ( $relationship['count'] ) {
 			return;
 		} else {
-
-			$create_relationship = civicrm_api3( 'Relationship', 'create', array(
-				'sequential' => 1,
-				'contact_id_a' => $transdata['civicrm']['contact_id_'.$config['contact_a']],
-				'contact_id_b' => $transdata['civicrm']['contact_id_'.$config['contact_b']],
-				'relationship_type_id' => $config['relationship_type'],
-			));
-
+			try {
+				$create_relationship = civicrm_api3( 'Relationship', 'create', array(
+					'sequential' => 1,
+					'contact_id_a' => $transdata['civicrm']['contact_id_'.$config['contact_a']],
+					'contact_id_b' => $transdata['civicrm']['contact_id_'.$config['contact_b']],
+					'relationship_type_id' => $config['relationship_type'],
+				));
+			} catch ( CiviCRM_API3_Exception $e ) {
+				$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
+				return array( 'note' => $error, 'type' => 'error' );
+			}
 		}
 
 	}

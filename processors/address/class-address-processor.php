@@ -56,7 +56,7 @@ class CiviCRM_Caldera_Forms_Address_Processor {
 			'description' => __( 'Add CiviCRM address to contacts', 'caldera-forms-civicrm' ),
 			'author' => 'Andrei Mondoc',
 			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/address/address_config.php',
-			'processor' => array( $this, 'processor' ),
+			'pre_processor' => array( $this, 'pre_processor' ),
 		);
 
 		return $processors;
@@ -71,7 +71,7 @@ class CiviCRM_Caldera_Forms_Address_Processor {
 	 * @param array $config Processor configuration
 	 * @param array $form Form configuration
 	 */
-	public function processor( $config, $form ) {
+	public function pre_processor( $config, $form ) {
 
 		// globalised transient object
 		global $transdata;
@@ -84,7 +84,7 @@ class CiviCRM_Caldera_Forms_Address_Processor {
 					'contact_id' => $transdata['civicrm']['contact_id_' . $config['contact_link']],
 					'location_type_id' => $config['location_type_id'],
 				));
-			} catch ( Exception $e ) {
+			} catch ( CiviCRM_API3_Exception $e ) {
 				// Ignore if none found
 			}
 
@@ -105,7 +105,12 @@ class CiviCRM_Caldera_Forms_Address_Processor {
 				// Concatenate DATE + TIME
 				// $form_values['activity_date_time'] = $form_values['activity_date_time'];
 
-				$create_address = civicrm_api3( 'Address', 'create', $form_values );
+				try {
+					$create_address = civicrm_api3( 'Address', 'create', $form_values );
+				} catch ( CiviCRM_API3_Exception $e ) {
+					$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
+	                return array( 'note' => $error, 'type' => 'error' );
+				}
 			}
 		}
 	}
@@ -139,7 +144,7 @@ class CiviCRM_Caldera_Forms_Address_Processor {
 							'location_type_id' => $pr_id['config']['location_type_id'],
 						));
 
-					} catch ( Exception $e ) {
+					} catch ( CiviCRM_API3_Exception $e ) {
 						// Ignore if we have more than one address with same location type
 					}
 				}

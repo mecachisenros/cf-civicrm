@@ -56,7 +56,7 @@ class CiviCRM_Caldera_Forms_Website_Processor {
 			'description' => __( 'Add CiviCRM website to contacts', 'caldera-forms-civicrm' ),
 			'author' => 'Andrei Mondoc',
 			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/website/website_config.php',
-			'processor' => array( $this, 'processor' ),
+			'pre_processor' => array( $this, 'pre_processor' ),
 		);
 
 		return $processors;
@@ -71,7 +71,7 @@ class CiviCRM_Caldera_Forms_Website_Processor {
 	 * @param array $config Processor configuration
 	 * @param array $form Form configuration
 	 */
-	public function processor( $config, $form ) {
+	public function pre_processor( $config, $form ) {
 
 		// globalised transient object
 		global $transdata;
@@ -103,7 +103,12 @@ class CiviCRM_Caldera_Forms_Website_Processor {
 	                $form_values['website_type_id'] = $config['website_type_id'];
 	            }
 
-				$create_email = civicrm_api3( 'Website', 'create', $form_values );
+	            try {
+					$create_email = civicrm_api3( 'Website', 'create', $form_values );
+	            } catch ( CiviCRM_API3_Exception $e ) {
+	            	$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
+					return array( 'note' => $error, 'type' => 'error' );
+	            }
 			}
 		}
 	}

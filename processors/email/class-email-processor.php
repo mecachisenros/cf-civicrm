@@ -56,7 +56,7 @@ class CiviCRM_Caldera_Forms_Email_Processor {
 			'description' => __( 'Add CiviCRM email to contacts', 'caldera-forms-civicrm' ),
 			'author' => 'Andrei Mondoc',
 			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/email/email_config.php',
-			'processor' => array( $this, 'processor' ),
+			'pre_processor' => array( $this, 'pre_processor' ),
 		);
 
 		return $processors;
@@ -71,7 +71,7 @@ class CiviCRM_Caldera_Forms_Email_Processor {
 	 * @param array $config Processor configuration
 	 * @param array $form Form configuration
 	 */
-	public function processor( $config, $form ) {
+	public function pre_processor( $config, $form ) {
 
 		// globalised transient object
 		global $transdata;
@@ -86,7 +86,7 @@ class CiviCRM_Caldera_Forms_Email_Processor {
 					'location_type_id' => $config['location_type_id'],
 				));
 
-			} catch ( Exception $e ) {
+			} catch ( CiviCRM_API3_Exception $e ) {
 				// Ignore if none found
 			}
 
@@ -103,7 +103,12 @@ class CiviCRM_Caldera_Forms_Email_Processor {
 					$form_values['location_type_id'] = $config['location_type_id']; // Email Location Type
 				}
 
-				$create_email = civicrm_api3( 'Email', 'create', $form_values );
+				try {
+					$create_email = civicrm_api3( 'Email', 'create', $form_values );
+				} catch ( CiviCRM_API3_Exception $e) {
+					$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
+					return array( 'note' => $error, 'type' => 'error' );
+				}
 			}
 		}
 	}

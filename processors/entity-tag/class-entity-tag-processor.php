@@ -67,15 +67,20 @@ class CiviCRM_Caldera_Forms_Entity_Tag_Processor {
 
 		foreach ( $config as $key => $value ) {
 			if ( stristr( $key, 'entity_tag' ) != false ) {
-				$tag = civicrm_api3( 'Tag', 'getsingle', array(
-					'sequential' => 1,
-					'id' => $value,
-					'api.EntityTag.create' => array(
-						'entity_id' => $transdata['civicrm']['contact_id_' . $config['contact_link']],
-						'entity_table' => 'civicrm_contact',
-						'tag_id' => '$value.id',
-					),
-				));
+				try {
+					$tag = civicrm_api3( 'Tag', 'getsingle', array(
+						'sequential' => 1,
+						'id' => $value,
+						'api.EntityTag.create' => array(
+							'entity_id' => $transdata['civicrm']['contact_id_' . $config['contact_link']],
+							'entity_table' => 'civicrm_contact',
+							'tag_id' => '$value.id',
+						),
+					));
+				} catch ( CiviCRM_API3_Exception $e ) {
+					$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
+					return array( 'note' => $error, 'type' => 'error' );
+				}
 			}
 		}
 
