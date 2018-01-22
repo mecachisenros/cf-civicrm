@@ -56,7 +56,7 @@ class CiviCRM_Caldera_Forms_Im_Processor {
 			'description' => __( 'Add CiviCRM Im to contacts', 'caldera-forms-civicrm' ),
 			'author' => 'Andrei Mondoc',
 			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/im/im_config.php',
-			'pre_processor' => array( $this, 'pre_processor' ),
+			'processor' => array( $this, 'processor' ),
 		);
 
 		return $processors;
@@ -77,11 +77,18 @@ class CiviCRM_Caldera_Forms_Im_Processor {
 		global $transdata;
 
 		if ( ! empty( $transdata['civicrm']['contact_id_' . $config['contact_link']] ) ) {
-			$im = CiviCRM_Caldera_Forms_Helper::try_crm_api( 'Im', 'getsingle', array(
-				'sequential' => 1,
-				'contact_id' => $transdata['civicrm']['contact_id_' . $config['contact_link']],
-				'location_type_id' => $config['location_type_id'],
-			));
+
+			try {
+
+				$im = civicrm_api3( 'Im', 'getsingle', array(
+					'sequential' => 1,
+					'contact_id' => $transdata['civicrm']['contact_id_' . $config['contact_link']],
+					'location_type_id' => $config['location_type_id'],
+				));
+
+			} catch ( Exception $e ) {
+				// Ignore if none found
+			}
 
 			// Get form values
 			$form_values = CiviCRM_Caldera_Forms_Helper::map_fields_to_processor( $config, $form, $form_values );
@@ -96,7 +103,7 @@ class CiviCRM_Caldera_Forms_Im_Processor {
 	                $form_values['location_type_id'] = $config['location_type_id']; // Im Location type set in Processor config
 	            }
 
-				$create_im = CiviCRM_Caldera_Forms_Helper::try_crm_api( 'Im', 'create', $form_values );
+				$create_im = civicrm_api3( 'Im', 'create', $form_values );
 			}
 		}
 	}
@@ -122,11 +129,17 @@ class CiviCRM_Caldera_Forms_Im_Processor {
 			if( $pr_id['type'] == $this->key_name && isset( $pr_id['runtimes'] ) ){
 
 				if ( isset( $transdata['civicrm']['contact_id_' . $pr_id['config']['contact_link']] ) ) {
-					$civi_contact_im = CiviCRM_Caldera_Forms_Helper::try_crm_api( 'Im', 'getsingle', array(
-						'sequential' => 1,
-						'contact_id' => $transdata['civicrm']['contact_id_' . $pr_id['config']['contact_link']],
-						'location_type_id' => $pr_id['config']['location_type_id'],
-					));
+					try {
+
+						$civi_contact_im = civicrm_api3( 'Im', 'getsingle', array(
+							'sequential' => 1,
+							'contact_id' => $transdata['civicrm']['contact_id_' . $pr_id['config']['contact_link']],
+							'location_type_id' => $pr_id['config']['location_type_id'],
+						));
+
+					} catch ( Exception $e ) {
+						// Ignore if we have more than one Im with same location type or none
+					}
 				}
 
 				if ( isset( $civi_contact_im ) && ! isset( $civi_contact_im['count'] ) ) {

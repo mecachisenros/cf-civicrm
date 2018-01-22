@@ -495,24 +495,4 @@ class CiviCRM_Caldera_Forms_Helper {
 		$entityFileDAO->save();
 	}
 
-	/**
-	 * Wrapper to catch and return CiviCRM_API3 exceptions on error.
-	 *
-	 * @since 0.4.2
-	 * @param  string $entity The entity
-	 * @param  string $action The action
-	 * @param  array $params The params
-	 * @return array|null The result | Exception | null
-	 */
-	public static function try_crm_api( $entity, $action, $params ) {
-		$result = null;
-		try {
-                $result = civicrm_api3( $entity, $action, $params );
-        } catch ( CiviCRM_API3_Exception $e ) {
-                $error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
-                return array( 'note' => $error, 'type' => 'error' );
-        }
-        return $result;
-	}
-
 }

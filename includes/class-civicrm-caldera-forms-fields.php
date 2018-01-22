@@ -564,7 +564,7 @@ class CiviCRM_Caldera_Forms_Fields {
 		if ( ! empty( $this->custom_fields_data ) ) return $this->custom_fields_data;
 
 		// get all custom fields
-		$this->custom_fields_data = CiviCRM_Caldera_Forms_Helper::try_crm_api( 'CustomField', 'get', array(
+		$this->custom_fields_data = civicrm_api3( 'CustomField', 'get', array(
 			'sequential' => 1,
 			'options' => array( 'limit' => 0 ),
 			'is_active' => 1,

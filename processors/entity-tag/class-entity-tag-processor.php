@@ -45,7 +45,7 @@ class CiviCRM_Caldera_Forms_Entity_Tag_Processor {
 			'description' => __( 'Add CiviCRM tags to contacts', 'caldera-forms-civicrm' ),
 			'author' => 'Andrei Mondoc',
 			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/entity-tag/entity_tag_config.php',
-			'pre_processor' => array( $this, 'pre_processor' ),
+			'processor' => array( $this, 'processor' ),
 		);
 
 		return $processors;
@@ -60,14 +60,14 @@ class CiviCRM_Caldera_Forms_Entity_Tag_Processor {
 	 * @param array $config Processor configuration
 	 * @param array $form Form configuration
 	 */
-	public function pre_processor( $config, $form ) {
+	public function processor( $config, $form ) {
 
 		// globalised transient object
 		global $transdata;
 
 		foreach ( $config as $key => $value ) {
 			if ( stristr( $key, 'entity_tag' ) != false ) {
-				$tag = CiviCRM_Caldera_Forms_Helper::try_crm_api( 'Tag', 'getsingle', array(
+				$tag = civicrm_api3( 'Tag', 'getsingle', array(
 					'sequential' => 1,
 					'id' => $value,
 					'api.EntityTag.create' => array(

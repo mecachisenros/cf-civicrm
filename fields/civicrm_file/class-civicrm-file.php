@@ -105,7 +105,7 @@ class CiviCRM_Caldera_Forms_Field_File {
 
 		move_uploaded_file( $file['tmp_name'], $upload_directory . $params['uri'] );
 
-		$create_file = CiviCRM_Caldera_Forms_Helper::try_crm_api( 'File', 'create', $params );
+		$create_file = civicrm_api3( 'File', 'create', $params );
 
 		foreach ( $_FILES as $field_id => $parts ) {
 			if( $file === $parts ) {
