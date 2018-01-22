@@ -45,9 +45,9 @@ class CiviCRM_Caldera_Forms_Case_Processor {
 			'description' => __( 'Add/Open CiviCRM Case (CiviCase) to contact', 'caldera-forms-civicrm' ),
 			'author' => 'Andrei Mondoc',
 			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/case/case_config.php',
-			'pre_processor' =>  array( $this, 'pre_processor' ),
+			'processor' =>  array( $this, 'processor' ),
 			'magic_tags' => array(
-				'case_id'
+				"case_id"
 			),
 		);
 
@@ -63,7 +63,7 @@ class CiviCRM_Caldera_Forms_Case_Processor {
 	 * @param array $config Processor configuration
 	 * @param array $form Form configuration
 	 */
-	public function pre_processor( $config, $form ) {
+	public function processor( $config, $form ) {
 
 		// globalised transient object
 		global $transdata;
@@ -72,7 +72,7 @@ class CiviCRM_Caldera_Forms_Case_Processor {
 		$form_values = CiviCRM_Caldera_Forms_Helper::map_fields_to_processor( $config, $form, $form_values );
 
 		if ( $config['dismiss_case'] ) {
-			$existing_cases = CiviCRM_Caldera_Forms_Helper::try_crm_api( 'Case', 'get', array(
+			$existing_cases = civicrm_api3('Case', 'get', array(
   				'sequential' => 1,
   				'contact_id' => $transdata['civicrm']['contact_id_'.$config['contact_link']],
   				'case_type_id' => $config['case_type_id'],
@@ -92,10 +92,14 @@ class CiviCRM_Caldera_Forms_Case_Processor {
 		if( isset( $existing_cases ) && $existing_cases['count'] > 0 ){
 			// don't create case
 		} else {
-			$create_case = CiviCRM_Caldera_Forms_Helper::try_crm_api( 'Case', 'create', $form_values );
-			return array(
-				"case_id"  =>  $create_case["id"]
-			);
+			try {
+				$create_case = civicrm_api3( 'Case', 'create', $form_values );
+				return array(
+					"case_id"  =>  $create_case["id"]
+				);
+			} catch (Exception $e) {
+
+			}
 		}
 
 	}

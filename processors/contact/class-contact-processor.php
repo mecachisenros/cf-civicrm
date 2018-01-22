@@ -65,7 +65,7 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 			'description' =>  __( 'Create CiviCRM contact', 'caldera-forms-civicrm' ),
 			'author' =>  'Andrei Mondoc',
 			'template' =>  CF_CIVICRM_INTEGRATION_PATH . 'processors/contact/contact_config.php',
-			'pre_processor' =>  array( $this, 'pre_processor' ),
+			'processor' =>  array( $this, 'processor' ),
 		);
 
 		return $processors;
@@ -80,7 +80,7 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 	 * @param array $config Processor configuration
 	 * @param array $form Form configuration
 	 */
-	public function pre_processor( $config, $form ) {
+	public function processor( $config, $form ) {
 
 		// globalised transient object
 		global $transdata;
@@ -146,7 +146,7 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 				}
 			}
 
-			$create_contact = CiviCRM_Caldera_Forms_Helper::try_crm_api( 'Contact', 'create', $form_values['civicrm_contact'] );
+			$create_contact = civicrm_api3( 'Contact', 'create', $form_values['civicrm_contact'] );
 
 			// Store $cid
 			CiviCRM_Caldera_Forms_Helper::set_civi_transdata( $config['contact_link'], $create_contact['id'] );
@@ -155,7 +155,7 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 			// Add contact to Domain group if set, if not set 'domain_group_id' should be 0
 			$domain_group_id = CiviCRM_Caldera_Forms_Helper::get_civicrm_settings( 'domain_group_id' );
 			if( $domain_group_id ){
-				$group_contact = CiviCRM_Caldera_Forms_Helper::try_crm_api( 'GroupContact', 'create', array(
+				$group_contact = civicrm_api3( 'GroupContact', 'create', array(
 					'sequential' => 1,
   					'group_id' => $domain_group_id,
   					'contact_id' => $create_contact['id'],
@@ -180,14 +180,14 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 							// custom field id
 							$c_field_id = preg_replace('/\D/', '', $c_field);
 
-							$field_type = CiviCRM_Caldera_Forms_Helper::try_crm_api( 'CustomField', 'getsingle', array(
+							$field_type = civicrm_api3( 'CustomField', 'getsingle', array(
 								'id' => $c_field_id,
 								'return' => array( 'custom_group_id', 'data_type' ),
 							));
 
 							if ( $field_type['data_type'] == 'File' ) {
 								// custom group
-								$custom_group = CiviCRM_Caldera_Forms_Helper::try_crm_api( 'CustomGroup', 'getsingle', array(
+								$custom_group = civicrm_api3( 'CustomGroup', 'getsingle', array(
 			  						'id' => $field_type['custom_group_id'],
 			  						'return' => array( 'table_name' ),
 								));
@@ -229,11 +229,15 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 
 		if ( ! empty( $transdata['civicrm']['contact_id_' . $config['contact_link']] ) ) {
 
-			$address = CiviCRM_Caldera_Forms_Helper::try_crm_api( 'Address', 'getsingle', array(
-				'sequential' => 1,
-				'contact_id' => $transdata['civicrm']['contact_id_' . $config['contact_link']],
-				'location_type_id' => $config['civicrm_address']['location_type_id'],
-			));
+			try {
+				$address = civicrm_api3( 'Address', 'getsingle', array(
+					'sequential' => 1,
+					'contact_id' => $transdata['civicrm']['contact_id_' . $config['contact_link']],
+					'location_type_id' => $config['civicrm_address']['location_type_id'],
+				));
+			} catch ( Exception $e ) {
+				// Ignore if none found
+			}
 
 			// Get form values
 			$form_values = CiviCRM_Caldera_Forms_Helper::map_fields_to_processor( $config, $form, $form_values, 'civicrm_address' );
@@ -252,7 +256,7 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 				// Concatenate DATE + TIME
 				// $form_values['activity_date_time'] = $form_values['activity_date_time'];
 
-				$create_address = CiviCRM_Caldera_Forms_Helper::try_crm_api( 'Address', 'create', $form_values['civicrm_address'] );
+				$create_address = civicrm_api3( 'Address', 'create', $form_values['civicrm_address'] );
 			}
 		}
 	}
@@ -270,11 +274,17 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 
 		if ( ! empty( $transdata['civicrm']['contact_id_' . $config['contact_link']] ) ) {
 
-			$phone = CiviCRM_Caldera_Forms_Helper::try_crm_api( 'Phone', 'getsingle', array(
-				'sequential' => 1,
-				'contact_id' => $transdata['civicrm']['contact_id_' . $config['contact_link']],
-				'location_type_id' => $config['civicrm_phone']['location_type_id'],
-			));
+			try {
+
+				$phone = civicrm_api3( 'Phone', 'getsingle', array(
+					'sequential' => 1,
+					'contact_id' => $transdata['civicrm']['contact_id_' . $config['contact_link']],
+					'location_type_id' => $config['civicrm_phone']['location_type_id'],
+				));
+
+			} catch ( Exception $e ) {
+				// Ignore if none found
+			}
 
 			// Get form values
 			$form_values = CiviCRM_Caldera_Forms_Helper::map_fields_to_processor( $config, $form, $form_values, 'civicrm_phone' );
@@ -289,7 +299,7 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 					$form_values['civicrm_phone']['location_type_id'] = $config['civicrm_phone']['location_type_id'];
 				}
 
-				$create_phone = CiviCRM_Caldera_Forms_Helper::try_crm_api( 'Phone', 'create', $form_values['civicrm_phone'] );
+				$create_phone = civicrm_api3( 'Phone', 'create', $form_values['civicrm_phone'] );
 			}
 		}
 	}
@@ -314,7 +324,7 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 				$form_values['civicrm_note']['entity_id'] = $transdata['civicrm']['contact_id_' . $config['contact_link']]; // Contact ID set in Contact Processor
 
 				// Add Note to contact
-				$note = CiviCRM_Caldera_Forms_Helper::try_crm_api( 'Note', 'create', $form_values['civicrm_note'] );
+				$note = civicrm_api3( 'Note', 'create', $form_values['civicrm_note'] );
 			}
 		}
 	}
@@ -332,11 +342,17 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 
 		if ( ! empty( $transdata['civicrm']['contact_id_' . $config['contact_link']] ) ) {
 
-			$email = CiviCRM_Caldera_Forms_Helper::try_crm_api( 'Email', 'getsingle', array(
-				'sequential' => 1,
-				'contact_id' => $transdata['civicrm']['contact_id_' . $config['contact_link']],
-				'location_type_id' => $config['civicrm_email']['location_type_id'],
-			));
+			try {
+
+				$email = civicrm_api3( 'Email', 'getsingle', array(
+					'sequential' => 1,
+					'contact_id' => $transdata['civicrm']['contact_id_' . $config['contact_link']],
+					'location_type_id' => $config['civicrm_email']['location_type_id'],
+				));
+
+			} catch ( Exception $e ) {
+				// Ignore if none found
+			}
 
 			// Get form values
 			$form_values = CiviCRM_Caldera_Forms_Helper::map_fields_to_processor( $config, $form, $form_values, 'civicrm_email' );
@@ -351,7 +367,7 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 					$form_values['civicrm_email']['location_type_id'] = $config['civicrm_email']['location_type_id'];
 				}
 
-				$create_email = CiviCRM_Caldera_Forms_Helper::try_crm_api( 'Email', 'create', $form_values['civicrm_email'] );
+				$create_email = civicrm_api3( 'Email', 'create', $form_values['civicrm_email'] );
 			}
 		}
 	}
@@ -369,11 +385,17 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 
 		if ( ! empty( $transdata['civicrm']['contact_id_' . $config['contact_link']] ) ) {
 
-			$website = CiviCRM_Caldera_Forms_Helper::try_crm_api( 'Website', 'getsingle', array(
-				'sequential' => 1,
-				'contact_id' => $transdata['civicrm']['contact_id_' . $config['contact_link']],
-				'website_type_id' => $config['civicrm_website']['website_type_id'],
-			));
+			try {
+
+				$website = civicrm_api3( 'Website', 'getsingle', array(
+					'sequential' => 1,
+					'contact_id' => $transdata['civicrm']['contact_id_' . $config['contact_link']],
+					'website_type_id' => $config['civicrm_website']['website_type_id'],
+				));
+
+			} catch ( Exception $e ) {
+				// Ignore if none found
+			}
 
 			// Get form values
 			$form_values = CiviCRM_Caldera_Forms_Helper::map_fields_to_processor( $config, $form, $form_values, 'civicrm_website' );
@@ -388,7 +410,7 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 	                $form_values['civicrm_website']['website_type_id'] = $config['civicrm_website']['website_type_id'];
 	            }
 
-				$create_email = CiviCRM_Caldera_Forms_Helper::try_crm_api( 'Website', 'create', $form_values['civicrm_website'] );
+				$create_email = civicrm_api3( 'Website', 'create', $form_values['civicrm_website'] );
 			}
 		}
 	}
@@ -406,11 +428,17 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 
 		if ( ! empty( $transdata['civicrm']['contact_id_' . $config['contact_link']] ) ) {
 
-			$im = CiviCRM_Caldera_Forms_Helper::try_crm_api( 'Im', 'getsingle', array(
-				'sequential' => 1,
-				'contact_id' => $transdata['civicrm']['contact_id_' . $config['contact_link']],
-				'location_type_id' => $config['civicrm_im']['location_type_id'],
-			));
+			try {
+
+				$im = civicrm_api3( 'Im', 'getsingle', array(
+					'sequential' => 1,
+					'contact_id' => $transdata['civicrm']['contact_id_' . $config['contact_link']],
+					'location_type_id' => $config['civicrm_im']['location_type_id'],
+				));
+
+			} catch ( Exception $e ) {
+				// Ignore if none found
+			}
 
 			// Get form values
 			$form_values = CiviCRM_Caldera_Forms_Helper::map_fields_to_processor( $config, $form, $form_values, 'civicrm_im' );
@@ -425,7 +453,7 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 	                $form_values['civicrm_im']['location_type_id'] = $config['civicrm_im']['location_type_id']; // IM Location type set in Processor config
 	            }
 
-				$create_im = CiviCRM_Caldera_Forms_Helper::try_crm_api( 'Im', 'create', $form_values['civicrm_im'] );
+				$create_im = civicrm_api3( 'Im', 'create', $form_values['civicrm_im'] );
 			}
 		}
 	}
@@ -442,7 +470,7 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 	public function process_group( $config, $form, $transdata, &$form_values ){
 
 		if ( ! empty( $transdata['civicrm']['contact_id_' . $config['contact_link']] ) ) {
-			$result = CiviCRM_Caldera_Forms_Helper::try_crm_api( 'GroupContact', 'create', array(
+			$result = civicrm_api3( 'GroupContact', 'create', array(
 				'sequential' => 1,
 				'group_id' => $config['civicrm_group']['contact_group'], // Group ID from processor config
 				'contact_id' => $transdata['civicrm']['contact_id_'.$config['contact_link']], // Contact ID set in Contact Processor
@@ -465,7 +493,7 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 		if ( ! empty( $transdata['civicrm']['contact_id_' . $config['contact_link']] ) ) {
 			foreach ( $config['civicrm_tag'] as $key => $value ) {
 				if ( stristr( $key, 'entity_tag' ) != false ) {
-					$tag = CiviCRM_Caldera_Forms_Helper::try_crm_api( 'Tag', 'getsingle', array(
+					$tag = civicrm_api3( 'Tag', 'getsingle', array(
 						'sequential' => 1,
 						'id' => $value,
 						'api.EntityTag.create' => array(
@@ -621,11 +649,17 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 
 		if( isset( $pr_id['config']['enabled_entities']['process_address'] ) ){
 			if ( isset( $transdata['civicrm']['contact_id_' . $pr_id['config']['contact_link']] ) ) {
-				$civi_contact_address = CiviCRM_Caldera_Forms_Helper::try_crm_api( 'Address', 'getsingle', array(
-					'sequential' => 1,
-					'contact_id' => $transdata['civicrm']['contact_id_' . $pr_id['config']['contact_link']],
-					'location_type_id' => $pr_id['config']['civicrm_address']['location_type_id'],
-				));
+				try {
+
+					$civi_contact_address = civicrm_api3( 'Address', 'getsingle', array(
+						'sequential' => 1,
+						'contact_id' => $transdata['civicrm']['contact_id_' . $pr_id['config']['contact_link']],
+						'location_type_id' => $pr_id['config']['civicrm_address']['location_type_id'],
+					));
+
+				} catch ( Exception $e ) {
+					// Ignore if we have more than one address with same location type
+				}
 			}
 
 			if ( isset( $civi_contact_address ) && ! isset( $civi_contact_address['count'] ) ) {
@@ -658,11 +692,17 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 
 		if( isset( $pr_id['config']['enabled_entities']['process_phone'] ) ){
 			if ( isset( $transdata['civicrm']['contact_id_' . $pr_id['config']['contact_link']] ) ) {
-				$civi_contact_phone = CiviCRM_Caldera_Forms_Helper::try_crm_api( 'Phone', 'getsingle', array(
-					'sequential' => 1,
-					'contact_id' => $transdata['civicrm']['contact_id_' . $pr_id['config']['contact_link']],
-					'location_type_id' => $pr_id['config']['civicrm_phone']['location_type_id'],
-				));
+				try {
+
+					$civi_contact_phone = civicrm_api3( 'Phone', 'getsingle', array(
+						'sequential' => 1,
+						'contact_id' => $transdata['civicrm']['contact_id_' . $pr_id['config']['contact_link']],
+						'location_type_id' => $pr_id['config']['civicrm_phone']['location_type_id'],
+					));
+
+				} catch ( Exception $e ) {
+					// Ignore if we have more than one phone with same location type or none
+				}
 			}
 
 			if ( isset( $civi_contact_phone ) && ! isset( $civi_contact_phone['count'] ) ) {
@@ -694,11 +734,17 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 
 		if( isset( $pr_id['config']['enabled_entities']['process_email'] ) ){
 			if ( isset( $transdata['civicrm']['contact_id_' . $pr_id['config']['contact_link']] ) ) {
-				$civi_contact_email = CiviCRM_Caldera_Forms_Helper::try_crm_api( 'Email', 'getsingle', array(
-					'sequential' => 1,
-					'contact_id' => $transdata['civicrm']['contact_id_' . $pr_id['config']['contact_link']],
-					'location_type_id' => $pr_id['config']['civicrm_email']['location_type_id'],
-				));
+				try {
+
+					$civi_contact_email = civicrm_api3( 'Email', 'getsingle', array(
+						'sequential' => 1,
+						'contact_id' => $transdata['civicrm']['contact_id_' . $pr_id['config']['contact_link']],
+						'location_type_id' => $pr_id['config']['civicrm_email']['location_type_id'],
+					));
+
+				} catch ( Exception $e ) {
+					// Ignore if we have more than one email with same location type or none
+				}
 			}
 
 			if ( isset( $civi_contact_email ) && ! isset( $civi_contact_email['count'] ) ) {
@@ -730,11 +776,17 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 
 		if( isset( $pr_id['config']['enabled_entities']['process_website'] ) ){
 			if ( isset( $transdata['civicrm']['contact_id_' . $pr_id['config']['contact_link']] ) ) {
-				$civi_contact_website = CiviCRM_Caldera_Forms_Helper::try_crm_api( 'Website', 'getsingle', array(
-					'sequential' => 1,
-					'contact_id' => $transdata['civicrm']['contact_id_' . $pr_id['config']['contact_link']],
-					'website_type_id' => $pr_id['config']['civicrm_website']['website_type_id'],
-				));
+				try {
+
+					$civi_contact_website = civicrm_api3( 'Website', 'getsingle', array(
+						'sequential' => 1,
+						'contact_id' => $transdata['civicrm']['contact_id_' . $pr_id['config']['contact_link']],
+						'website_type_id' => $pr_id['config']['civicrm_website']['website_type_id'],
+					));
+
+				} catch ( Exception $e ) {
+					// Ignore if we have more than one website with same location type or none
+				}
 			}
 
 			if ( isset( $civi_contact_website ) && ! isset( $civi_contact_website['count'] ) ) {
@@ -766,11 +818,17 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 
 		if( isset( $pr_id['config']['enabled_entities']['process_im'] ) ){
 			if ( isset( $transdata['civicrm']['contact_id_' . $pr_id['config']['contact_link']] ) ) {
-				$civi_contact_im = CiviCRM_Caldera_Forms_Helper::try_crm_api( 'Im', 'getsingle', array(
-					'sequential' => 1,
-					'contact_id' => $transdata['civicrm']['contact_id_' . $pr_id['config']['contact_link']],
-					'location_type_id' => $pr_id['config']['civicrm_im']['location_type_id'],
-				));
+				try {
+
+					$civi_contact_im = civicrm_api3( 'Im', 'getsingle', array(
+						'sequential' => 1,
+						'contact_id' => $transdata['civicrm']['contact_id_' . $pr_id['config']['contact_link']],
+						'location_type_id' => $pr_id['config']['civicrm_im']['location_type_id'],
+					));
+
+				} catch ( Exception $e ) {
+					// Ignore if we have more than one Im with same location type or none
+				}
 			}
 
 			if ( isset( $civi_contact_im ) && ! isset( $civi_contact_im['count'] ) ) {
