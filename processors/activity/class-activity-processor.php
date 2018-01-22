@@ -45,7 +45,7 @@ class CiviCRM_Caldera_Forms_Activity_Processor {
 			'description' => __( 'Add CiviCRM activity to contact', 'caldera-forms-civicrm' ),
 			'author' => 'Andrei Mondoc',
 			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/activity/activity_config.php',
-			'processor' =>  array( $this, 'processor' ),
+			'pre_processor' =>  array( $this, 'pre_processor' ),
 		);
 
 		return $processors;
@@ -60,7 +60,7 @@ class CiviCRM_Caldera_Forms_Activity_Processor {
 	 * @param array $config Processor configuration
 	 * @param array $form Form configuration
 	 */
-	public function processor( $config, $form ) {
+	public function pre_processor( $config, $form ) {
 
 		// globalised transient object
 		global $transdata;
@@ -78,7 +78,7 @@ class CiviCRM_Caldera_Forms_Activity_Processor {
 			// Concatenate DATE + TIME
 			// $form_values['activity_date_time'] = $form_values['activity_date_time'];
 
-			$create_activity = civicrm_api3( 'Activity', 'create', $form_values );
+			$create_activity = CiviCRM_Caldera_Forms_Helper::try_crm_api( 'Activity', 'create', $form_values );
 
 			if ( ! empty( $config['file_id'] ) ) {
 
