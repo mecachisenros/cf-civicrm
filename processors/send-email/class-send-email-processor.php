@@ -44,7 +44,7 @@ class CiviCRM_Caldera_Forms_Send_Email_Processor {
 			'description' => __( 'Send Email from CiviCRM (CiviCRM message templates, requires Email API)', 'caldera-forms-civicrm' ),
 			'author' => 'Andrei Mondoc',
 			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/send-email/send_email_config.php',
-			'processor' =>  array( $this, 'processor' ),
+			'pre_processor' =>  array( $this, 'pre_processor' ),
 		);
 
 		return $processors;
@@ -59,7 +59,7 @@ class CiviCRM_Caldera_Forms_Send_Email_Processor {
 	 * @param array $config Processor configuration
 	 * @param array $form Form configuration
 	 */
-	public function processor( $config, $form ) {
+	public function pre_processor( $config, $form ) {
 
 		// globalised transient object
 		global $transdata;
@@ -79,10 +79,7 @@ class CiviCRM_Caldera_Forms_Send_Email_Processor {
 			$params['alternative_receiver_address'] = $config['alternative_receiver_address'];
 		}
 
-		try {
-			$send_email = civicrm_api3( 'Email', 'send', $params );
-		} catch (Exception $e) {
+		$send_email = CiviCRM_Caldera_Forms_Helper::try_crm_api( 'Email', 'send', $params );
 
-		}
 	}
 }

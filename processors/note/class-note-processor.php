@@ -45,7 +45,7 @@ class CiviCRM_Caldera_Forms_Note_Processor {
 			'description' => __( 'Add CiviCRM note to contacts', 'caldera-forms-civicrm' ),
 			'author' => 'Andrei Mondoc',
 			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/note/note_config.php',
-			'processor' => array( $this, 'processor' ),
+			'pre_processor' => array( $this, 'pre_processor' ),
 		);
 
 		return $processors;
@@ -60,7 +60,7 @@ class CiviCRM_Caldera_Forms_Note_Processor {
 	 * @param array $config Processor configuration
 	 * @param array $form Form configuration
 	 */
-	public function processor( $config, $form ) {
+	public function pre_processor( $config, $form ) {
 
 		// globalised transient object
 		global $transdata;
@@ -72,7 +72,7 @@ class CiviCRM_Caldera_Forms_Note_Processor {
 			$form_values['entity_id'] = $transdata['civicrm']['contact_id_' . $config['contact_link']]; // Contact ID set in Contact Processor
 
 			// Add Note to contact
-			$note = civicrm_api3( 'Note', 'create', $form_values );
+			$note = CiviCRM_Caldera_Forms_Helper::try_crm_api( 'Note', 'create', $form_values );
 
 			// handle attachment using CRM_Core_DAO_EntityFile
 			if ( ! empty( $config['note_attachment'] ) ) {
