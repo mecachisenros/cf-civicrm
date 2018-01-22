@@ -45,7 +45,7 @@ class CiviCRM_Caldera_Forms_Group_Processor {
 			'description' => __( 'Add CiviCRM contact to group', 'caldera-forms-civicrm' ),
 			'author' => 'Andrei Mondoc',
 			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/group/group_config.php',
-			'processor' => array( $this, 'processor' ),
+			'pre_processor' => array( $this, 'pre_processor' ),
 		);
 
 		return $processors;
@@ -60,17 +60,22 @@ class CiviCRM_Caldera_Forms_Group_Processor {
 	 * @param array $config Processor configuration
 	 * @param array $form Form configuration
 	 */
-	public function processor( $config, $form ) {
+	public function pre_processor( $config, $form ) {
 
 		// globalised transient object
 		global $transdata;
 
 		// Add Contact to group
-		$result = civicrm_api3( 'GroupContact', 'create', array(
-			'sequential' => 1,
-			'group_id' => $config['contact_group'], // Group ID from processor config
-			'contact_id' => $transdata['civicrm']['contact_id_'.$config['contact_link']], // Contact ID set in Contact Processor
-		));
+		try {
+			$result = civicrm_api3( 'GroupContact', 'create', array(
+				'sequential' => 1,
+				'group_id' => $config['contact_group'], // Group ID from processor config
+				'contact_id' => $transdata['civicrm']['contact_id_'.$config['contact_link']], // Contact ID set in Contact Processor
+			));
+		} catch ( CiviCRM_API3_Exception $e ) {
+			$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
+			return array( 'note' => $error, 'type' => 'error' );
+		}
 
 	}
 

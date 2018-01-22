@@ -65,7 +65,7 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 			'description' =>  __( 'Create CiviCRM contact', 'caldera-forms-civicrm' ),
 			'author' =>  'Andrei Mondoc',
 			'template' =>  CF_CIVICRM_INTEGRATION_PATH . 'processors/contact/contact_config.php',
-			'processor' =>  array( $this, 'processor' ),
+			'pre_processor' =>  array( $this, 'pre_processor' ),
 		);
 
 		return $processors;
@@ -80,7 +80,7 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 	 * @param array $config Processor configuration
 	 * @param array $form Form configuration
 	 */
-	public function processor( $config, $form ) {
+	public function pre_processor( $config, $form ) {
 
 		// globalised transient object
 		global $transdata;
@@ -146,7 +146,12 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 				}
 			}
 
-			$create_contact = civicrm_api3( 'Contact', 'create', $form_values['civicrm_contact'] );
+			try {
+				$create_contact = civicrm_api3( 'Contact', 'create', $form_values['civicrm_contact'] );
+			} catch ( CiviCRM_API3_Exception $e ) {
+				$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
+				return array( 'note' => $error, 'type' => 'error' );
+			}
 
 			// Store $cid
 			CiviCRM_Caldera_Forms_Helper::set_civi_transdata( $config['contact_link'], $create_contact['id'] );
@@ -155,11 +160,16 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 			// Add contact to Domain group if set, if not set 'domain_group_id' should be 0
 			$domain_group_id = CiviCRM_Caldera_Forms_Helper::get_civicrm_settings( 'domain_group_id' );
 			if( $domain_group_id ){
-				$group_contact = civicrm_api3( 'GroupContact', 'create', array(
-					'sequential' => 1,
-  					'group_id' => $domain_group_id,
-  					'contact_id' => $create_contact['id'],
-				));
+				try {
+					$group_contact = civicrm_api3( 'GroupContact', 'create', array(
+						'sequential' => 1,
+						'group_id' => $domain_group_id,
+						'contact_id' => $create_contact['id'],
+					));
+				} catch ( CiviCRM_API3_Exception $e ) {
+					$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
+					return array( 'note' => $error, 'type' => 'error' );
+				}
 			}
 
 			/**
@@ -235,7 +245,7 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 					'contact_id' => $transdata['civicrm']['contact_id_' . $config['contact_link']],
 					'location_type_id' => $config['civicrm_address']['location_type_id'],
 				));
-			} catch ( Exception $e ) {
+			} catch ( CiviCRM_API3_Exception $e ) {
 				// Ignore if none found
 			}
 
@@ -256,7 +266,12 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 				// Concatenate DATE + TIME
 				// $form_values['activity_date_time'] = $form_values['activity_date_time'];
 
-				$create_address = civicrm_api3( 'Address', 'create', $form_values['civicrm_address'] );
+				try {
+					$create_address = civicrm_api3( 'Address', 'create', $form_values['civicrm_address'] );
+				} catch ( CiviCRM_API3_Exception $e ) {
+					$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
+					return array( 'note' => $error, 'type' => 'error' );
+				}
 			}
 		}
 	}
@@ -299,7 +314,12 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 					$form_values['civicrm_phone']['location_type_id'] = $config['civicrm_phone']['location_type_id'];
 				}
 
-				$create_phone = civicrm_api3( 'Phone', 'create', $form_values['civicrm_phone'] );
+				try {
+					$create_phone = civicrm_api3( 'Phone', 'create', $form_values['civicrm_phone'] );
+				} catch ( CiviCRM_API3_Exception $e ) {
+					$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
+					return array( 'note' => $error, 'type' => 'error' );
+				}
 			}
 		}
 	}
@@ -324,7 +344,12 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 				$form_values['civicrm_note']['entity_id'] = $transdata['civicrm']['contact_id_' . $config['contact_link']]; // Contact ID set in Contact Processor
 
 				// Add Note to contact
-				$note = civicrm_api3( 'Note', 'create', $form_values['civicrm_note'] );
+				try {
+					$note = civicrm_api3( 'Note', 'create', $form_values['civicrm_note'] );
+				} catch ( CiviCRM_API3_Exception $e ) {
+					$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
+					return array( 'note' => $error, 'type' => 'error' );
+				}
 			}
 		}
 	}
@@ -350,7 +375,7 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 					'location_type_id' => $config['civicrm_email']['location_type_id'],
 				));
 
-			} catch ( Exception $e ) {
+			} catch ( CiviCRM_API3_Exception $e ) {
 				// Ignore if none found
 			}
 
@@ -367,7 +392,12 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 					$form_values['civicrm_email']['location_type_id'] = $config['civicrm_email']['location_type_id'];
 				}
 
-				$create_email = civicrm_api3( 'Email', 'create', $form_values['civicrm_email'] );
+				try {
+					$create_email = civicrm_api3( 'Email', 'create', $form_values['civicrm_email'] );
+				} catch ( CiviCRM_API3_Exception $e ) {
+					$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
+					return array( 'note' => $error, 'type' => 'error' );
+				}
 			}
 		}
 	}
@@ -393,7 +423,7 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 					'website_type_id' => $config['civicrm_website']['website_type_id'],
 				));
 
-			} catch ( Exception $e ) {
+			} catch ( CiviCRM_API3_Exception $e ) {
 				// Ignore if none found
 			}
 
@@ -410,7 +440,12 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 	                $form_values['civicrm_website']['website_type_id'] = $config['civicrm_website']['website_type_id'];
 	            }
 
-				$create_email = civicrm_api3( 'Website', 'create', $form_values['civicrm_website'] );
+	            try {
+					$create_email = civicrm_api3( 'Website', 'create', $form_values['civicrm_website'] );
+	            } catch ( CiviCRM_API3_Exception $e ) {
+	            	$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
+					return array( 'note' => $error, 'type' => 'error' );
+	            }
 			}
 		}
 	}
@@ -453,7 +488,12 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 	                $form_values['civicrm_im']['location_type_id'] = $config['civicrm_im']['location_type_id']; // IM Location type set in Processor config
 	            }
 
-				$create_im = civicrm_api3( 'Im', 'create', $form_values['civicrm_im'] );
+	            try {
+					$create_im = civicrm_api3( 'Im', 'create', $form_values['civicrm_im'] );
+	            } catch ( CiviCRM_API3_Exception $e ) {
+	            	$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
+					return array( 'note' => $error, 'type' => 'error' );
+	            }
 			}
 		}
 	}
@@ -470,11 +510,16 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 	public function process_group( $config, $form, $transdata, &$form_values ){
 
 		if ( ! empty( $transdata['civicrm']['contact_id_' . $config['contact_link']] ) ) {
-			$result = civicrm_api3( 'GroupContact', 'create', array(
-				'sequential' => 1,
-				'group_id' => $config['civicrm_group']['contact_group'], // Group ID from processor config
-				'contact_id' => $transdata['civicrm']['contact_id_'.$config['contact_link']], // Contact ID set in Contact Processor
-			));
+			try {
+				$result = civicrm_api3( 'GroupContact', 'create', array(
+					'sequential' => 1,
+					'group_id' => $config['civicrm_group']['contact_group'], // Group ID from processor config
+					'contact_id' => $transdata['civicrm']['contact_id_'.$config['contact_link']], // Contact ID set in Contact Processor
+				));
+			} catch ( CiviCRM_API3_Exception $e ) {
+				$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
+				return array( 'note' => $error, 'type' => 'error' );
+			}
 		}
 
 	}
@@ -493,15 +538,20 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 		if ( ! empty( $transdata['civicrm']['contact_id_' . $config['contact_link']] ) ) {
 			foreach ( $config['civicrm_tag'] as $key => $value ) {
 				if ( stristr( $key, 'entity_tag' ) != false ) {
-					$tag = civicrm_api3( 'Tag', 'getsingle', array(
-						'sequential' => 1,
-						'id' => $value,
-						'api.EntityTag.create' => array(
-							'entity_id' => $transdata['civicrm']['contact_id_' . $config['contact_link']],
-							'entity_table' => 'civicrm_contact',
-							'tag_id' => '$value.id',
-						),
-					));
+					try {
+						$tag = civicrm_api3( 'Tag', 'getsingle', array(
+							'sequential' => 1,
+							'id' => $value,
+							'api.EntityTag.create' => array(
+								'entity_id' => $transdata['civicrm']['contact_id_' . $config['contact_link']],
+								'entity_table' => 'civicrm_contact',
+								'tag_id' => '$value.id',
+							),
+						));
+					} catch ( CiviCRM_API3_Exception $e ) {
+						$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
+						return array( 'note' => $error, 'type' => 'error' );
+					}
 				}
 			}
 		}
@@ -657,7 +707,7 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 						'location_type_id' => $pr_id['config']['civicrm_address']['location_type_id'],
 					));
 
-				} catch ( Exception $e ) {
+				} catch ( CiviCRM_API3_Exception $e ) {
 					// Ignore if we have more than one address with same location type
 				}
 			}
@@ -700,7 +750,7 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 						'location_type_id' => $pr_id['config']['civicrm_phone']['location_type_id'],
 					));
 
-				} catch ( Exception $e ) {
+				} catch ( CiviCRM_API3_Exception $e ) {
 					// Ignore if we have more than one phone with same location type or none
 				}
 			}
@@ -742,7 +792,7 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 						'location_type_id' => $pr_id['config']['civicrm_email']['location_type_id'],
 					));
 
-				} catch ( Exception $e ) {
+				} catch ( CiviCRM_API3_Exception $e ) {
 					// Ignore if we have more than one email with same location type or none
 				}
 			}
@@ -784,7 +834,7 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 						'website_type_id' => $pr_id['config']['civicrm_website']['website_type_id'],
 					));
 
-				} catch ( Exception $e ) {
+				} catch ( CiviCRM_API3_Exception $e ) {
 					// Ignore if we have more than one website with same location type or none
 				}
 			}

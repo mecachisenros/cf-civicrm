@@ -56,7 +56,7 @@ class CiviCRM_Caldera_Forms_Im_Processor {
 			'description' => __( 'Add CiviCRM Im to contacts', 'caldera-forms-civicrm' ),
 			'author' => 'Andrei Mondoc',
 			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/im/im_config.php',
-			'processor' => array( $this, 'processor' ),
+			'pre_processor' => array( $this, 'pre_processor' ),
 		);
 
 		return $processors;
@@ -71,7 +71,7 @@ class CiviCRM_Caldera_Forms_Im_Processor {
 	 * @param array $config Processor configuration
 	 * @param array $form Form configuration
 	 */
-	public function processor( $config, $form ) {
+	public function pre_processor( $config, $form ) {
 
 		// globalised transient object
 		global $transdata;
@@ -103,7 +103,12 @@ class CiviCRM_Caldera_Forms_Im_Processor {
 	                $form_values['location_type_id'] = $config['location_type_id']; // Im Location type set in Processor config
 	            }
 
-				$create_im = civicrm_api3( 'Im', 'create', $form_values );
+	            try {
+					$create_im = civicrm_api3( 'Im', 'create', $form_values );	            	
+	            } catch ( CiviCRM_API3_Exception $e ) {
+	            	$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
+					return array( 'note' => $error, 'type' => 'error' );
+	            }
 			}
 		}
 	}
