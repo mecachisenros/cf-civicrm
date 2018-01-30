@@ -45,7 +45,7 @@ foreach ( $activityFieldsResult['values'] as $key => $value ) {
 
 <div class="caldera-config-group caldera-config-group-full">
 	<div class="caldera-config-field">
-		<label><input id="{{_id}}_assignee_contact_link" type="checkbox" name="{{_name}}[assignee_contact_link]" value="1" {{#if assignee_contact_link}}checked="checked"{{/if}}><?php _e( 'Set the Assignee (Assigned to) to the form submitter the contact linked to this activity.', 'caldera-forms-civicrm' ); ?></label>
+		<label><input id="{{_id}}_assignee_contact_link" type="checkbox" name="{{_name}}[assignee_contact_link]" value="1" {{#if assignee_contact_link}}checked="checked"{{/if}}><?php _e( 'Set the Assignee (Assigned to) to the contact linked to this activity.', 'caldera-forms-civicrm' ); ?></label>
 	</div>
 </div>
 
