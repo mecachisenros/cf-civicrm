@@ -75,8 +75,10 @@ class CiviCRM_Caldera_Forms_Forms {
         if( ! is_admin() && ! isset( $_GET['page'] ) && $_GET['page'] != 'caldera-forms' )
             wp_dequeue_script( 'civicrm-select2' );
 		// select2 4.0.3 script with tiny hack to register our own name and prevent conflicts
-        if( is_admin() && isset( $_GET['page'] ) && $_GET['page'] == 'caldera-forms' )
-		      wp_enqueue_script( 'civicrm-select2', CF_CIVICRM_INTEGRATION_URL . 'assets/js/select2.js', array( 'jquery' ), CF_CIVICRM_INTEGRATION_VER );
+        if( is_admin() && isset( $_GET['page'] ) && $_GET['page'] == 'caldera-forms' ) {
+			wp_enqueue_script( 'civicrm-select2', CF_CIVICRM_INTEGRATION_URL . 'assets/js/select2.js', array( 'jquery' ), CF_CIVICRM_INTEGRATION_VER );
+			wp_enqueue_script( 'cfc-admin', CF_CIVICRM_INTEGRATION_URL . 'assets/js/admin.js', array( 'jquery' ), CF_CIVICRM_INTEGRATION_VER );
+        }
 	}
 
 	/**
