@@ -69,10 +69,17 @@ class CiviCRM_Caldera_Forms_Activity_Processor {
 		$form_values = CiviCRM_Caldera_Forms_Helper::map_fields_to_processor( $config, $form, $form_values );
 
 		if( ! empty( $form_values ) ) {
-			$form_values['source_contact_id'] = $transdata['civicrm']['contact_id_'.$config['contact_link']]; // Contact ID set in Contact Processor
 			$form_values['activity_type_id'] = $config['activity_type_id']; // Activity Type ID
 			$form_values['status_id'] = $config['status_id']; // Activity Status ID
 			$form_values['campaign_id'] = $config['campaign_id']; // Campaign ID
+
+			$form_values['target_contact_id'] = isset( $config['target_contact_link'] ) ? $transdata['civicrm']['contact_id_'.$config['contact_link']] : $config['target_contact_id'];
+			$form_values['source_contact_id'] = isset( $config['source_contact_link'] ) ? $transdata['civicrm']['contact_id_'.$config['contact_link']] : $config['source_contact_id'];
+			$form_values['assignee_contact_id'] = isset( $config['assignee_contact_link'] ) ? $transdata['civicrm']['contact_id_'.$config['contact_link']] : $config['assignee_contact_id'];
+
+			// fallback for source_contact_id
+			if( empty( $config['source_contact_id'] ) && ! isset( $config['source_contact_link'] ) )
+				$form_values['source_contact_id'] = $transdata['civicrm']['contact_id_'.$config['contact_link']];
 
 			// FIXME
 			// Concatenate DATE + TIME

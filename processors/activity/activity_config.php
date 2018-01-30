@@ -1,5 +1,7 @@
 <?php
 
+$ignore_fields = array( 'target_contact_id', 'source_contact_id', 'assignee_contact_id', 'source_record_id', 'contact_id' );
+
 $activities = civicrm_api3( 'Activity', 'getoptions', array(
 	'sequential' => 1,
 	'field' => 'activity_type_id',
@@ -29,8 +31,29 @@ foreach ( $activityFieldsResult['values'] as $key => $value ) {
 
 ?>
 
-<h2><?php _e( 'Contact Link', 'caldera-forms-civicrm' ); ?></h2>
-<div id="contact_link" class="caldera-config-group">
+<div class="caldera-config-group caldera-config-group-full">
+	<div class="caldera-config-field">
+		<label><input id="{{_id}}_target_contact_link" type="checkbox" name="{{_name}}[target_contact_link]" value="1" {{#if target_contact_link}}checked="checked"{{/if}}><?php _e( 'Set the Target (With contact) to the contact linked to this activity.', 'caldera-forms-civicrm' ); ?></label>
+	</div>
+</div>
+
+<div class="caldera-config-group caldera-config-group-full">
+	<div class="caldera-config-field">
+		<label><input id="{{_id}}_source_contact_link" type="checkbox" name="{{_name}}[source_contact_link]" value="1" {{#if source_contact_link}}checked="checked"{{/if}}><?php _e( 'Set the Source (Added by) to the contact linked to this activity.', 'caldera-forms-civicrm' ); ?></label>
+	</div>
+</div>
+
+<div class="caldera-config-group caldera-config-group-full">
+	<div class="caldera-config-field">
+		<label><input id="{{_id}}_assignee_contact_link" type="checkbox" name="{{_name}}[assignee_contact_link]" value="1" {{#if assignee_contact_link}}checked="checked"{{/if}}><?php _e( 'Set the Assignee (Assigned to) to the form submitter the contact linked to this activity.', 'caldera-forms-civicrm' ); ?></label>
+	</div>
+</div>
+
+<p><?php _e( 'NOTE: this settings will override the below fields (Target Contact ID, Source Contact ID, and Assignee Contact ID)', 'caldera-forms-civicrm' ); ?></p>
+
+<hr style="clear: both;" />
+
+</div>
 	<label><?php _e( 'Link to', 'caldera-forms-civicrm' ); ?></label>
 	<div class="caldera-config-field">
 		<?php CiviCRM_Caldera_Forms_Helper::contact_link_field(); ?>
@@ -54,7 +77,7 @@ foreach ( $activityFieldsResult['values'] as $key => $value ) {
 </div>
 
 <!-- Activity status -->
-<div id="contact_type" class="caldera-config-group">
+<div id="{{_id}}_activity_status" class="caldera-config-group">
 	<label><?php _e( 'Activity Status', 'caldera-forms-civicrm' ); ?></label>
 	<div class="caldera-config-field">
 		<select class="block-input field-config" name="{{_name}}[status_id]">
@@ -66,7 +89,7 @@ foreach ( $activityFieldsResult['values'] as $key => $value ) {
 </div>
 
 <!-- Campaign -->
-<div id="contact_type" class="caldera-config-group">
+<div id="{{_id}}_campaign_id" class="caldera-config-group">
 	<label><?php _e( 'Campaign', 'caldera-forms-civicrm' ); ?></label>
 	<div class="caldera-config-field">
 		<select class="block-input field-config" name="{{_name}}[campaign_id]">
@@ -82,8 +105,9 @@ foreach ( $activityFieldsResult['values'] as $key => $value ) {
 
 <h2><?php _e( 'Activity fields', 'caldera-forms-civicrm' ); ?></h2>
 <?php
-	foreach ( $activityFields as $key => $value ) { ?>
-	<div id="<?php echo esc_attr( $key ); ?>" class="caldera-config-group">
+	foreach ( $activityFields as $key => $value ) { 
+		if( ! in_array( $key, $ignore_fields ) ) { ?>
+	<div id="{{_id}}_<?php echo esc_attr( $key ); ?>" class="caldera-config-group">
 		<label><?php echo esc_html( $value ); ?> </label>
 		<div class="caldera-config-field">
 			<?php
@@ -91,15 +115,58 @@ foreach ( $activityFieldsResult['values'] as $key => $value ) {
 				if ( $key == 'file_id' ) echo 'type="advanced_file,file" ';
 				echo 'slug="' . $key . '"}}}';
 			?>
-			<?php if ( $key == 'source_record_id' ) { ?>
-				<p><?php _e( 'Default is set to the Contact that submits the form.', 'caldera-forms-civicrm' ); ?></p>
-			<?php } ?>
 		</div>
 	</div>
-<?php } ?>
+<?php } } ?>
+
+<div class="caldera-config-group">
+	<label><?php _e( 'Target Contact ID', 'caldera-forms-civicrm' ); ?></label>
+	<div class="caldera-config-field">
+		<select id="{{_id}}_target_contact_id" class="block-input field-config" style="width: 100%;" nonce="<?php echo wp_create_nonce('admin_get_civi_contact'); ?>" name="{{_name}}[target_contact_id]">
+		</select>
+	</div>
+</div>
+
+<div class="caldera-config-group">
+	<label><?php _e( 'Source Contact ID', 'caldera-forms-civicrm' ); ?></label>
+	<div class="caldera-config-field">
+		<select id="{{_id}}_source_contact_id" class="block-input field-config" style="width: 100%;" nonce="<?php echo wp_create_nonce('admin_get_civi_contact'); ?>" name="{{_name}}[source_contact_id]">
+		</select>
+	</div>
+</div>
+
+<div class="caldera-config-group">
+	<label><?php _e( 'Assignee Contact ID', 'caldera-forms-civicrm' ); ?></label>
+	<div class="caldera-config-field">
+		<select id="{{_id}}_assignee_contact_id" class="block-input field-config" style="width: 100%;" nonce="<?php echo wp_create_nonce('admin_get_civi_contact'); ?>" name="{{_name}}[assignee_contact_id]">
+		</select>
+	</div>
+</div>
 
 <script>
 	jQuery(document).ready( function() {
-		jQuery('#source_record_id select').prop( 'disabled', true );
+		var pid_prefix = '#{{_id}}_',
+		cfc_select2 = [ {
+				field: 'target_contact_id',
+				value: '{{target_contact_id}}'
+			},
+			{
+				field: 'source_contact_id',
+				value: '{{source_contact_id}}'
+			},
+			{
+				field: 'assignee_contact_id',
+				value: '{{assignee_contact_id}}'
+			}
+		]
+		.map( function( obj ){
+			return { 
+				selector: pid_prefix + obj.field,
+				value: obj.value
+			}
+		} )
+		.map( function( field ){
+			cfc_select2_defaults( field.selector, field.value );
+		} )
 	} );
 </script>
