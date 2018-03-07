@@ -30,9 +30,9 @@ class CiviCRM_Caldera_Forms_Helper {
 	 *
 	 * @since 0.4.2
 	 * @access public
-	 * @var aray $contribution_fields The contribution fields
+	 * @var array $contribution_fields The contribution fields
 	 */
-	public static $contribution_fields = array('financial_type_id', 'currency', 'total_amount', 'source', 'trxn_id');
+	public static $contribution_fields = array( 'financial_type_id', 'currency', 'total_amount', 'source', 'trxn_id', 'is_pay_later' );
 
 	/**
 	 * Holds CiviCRM state/province data which only needs a single lookup.
