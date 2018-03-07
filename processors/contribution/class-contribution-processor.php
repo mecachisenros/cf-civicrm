@@ -70,8 +70,8 @@ class CiviCRM_Caldera_Forms_Contribution_Processor {
 
 		if( ! empty( $form_values ) ) {
 			$form_values['financial_type_id'] = $config['financial_type_id']; // Financial Type ID
-			if($form_values["source"] == "") {
-				$form_values["source"] = $form["name"];
+			if( empty( $form_values['source'] ) ) {
+				$form_values['source'] = $form['name'];
 			}
 			$form_values['contact_id'] = $transdata['civicrm']['contact_id_'.$config['contact_link']]; // Contact ID
 			$credit_card_id = civicrm_api3( 'OptionValue', 'get', array(
@@ -79,11 +79,18 @@ class CiviCRM_Caldera_Forms_Contribution_Processor {
 				'option_group_id.name' => 'payment_instrument',
 				'name'                 => 'Credit Card',
 			));
-			if($credit_card_id["count"] > 0) {
+			if( $credit_card_id['count'] > 0 ) {
 				$form_values['payment_instrument_id'] = $credit_card_id["values"][0]["value"];
 			}
+			if( isset( $form_values['is_pay_later'] ) && $form_values['is_pay_later'] )
+				$form_values['contribution_status_id'] = 2; // set status to Pending (pay later)
 
-			$create_contribution = civicrm_api3( 'Contribution', 'create', $form_values );
+			try {
+				$create_contribution = civicrm_api3( 'Contribution', 'create', $form_values );
+			} catch ( CiviCRM_API3_Exception $e ) {
+				$error = $e->getMessage() . "<br><br><pre>" . $e->getTraceAsString() . "</per>";
+				return array( 'note' => $error, 'type' => 'error' );
+			}
 		}
 	}
 }

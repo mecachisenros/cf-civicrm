@@ -12,7 +12,7 @@ $contribution_fields_result = civicrm_api3( 'Contribution', 'getfields', array(
 
 $contribution_fields = array();
 foreach ( $contribution_fields_result['values'] as $key => $value ) {
-	if (in_array( $value['name'], CiviCRM_Caldera_Forms_Helper::$contribution_fields ) ) {
+	if ( in_array( $value['name'], CiviCRM_Caldera_Forms_Helper::$contribution_fields ) ) {
 		$contribution_fields[$value['name']] = $value['title'];
 	}
 }
@@ -36,20 +36,20 @@ foreach ( $contribution_fields_result['values'] as $key => $value ) {
 <?php
 	foreach ( $contribution_fields as $key => $value ) { ?>
 	<div id="<?php echo esc_attr( $key ); ?>" class="caldera-config-group">
-		<label><?php echo esc_html( $value ); ?> </label>
+		<label><?php echo esc_html( $value ); ?></label>
 		<div class="caldera-config-field">
 			<?php
-				if($key != 'financial_type_id') {
+				if( $key != 'financial_type_id' ) {
 					echo '{{{_field ';
-					if ( $key == 'currency_code' || $key == 'total_amount' || $key == 'financial_type_id') echo 'required="true" ';
+					if ( in_array( $key, array( 'currency_code', 'total_amount', 'financial_type_id' ) ) ) echo 'required="true" ';
 					echo 'slug="' . $key . '"}}}';
 				} else {
 					?>
-							<select class="block-input field-config" name="{{_name}}[<?php echo $key ?>]" required>
-								<?php foreach ( $financial_types['values'] as $key => $value ) { ?>
-									<option value="<?php echo esc_attr( $value['value'] ); ?>" {{#is financial_type value="<?php echo $value['value']; ?>"}}selected="selected"{{/is}}><?php echo esc_html( $value['value'] ); ?></option>
-								<?php } ?>
-							</select>
+						<select class="block-input field-config" name="{{_name}}[<?php echo $key ?>]" required>
+							<?php foreach ( $financial_types['values'] as $key => $value ) { ?>
+								<option value="<?php echo esc_attr( $value['value'] ); ?>" {{#is financial_type_id value="<?php echo $value['value']; ?>"}}selected="selected"{{/is}}><?php echo esc_html( $value['value'] ); ?></option>
+							<?php } ?>
+						</select>
 					<?php
 				}
 			?>
