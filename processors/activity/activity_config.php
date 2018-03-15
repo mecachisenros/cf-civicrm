@@ -31,29 +31,8 @@ foreach ( $activityFieldsResult['values'] as $key => $value ) {
 
 ?>
 
-<div class="caldera-config-group caldera-config-group-full">
-	<div class="caldera-config-field">
-		<label><input id="{{_id}}_target_contact_link" type="checkbox" name="{{_name}}[target_contact_link]" value="1" {{#if target_contact_link}}checked="checked"{{/if}}><?php _e( 'Set the Target (With contact) to the contact linked to this activity.', 'caldera-forms-civicrm' ); ?></label>
-	</div>
-</div>
-
-<div class="caldera-config-group caldera-config-group-full">
-	<div class="caldera-config-field">
-		<label><input id="{{_id}}_source_contact_link" type="checkbox" name="{{_name}}[source_contact_link]" value="1" {{#if source_contact_link}}checked="checked"{{/if}}><?php _e( 'Set the Source (Added by) to the contact linked to this activity.', 'caldera-forms-civicrm' ); ?></label>
-	</div>
-</div>
-
-<div class="caldera-config-group caldera-config-group-full">
-	<div class="caldera-config-field">
-		<label><input id="{{_id}}_assignee_contact_link" type="checkbox" name="{{_name}}[assignee_contact_link]" value="1" {{#if assignee_contact_link}}checked="checked"{{/if}}><?php _e( 'Set the Assignee (Assigned to) to the contact linked to this activity.', 'caldera-forms-civicrm' ); ?></label>
-	</div>
-</div>
-
-<p><?php _e( 'NOTE: this settings will override the below fields (Target Contact ID, Source Contact ID, and Assignee Contact ID)', 'caldera-forms-civicrm' ); ?></p>
-
-<hr style="clear: both;" />
-
-</div>
+<h2><?php _e( 'Contact Link', 'caldera-forms-civicrm' ); ?></h2>
+<div class="caldera-config-group">
 	<label><?php _e( 'Link to', 'caldera-forms-civicrm' ); ?></label>
 	<div class="caldera-config-field">
 		<?php CiviCRM_Caldera_Forms_Helper::contact_link_field(); ?>

@@ -81,9 +81,12 @@ class CiviCRM_Caldera_Forms_Case_Processor {
 		}
 
 		$form_values['contact_id'] = $transdata['civicrm']['contact_id_'.$config['contact_link']]; // Contact ID set in Contact Processor
-		$form_values['creator_id'] = ! empty( $config['creator_id'] ) ? $config['creator_id'] : $transdata['civicrm']['contact_id_'.$config['contact_link']]; // Case Manager
 		$form_values['case_type_id'] = $config['case_type_id']; // Case Type ID
 		$form_values['case_status_id'] = $config['case_status_id']; // Case Status ID
+		
+		if ( ! empty( $config['creator_id'] ) ) {
+			$form_values['creator_id'] = strpos( $config['creator_id'], 'contact_' ) !== false ? $transdata['civicrm']['contact_id_' . str_replace( 'contact_', '', $config['creator_id'] )] : $config['creator_id']; // Case Manager
+		}
 
 		if( empty( $config['start_date'] ) ){
 			$form_values['start_date'] = date( 'YmdHis', strtotime( 'now' ) ); // Date format YYYYMMDDhhmmss

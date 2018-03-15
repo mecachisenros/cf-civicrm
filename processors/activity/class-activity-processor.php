@@ -72,14 +72,15 @@ class CiviCRM_Caldera_Forms_Activity_Processor {
 			$form_values['activity_type_id'] = $config['activity_type_id']; // Activity Type ID
 			$form_values['status_id'] = $config['status_id']; // Activity Status ID
 			$form_values['campaign_id'] = $config['campaign_id']; // Campaign ID
+			$form_values['source_contact_id'] = $transdata['civicrm']['contact_id_'.$config['contact_link']]; // Default to Contact link
 
-			$form_values['target_contact_id'] = isset( $config['target_contact_link'] ) ? $transdata['civicrm']['contact_id_'.$config['contact_link']] : $config['target_contact_id'];
-			$form_values['source_contact_id'] = isset( $config['source_contact_link'] ) ? $transdata['civicrm']['contact_id_'.$config['contact_link']] : $config['source_contact_id'];
-			$form_values['assignee_contact_id'] = isset( $config['assignee_contact_link'] ) ? $transdata['civicrm']['contact_id_'.$config['contact_link']] : $config['assignee_contact_id'];
-
-			// fallback for source_contact_id
-			if( empty( $config['source_contact_id'] ) && ! isset( $config['source_contact_link'] ) )
-				$form_values['source_contact_id'] = $transdata['civicrm']['contact_id_'.$config['contact_link']];
+			foreach ( $config as $name => $value ) {
+				if ( in_array( $name, array( 'target_contact_id', 'source_contact_id', 'assignee_contact_id' ) ) 
+					&& ! empty( $value ) ) {
+					$form_values[$name] = strpos( $value, 'contact_' ) !== false ? 
+						$transdata['civicrm']['contact_id_' . str_replace( 'contact_', '', $value )] : $value;
+				}
+			}
 
 			// FIXME
 			// Concatenate DATE + TIME
