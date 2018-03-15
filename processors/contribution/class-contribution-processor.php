@@ -60,7 +60,7 @@ class CiviCRM_Caldera_Forms_Contribution_Processor {
 	 * @param array $config Processor configuration
 	 * @param array $form Form configuration
 	 */
-	public function post_processor( $config, $form) {
+	public function post_processor( $config, $form ) {
 
 		// globalised transient object
 		global $transdata;
@@ -84,7 +84,6 @@ class CiviCRM_Caldera_Forms_Contribution_Processor {
 			}
 			if( isset( $form_values['is_pay_later'] ) && $form_values['is_pay_later'] )
 				$form_values['contribution_status_id'] = 2; // set status to Pending (pay later)
-
 			try {
 				$create_contribution = civicrm_api3( 'Contribution', 'create', $form_values );
 			} catch ( CiviCRM_API3_Exception $e ) {
