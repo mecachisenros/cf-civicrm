@@ -2,8 +2,8 @@
 Contributors: mecachisenros, needle
 Tags: civicrm, caldera, forms, integration
 Requires at least: 4.5
-Tested up to: 4.6
-Stable tag: 0.4.2
+Tested up to: 4.9.4
+Stable tag: 0.4.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -33,6 +33,13 @@ This plugin is in active development. For feature requests and bug reports (or i
 
 
 == Changelog ==
+
+= 0.4.3 =
+* Fix to prevent select2 conflicts if different vesions are present
+* Added Activity Target, Source, and Assignee fields as select2 widgets (entityRef-like field)  
+* Show CiviCRM API errors in form
+* Added Contribution processor (code contributed by Agileware) needs documentation
+* Added Case Id magic tag (code contributed by Agileware)
 
 = 0.4.2 =
 * Added support for CiviCRM file uploads, Advanced File field (allowing multiple uploads for Activities) and File field (for custom fields and notes)

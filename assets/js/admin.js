@@ -2,7 +2,7 @@ function cfc_contact_link_options( id = null ) {
 
 	var options = [];
 	for ( var i = 1; i <= 10; i++ ) {
-		options.push( { id: 'contact_' + i, text: 'Contact ' + i } )
+		options.push( { id: 'contact_' + i, text: 'Contact ' + i } );
 	}
 	
 	if( ! id ) return options;
