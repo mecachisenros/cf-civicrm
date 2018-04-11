@@ -6,6 +6,7 @@
  * Author: Andrei Mondoc
  * Author URI: https://github.com/mecachisenros
  * Plugin URI: https://github.com/mecachisenros/caldera-forms-civicrm
+ * GitHub Plugin URI: mecachisenros/caldera-forms-civicrm
  * Text Domain: caldera-forms-civicrm
  * Domain Path: /languages
  */

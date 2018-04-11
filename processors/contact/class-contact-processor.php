@@ -95,11 +95,11 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 			$form_values['civicrm_contact']['contact_sub_type'] = $config['civicrm_contact']['contact_sub_type'];
 
 			// Use 'Process email' field for deduping if primary email is not set and 'Process email' is enabled
-			if ( empty( $config['civicrm_contact']['email'] ) && isset( $config['process_email'] ) ) {
+			if ( empty( $config['civicrm_contact']['email'] ) && isset( $config['enabled_entities']['process_email'] ) ) {
 				foreach ( $config['civicrm_email'] as $key => $field_id ) {
 					if ( $key === 'email' ) {
 						$email_mapped_field = Caldera_Forms::get_field_by_slug(str_replace( '%', '', $field_id ), $form );
-						$form_values['civicrm_contact'][$key] = Caldera_Forms::get_field_data( $email_mapped_field, $form );
+						$form_values['civicrm_contact'][$key] = Caldera_Forms::get_field_data( $email_mapped_field['ID'], $form );
 					}
 				}
 			}
