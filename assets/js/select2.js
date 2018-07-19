@@ -23,7 +23,7 @@
     factory(jQuery);
   }
   // register own name
-  jQuery.fn.civiSelect2 = jQuery.fn.select2;
+  jQuery.fn.cfcSelect2 = jQuery.fn.select2;
   // restore exisitng version
   if (existingSelect2) {
     delete jQuery.fn.select2;

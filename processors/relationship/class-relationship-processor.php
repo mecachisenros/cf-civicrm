@@ -8,6 +8,13 @@
 class CiviCRM_Caldera_Forms_Relationship_Processor {
 
 	/**
+     * Plugin reference.
+     *
+     * @since 0.4.4
+     */
+    public $plugin;
+
+	/**
 	 * The processor key.
 	 *
 	 * @since 0.2
@@ -21,8 +28,8 @@ class CiviCRM_Caldera_Forms_Relationship_Processor {
 	 *
 	 * @since 0.2
 	 */
-	public function __construct() {
-
+	public function __construct( $plugin ) {
+		$this->plugin = $plugin;
 		// register this processor
 		add_filter( 'caldera_forms_get_form_processors', array( $this, 'register_processor' ) );
 

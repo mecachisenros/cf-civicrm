@@ -8,6 +8,13 @@
 class CiviCRM_Caldera_Forms_Address_Processor {
 
 	/**
+     * Plugin reference.
+     *
+     * @since 0.4.4
+     */
+    public $plugin;
+
+	/**
 	 * The processor key.
 	 *
 	 * @since 0.2
@@ -30,8 +37,8 @@ class CiviCRM_Caldera_Forms_Address_Processor {
 	 *
 	 * @since 0.2
 	 */
-	public function __construct() {
-
+	public function __construct( $plugin ) {
+		$this->plugin = $plugin;
 		// register this processor
 		add_filter( 'caldera_forms_get_form_processors', array( $this, 'register_processor' ) );
 		// filter form before rendering
@@ -89,7 +96,7 @@ class CiviCRM_Caldera_Forms_Address_Processor {
 			}
 
 			// Get form values
-			$form_values = CiviCRM_Caldera_Forms_Helper::map_fields_to_processor( $config, $form, $form_values );
+			$form_values = $this->plugin->helper->map_fields_to_processor( $config, $form, $form_values );
 
 			if( ! empty( $form_values ) ) {
 				$form_values['contact_id'] = $transdata['civicrm']['contact_id_' . $config['contact_link']]; // Contact ID set in Contact Processor
@@ -150,7 +157,7 @@ class CiviCRM_Caldera_Forms_Address_Processor {
 				}
 
 				if ( isset( $civi_contact_address ) && ! isset( $civi_contact_address['count'] ) ) {
-					$form = CiviCRM_Caldera_Forms_Helper::map_fields_to_prerender(
+					$form = $this->plugin->helper->map_fields_to_prerender(
 						$pr_id['config'],
 						$form,
 						$this->fields_to_ignore,

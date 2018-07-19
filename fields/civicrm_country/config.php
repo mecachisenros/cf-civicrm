@@ -1,4 +1,4 @@
-<?php $countries = CiviCRM_Caldera_Forms_Helper::get_countries(); ?>
+<?php $countries = caldera_forms_civicrm()->helper->get_countries(); ?>
 <div class="caldera-config-group">
 	<label><?php _e( 'Placeholder', 'caldera-forms-civicrm' ); ?></label>
 	<div class="caldera-config-field">

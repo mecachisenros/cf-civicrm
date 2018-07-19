@@ -8,12 +8,19 @@
 class CiviCRM_Caldera_Forms_Field_State {
 
 	/**
+     * Plugin reference.
+     *
+     * @since 0.4.4
+     */
+    public $plugin;
+
+	/**
 	 * Initialises this object.
 	 *
 	 * @since 0.2
 	 */
-	public function __construct() {
-
+	public function __construct( $plugin ) {
+		$this->plugin = $plugin;
 		// register Caldera Forms callbacks
 		$this->register_hooks();
 
@@ -58,7 +65,7 @@ class CiviCRM_Caldera_Forms_Field_State {
 				'preview' => CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_state/preview.php',
 				'default' => array(
 					'placeholder' => __( 'Select a State/Province', 'caldera-forms-civicrm' ),
-					'default' => CiviCRM_Caldera_Forms_Helper::get_civicrm_settings( 'defaultContactStateProvince' )
+					'default' => $this->plugin->helper->get_civicrm_settings( 'defaultContactStateProvince' )
 				),
 			),
 		);
@@ -78,7 +85,7 @@ class CiviCRM_Caldera_Forms_Field_State {
 	 */
 	public function field_render_view( $field_value, $field, $form ) {
 
-		$states = CiviCRM_Caldera_Forms_Helper::get_state_province();
+		$states = $this->plugin->helper->get_state_province();
 
 		// set as view if we get a match
 		foreach( $states as $state_id => $state ) {

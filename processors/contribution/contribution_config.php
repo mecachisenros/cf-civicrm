@@ -12,7 +12,7 @@ $contribution_fields_result = civicrm_api3( 'Contribution', 'getfields', array(
 
 $contribution_fields = array();
 foreach ( $contribution_fields_result['values'] as $key => $value ) {
-	if ( in_array( $value['name'], CiviCRM_Caldera_Forms_Helper::$contribution_fields ) ) {
+	if ( in_array( $value['name'], caldera_forms_civicrm()->helper->contribution_fields ) ) {
 		$contribution_fields[$value['name']] = $value['title'];
 	}
 }
@@ -23,7 +23,7 @@ foreach ( $contribution_fields_result['values'] as $key => $value ) {
 <div id="contact_link" class="caldera-config-group">
 	<label><?php _e( 'Link to', 'caldera-forms-civicrm' ); ?></label>
 	<div class="caldera-config-field">
-		<?php CiviCRM_Caldera_Forms_Helper::contact_link_field(); ?>
+		<?php caldera_forms_civicrm()->helper->contact_link_field(); ?>
 		<p><?php _e( 'Select which contact you want to link this processor to.', 'caldera-forms-civicrm' ); ?></p>
 	</div>
 </div>

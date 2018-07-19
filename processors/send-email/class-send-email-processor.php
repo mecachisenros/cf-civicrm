@@ -7,6 +7,24 @@
 class CiviCRM_Caldera_Forms_Send_Email_Processor {
 
 	/**
+     * Plugin reference.
+     *
+     * @since 0.4.4
+	 * @access public
+	 * @var object $plugin The plugin instance
+     */
+	public $plugin;
+
+	/**
+	 * Contact link.
+	 * 
+	 * @since 0.4.4
+	 * @access protected
+	 * @var string $contact_link The contact link
+	 */
+	protected $contact_link;
+
+	/**
 	 * The processor key.
 	 *
 	 * @since 0.4.1
@@ -20,10 +38,10 @@ class CiviCRM_Caldera_Forms_Send_Email_Processor {
 	 *
 	 * @since 0.4.1
 	 */
-	public function __construct() {
-
+	public function __construct( $plugin ) {
+		$this->plugin = $plugin;
 		// register this processor
-		add_filter( 'caldera_forms_get_form_processors', array( $this, 'register_processor' ) );
+		add_filter( 'caldera_forms_get_form_processors', [ $this, 'register_processor' ] );
 
 	}
 
@@ -39,13 +57,13 @@ class CiviCRM_Caldera_Forms_Send_Email_Processor {
 	 */
 	public function register_processor( $processors ) {
 
-		$processors[$this->key_name] = array(
+		$processors[$this->key_name] = [
 			'name' => __( 'CiviCRM Send Email', 'caldera-forms-civicrm' ),
 			'description' => __( 'Send Email from CiviCRM (CiviCRM message templates, requires Email API)', 'caldera-forms-civicrm' ),
 			'author' => 'Andrei Mondoc',
 			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/send-email/send_email_config.php',
-			'pre_processor' =>  array( $this, 'pre_processor' ),
-		);
+			'pre_processor' =>  [ $this, 'pre_processor' ],
+		];
 
 		return $processors;
 
@@ -59,16 +77,17 @@ class CiviCRM_Caldera_Forms_Send_Email_Processor {
 	 * @param array $config Processor configuration
 	 * @param array $form Form configuration
 	 */
-	public function pre_processor( $config, $form ) {
+	public function pre_processor( $config, $form, $processid ) {
 
-		// globalised transient object
-		global $transdata;
+		// cfc transient object
+		$transient = $this->plugin->transient->get();
+		$this->contact_link = 'cid_' . $config['contact_link'];
 
-		$params = array(
+		$params = [
 			'sequential' => 1,
-			'contact_id' => $transdata['civicrm']['contact_id_' . $config['contact_link']],
+			'contact_id' => $transient->contacts->{$this->contact_link},
 			'template_id' => $config['template_id'],
-		);
+		];
 
 		if ( isset( $config['from_name'] ) && isset( $config['from_email'] ) ) {
 			$params['from_name'] = $config['from_name'];
@@ -83,7 +102,7 @@ class CiviCRM_Caldera_Forms_Send_Email_Processor {
 			$send_email = civicrm_api3( 'Email', 'send', $params );
 		} catch ( CiviCRM_API3_Exception $e ) {
 			$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
-			return array( 'note' => $error, 'type' => 'error' );
+			return [ 'note' => $error, 'type' => 'error' ];
 		}
 	}
 }

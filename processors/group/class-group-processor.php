@@ -8,6 +8,24 @@
 class CiviCRM_Caldera_Forms_Group_Processor {
 
 	/**
+     * Plugin reference.
+     *
+     * @since 0.4.4
+	 * @access public
+	 * @var object $plugin The plugin instance
+     */
+	public $plugin;
+	
+	/**
+	 * Contact link.
+	 * 
+	 * @since 0.4.4
+	 * @access protected
+	 * @var string $contact_link The contact link
+	 */
+	protected $contact_link;
+
+	/**
 	 * The processor key.
 	 *
 	 * @since 0.2
@@ -21,10 +39,10 @@ class CiviCRM_Caldera_Forms_Group_Processor {
 	 *
 	 * @since 0.2
 	 */
-	public function __construct() {
-
+	public function __construct( $plugin ) {
+		$this->plugin = $plugin;
 		// register this processor
-		add_filter( 'caldera_forms_get_form_processors', array( $this, 'register_processor' ) );
+		add_filter( 'caldera_forms_get_form_processors', [ $this, 'register_processor' ] );
 
 	}
 
@@ -40,13 +58,13 @@ class CiviCRM_Caldera_Forms_Group_Processor {
 	 */
 	public function register_processor( $processors ) {
 
-		$processors[$this->key_name] = array(
+		$processors[$this->key_name] = [
 			'name' => __( 'CiviCRM Group', 'caldera-forms-civicrm' ),
 			'description' => __( 'Add CiviCRM contact to group', 'caldera-forms-civicrm' ),
 			'author' => 'Andrei Mondoc',
 			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/group/group_config.php',
-			'pre_processor' => array( $this, 'pre_processor' ),
-		);
+			'pre_processor' => [ $this, 'pre_processor' ],
+		];
 
 		return $processors;
 
@@ -62,53 +80,21 @@ class CiviCRM_Caldera_Forms_Group_Processor {
 	 */
 	public function pre_processor( $config, $form ) {
 
-		// globalised transient object
-		global $transdata;
+		// cfc transient object
+		$transient = $this->plugin->transient->get();
+		$this->contact_link = 'cid_' . $config['contact_link'];
 
 		// Add Contact to group
 		try {
-			$result = civicrm_api3( 'GroupContact', 'create', array(
+			$result = civicrm_api3( 'GroupContact', 'create', [
 				'sequential' => 1,
 				'group_id' => $config['contact_group'], // Group ID from processor config
-				'contact_id' => $transdata['civicrm']['contact_id_'.$config['contact_link']], // Contact ID set in Contact Processor
-			));
+				'contact_id' => $transient->contacts->{$this->contact_link}, // Contact ID set in Contact Processor
+			] );
 		} catch ( CiviCRM_API3_Exception $e ) {
 			$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
-			return array( 'note' => $error, 'type' => 'error' );
+			return [ 'note' => $error, 'type' => 'error' ];
 		}
 
 	}
-
-	/**
-	 * CiviCRM Group fields callback function.
-	 *
-	 * This is used by 'Caldera_Forms_Processor_UI' class to build processor fields.
-	 *
-	 * Unused at present.
-	 *
-	 * @see https://gist.github.com/Shelob9/ee2210ad15f66aee40acdc8fd23f3348
-	 *
-	 * @since 0.2
-	 *
-	 * @return array $groups Fields configuration
-	 */
-	public function group_fields() {
-
-		$groupsResult = civicrm_api3( 'Group', 'get', array(
-			'sequential' => 1,
-			'cache_date' => null,
-			'is_active' => 1,
-			'options' => array( 'limit' => 0 ),
-		));
-
-		$groups = array();
-		foreach ( $groupsResult['values'] as $key => $value ) {
-			$group['id'] = $value['name'];
-			$group['label'] = $value['title'];
-			$groups[] = $group;
-		}
-		return $groups;
-
-	}
-
 }

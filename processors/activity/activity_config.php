@@ -24,7 +24,7 @@ $activityFieldsResult = civicrm_api3( 'Activity', 'getfields', array(
 
 $activityFields = array();
 foreach ( $activityFieldsResult['values'] as $key => $value ) {
-	if ( ! in_array( $value['name'], CiviCRM_Caldera_Forms_Helper::$activity_fields ) ) {
+	if ( ! in_array( $value['name'], caldera_forms_civicrm()->helper->activity_fields ) ) {
 		$activityFields[$value['name']] = $value['title'];
 	}
 }
@@ -35,7 +35,7 @@ foreach ( $activityFieldsResult['values'] as $key => $value ) {
 <div class="caldera-config-group">
 	<label><?php _e( 'Link to', 'caldera-forms-civicrm' ); ?></label>
 	<div class="caldera-config-field">
-		<?php CiviCRM_Caldera_Forms_Helper::contact_link_field(); ?>
+		<?php caldera_forms_civicrm()->helper->contact_link_field(); ?>
 		<p><?php _e( 'Select which contact you want to link this processor to.', 'caldera-forms-civicrm' ); ?></p>
 	</div>
 </div>
@@ -125,7 +125,7 @@ foreach ( $activityFieldsResult['values'] as $key => $value ) {
 <script>
 	jQuery(document).ready( function() {
 		var pid_prefix = '#{{_id}}_',
-		cfc_select2 = [ {
+		select2_fields = [ {
 				field: 'target_contact_id',
 				value: '{{target_contact_id}}'
 			},

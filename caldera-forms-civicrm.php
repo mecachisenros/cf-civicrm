@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Caldera Forms CiviCRM
  * Description: CiviCRM integration for Caldera Forms.
- * Version: 0.4.3
+ * Version: 0.4.4
  * Author: Andrei Mondoc
  * Author URI: https://github.com/mecachisenros
  * Plugin URI: https://github.com/mecachisenros/caldera-forms-civicrm
@@ -16,7 +16,7 @@
  *
  * @since 0.1
  */
-define( 'CF_CIVICRM_INTEGRATION_VER', '0.4.3' );
+define( 'CF_CIVICRM_INTEGRATION_VER', '0.4.4' );
 define( 'CF_CIVICRM_INTEGRATION_URL', plugin_dir_url( __FILE__ ) );
 define( 'CF_CIVICRM_INTEGRATION_PATH', plugin_dir_path( __FILE__ ) );
 
@@ -45,7 +45,7 @@ class CiviCRM_Caldera_Forms {
 	 * @access public
 	 * @var object $processors The processor management object
 	 */
-	public static $processors;
+	public $processors;
 
 	/**
 	 * The fields management object.
@@ -54,7 +54,7 @@ class CiviCRM_Caldera_Forms {
 	 * @access public
 	 * @var object $fields The fields management object
 	 */
-	public static $fields;
+	public $fields;
 
 	/**
 	 * The templates management object.
@@ -63,7 +63,7 @@ class CiviCRM_Caldera_Forms {
 	 * @access public
 	 * @var object $templates The templates management object
 	 */
-	public static $templates;
+	public $templates;
 
 	/**
 	 * The form management object.
@@ -72,7 +72,7 @@ class CiviCRM_Caldera_Forms {
 	 * @access public
 	 * @var object $templates The form management object
 	 */
-	public static $forms;
+	public $forms;
 
 	/**
 	 * The entries management object.
@@ -81,7 +81,7 @@ class CiviCRM_Caldera_Forms {
 	 * @access public
 	 * @var object $entries The entries management object
 	 */
-	public static $entries;
+	public $entries;
 
 	/**
 	 * The ajax management object.
@@ -90,7 +90,43 @@ class CiviCRM_Caldera_Forms {
 	 * @access public
 	 * @var object $entries The entries management object
 	 */
-	public static $ajax;
+	public $ajax;
+
+	/**
+	 * The helper management object.
+	 *
+	 * @since 0.4.4
+	 * @access public
+	 * @var object $helper The helper management object
+	 */
+	public $helper;
+
+	/**
+	 * The assets management object.
+	 *
+	 * @since 0.4.4
+	 * @access public
+	 * @var object $helper The helper management object
+	 */
+	public $assets;
+
+	/**
+	 * The transient management object.
+	 *
+	 * @since 0.4.4
+	 * @access public
+	 * @var object $transient The helper management object
+	 */
+	public $transient;
+
+	/**
+	 * CiviCRM API wrapper management object.
+	 *
+	 * @since 0.4.4
+	 * @access public
+	 * @var object $api The CiviCRM API wrapper object
+	 */
+	public $api;
 
 	/**
 	 * Returns a single instance of this object when called.
@@ -138,7 +174,10 @@ class CiviCRM_Caldera_Forms {
 	private function check_dependencies() {
 
 		// Bail if Caldera Forms is not available
-		if ( ! defined( 'CFCORE_VER' ) && version_compare( CFCORE_VER, '1.5.0.10', '>=' ) ) return false;
+		if ( ! defined( 'CFCORE_VER' ) || ! version_compare( CFCORE_VER, '1.7', '>=' ) ) {
+			add_action( 'admin_notices', [$this, 'caldera_forms_version_notice'] );
+			return false;
+		}
 
 		// Bail if CiviCRM is not available
 		if ( ! function_exists( 'civi_wp' ) ) return false;
@@ -158,27 +197,26 @@ class CiviCRM_Caldera_Forms {
 	 * @since 0.1.1
 	 */
 	private function include_files() {
-
+		// Include api wrapper class
+		include CF_CIVICRM_INTEGRATION_PATH . 'includes/class-civicrm-caldera-forms-crm-api.php';
 		// Include helper class
 		include CF_CIVICRM_INTEGRATION_PATH . 'includes/class-civicrm-caldera-forms-helper.php';
-
 		// Include processor management class
 		include CF_CIVICRM_INTEGRATION_PATH . 'includes/class-civicrm-caldera-forms-processors.php';
-
 		// Include field management class
 		include CF_CIVICRM_INTEGRATION_PATH . 'includes/class-civicrm-caldera-forms-fields.php';
-
 		// Include template management class
 		include CF_CIVICRM_INTEGRATION_PATH . 'includes/class-civicrm-caldera-forms-templates.php';
-
 		// Include forms management class
 		include CF_CIVICRM_INTEGRATION_PATH . 'includes/class-civicrm-caldera-forms-forms.php';
-
 		// Include entries management class
 		include CF_CIVICRM_INTEGRATION_PATH . 'includes/class-civicrm-caldera-forms-entries.php';
-
 		// Include ajax management class
 		include CF_CIVICRM_INTEGRATION_PATH . 'includes/class-civicrm-caldera-forms-ajax.php';
+		// Include assets management class
+		include CF_CIVICRM_INTEGRATION_PATH . 'includes/class-civicrm-caldera-forms-assets.php';
+		// Include assets management class
+		include CF_CIVICRM_INTEGRATION_PATH . 'includes/class-civicrm-caldera-forms-transient.php';
 
 	}
 
@@ -189,23 +227,27 @@ class CiviCRM_Caldera_Forms {
 	 */
 	private function setup_objects() {
 
+		// init api wrapper class
+		$this->api = new CiviCRM_Caldera_Forms_CRM_API( $this );
+		// init helper class
+		$this->helper = new CiviCRM_Caldera_Forms_Helper( $this );
+		// init transient manager
+		$this->transient = new CiviCRM_Caldera_Forms_Transient( $this );
 		// init processors manager
-		self::$processors = new CiviCRM_Caldera_Forms_Processors;
-
+		$this->processors = new CiviCRM_Caldera_Forms_Processors( $this );
 		// init fields manager
-		self::$fields = new CiviCRM_Caldera_Forms_Fields;
-
+		$this->fields = new CiviCRM_Caldera_Forms_Fields( $this );
 		// init templates manager
-		self::$templates = new CiviCRM_Caldera_Forms_Templates;
-
+		$this->templates = new CiviCRM_Caldera_Forms_Templates( $this );
 		// init forms manager
-		self::$forms = new CiviCRM_Caldera_Forms_Forms;
-
+		$this->forms = new CiviCRM_Caldera_Forms_Forms( $this );
 		// init entries manager
-		self::$entries = new CiviCRM_Caldera_Forms_Entries;
-
+		$this->entries = new CiviCRM_Caldera_Forms_Entries( $this );
 		// init ajax manager
-		self::$ajax = new CiviCRM_Caldera_Forms_AJAX;
+		$this->ajax = new CiviCRM_Caldera_Forms_AJAX( $this );
+		// init assets manager
+		$this->assets = new CiviCRM_Caldera_Forms_Assets( $this );
+
 	}
 
 	/**
@@ -216,9 +258,22 @@ class CiviCRM_Caldera_Forms {
 	private function register_hooks() {
 
 		// use translation files
-		add_action( 'plugins_loaded', array( $this, 'enable_translation' ) );
+		add_action( 'plugins_loaded', [ $this, 'enable_translation' ] );
 
 	}
+
+	/**
+	 * Cladera Forms version notice.
+	 * 
+	 * @since 0.4.4
+	 */
+	public function caldera_forms_version_notice() {
+        ?>
+			<div class="notice notice-error">
+				<p><?php _e( 'Caldera Forms CiviCRM requires Caldera Forms v1.7 or higher.', 'caldera-forms-civicrm' ); ?></p>
+			</div>
+        <?php
+    }
 
 	/**
 	 * Load translation files.

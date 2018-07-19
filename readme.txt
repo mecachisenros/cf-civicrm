@@ -34,6 +34,11 @@ This plugin is in active development. For feature requests and bug reports (or i
 
 == Changelog ==
 
+= 0.4.4 =
+* Moved scripts and styles to it's own Assets class
+* Added $helper property as a replacement for CiviCRM_Caldera_Forms_Helper static methods and properties
+* Fixed usability issue in #61
+
 = 0.4.3 =
 * Fix to prevent select2 conflicts if different vesions are present
 * Added Activity Target, Source, and Assignee fields as select2 widgets (entityRef-like field)  

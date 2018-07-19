@@ -1,4 +1,4 @@
-<?php $state = CiviCRM_Caldera_Forms_Helper::get_state_province(); ?>
+<?php $state = caldera_forms_civicrm()->helper->get_state_province(); ?>
 <?php echo $wrapper_before; ?>
 	<?php echo $field_label; ?>
 	<?php echo $field_before; ?>

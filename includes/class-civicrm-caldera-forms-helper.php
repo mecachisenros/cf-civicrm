@@ -8,13 +8,20 @@
 class CiviCRM_Caldera_Forms_Helper {
 
 	/**
+     * Plugin reference.
+     *
+     * @since 0.4.4
+     */
+    public $plugin;
+
+	/**
 	 * Contact fields.
 	 *
 	 * @since 0.1
 	 * @access public
 	 * @var aray $contact_fields The contact fields
 	 */
-	public static $contact_fields = array( 'prefix_id', 'first_name', 'last_name', 'middle_name', 'suffix_id', 'is_opt_out', 'nick_name', 'source', 'formal_title', 'job_title', 'gender_id', 'birth_date', 'email', 'current_employer', 'do_not_phone', 'do_not_email', 'do_not_mail', 'do_not_sms', 'do_not_trade', 'legal_identifier', 'legal_name', 'preferred_communication_method', 'preferred_language', 'preferred_mail_format', 'communication_style_id', 'household_name', 'organization_name', 'sic_code' );
+	public $contact_fields = [ 'prefix_id', 'first_name', 'last_name', 'middle_name', 'suffix_id', 'is_opt_out', 'nick_name', 'source', 'formal_title', 'job_title', 'gender_id', 'birth_date', 'email', 'current_employer', 'do_not_phone', 'do_not_email', 'do_not_mail', 'do_not_sms', 'do_not_trade', 'legal_identifier', 'legal_name', 'preferred_communication_method', 'preferred_language', 'preferred_mail_format', 'communication_style_id', 'household_name', 'organization_name', 'sic_code' ];
 
 	/**
 	 * Activity fields.
@@ -23,7 +30,7 @@ class CiviCRM_Caldera_Forms_Helper {
 	 * @access public
 	 * @var aray $activity_fields The activity fields
 	 */
-	public static $activity_fields = array( 'activity_type_id', 'phone_id', 'phone_number', 'status_id', 'priority_id', 'parent_id', 'is_test', 'medium_id', 'is_auto', 'is_current_revision', 'result', 'is_deleted', 'campaign_id', 'engagement_level', 'weight', 'id', 'original_id', 'relationship_id');
+	public $activity_fields = [ 'activity_type_id', 'phone_id', 'phone_number', 'status_id', 'priority_id', 'parent_id', 'is_test', 'medium_id', 'is_auto', 'is_current_revision', 'result', 'is_deleted', 'campaign_id', 'engagement_level', 'weight', 'id', 'original_id', 'relationship_id' ];
 
 	/**
 	 * Contribution fields.
@@ -32,7 +39,7 @@ class CiviCRM_Caldera_Forms_Helper {
 	 * @access public
 	 * @var array $contribution_fields The contribution fields
 	 */
-	public static $contribution_fields = array( 'financial_type_id', 'currency', 'total_amount', 'source', 'trxn_id', 'is_pay_later' );
+	public $contribution_fields = [ 'financial_type_id', 'currency', 'total_amount', 'source', 'trxn_id', 'is_pay_later' ];
 
 	/**
 	 * Holds CiviCRM state/province data which only needs a single lookup.
@@ -41,7 +48,7 @@ class CiviCRM_Caldera_Forms_Helper {
 	 * @access public
 	 * @var array $states The CiviCRM state/province data
 	 */
-	public static $states;
+	public $states;
 
 	/**
 	 * Holds contact ids for linking processors.
@@ -50,7 +57,16 @@ class CiviCRM_Caldera_Forms_Helper {
 	 * @access public
 	 * @var aray $civi_transdata The contact ids for linking processors
 	 */
-	public static $civi_transdata = array();
+	public $civi_transdata = [];
+
+	/**
+	 * Initialises this object.
+	 *
+	 * @since 0.4.4
+	 */
+	public function __construct( $plugin ) {
+		$this->plugin = $plugin;
+	}
 
 	/**
 	 * Holds field/file ids for attachments.
@@ -59,7 +75,7 @@ class CiviCRM_Caldera_Forms_Helper {
 	 * @access public
 	 * @var array $file_entity_transdata File entity ids
 	 */
-	public static $file_entity_transdata = array();
+	public $file_entity_transdata = [];
 
 	/**
 	 * Sets the contact_id/contact_id mapping.
@@ -69,8 +85,8 @@ class CiviCRM_Caldera_Forms_Helper {
 	 * @param int $contact_link The Contact link from processor $config
 	 * @param int $cid The Contact ID
 	 */
-	public static function set_civi_transdata( $contact_link, $cid ) {
-		self::$civi_transdata['contact_id_' . $contact_link] = $cid;
+	public function set_civi_transdata( $contact_link, $cid ) {
+		$this->civi_transdata['contact_id_' . $contact_link] = $cid;
 	}
 
 	/**
@@ -80,8 +96,8 @@ class CiviCRM_Caldera_Forms_Helper {
 	 *
 	 * @return array $civi_transdata The contact_link/contact_id mapping array
 	 */
-	public static function get_civi_transdata() {
-		return self::$civi_transdata;
+	public function get_civi_transdata() {
+		return $this->civi_transdata;
 	}
 
 	/**
@@ -91,8 +107,8 @@ class CiviCRM_Caldera_Forms_Helper {
 	 *
 	 * @param array $params
 	 */
-	public static function set_file_entity_ids( $params ){
-		self::$file_entity_transdata = $params;
+	public function set_file_entity_ids( $params ) {
+		$this->file_entity_transdata = $params;
 	}
 
 	/**
@@ -102,8 +118,8 @@ class CiviCRM_Caldera_Forms_Helper {
 	 *
 	 * @return array $params
 	 */
-	public static function get_file_entity_ids(){
-		return self::$file_entity_transdata;
+	public function get_file_entity_ids() {
+		return $this->file_entity_transdata;
 	}
 
 	/**
@@ -113,7 +129,7 @@ class CiviCRM_Caldera_Forms_Helper {
 	 *
 	 * @return str $contact_link The the select dropdown markup
 	 */
-	public static function contact_link_field() {
+	public function contact_link_field() {
 
 		ob_start();
 		?>
@@ -142,31 +158,31 @@ class CiviCRM_Caldera_Forms_Helper {
 	 *
 	 * @return array $custom_fields The array of custom fields - e.g. ['custom_x' => 'Label of custom_x']
 	 */
-	public static function get_contact_custom_fields() {
+	public function get_contact_custom_fields() {
 
-		$contact_types = civicrm_api3( 'ContactType', 'get', array(
+		$contact_types = civicrm_api3( 'ContactType', 'get', [
 			'sequential' => 1,
 			'is_active' => 1,
-			'options' => array( 'limit' => 0 ),
-		));
+			'options' => [ 'limit' => 0 ],
+		]);
 
 		// Include Contact entity by default
-		$types = array( 'Contact' );
+		$types = [ 'Contact' ];
 		foreach ( $contact_types['values'] as $key => $value ) {
 			$types[] = $value['name'];
 		}
 
-		$extends = array( 'IN' => $types );
+		$extends = [ 'IN' => $types ];
 
-		$custom_group = civicrm_api3( 'CustomGroup', 'get', array(
+		$custom_group = civicrm_api3( 'CustomGroup', 'get', [
 			'sequential' => 1,
 			'is_active' => 1,
 			'extends' => apply_filters( 'civicrm_custom_fields_contact_type', $extends ),
-			'api.CustomField.get' => array( 'is_active' => 1, 'options' => array( 'limit' => 0 ) ),
-			'options' => array( 'limit' => 0 ),
-		));
+			'api.CustomField.get' => [ 'is_active' => 1, 'options' => [ 'limit' => 0 ] ],
+			'options' => [ 'limit' => 0 ],
+		]);
 
-		$custom_fields = array();
+		$custom_fields = [];
 		foreach ( $custom_group['values'] as $key => $value ) {
 			foreach ( $value['api.CustomField.get']['values'] as $k => $v ) {
 				$custom_fields['custom_' . $v['id']] = $v['label'];
@@ -184,13 +200,13 @@ class CiviCRM_Caldera_Forms_Helper {
 	 * @param int $id The numeric WordPress user ID
 	 * @return int $contact_id The numeric CiviCRM Contact ID
 	 */
-	public static function get_wp_civi_contact( $id ) {
+	public function get_wp_civi_contact( $id ) {
 
-		$params = array(
+		$params = [
 			'sequential' => 1,
 			'uf_id' => $id,
 			'domain_id' => CRM_Core_BAO_Domain::getDomain()->id,
-		);
+		];
 
 		$wp_civicrm_contact = civicrm_api3( 'UFMatch', 'getsingle', $params );
 		return $wp_civicrm_contact['contact_id'];
@@ -205,19 +221,19 @@ class CiviCRM_Caldera_Forms_Helper {
 	 * @param int $cid The numeric Contact ID
 	 * @param bool|array The Contact data array, or 0 if none retrieved
 	 */
-	public static function get_civi_contact( $cid ) {
+	public function get_civi_contact( $cid ) {
 
 		if ( $cid != 0 ) {
 
-			$params = array(
+			$params = [
 				'sequential' => 1,
 				'id' => $cid,
-			);
+			];
 
 			$fields = civicrm_api3( 'Contact', 'getsingle', $params );
 
 			// Custom fields
-			$c_fields = implode( ',', array_keys( CiviCRM_Caldera_Forms_Helper::get_contact_custom_fields() ) );
+			$c_fields = implode( ',', array_keys( $this->plugin->helper->get_contact_custom_fields() ) );
 
 			if ( empty( $c_fields ) ) return $fields;
 
@@ -238,11 +254,9 @@ class CiviCRM_Caldera_Forms_Helper {
 	 *
 	 * @return array $contact_fields The array of content fields
 	 */
-	public static function get_all_fields() {
+	public function get_all_fields() {
 
-		$contact_fields = civicrm_api3( 'Contact', 'getfields', array(
-			'sequential' => 1,
-		));
+		$contact_fields = civicrm_api3( 'Contact', 'getfields', [ 'sequential' => 1, ] );
 
 		return $contact_fields['values'];
 
@@ -255,20 +269,20 @@ class CiviCRM_Caldera_Forms_Helper {
 	 *
 	 * @return array $states The array of countries
 	 */
-	public static function get_countries() {
+	public function get_countries() {
 
 		// define basic API vars
-		$api_vars = array(
+		$api_vars = [
 			'sequential' => 1,
-			'options' => array( 'limit' => 0 ),
-		);
+			'options' => [ 'limit' => 0 ],
+		];
 
 		// get the countries enabled in CiviCRM localization settings
-		$countries_enabled = CiviCRM_Caldera_Forms_Helper::get_civicrm_settings( 'countryLimit' );
+		$countries_enabled = $this->plugin->helper->get_civicrm_settings( 'countryLimit' );
 
 		// limit to these if there are some defined
 		if ( ! empty( $countries_enabled ) ) {
-			$api_vars['id'] = array( 'IN' => $countries_enabled );
+			$api_vars['id'] = [ 'IN' => $countries_enabled ];
 		}
 
 		// okay, let's hit the API
@@ -283,26 +297,26 @@ class CiviCRM_Caldera_Forms_Helper {
 	 *
 	 * @return array $states The array of states
 	 */
-	public static function get_state_province() {
+	public function get_state_province() {
 
 		// send data back if already retrieved
-		if ( isset( self::$states ) ) return self::$states;
+		if ( isset( $this->states ) ) return $this->states;
 
 		$query = 'SELECT name,id,country_id FROM civicrm_state_province';
 		$dao = CRM_Core_DAO::executeQuery( $query );
-		self::$states = array();
+		$this->states = [];
 
 		while ( $dao->fetch() ) {
-			self::$states[$dao->id] = array( 'name' => $dao->name, 'country_id' => $dao->country_id );
+			$this->states[$dao->id] = [ 'name' => $dao->name, 'country_id' => $dao->country_id ];
 		}
 
-		foreach ( self::$states as $state_id => $state ) {
-			if ( ! in_array( $state['country_id'], self::get_civicrm_settings( 'countryLimit' ) ) ) {
-				unset( self::$states[$state_id] );
+		foreach ( $this->states as $state_id => $state ) {
+			if ( ! in_array( $state['country_id'], $this->get_civicrm_settings( 'countryLimit' ) ) ) {
+				unset( $this->states[$state_id] );
 			}
 		}
 
-		return self::$states;
+		return $this->states;
 
 	}
 
@@ -314,12 +328,12 @@ class CiviCRM_Caldera_Forms_Helper {
 	 * @param str $setting The name of the setting to be returned
 	 * @return array $settings The requested settings
 	 */
-	public static function get_civicrm_settings( $setting ){
+	public function get_civicrm_settings( $setting ){
 
-		$settings = civicrm_api3( 'Setting', 'getvalue', array(
+		$settings = civicrm_api3( 'Setting', 'getvalue', [
 			'sequential' => 1,
 			'name' => $setting,
-		));
+		] );
 
 		return $settings;
 
@@ -332,7 +346,7 @@ class CiviCRM_Caldera_Forms_Helper {
 	 *
 	 * @return array $dedupe_rules The deduplicate rules
 	 */
-	public static function get_dedupe_rules() {
+	public function get_dedupe_rules() {
 
 		$dedupe_rules['Organization'] = CRM_Dedupe_BAO_RuleGroup::getByType( 'Organization' );
 		$dedupe_rules['Individual'] = CRM_Dedupe_BAO_RuleGroup::getByType( 'Individual' );
@@ -350,19 +364,19 @@ class CiviCRM_Caldera_Forms_Helper {
 	 * @param int|str $custom_id The numeric ID of the custom field
 	 * @return str $result The 'extends' value for the custom field
 	 */
-	public static function custom_field_extends( $custom_id ) {
+	public function custom_field_extends( $custom_id ) {
 
 		$custom_id = str_replace( 'custom_', '', $custom_id );
 		$id = (int)$custom_id;
 
-		$result = civicrm_api3( 'CustomField', 'getsingle', array(
+		$result = civicrm_api3( 'CustomField', 'getsingle', [
 			'sequential' => 1,
 			'id' => $id,
-			'api.CustomGroup.getsingle' => array(
+			'api.CustomGroup.getsingle' => [
 				'id' => '$value.custom_group_id',
-				'return' => array( 'extends_entity_column_value', 'extends' )
-			),
-		));
+				'return' => [ 'extends_entity_column_value', 'extends' ]
+			],
+		] );
 
 		if( isset( $result['api.CustomGroup.getsingle']['extends_entity_column_value'] ) ) {
 			return implode( ',', $result['api.CustomGroup.getsingle']['extends_entity_column_value'] );
@@ -383,7 +397,7 @@ class CiviCRM_Caldera_Forms_Helper {
 	 * @param string $processor The processor key, only necessary for the Contact processor class
 	 * @return array $form_values
 	 */
-	public static function map_fields_to_processor( $config, $form, &$form_values, $processor = null ){
+	public function map_fields_to_processor( $config, $form, &$form_values, $processor = null ){
 
 		foreach ( ( $processor ? $config[$processor] : $config ) as $key => $field_id ) {
 			if ( ! empty( $field_id ) ) {
@@ -428,7 +442,7 @@ class CiviCRM_Caldera_Forms_Helper {
 	 * @param string $processor The processor key, only necessary for the Contact processor class
 	 * @return array $form The form settings
 	 */
-	public static function map_fields_to_prerender( $config, &$form, $ignore_fields, $entity, $processor = null ){
+	public function map_fields_to_prerender( $config, &$form, $ignore_fields, $entity, $processor = null ){
 
 		foreach ( ( $processor ? $config[$processor] : $config ) as $field => $value ) {
 			if ( ! empty( $value ) && ! in_array( $field, $ignore_fields ) ) {
@@ -458,17 +472,17 @@ class CiviCRM_Caldera_Forms_Helper {
 	 * @since 0.4.1
 	 * @return array $enabled_extensions Array of enabled extensions containing the 'key'
 	 */
-	public static function get_enabled_extensions(){
+	public function get_enabled_extensions(){
 		try {
-			$result = civicrm_api3( 'Extension', 'get', array(
+			$result = civicrm_api3( 'Extension', 'get', [
 				'sequential' => 1,
-				'options' => array( 'limit' => 0 ),
-			));
+				'options' => [ 'limit' => 0 ],
+			] );
 		} catch ( Exception $e ) {
 
 		}
 
-		$enabled_extensions = array();
+		$enabled_extensions = [];
 		if( $result['is_error'] == 0 ){
 			foreach ( $result['values'] as $key => $extension) {
 				$enabled_extensions[] = $extension['key'];
@@ -487,12 +501,120 @@ class CiviCRM_Caldera_Forms_Helper {
 	 * @param int $entity_id The entity id
 	 * @return int $file_id The file id
 	 */
-	public static function create_civicrm_entity_file( $entity, $entity_id, $file_id ){
+	public function create_civicrm_entity_file( $entity, $entity_id, $file_id ){
 		$entityFileDAO = new CRM_Core_DAO_EntityFile();
 		$entityFileDAO->entity_table = $entity;
 		$entityFileDAO->entity_id = $entity_id;
 		$entityFileDAO->file_id = $file_id;
 		$entityFileDAO->save();
+	}
+
+	/**
+	 * Retrieve the select dropdown for contact links.
+	 *
+	 * @since 0.4.4
+	 *
+	 * @return str $contact_link The the select dropdown markup
+	 */
+	public function contact_link_order_field( $id ) {
+
+		ob_start();
+		?>
+				<select class="block-input field-config" name="{{_name}}[line_item][<?php echo $id; ?>][contact_link]">
+					<option value="1" {{#is line_item/<?php echo $id; ?>/contact_link value=1}}selected="selected"{{/is}}><?php _e( 'Contact 1', 'caldera-forms-civicrm' ); ?></option>
+					<option value="2" {{#is line_item/<?php echo $id; ?>/contact_link value=2}}selected="selected"{{/is}}><?php _e( 'Contact 2', 'caldera-forms-civicrm' ); ?></option>
+					<option value="3" {{#is line_item/<?php echo $id; ?>/contact_link value=3}}selected="selected"{{/is}}><?php _e( 'Contact 3', 'caldera-forms-civicrm' ); ?></option>
+					<option value="4" {{#is line_item/<?php echo $id; ?>/contact_link value=4}}selected="selected"{{/is}}><?php _e( 'Contact 4', 'caldera-forms-civicrm' ); ?></option>
+					<option value="5" {{#is line_item/<?php echo $id; ?>/contact_link value=5}}selected="selected"{{/is}}><?php _e( 'Contact 5', 'caldera-forms-civicrm' ); ?></option>
+					<option value="6" {{#is line_item/<?php echo $id; ?>/contact_link value=6}}selected="selected"{{/is}}><?php _e( 'Contact 6', 'caldera-forms-civicrm' ); ?></option>
+					<option value="7" {{#is line_item/<?php echo $id; ?>/contact_link value=7}}selected="selected"{{/is}}><?php _e( 'Contact 7', 'caldera-forms-civicrm' ); ?></option>
+					<option value="8" {{#is line_item/<?php echo $id; ?>/contact_link value=8}}selected="selected"{{/is}}><?php _e( 'Contact 8', 'caldera-forms-civicrm' ); ?></option>
+					<option value="9" {{#is line_item/<?php echo $id; ?>/contact_link value=9}}selected="selected"{{/is}}><?php _e( 'Contact 9', 'caldera-forms-civicrm' ); ?></option>
+					<option value="10" {{#is line_item/<?php echo $id; ?>/contact_link value=10}}selected="selected"{{/is}}><?php _e( 'Contact 10', 'caldera-forms-civicrm' ); ?></option>
+				</select>
+		<?php
+		$contact_link = ob_get_contents();
+		return $contact_link;
+
+	}
+
+	public function get_field_data_by_slug( $slug, $form ) {
+		$slug = strpos( $slug, '%' ) !== false ? str_replace( '%', '', $slug ) : $slug;
+		$field = Caldera_Forms::get_field_by_slug( $slug, $form );
+		return Caldera_Forms::get_field_data( $field['ID'], $form );
+	}
+
+	/**
+	 * Get event price sets.
+	 *
+	 * @since 0.4.4
+	 * @return array $price_sets The active price sets with their corresponding price fields and price filed values
+	 */
+	public function get_price_sets( $id = false ) {
+
+		if ( isset( $this->price_sets ) ) return $this->price_sets;
+
+		$price_set_params = array(
+			'sequential' => 1,
+			'is_active' => 1,
+			'is_reserved' => 0,
+			'options' => array( 'limit' => 0 ),
+			'api.PriceField.get' => array(
+				'sequential' => 0,
+				'price_set_id' => "\$value.id",
+				'is_active' => 1,
+				'options' => array( 'limit' => 0 ),
+			),
+		);
+
+		if( $id ) $price_set_params['id'] = $id;
+
+		try {
+			$event_price_sets = civicrm_api3( 'PriceSet', 'get', $price_set_params );
+		} catch ( CiviCRM_API3_Exception $e ) {
+			return array( 'note' => $e->getMessage(), 'type' => 'error' );
+		}
+
+		try {
+			$all_price_field_values = civicrm_api3( 'PriceFieldValue', 'get', array(
+				'sequential' => 0,
+				'is_active' => 1,
+				'options' => array( 'limit' => 0 ),
+			));
+		} catch ( CiviCRM_API3_Exception $e ) {
+			return array( 'note' => $e->getMessage(), 'type' => 'error' );
+		}
+
+		$price_field_values = array();
+		foreach ( $all_price_field_values['values'] as $id => $price_field_value ) {
+			$price_field_values[$id] = $price_field_value;
+		}
+
+		$price_sets = array();
+		foreach ( $event_price_sets['values'] as $key => $price_set ) {
+			$price_set['price_set_id'] = $price_set_id = $price_set['id'];
+			$price_set['price_fields'] = $price_set['api.PriceField.get']['values'];
+			foreach ( $price_set['price_fields'] as $price_field_id => $price_field ) {
+				foreach ( $price_field_values as $value_id => $price_field_value) {
+					if ( $price_field_id == $price_field_value['price_field_id'] ) {
+						$price_set['price_fields'][$price_field_id]['price_field_values'][$value_id] = $price_field_value;
+					}
+				}
+			}
+			unset( $price_set['id'], $price_set['api.PriceField.get'] );
+			$price_sets[$price_set_id] = $price_set;
+		}
+		$this->price_sets = $price_sets;
+
+		return $this->price_sets;
+	}
+
+	public function get_price_field_value( $id ) {
+		return civicrm_api3( 'PriceFieldValue', 'getsingle', [
+			'return' => [ 'id', 'price_field_id', 'label', 'amount', 'count', 'membership_type_id', 'membership_num_terms', 'financial_type_id' ],
+			'id' => $id,
+			'is_active' => 1,
+		] );
 	}
 
 }
