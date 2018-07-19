@@ -75,7 +75,7 @@ $indStandardFields = array( 'first_name', 'last_name', 'middle_name', 'prefix_id
 <div id="contact_link" class="caldera-config-group">
 	<label><?php _e( 'Link to', 'caldera-forms-civicrm' ); ?></label>
 	<div class="caldera-config-field">
-		<?php CiviCRM_Caldera_Forms_Helper::contact_link_field() ?>
+		<?php caldera_forms_civicrm()->helper->contact_link_field() ?>
 		<p><?php _e( 'Select which contact you want to link this processor to.', 'caldera-forms-civicrm' ); ?></p>
 	</div>
 </div>
@@ -135,13 +135,13 @@ $indStandardFields = array( 'first_name', 'last_name', 'middle_name', 'prefix_id
 
 	$contactFields = array();
 	foreach ( $contactFieldsResult['values'] as $key => $value ) {
-		if ( in_array( $value['name'], CiviCRM_Caldera_Forms_Helper::$contact_fields ) ) {
+		if ( in_array( $value['name'], caldera_forms_civicrm()->helper->contact_fields ) ) {
 			$contactFields[$value['name']] = $value['title'];
 		}
 	}
 
 	unset( $contactFields['id'], $contactFields['contact_type'], $contactFields['contact_sub_type'] );
-	$contactFields = array_diff_key( $contactFields, CiviCRM_Caldera_Forms_Helper::get_contact_custom_fields() );
+	$contactFields = array_diff_key( $contactFields, caldera_forms_civicrm()->helper->get_contact_custom_fields() );
 
 	foreach( $contactFields as $key => $value ) { ?>
 	<div class="caldera-config-group" id="<?php echo esc_attr( $key ); ?>"
@@ -165,10 +165,10 @@ $indStandardFields = array( 'first_name', 'last_name', 'middle_name', 'prefix_id
 	<h2 style="display: inline-block;"><?php _e( 'Custom Fields', 'caldera-forms-civicrm' ); ?></h2>
 	<?php
 
-	$contactCustomFields = CiviCRM_Caldera_Forms_Helper::get_contact_custom_fields();
+	$contactCustomFields = caldera_forms_civicrm()->helper->get_contact_custom_fields();
 
 	foreach( $contactCustomFields as $key => $value ) { ?>
-		<div id="<?php echo esc_attr( $key ); ?>" class="caldera-config-group" data-crm-type="<?php echo CiviCRM_Caldera_Forms_Helper::custom_field_extends( $key ); ?>">
+		<div id="<?php echo esc_attr( $key ); ?>" class="caldera-config-group" data-crm-type="<?php echo caldera_forms_civicrm()->helper->custom_field_extends( $key ); ?>">
 			<label><?php echo esc_html( $value ); ?></label>
 			<div class="caldera-config-field">
 			  <input type="text" class="block-input field-config magic-tag-enabled caldera-field-bind" id="{{_id}}" name="{{_name}}[civicrm_contact][<?php echo $key; ?>]" value="{{<?php echo 'civicrm_contact/' . $key; ?>}}">

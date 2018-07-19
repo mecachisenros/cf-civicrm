@@ -1,4 +1,4 @@
-<?php $state = CiviCRM_Caldera_Forms_Helper::get_state_province(); ?>
+<?php $state = caldera_forms_civicrm()->helper->get_state_province(); ?>
 <div class="caldera-config-group">
 	<label><?php _e( 'Placeholder', 'caldera-forms-civicrm' ); ?></label>
 	<div class="caldera-config-field">

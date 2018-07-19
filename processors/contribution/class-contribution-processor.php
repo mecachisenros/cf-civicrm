@@ -8,6 +8,24 @@
 class CiviCRM_Caldera_Forms_Contribution_Processor {
 
 	/**
+     * Plugin reference.
+     *
+     * @since 0.4.4
+	 * @access public
+	 * @var object $plugin The plugin instance
+     */
+	public $plugin;
+	
+	/**
+	 * Contact link.
+	 * 
+	 * @since 0.4.4
+	 * @access protected
+	 * @var string $contact_link The contact link
+	 */
+	protected $contact_link;
+
+	/**
 	 * The processor key.
 	 *
 	 * @since 0.4.2
@@ -21,10 +39,10 @@ class CiviCRM_Caldera_Forms_Contribution_Processor {
 	 *
 	 * @since 0.4.2
 	 */
-	public function __construct() {
-
+	public function __construct( $plugin ) {
+		$this->plugin = $plugin;
 		// register this processor
-		add_filter( 'caldera_forms_get_form_processors', array( $this, 'register_processor' ) );
+		add_filter( 'caldera_forms_get_form_processors', [ $this, 'register_processor' ] );
 
 	}
 
@@ -40,13 +58,13 @@ class CiviCRM_Caldera_Forms_Contribution_Processor {
 	 */
 	public function register_processor( $processors ) {
 
-		$processors[$this->key_name] = array(
+		$processors[$this->key_name] = [
 			'name' => __( 'CiviCRM Contribution', 'caldera-forms-civicrm' ),
 			'description' => __( 'Add CiviCRM contribution to contact', 'caldera-forms-civicrm' ),
 			'author' => 'Agileware',
 			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/contribution/contribution_config.php',
-			'post_processor' =>  array( $this, 'post_processor' ),
-		);
+			'post_processor' =>  [ $this, 'post_processor' ],
+		];
 
 		return $processors;
 
@@ -60,35 +78,40 @@ class CiviCRM_Caldera_Forms_Contribution_Processor {
 	 * @param array $config Processor configuration
 	 * @param array $form Form configuration
 	 */
-	public function post_processor( $config, $form ) {
+	public function post_processor( $config, $form, $processid ) {
 
-		// globalised transient object
-		global $transdata;
+		// cfc transient object
+		$transient = $this->plugin->transient->get();
+		$this->contact_link = 'cid_' . $config['contact_link'];
 
 		// Get form values
-		$form_values = CiviCRM_Caldera_Forms_Helper::map_fields_to_processor( $config, $form, $form_values );
+		$form_values = $this->plugin->helper->map_fields_to_processor( $config, $form, $form_values );
 
-		if( ! empty( $form_values ) ) {
+		if ( ! empty( $form_values ) ) {
 			$form_values['financial_type_id'] = $config['financial_type_id']; // Financial Type ID
-			if( empty( $form_values['source'] ) ) {
+			
+			if ( empty( $form_values['source'] ) )
 				$form_values['source'] = $form['name'];
-			}
-			$form_values['contact_id'] = $transdata['civicrm']['contact_id_'.$config['contact_link']]; // Contact ID
-			$credit_card_id = civicrm_api3( 'OptionValue', 'get', array(
-				'sequential'           => 1,
+			
+				$form_values['contact_id'] = $transient->contacts->{$this->contact_link}; // Contact ID
+			
+			$credit_card_id = civicrm_api3( 'OptionValue', 'get', [
+				'sequential' => 1,
 				'option_group_id.name' => 'payment_instrument',
-				'name'                 => 'Credit Card',
-			));
-			if( $credit_card_id['count'] > 0 ) {
+				'name' => 'Credit Card',
+			] );
+			
+			if ( $credit_card_id['count'] > 0 )
 				$form_values['payment_instrument_id'] = $credit_card_id["values"][0]["value"];
-			}
-			if( isset( $form_values['is_pay_later'] ) && $form_values['is_pay_later'] )
+
+			if ( isset( $form_values['is_pay_later'] ) && $form_values['is_pay_later'] )
 				$form_values['contribution_status_id'] = 2; // set status to Pending (pay later)
+			
 			try {
 				$create_contribution = civicrm_api3( 'Contribution', 'create', $form_values );
 			} catch ( CiviCRM_API3_Exception $e ) {
 				$error = $e->getMessage() . "<br><br><pre>" . $e->getTraceAsString() . "</per>";
-				return array( 'note' => $error, 'type' => 'error' );
+				return [ 'note' => $error, 'type' => 'error' ];
 			}
 		}
 	}

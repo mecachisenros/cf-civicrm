@@ -8,6 +8,24 @@
 class CiviCRM_Caldera_Forms_Activity_Processor {
 
 	/**
+	 * Plugin reference.
+	 *
+	 * @since 0.4.4
+	 * @access public
+	 * @var object $plugin The plugin instance
+ 	 */
+	public $plugin;
+	
+	/**
+	 * Contact link.
+	 * 
+	 * @since 0.4.4
+	 * @access protected
+	 * @var string $contact_link The contact link
+	 */
+	protected $contact_link;
+
+	/**
 	 * The processor key.
 	 *
 	 * @since 0.2
@@ -21,10 +39,10 @@ class CiviCRM_Caldera_Forms_Activity_Processor {
 	 *
 	 * @since 0.2
 	 */
-	public function __construct() {
-
+	public function __construct( $plugin ) {
+		$this->plugin = $plugin;
 		// register this processor
-		add_filter( 'caldera_forms_get_form_processors', array( $this, 'register_processor' ) );
+		add_filter( 'caldera_forms_get_form_processors', [ $this, 'register_processor' ] );
 
 	}
 
@@ -40,17 +58,19 @@ class CiviCRM_Caldera_Forms_Activity_Processor {
 	 */
 	public function register_processor( $processors ) {
 
-		$processors[$this->key_name] = array(
+		$processors[$this->key_name] = [
 			'name' => __( 'CiviCRM Activity', 'caldera-forms-civicrm' ),
 			'description' => __( 'Add CiviCRM activity to contact', 'caldera-forms-civicrm' ),
 			'author' => 'Andrei Mondoc',
 			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/activity/activity_config.php',
-			'processor' =>  array( $this, 'processor' ),
-		);
+			'processor' =>  [ $this, 'processor' ],
+		];
 
 		return $processors;
 
 	}
+
+	public static $transient_id;
 
 	/**
 	 * Form processor callback.
@@ -60,26 +80,26 @@ class CiviCRM_Caldera_Forms_Activity_Processor {
 	 * @param array $config Processor configuration
 	 * @param array $form Form configuration
 	 */
-	public function processor( $config, $form ) {
-
-		// globalised transient object
+	public function processor( $config, $form, $proccesid ) {
 		global $transdata;
+		// cfc transient object
+		// $transient = $this->plugin->transient->get();
+		$this->contact_link = 'cid_' . $config['contact_link'];
 
+		$transient = self::$transient_id ? $this->plugin->transient->get( self::$transient_id ) : $this->plugin->transient->get();
+		
 		// Get form values
-		$form_values = CiviCRM_Caldera_Forms_Helper::map_fields_to_processor( $config, $form, $form_values );
+		$form_values = $this->plugin->helper->map_fields_to_processor( $config, $form, $form_values );
 
 		if( ! empty( $form_values ) ) {
 			$form_values['activity_type_id'] = $config['activity_type_id']; // Activity Type ID
 			$form_values['status_id'] = $config['status_id']; // Activity Status ID
 			$form_values['campaign_id'] = $config['campaign_id']; // Campaign ID
-			$form_values['source_contact_id'] = $transdata['civicrm']['contact_id_'.$config['contact_link']]; // Default to Contact link
+			$form_values['source_contact_id'] = $transient->contacts->{$this->contact_link}; // Default to Contact link
 
 			foreach ( $config as $name => $value ) {
-				if ( in_array( $name, array( 'target_contact_id', 'source_contact_id', 'assignee_contact_id' ) ) 
-					&& ! empty( $value ) ) {
-					$form_values[$name] = strpos( $value, 'contact_' ) !== false ? 
-						$transdata['civicrm']['contact_id_' . str_replace( 'contact_', '', $value )] : $value;
-				}
+				if ( in_array( $name, [ 'target_contact_id', 'source_contact_id', 'assignee_contact_id' ] ) && ! empty( $value ) )
+					$form_values[$name] = strpos( $value, 'contact_' ) !== false ? $transient->contacts->{'cid_' . str_replace( 'contact_', '', $value )} : $value;
 			}
 
 			// FIXME
@@ -97,14 +117,14 @@ class CiviCRM_Caldera_Forms_Activity_Processor {
 
 			if ( ! empty( $config['file_id'] ) ) {
 
-				$transdata['civicrm']['civicrm_files'] = CiviCRM_Caldera_Forms_Helper::get_file_entity_ids();
+				$transdata['civicrm']['civicrm_files'] = $this->plugin->helper->get_file_entity_ids();
 
 				if ( is_array( $transdata['data'][$config['file_id']] ) ) {
 
 					// handle multiple upload file 'advanced_file', limit to 3 files
 					$file_ids = $transdata['data'][$config['file_id']];
-					for ( $x = 0; $x < CiviCRM_Caldera_Forms_Helper::get_civicrm_settings( 'max_attachments' ); $x++ ) {
-  						CiviCRM_Caldera_Forms_Helper::create_civicrm_entity_file( 'civicrm_activity', $create_activity['id'], $file_ids[$x] );
+					for ( $x = 0; $x < $this->plugin->helper->get_civicrm_settings( 'max_attachments' ); $x++ ) {
+  						$this->plugin->helper->create_civicrm_entity_file( 'civicrm_activity', $create_activity['id'], $file_ids[$x] );
 					}
 
 				} else {
@@ -112,7 +132,7 @@ class CiviCRM_Caldera_Forms_Activity_Processor {
 					foreach ( $transdata['civicrm']['civicrm_files'] as $field_number => $file ) {
 						if ( $config['file_id'] == $file['field_id'] && ! empty( $file['file_id'] ) ) {
 
-							CiviCRM_Caldera_Forms_Helper::create_civicrm_entity_file( 'civicrm_activity', $create_activity['id'], $file['file_id'] );
+							$this->plugin->helper->create_civicrm_entity_file( 'civicrm_activity', $create_activity['id'], $file['file_id'] );
 
 						}
 					}

@@ -1,4 +1,4 @@
-<?php $countries = CiviCRM_Caldera_Forms_Helper::get_countries(); ?>
+<?php $countries = caldera_forms_civicrm()->helper->get_countries(); ?>
 <?php echo $wrapper_before; ?>
 	<?php echo $field_label; ?>
 	<?php echo $field_before; ?>

@@ -8,12 +8,19 @@
 class CiviCRM_Caldera_Forms_Entries {
 
 	/**
+     * Plugin reference.
+     *
+     * @since 0.4.4
+     */
+    public $plugin;
+
+	/**
 	 * Initialises this object.
 	 *
 	 * @since 0.4.2
 	 */
-	public function __construct() {
-
+	public function __construct( $plugin ) {
+		$this->plugin = $plugin;
 		// register Caldera Forms callbacks
 		$this->register_hooks();
 

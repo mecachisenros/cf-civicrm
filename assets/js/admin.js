@@ -1,9 +1,11 @@
-function cfc_contact_link_options( id = null ) {
+function cfc_contact_link_options( id ) {
 
 	var options = [];
 	for ( var i = 1; i <= 10; i++ ) {
 		options.push( { id: 'contact_' + i, text: 'Contact ' + i } );
 	}
+	// add empty option for placeholder to work
+	options.unshift( {id: '', text: '' } )
 	
 	if( ! id ) return options;
 
@@ -44,7 +46,7 @@ function cfc_select2_defaults( selector, value ) {
 		}
 	}
 
-    jQuery( selector ).civiSelect2({
+    jQuery( selector ).cfcSelect2({
 		ajax: {
 			url: ajaxurl,
 			dataType: 'json',
@@ -89,15 +91,16 @@ function cfc_select2_defaults( selector, value ) {
 		} );
 
 		jQuery( selector + '_contact_link' )
-			.civiSelect2( { 
-				data: options, 
-				placeholder: 'Select Contact processor'
+			.cfcSelect2( { 
+				data: options,
+				placeholder: 'Select Contact processor',
+				width: '100%'
 			} )
 			.on( 'select2:select', function( e ) {
 				jQuery( selector )
 					.empty()
 					.append( new Option( e.params.data.text, e.params.data.id, false, false ) )
-					.trigger( 'change' );
-			} );
+					.trigger( 'select2:close' );
+			} )
     });
 }

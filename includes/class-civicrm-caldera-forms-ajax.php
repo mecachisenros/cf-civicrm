@@ -7,12 +7,20 @@
  */
 class CiviCRM_Caldera_Forms_AJAX {
 
+	/**
+     * Plugin reference.
+     *
+     * @since 0.4.4
+     */
+    public $plugin;
+
     /**
      * Initialises this object.
      *
      * @since 0.4
      */
-    public function __construct() {
+    public function __construct( $plugin ) {
+		$this->plugin = $plugin;
         $this->register_hooks();
     }
 

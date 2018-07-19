@@ -8,12 +8,19 @@
 class CiviCRM_Caldera_Forms_Field_Country {
 
 	/**
+     * Plugin reference.
+     *
+     * @since 0.4.4
+     */
+    public $plugin;
+
+	/**
 	 * Initialises this object.
 	 *
 	 * @since 0.2
 	 */
-	public function __construct() {
-
+	public function __construct( $plugin ) {
+		$this->plugin = $plugin;
 		// register Caldera Forms callbacks
 		$this->register_hooks();
 
@@ -58,7 +65,7 @@ class CiviCRM_Caldera_Forms_Field_Country {
 				'preview' => CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_country/preview.php',
 				'default' => array(
 					'placeholder' => __( 'Select a Country', 'caldera-forms-civicrm' ),
-					'default' => CiviCRM_Caldera_Forms_Helper::get_civicrm_settings( 'defaultContactCountry' )
+					'default' => $this->plugin->helper->get_civicrm_settings( 'defaultContactCountry' )
 				),
 			),
 		);

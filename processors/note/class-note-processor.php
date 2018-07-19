@@ -8,6 +8,24 @@
 class CiviCRM_Caldera_Forms_Note_Processor {
 
 	/**
+     * Plugin reference.
+     *
+     * @since 0.4.4
+	 * @access public
+	 * @var object $plugin The plugin instance
+     */
+	public $plugin;
+	
+	/**
+	 * Contact link.
+	 * 
+	 * @since 0.4.4
+	 * @access protected
+	 * @var string $contact_link The contact link
+	 */
+	protected $contact_link;
+
+	/**
 	 * The processor key.
 	 *
 	 * @since 0.2
@@ -21,10 +39,10 @@ class CiviCRM_Caldera_Forms_Note_Processor {
 	 *
 	 * @since 0.2
 	 */
-	public function __construct() {
-
+	public function __construct( $plugin ) {
+		$this->plugin = $plugin;
 		// register this processor
-		add_filter( 'caldera_forms_get_form_processors', array( $this, 'register_processor' ) );
+		add_filter( 'caldera_forms_get_form_processors', [ $this, 'register_processor' ] );
 
 	}
 
@@ -40,13 +58,13 @@ class CiviCRM_Caldera_Forms_Note_Processor {
 	 */
 	public function register_processor( $processors ) {
 
-		$processors[$this->key_name] = array(
+		$processors[$this->key_name] = [
 			'name' => __( 'CiviCRM Note', 'caldera-forms-civicrm' ),
 			'description' => __( 'Add CiviCRM note to contacts', 'caldera-forms-civicrm' ),
 			'author' => 'Andrei Mondoc',
 			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/note/note_config.php',
-			'pre_processor' => array( $this, 'pre_processor' ),
-		);
+			'pre_processor' => [ $this, 'pre_processor' ],
+		];
 
 		return $processors;
 
@@ -60,34 +78,32 @@ class CiviCRM_Caldera_Forms_Note_Processor {
 	 * @param array $config Processor configuration
 	 * @param array $form Form configuration
 	 */
-	public function pre_processor( $config, $form ) {
+	public function pre_processor( $config, $form, $proccesid ) {
 
-		// globalised transient object
-		global $transdata;
-
+		$transient = $this->plugin->transient->get();
+		$this->contact_link = 'cid_' . $config['contact_link'];
+		
 		// Get form values
-		$form_values = CiviCRM_Caldera_Forms_Helper::map_fields_to_processor( $config, $form, $form_values );
+		$form_values = $this->plugin->helper->map_fields_to_processor( $config, $form, $form_values );
 
 		if ( ! empty( $form_values ) ) {
-			$form_values['entity_id'] = $transdata['civicrm']['contact_id_' . $config['contact_link']]; // Contact ID set in Contact Processor
+			$form_values['entity_id'] = $transient->contacts->{$this->contact_link}; // Contact ID set in Contact Processor
 
 			// Add Note to contact
 			try {
 				$note = civicrm_api3( 'Note', 'create', $form_values );
 			} catch ( CiviCRM_API3_Exception $e ) {
 				$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
-				return array( 'note' => $error, 'type' => 'error' );
+				return [ 'note' => $error, 'type' => 'error' ];
 			}
 
 			// handle attachment using CRM_Core_DAO_EntityFile
 			if ( ! empty( $config['note_attachment'] ) ) {
 
-				$transdata['civicrm']['civicrm_files'] = CiviCRM_Caldera_Forms_Helper::get_file_entity_ids();
-
-				foreach ( $transdata['civicrm']['civicrm_files'] as $field_number => $file ) {
+				foreach ( $transient->files as $field_number => $file ) {
 					if ( $config['note_attachment'] == $file['field_id'] && ! empty( $file['file_id'] ) ) {
 
-						CiviCRM_Caldera_Forms_Helper::create_civicrm_entity_file( 'civicrm_note', $note['id'], $file['file_id'] );
+						$this->plugin->helper->create_civicrm_entity_file( 'civicrm_note', $note['id'], $file['file_id'] );
 
 					}
 				}

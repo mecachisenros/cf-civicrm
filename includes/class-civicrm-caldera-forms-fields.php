@@ -8,6 +8,13 @@
 class CiviCRM_Caldera_Forms_Fields {
 
 	/**
+     * Plugin reference.
+     *
+     * @since 0.4.4
+     */
+    public $plugin;
+
+	/**
 	 * The custom field objects reference array.
 	 *
 	 * @since 0.2
@@ -30,8 +37,8 @@ class CiviCRM_Caldera_Forms_Fields {
 	 *
 	 * @since 0.2
 	 */
-	public function __construct() {
-
+	public function __construct( $plugin ) {
+		$this->plugin = $plugin;
 		// initialise this object
 		$this->include_files();
 		$this->setup_objects();
@@ -61,9 +68,9 @@ class CiviCRM_Caldera_Forms_Fields {
 	private function setup_objects() {
 
 		// add to custom fields array
-		$this->field_objects['civicrm_country'] = new CiviCRM_Caldera_Forms_Field_Country;
-		$this->field_objects['civicrm_state'] = new CiviCRM_Caldera_Forms_Field_State;
-		$this->field_objects['civicrm_file'] = new CiviCRM_Caldera_Forms_Field_File;
+		$this->field_objects['civicrm_country'] = new CiviCRM_Caldera_Forms_Field_Country( $this->plugin );
+		$this->field_objects['civicrm_state'] = new CiviCRM_Caldera_Forms_Field_State( $this->plugin );
+		$this->field_objects['civicrm_file'] = new CiviCRM_Caldera_Forms_Field_File( $this->plugin );
 
 	}
 
@@ -76,6 +83,8 @@ class CiviCRM_Caldera_Forms_Fields {
 
 		// adds custom fields options Presets
 		add_filter( 'caldera_forms_field_option_presets', array( $this, 'custom_fields_options_presets' ) );
+		// adds price field options Presets
+		add_filter( 'caldera_forms_field_option_presets', array( $this, 'price_field_options_presets' ) );
 
 		// auto-populate CiviCRM fields
 		add_filter( 'caldera_forms_render_get_field', array( $this, 'custom_fields_autopopulate' ), 20, 2 );
@@ -84,6 +93,10 @@ class CiviCRM_Caldera_Forms_Fields {
 		// auto-populate CiviCRM values
 		add_filter( 'caldera_forms_render_get_field', array( $this, 'values_autopopulate' ), 20, 2 );
 		add_action( 'caldera_forms_autopopulate_types', array( $this, 'values_autopopulate_options' ) );
+
+		// auto-populate Price Fields
+		add_filter( 'caldera_forms_render_get_field', array( $this, 'price_field_autopopulate' ), 20, 2 );
+		add_action( 'caldera_forms_autopopulate_types', array( $this, 'price_field_autopopulate_options' ) );
 
 	}
 
@@ -131,10 +144,31 @@ class CiviCRM_Caldera_Forms_Fields {
 				}
 			}
 		}
-
+	
 		$presets = array_merge( $custom, $presets );
 		return $presets;
 
+	}
+
+	public function price_field_options_presets( $presets ) {
+		
+		$price_sets = apply_filters( 'cfc_price_set_autopopulate', $this->plugin->helper->get_price_sets() );
+
+		$price_fields = [];
+		foreach ( $price_sets as $price_set_id => $price_set ) {
+			foreach ( $price_set['price_fields'] as $price_field_id => $price_field ) {
+				$options = [];
+				foreach ( $price_field['price_field_values'] as $value_id => $price_field_value) {
+					$options[] = $value_id.'|'.$price_field_value['label'];
+				}
+				$price_fields['price_field_'.$price_field_id] = [
+					'name' => sprintf( __( 'CiviCRM Price Field - %1$s - %2$s', 'caldera-forms-civicrm' ), $price_field['label'], $price_field_value['label'] ),
+					'data' => $options,
+				];
+			}
+		}
+		$presets = array_merge( $price_fields, $presets );
+		return $presets;
 	}
 
 	/**
@@ -213,6 +247,50 @@ class CiviCRM_Caldera_Forms_Fields {
 			}
 		}
 
+	}
+
+	/**
+	 * Autopoulate Price Field options.
+	 *
+	 * @since 0.4.4
+	 */
+	public function price_field_autopopulate_options() {
+		foreach ( $this->plugin->helper->get_price_sets() as $price_set_id => $price_set ) {
+			echo '<optgroup label="' . __( 'CiviCRM Price Set - ' . $price_set['title'], 'caldera-forms-civicrm' ) . '">';
+			foreach ( $price_set['price_fields'] as $price_field_id => $price_field ) {
+				echo "<option value=\"cfc_price_field_$price_field_id\"{{#is auto_type value=\"cfc_price_field_$price_field_id\"}} selected=\"selected\"{{/is}}>" . __( 'Price Field - ' . $price_field['label'] , 'caldera-forms-civicrm' ) . "</option>";
+			}
+			echo '</optgroup>';
+		}
+	}
+
+	/**
+	 * Autopopulate Price Field values.
+	 *
+	 * @since 0.4.4
+	 * @param  array $field The field config
+	 * @param  array $form The Form config
+	 * @return array The filtered field config
+	 */
+	public function price_field_autopopulate( $field, $form ) {
+		if ( ! empty( $field['config']['auto'] ) ) {
+			$price_sets = apply_filters( 'cfc_price_set_autopopulate', $this->plugin->helper->get_price_sets() );
+			foreach ( $price_sets as $price_set_id => $price_set ) {
+				foreach ( $price_set['price_fields'] as $price_field_id => $price_field ) {
+					if( $field['config']['auto_type'] == 'cfc_price_field_' . $price_field_id ) {
+						foreach ( $price_field['price_field_values'] as $value_id => $price_field_value) {
+							$field['config']['option'][$value_id] = array(
+								'value' => $value_id,
+								'label' => $price_field_value['label'] . ' - ' . $field['config']['price_field_currency'] . ' ' . $price_field_value['amount'],
+								'calc_value' => $price_field_value['amount']
+							);
+						}
+					}
+				}
+			}
+		}
+
+		return $field;
 	}
 
 	/**
@@ -392,7 +470,7 @@ class CiviCRM_Caldera_Forms_Fields {
 
 				// State/Province
 				case 'state_province_id':
-					$state_province_id = CiviCRM_Caldera_Forms_Helper::get_state_province();
+					$state_province_id = $this->plugin->helper->get_state_province();
 					foreach ( $state_province_id as $key => $value ) {
 							$field['config']['option'][$key] = array(
 								'value' => $key,

@@ -8,6 +8,24 @@
 class CiviCRM_Caldera_Forms_Email_Processor {
 
 	/**
+     * Plugin reference.
+     *
+     * @since 0.4.4
+	 * @access public
+	 * @var object $plugin The plugin instance
+     */
+	public $plugin;
+	
+	/**
+	 * Contact link.
+	 * 
+	 * @since 0.4.4
+	 * @access protected
+	 * @var string $contact_link The contact link
+	 */
+	protected $contact_link;
+
+	/**
 	 * The processor key.
 	 *
 	 * @since 0.2
@@ -30,12 +48,12 @@ class CiviCRM_Caldera_Forms_Email_Processor {
 	 *
 	 * @since 0.2
 	 */
-	public function __construct() {
-
+	public function __construct( $plugin ) {
+		$this->plugin = $plugin;
 		// register this processor
-		add_filter( 'caldera_forms_get_form_processors', array( $this, 'register_processor' ) );
+		add_filter( 'caldera_forms_get_form_processors', [ $this, 'register_processor' ] );
 		// filter form before rendering
-		add_filter( 'caldera_forms_render_get_form', array( $this, 'pre_render') );
+		add_filter( 'caldera_forms_render_get_form', [ $this, 'pre_render' ] );
 
 	}
 
@@ -51,13 +69,13 @@ class CiviCRM_Caldera_Forms_Email_Processor {
 	 */
 	public function register_processor( $processors ) {
 
-		$processors[$this->key_name] = array(
+		$processors[$this->key_name] = [
 			'name' => __( 'CiviCRM Email', 'caldera-forms-civicrm' ),
 			'description' => __( 'Add CiviCRM email to contacts', 'caldera-forms-civicrm' ),
 			'author' => 'Andrei Mondoc',
 			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/email/email_config.php',
-			'pre_processor' => array( $this, 'pre_processor' ),
-		);
+			'pre_processor' => [ $this, 'pre_processor' ],
+		];
 
 		return $processors;
 
@@ -71,30 +89,31 @@ class CiviCRM_Caldera_Forms_Email_Processor {
 	 * @param array $config Processor configuration
 	 * @param array $form Form configuration
 	 */
-	public function pre_processor( $config, $form ) {
+	public function pre_processor( $config, $form, $processid ) {
 
-		// globalised transient object
-		global $transdata;
+		// cfc transient object
+		$transient = $this->plugin->transient->get();
+		$this->contact_link = 'cid_' . $config['contact_link'];
 
-		if ( ! empty( $transdata['civicrm']['contact_id_' . $config['contact_link']] ) ) {
+		if ( ! empty( $transient->contacts->{$this->contact_link} ) ) {
 
 			try {
 
-				$email = civicrm_api3( 'Email', 'getsingle', array(
+				$email = civicrm_api3( 'Email', 'getsingle', [
 					'sequential' => 1,
-					'contact_id' => $transdata['civicrm']['contact_id_' . $config['contact_link']],
+					'contact_id' => $transient->contacts->{$this->contact_link},
 					'location_type_id' => $config['location_type_id'],
-				));
+				] );
 
 			} catch ( CiviCRM_API3_Exception $e ) {
 				// Ignore if none found
 			}
 
 			// Get form values
-			$form_values = CiviCRM_Caldera_Forms_Helper::map_fields_to_processor( $config, $form, $form_values );
+			$form_values = $this->plugin->helper->map_fields_to_processor( $config, $form, $form_values );
 
 			if( ! empty( $form_values ) ) {
-				$form_values['contact_id'] = $transdata['civicrm']['contact_id_' . $config['contact_link']]; // Contact ID set in Contact Processor
+				$form_values['contact_id'] = $transient->contacts->{$this->contact_link}; // Contact ID set in Contact Processor
 
 				// Pass Email ID if we got one
 				if ( isset( $email ) && is_array( $email ) ) {
@@ -107,7 +126,7 @@ class CiviCRM_Caldera_Forms_Email_Processor {
 					$create_email = civicrm_api3( 'Email', 'create', $form_values );
 				} catch ( CiviCRM_API3_Exception $e) {
 					$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
-					return array( 'note' => $error, 'type' => 'error' );
+					return [ 'note' => $error, 'type' => 'error' ];
 				}
 			}
 		}
@@ -124,40 +143,43 @@ class CiviCRM_Caldera_Forms_Email_Processor {
 	 * @return array $form The modified form
 	 */
 	public function pre_render( $form ){
+
 		// continue as normal if form has no processors
 		if( empty( $form['processors'] ) ) return $form;
 
-		// globalised transient object
-		global $transdata;
+		// cfc transient object
+		$transient = $this->plugin->transient->get();
 
 		foreach ( $form['processors'] as $processor => $pr_id ) {
 			if( $pr_id['type'] == $this->key_name ){
+				
+				$contact_link = $pr_id['contact_link'] = 'cid_'.$pr_id['config']['contact_link'];
 
-				if ( isset( $transdata['civicrm']['contact_id_' . $pr_id['config']['contact_link']] ) ) {
+				if ( isset( $transient->contacts->{$contact_link} ) ) {
 					try {
 
-						$civi_contact_email = civicrm_api3( 'Email', 'getsingle', array(
+						$contact_email = civicrm_api3( 'Email', 'getsingle', [
 							'sequential' => 1,
-							'contact_id' => $transdata['civicrm']['contact_id_' . $pr_id['config']['contact_link']],
+							'contact_id' => $transient->contacts->{$contact_link},
 							'location_type_id' => $pr_id['config']['location_type_id'],
-						));
+						] );
 
-					} catch ( Exception $e ) {
+					} catch ( CiviCRM_API3_Exception $e ) {
 						// Ignore if we have more than one email with same location type or none
 					}
 				}
 
-				if ( isset( $civi_contact_email ) && ! isset( $civi_contact_email['count'] ) ) {
-					$form = CiviCRM_Caldera_Forms_Helper::map_fields_to_prerender(
+				if ( isset( $contact_email ) && ! isset( $contact_email['count'] ) ) {
+					$form = $this->plugin->helper->map_fields_to_prerender(
 						$pr_id['config'],
 						$form,
 						$this->fields_to_ignore,
-						$civi_contact_email
+						$contact_email
 					);
 				}
 
 				// Clear Email data
-				unset( $civi_contact_email );
+				unset( $contact_email );
 			}
 		}
 
