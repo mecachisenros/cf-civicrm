@@ -14,6 +14,10 @@ $payment_instruments = civicrm_api3( 'Contribution', 'getoptions', [
 	'field' => 'payment_instrument_id',
 ] );
 
+$currencies = civicrm_api3( 'Contribution', 'getoptions', [
+	'field' => 'currency',
+] );
+
 $price_sets = caldera_forms_civicrm()->helper->get_price_sets();
 
 ?>
@@ -82,6 +86,18 @@ $price_sets = caldera_forms_civicrm()->helper->get_price_sets();
 	<label><?php _e( 'Transaction ID', 'caldera-forms-civicrm' ); ?></label>
 	<div class="caldera-config-field">
 		{{{_field slug="trxn_id"}}}
+	</div>
+</div>
+
+<!-- Currency -->
+<div id="currency" class="caldera-config-group">
+	<label><?php _e( 'Currency', 'caldera-forms-civicrm' ); ?></label>
+	<div class="caldera-config-field">
+		<select class="block-input field-config" name="{{_name}}[currency]">
+		<?php foreach ( $currencies['values'] as $id => $currency ) { ?>
+			<option value="<?php echo esc_attr( $id ); ?>" {{#is currency value="<?php echo $id; ?>"}}selected="selected"{{/is}}><?php echo esc_html( $currency ); ?></option>
+		<?php } ?>
+		</select>
 	</div>
 </div>
 
