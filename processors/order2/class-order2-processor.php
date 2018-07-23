@@ -110,6 +110,7 @@ class CiviCRM_Caldera_Forms_Order2_Processor {
 		$form_values['financial_type_id'] = $config['financial_type_id'];
 		$form_values['contribution_status_id'] = $config['contribution_status_id'];
 		$form_values['payment_instrument_id'] = $config['payment_instrument_id'];
+		$form_values['currency'] = $config['currency'];
 
 		$form_values['receipt_date'] = date('YmdHis');
 		
