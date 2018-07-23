@@ -26,6 +26,15 @@ class CiviCRM_Caldera_Forms_Order2_Processor {
 	protected $contact_link;
 
 	/**
+	 * Payment processor fee.
+	 * 
+	 * @since 0.4.4
+	 * @access protected
+	 * @var string $fee The fee
+	 */
+	protected $fee = false;
+
+	/**
 	 * The processor key.
 	 *
 	 * @since 0.4.4
@@ -43,6 +52,8 @@ class CiviCRM_Caldera_Forms_Order2_Processor {
         $this->plugin = $plugin;
 		// register this processor
 		add_filter( 'caldera_forms_get_form_processors', array( $this, 'register_processor' ) );
+		// stripe successfull payment
+		add_action( 'cf_stripe_post_successful_charge', [ $this, 'get_balance_transaction' ], 10, 4 );
 
 	}
 
@@ -81,43 +92,6 @@ class CiviCRM_Caldera_Forms_Order2_Processor {
 	 */
 	public function pre_processor( $config, $form, $processid ) {
 		
-		// globalised transient object
-		// global $transdata;
-		
-		// $line_items = $config['line_item'];
-		// unset( $config['line_item'] );
-		
-		// foreach ( $line_items as $key => $line_item ) {
-		// 	if ( empty( $line_item['price_field_value'] ) && empty( $line_item['entity_table'] ) ) {
-		// 		unset( $line_items[$key] );
-		// 		continue;
-		// 	}
-		// 	$line_items[$key] = $line_item;
-
-		// }
-
-		// Get form values
-		// $form_values = $this->plugin->helper->map_fields_to_processor( $config, $form, $form_values );
-
-		// $form_values['financial_type_id'] = $config['financial_type_id'];
-		// $form_values['contribution_status_id'] = $config['contribution_status_id'];
-
-		// $form_values['receipt_date'] = date('YmdHis');
-		
-		// if( ! isset( $form_values['source'] ) )
-		// 	$form_values['source'] = $form['name'];
-		
-		// $form_values['contact_id'] = $transient->contacts->{$this->contact_link};
-		// $form_values['line_items'] = $this->build_line_item_data( $line_items, $form );
-		// unset( $form_values['line_item'] );
-
-		
-		// try {
-		// 	$create_order = civicrm_api3( 'Order', 'create', $form_values );
-		// } catch ( CiviCRM_API3_Exception $e ) {
-		// 	$error = $e->getMessage() . '<br><br><pre' . $e->getTraceAsString() . '</pre>';
-		// 	return array( 'note' => $error, 'type' => 'error' );
-		// }
 	}
 
 	public function processor( $config, $form, $processid ) {
@@ -135,6 +109,7 @@ class CiviCRM_Caldera_Forms_Order2_Processor {
 
 		$form_values['financial_type_id'] = $config['financial_type_id'];
 		$form_values['contribution_status_id'] = $config['contribution_status_id'];
+		$form_values['payment_instrument_id'] = $config['payment_instrument_id'];
 
 		$form_values['receipt_date'] = date('YmdHis');
 		
@@ -167,6 +142,8 @@ class CiviCRM_Caldera_Forms_Order2_Processor {
 
 		$form_values['line_items'] = $line_items;
 
+		// payment processor fee
+		if ( $this->fee ) $form_values['fee_amount'] = $this->fee / 100;
 
 		try {
 			$create_order = civicrm_api3( 'Order', 'create', $form_values );
@@ -175,5 +152,26 @@ class CiviCRM_Caldera_Forms_Order2_Processor {
 			$transdata['note'] = $e->getMessage() . '<br><br><pre' . $e->getTraceAsString() . '</pre>';
 		}
 
+	}
+
+	/**
+	 * Process the Stripe balance transaction to get the fee.
+	 *
+	 * @since  0.4.4
+	 * 
+	 * @param array $return_charge Data about the successful charge
+	 * @param array $transdata Data used to create transaction
+	 * @param array $config The proessor config
+	 * @param array $form The form config
+	 */
+	public function get_balance_transaction( $return_charge, $transdata, $config, $form ) {
+		
+		// stripe charge object from the successful payment
+		$balance_transaction_id = $transdata['stripe']->balance_transaction;
+		
+		\Stripe\Stripe::setApiKey( $config['secret'] );
+		$balance_transaction_object = \Stripe\BalanceTransaction::retrieve( $balance_transaction_id );
+
+		$this->fee = $balance_transaction_object->fee;
 	}
 }
