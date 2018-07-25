@@ -146,7 +146,7 @@ class CiviCRM_Caldera_Forms_Order2_Processor {
 
 		// payment processor fee
 		if ( $this->fee ) $form_values['fee_amount'] = $this->fee / 100;
-		slack( [ 'order_values' => $form_values ] );
+
 		try {
 			$create_order = civicrm_api3( 'Order', 'create', $form_values );
 		} catch ( CiviCRM_API3_Exception $e ) {
