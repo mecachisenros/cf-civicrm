@@ -98,6 +98,7 @@ class CiviCRM_Caldera_Forms_Fields {
 		add_filter( 'caldera_forms_render_get_field', array( $this, 'price_field_autopopulate' ), 20, 2 );
 		add_action( 'caldera_forms_autopopulate_types', array( $this, 'price_field_autopopulate_options' ) );
 
+
 	}
 
 	/**
@@ -159,10 +160,10 @@ class CiviCRM_Caldera_Forms_Fields {
 			foreach ( $price_set['price_fields'] as $price_field_id => $price_field ) {
 				$options = [];
 				foreach ( $price_field['price_field_values'] as $value_id => $price_field_value) {
-					$options[] = $value_id.'|'.$price_field_value['label'];
+					$options[] = $value_id.'|'.$price_field_value['label'].'|'.$price_field_value['amount'];
 				}
 				$price_fields['price_field_'.$price_field_id] = [
-					'name' => sprintf( __( 'CiviCRM Price Field - %1$s - %2$s', 'caldera-forms-civicrm' ), $price_field['label'], $price_field_value['label'] ),
+					'name' => sprintf( __( 'CiviCRM Price Set: %1$s - Price Field: %2$s', 'caldera-forms-civicrm' ), $price_set['title'], $price_field['label'] ),
 					'data' => $options,
 				];
 			}
