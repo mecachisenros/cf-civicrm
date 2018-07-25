@@ -415,6 +415,7 @@ class CiviCRM_Caldera_Forms_Helper {
 
 					// Get field data
 					$mapped_field = Caldera_Forms::get_field_data( $mapped_field['ID'], $form );
+
 				}
 
         	if( ! empty( $mapped_field ) ){
@@ -587,6 +588,7 @@ class CiviCRM_Caldera_Forms_Helper {
 
 		$price_field_values = array();
 		foreach ( $all_price_field_values['values'] as $id => $price_field_value ) {
+			$price_field_value['amount'] = number_format( $price_field_value['amount'], 2, '.', '' );
 			$price_field_values[$id] = $price_field_value;
 		}
 
@@ -610,11 +612,13 @@ class CiviCRM_Caldera_Forms_Helper {
 	}
 
 	public function get_price_field_value( $id ) {
-		return civicrm_api3( 'PriceFieldValue', 'getsingle', [
+		$price_field_value = civicrm_api3( 'PriceFieldValue', 'getsingle', [
 			'return' => [ 'id', 'price_field_id', 'label', 'amount', 'count', 'membership_type_id', 'membership_num_terms', 'financial_type_id' ],
 			'id' => $id,
 			'is_active' => 1,
 		] );
+		$price_field_value['amount'] = number_format( $price_field_value['amount'], 2, '.', '' );
+		return $price_field_value;
 	}
 
 }

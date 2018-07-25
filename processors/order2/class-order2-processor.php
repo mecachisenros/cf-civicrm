@@ -7,16 +7,16 @@
  */
 class CiviCRM_Caldera_Forms_Order2_Processor {
 
-    /**
-     * Plugin reference.
-     *
-     * @since 0.4.4
+	/**
+	 * Plugin reference.
+	 *
+	 * @since 0.4.4
 	 * @access public
 	 * @var object $plugin The plugin instance
-     */
-    public $plugin;
-    
-    /**
+	 */
+	public $plugin;
+
+	/**
 	 * Contact link.
 	 * 
 	 * @since 0.4.4
@@ -71,10 +71,11 @@ class CiviCRM_Caldera_Forms_Order2_Processor {
 
 		$processors[$this->key_name] = array(
 			'name' => __( 'CiviCRM Order Alt', 'caldera-forms-civicrm' ),
-			'description' => __( 'Add CiviCRM Order (Contribution with multiple Line Items, ie Events registrations, Donations, etc.)', 'caldera-forms-civicrm' ),
+			'description' => __( 'Add CiviCRM Order (Contribution with multiple Line Items, ie Events registrations, Donations, Memberships, etc.)', 'caldera-forms-civicrm' ),
 			'author' => 'Andrei Mondoc',
 			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/order2/order_config.php',
-			// 'pre_processor' =>  [ $this, 'pre_processor' ],
+			'single' => true,
+			'pre_processor' =>  [ $this, 'pre_processor' ],
 			'processor' => [ $this, 'processor' ],
 		);
 
@@ -145,7 +146,7 @@ class CiviCRM_Caldera_Forms_Order2_Processor {
 
 		// payment processor fee
 		if ( $this->fee ) $form_values['fee_amount'] = $this->fee / 100;
-
+		slack( [ 'order_values' => $form_values ] );
 		try {
 			$create_order = civicrm_api3( 'Order', 'create', $form_values );
 		} catch ( CiviCRM_API3_Exception $e ) {
