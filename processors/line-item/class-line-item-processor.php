@@ -174,7 +174,7 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 	 * @return [type]                    [description]
 	 */
 	public function process_contribution( $config, $form, $transient, $price_field_value ) {
-		slack( $price_field_value );
+
 		if( ! isset( $price_field_value['entity_table'] ) )
 			$price_field_value['entity_table'] = 'civicrm_contribution';
 		

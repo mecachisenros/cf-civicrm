@@ -135,7 +135,7 @@ class CiviCRM_Caldera_Forms_Membership_Processor {
 			}
  
 			$transient->memberships->{$config['processor_id']}->params = $form_values;
-			slack( [ 'member_values' => $form_values ] );
+
 			$this->plugin->transient->save( $transient->ID, $transient );
 
 			// free memberships
