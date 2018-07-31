@@ -24,6 +24,12 @@ $price_sets = caldera_forms_civicrm()->helper->get_price_sets();
 
 <p><strong><?php _e( 'Note:', 'caldera-forms-civicrm' ); ?></strong> <?php _e( 'This processor does not process payment transactions on it\'s own, it just creates a Contribution in CiviCRM with single or multiple line items. In order to process live payment transaction a Caldera Forms add-on is needed.', 'caldera-forms-civicrm' ); ?></p>
 
+<div class="caldera-config-group caldera-config-group-full">
+	<div class="caldera-config-field">
+		<label><input id="is_email_receipt" type="checkbox" name="{{_name}}[is_email_receipt]" value="1" {{#if is_email_receipt}}checked="checked"{{/if}}><?php _e( 'Email receipt.', 'caldera-forms-civicrm' ); ?></label>
+	</div>
+</div>
+
 <!-- Contact ID -->
 <h2><?php _e( 'Contact Link', 'caldera-forms-civicrm' ); ?></h2>
 <div id="contact_link" class="caldera-config-group">

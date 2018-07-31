@@ -1,25 +1,25 @@
 <?php
 
-$fields = civicrm_api3( 'Membership', 'getfields', array(
+$fields = civicrm_api3( 'Membership', 'getfields', [
 	'sequential' => 1,
 	'action' => 'create',
-));
+] );
 
-$membership_fields = array();
+$membership_fields = [];
 foreach ( $fields['values'] as $key => $value ) {
 	$membership_fields[$value['name']] = $value['title'];	
 }
 
-$ignore = array( 'membership_type_id', 'contact_id', 'is_test', 'status_id', 'is_override', 'status_override_end_date', 'owner_membership_id', 'max_related', 'contribution_recur_id', 'id', 'is_pay_later', 'skipStatusCal' );
+$ignore = [ 'membership_type_id', 'contact_id', 'is_test', 'status_id', 'is_override', 'status_override_end_date', 'owner_membership_id', 'max_related', 'contribution_recur_id', 'id', 'is_pay_later', 'skipStatusCal' ];
 
-$current_fields = array( 'source' );
+$current_fields = [ 'source' ];
 
-$membership_types = civicrm_api3( 'MembershipType', 'get', array(
+$membership_types = civicrm_api3( 'MembershipType', 'get', [
 	'sequential' => 1,
     'is_active' => 1,
     'visibility' => 'Public',
 	'options' => array( 'limit' => 0 ),
-));
+] );
 
 ?>
 

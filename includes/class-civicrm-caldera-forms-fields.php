@@ -57,6 +57,7 @@ class CiviCRM_Caldera_Forms_Fields {
 		include CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_country/class-civicrm-country.php';
 		include CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_state/class-civicrm-state.php';
 		include CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_file/class-civicrm-file.php';
+		include CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_contact_reference/class-civicrm-contact-reference.php';
 
 	}
 
@@ -71,6 +72,7 @@ class CiviCRM_Caldera_Forms_Fields {
 		$this->field_objects['civicrm_country'] = new CiviCRM_Caldera_Forms_Field_Country( $this->plugin );
 		$this->field_objects['civicrm_state'] = new CiviCRM_Caldera_Forms_Field_State( $this->plugin );
 		$this->field_objects['civicrm_file'] = new CiviCRM_Caldera_Forms_Field_File( $this->plugin );
+		$this->field_objects['civicrm_contact_reference'] = new CiviCRM_Caldera_Forms_Contact_Reference( $this->plugin );
 
 	}
 
@@ -160,7 +162,7 @@ class CiviCRM_Caldera_Forms_Fields {
 			foreach ( $price_set['price_fields'] as $price_field_id => $price_field ) {
 				$options = [];
 				foreach ( $price_field['price_field_values'] as $value_id => $price_field_value) {
-					$options[] = $value_id.'|'.$price_field_value['label'].'|'.$price_field_value['amount'];
+					$options[] = $value_id.'|'.$price_field_value['label'].' - '.$price_field_value['amount'].'|'.$price_field_value['amount'];
 				}
 				$price_fields['price_field_'.$price_field_id] = [
 					'name' => sprintf( __( 'CiviCRM Price Set: %1$s - Price Field: %2$s', 'caldera-forms-civicrm' ), $price_set['title'], $price_field['label'] ),
