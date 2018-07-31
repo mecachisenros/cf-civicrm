@@ -17,7 +17,6 @@
 	<?php echo $field_after; ?>
 <?php echo $wrapper_after; ?>
 
-<!-- <?php $field['config']['default']; ?> -->
 <script>
 	jQuery( function( $ ) {
 
@@ -27,7 +26,9 @@
 				type : 'post',
 				data : {
 					contact_id: '<?php echo esc_attr( $field['config']['default'] ); ?>',
-					action : 'civicrm_contact_reference_get',
+					action: 'civicrm_contact_reference_get',
+					field_id: $( '#<?php echo esc_attr( $field_id ); ?>' ).data( 'field' ),
+    				form_id: '<?php echo esc_attr( $form['ID'] ); ?>',
 					nonce: $( '#<?php echo esc_attr( $field_id ); ?>' ).attr( 'nonce' )
 				},
 				success : function( response ) {
@@ -71,6 +72,14 @@
 			},
 			allowClear: true,
 			placeholder: '<?php echo $placeholder; ?>',
+			tags:  '<?php echo esc_attr( $field['config']['new_organization'] ); ?>',
+			createTag: function( params ) {
+				return {
+					id: params.term,
+					text: params.term,
+					newTag: true
+				}
+			}
 		} );
 	} );
 </script>

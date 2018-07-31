@@ -86,6 +86,10 @@ class CiviCRM_Caldera_Forms_AJAX {
 	 	// sort name
 	 	if( isset( $search_term ) )
 	 		$params['sort_name'] = $search_term;
+	 	// contact_id
+	 	if ( isset( $contact_id ) ) {
+	 		$params['contact_id'] = $contact_id;
+	 	}
 
 	 	$result = $this->get_contacts( $params );
 

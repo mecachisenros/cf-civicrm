@@ -419,7 +419,7 @@ class CiviCRM_Caldera_Forms_Helper {
 					
 					$mapped_fields = array_filter( $mapped_fields );
 					// expect one value, return first value
-					$mapped_field = $mapped_fields[0];
+					$mapped_field = reset( $mapped_fields );
 
 				} else {
 
@@ -437,11 +437,21 @@ class CiviCRM_Caldera_Forms_Helper {
 
 					// handle current_employers field
 					if ( $key == 'current_employer' && $field['type'] == 'civicrm_contact_reference' ) {
-						$employer = civicrm_api3( 'Contact', 'get', [ 'contact_id' => $mapped_field, 'return' => 'organization_name' ] );
+						if ( ! is_numeric( $mapped_field ) && isset( $field['config']['new_organization'] ) ) {
+							$employer = civicrm_api3( 'Contact', 'create', [
+								'contact_type' => 'Organization',
+								'organization_name' => $mapped_field,
+							] );	
+						} else {
+							$employer = civicrm_api3( 'Contact', 'get', [
+								'contact_id' => $mapped_field,
+								'return' => 'organization_name'
+							] );
+						}
 						$mapped_field = $employer['values'][$employer['id']]['organization_name'];
 					}
 				}
-
+				
 
         		if( ! empty( $mapped_field ) ){
 
@@ -481,12 +491,12 @@ class CiviCRM_Caldera_Forms_Helper {
 
 				// Set default value
 				$form['fields'][$mapped_field['ID']]['config']['default'] = $entity[$field];
-
 				// handle current employer, api returns name, no cid/employer_id
 				if ( $field == 'current_employer' && $mapped_field['type'] == 'civicrm_contact_reference' ) {
 					$employer = civicrm_api3( 'Contact', 'get', [ 'sort_name' => $entity[$field] ] );
 					$form['fields'][$mapped_field['ID']]['config']['default'] = $employer['id'];
 				}
+
 
 				if ( $mapped_field['type'] == 'radio' ) {
 					$options = Caldera_Forms_Field_Util::find_option_values( $mapped_field );
