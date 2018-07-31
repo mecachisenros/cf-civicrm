@@ -433,7 +433,7 @@ class CiviCRM_Caldera_Forms_Helper {
 					$mapped_field = Caldera_Forms::get_field_data( $mapped_field['ID'], $form );
 					
 					// if not a magic tag nor field id, must be a fixed value
-					$mapped_field = $mapped_field ? $mapped_field : $field_id;
+					// $mapped_field = $mapped_field ? $mapped_field : $field_id;
 
 					// handle current_employers field
 					if ( $key == 'current_employer' && $field['type'] == 'civicrm_contact_reference' ) {
