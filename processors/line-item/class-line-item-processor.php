@@ -147,7 +147,14 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 		}
 		
 		$num_terms = $price_field_value['membership_num_terms'];
-		unset( $price_field_value['membership_num_terms'], $price_field_value['contribution_type_id'], $price_field_value['id'], $price_field_value['amount'] );
+		unset(
+			$price_field_value['membership_num_terms'],
+			$price_field_value['contribution_type_id'],
+			$price_field_value['id'],
+			$price_field_value['amount'],
+			$entity_params['price_field_value'],
+			$entity_params['is_price_field_based']
+		);
 
 		$line_item = [ 
 			'line_item' => [ $price_field_value ],

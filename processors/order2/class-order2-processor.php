@@ -144,8 +144,12 @@ class CiviCRM_Caldera_Forms_Order2_Processor {
 
 		$form_values['line_items'] = $line_items;
 
-		// payment processor fee
+		// stripe payment processor fee
 		if ( $this->fee ) $form_values['fee_amount'] = $this->fee / 100;
+
+		// authorize transaction_id?
+		if( isset( $transdata[$transdata['transient']]['transaction_data']->transaction_id ) )
+			$form_values['trxn_id'] = $transdata[$transdata['transient']]['transaction_data']->transaction_id;
 
 		try {
 			$create_order = civicrm_api3( 'Order', 'create', $form_values );
@@ -153,6 +157,8 @@ class CiviCRM_Caldera_Forms_Order2_Processor {
 			$transdata['error'] = true;
 			$transdata['note'] = $e->getMessage() . '<br><br><pre' . $e->getTraceAsString() . '</pre>';
 		}
+		if( ! $create_order['is_error'] && isset( $create_order['id'] ) && $config['is_email_receipt'] )
+			civicrm_api3( 'Contribution', 'sendconfirmation', [ 'id' => $create_order['id'] ] );
 
 	}
 

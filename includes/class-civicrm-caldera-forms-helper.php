@@ -398,27 +398,52 @@ class CiviCRM_Caldera_Forms_Helper {
 	 * @return array $form_values
 	 */
 	public function map_fields_to_processor( $config, $form, &$form_values, $processor = null ){
-
 		foreach ( ( $processor ? $config[$processor] : $config ) as $key => $field_id ) {
 			if ( ! empty( $field_id ) ) {
 
-				// If we have a bracket magic tag, do bracket magic tag
+				// do bracket magic tag
 				if ( strpos( $field_id, '{' ) !== false ) {
 					$mapped_field = Caldera_Forms_Magic_Doer::do_bracket_magic( $field_id, $form, NULL, NULL, NULL );
+
+				} elseif ( strpos( $field_id, '%' ) !== false && substr_count( $field_id, '%' ) > 2 ) {
+					
+					// multiple fields mapped
+					// explode and remove empty indexes
+					$field_slugs = array_filter( explode( '%', $field_id ) );
+					
+					$mapped_fields = [];
+					foreach ( $field_slugs as $k => $slug ) {
+						$field = Caldera_Forms::get_field_by_slug( $slug, $form );
+						$mapped_fields[] = Caldera_Forms::get_field_data( $field['ID'], $form );
+					}
+					
+					$mapped_fields = array_filter( $mapped_fields );
+					// expect one value, return first value
+					$mapped_field = $mapped_fields[0];
+
 				} else {
 
 					// Get field by ID or slug
-					$mapped_field =
+					$field = $mapped_field =
 						Caldera_Forms_Field_Util::get_field( $field_id, $form ) ?
 						Caldera_Forms_Field_Util::get_field( $field_id, $form ) :
 						Caldera_Forms::get_field_by_slug(str_replace( '%', '', $field_id ), $form );
 
 					// Get field data
 					$mapped_field = Caldera_Forms::get_field_data( $mapped_field['ID'], $form );
+					
+					// if not a magic tag nor field id, must be a fixed value
+					$mapped_field = $mapped_field ? $mapped_field : $field_id;
 
+					// handle current_employers field
+					if ( $key == 'current_employer' && $field['type'] == 'civicrm_contact_reference' ) {
+						$employer = civicrm_api3( 'Contact', 'get', [ 'contact_id' => $mapped_field, 'return' => 'organization_name' ] );
+						$mapped_field = $employer['values'][$employer['id']]['organization_name'];
+					}
 				}
 
-        	if( ! empty( $mapped_field ) ){
+
+        		if( ! empty( $mapped_field ) ){
 
 					if ( $processor ) {
 						$form_values[$processor][$key] = $mapped_field;
@@ -456,6 +481,12 @@ class CiviCRM_Caldera_Forms_Helper {
 
 				// Set default value
 				$form['fields'][$mapped_field['ID']]['config']['default'] = $entity[$field];
+
+				// handle current employer, api returns name, no cid/employer_id
+				if ( $field == 'current_employer' && $mapped_field['type'] == 'civicrm_contact_reference' ) {
+					$employer = civicrm_api3( 'Contact', 'get', [ 'sort_name' => $entity[$field] ] );
+					$form['fields'][$mapped_field['ID']]['config']['default'] = $employer['id'];
+				}
 
 				if ( $mapped_field['type'] == 'radio' ) {
 					$options = Caldera_Forms_Field_Util::find_option_values( $mapped_field );

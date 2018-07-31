@@ -43,8 +43,6 @@ class CiviCRM_Caldera_Forms_Membership_Processor {
 		$this->plugin = $plugin;
 		// register this processor
 		add_filter( 'caldera_forms_get_form_processors', [ $this, 'register_processor' ] );
-		// filter form before rendering
-		// add_filter( 'caldera_forms_render_get_form', [ $this, 'pre_render' ] );
 
 	}
 
@@ -91,26 +89,23 @@ class CiviCRM_Caldera_Forms_Membership_Processor {
 		$transient = $this->plugin->transient->get();
 		$this->contact_link = 'cid_' . $config['contact_link'];
 
-		// is member?
-		try {
-			
-			$is_member = civicrm_api3( 'Membership', 'getsingle', [
-				'contact_id' => $transient->contacts->{$this->contact_link},
-				'membership_type_id' => $config['membership_type_id'], 
-			] );
-
-		} catch ( CiviCRM_API3_Exception $e ) {
-				// ignore
-		}
-
-		if ( isset( $is_member ) && ! $member['is_error'] && ! isset( $config['is_renewal'] ) )
-			return [
-				'note' => sprintf( __( 'It looks like you already have a %1$s membership.', 'caldera-forms-civicrm' ), $is_member['membership_name'] ), 
-				'type' => 'error'
-			];
-			
 		// Get form values
 		$form_values = $this->plugin->helper->map_fields_to_processor( $config, $form, $form_values );
+
+		$price_field_value = isset( $config['is_price_field_based'] ) ? 
+			$this->plugin->helper->get_price_field_value( $form_values['price_field_value'] ) : false;
+
+		$form_values['membership_type_id'] = $price_field_value ? $price_field_value['membership_type_id'] : $config['membership_type_id'];
+			
+		// is member?
+		try {
+			$is_member = civicrm_api3( 'Membership', 'getsingle', [
+				'contact_id' => $transient->contacts->{$this->contact_link},
+				'membership_type_id' => $form_values['membership_type_id'],
+			] );
+		} catch ( CiviCRM_API3_Exception $e ) {
+			// ignore
+		}
 		
 		if ( ! empty( $transient->contacts->{$this->contact_link} ) ) {
 
@@ -123,16 +118,17 @@ class CiviCRM_Caldera_Forms_Membership_Processor {
 				$form_values['num_terms'] = ! empty( $form_values['num_terms'] ) ? $form_values['num_terms'] : 1;
 			}
 
-			if ( isset( $config['is_price_field_based'] ) )
-				$form_values['is_price_field_based'] = $config['is_price_field_based'];
-
-			$form_values['membership_type_id'] = $config['membership_type_id'];
 			$form_values['source'] = isset( $form_values['source'] ) ? $form_values['source'] : $form['name'];
 
+			// set start and join date if is not renewal
 			if ( ! $config['is_renewal'] ) {
-				$form_values['join_date'] = ! empty( $form_values['join_date'] ) ? $form_values['join_date'] : date('Y-m-d');
-				$form_values['start_date'] = ! empty( $form_values['start_date'] ) ? $form_values['start_date'] : date('Y-m-d');
+				$form_values['join_date'] = ! empty( $form_values['join_date'] ) ? date( 'Ymd', strtotime( $form_values['join_date'] ) ) : date('Ymd');
+				$form_values['start_date'] = ! empty( $form_values['start_date'] ) ? date( 'Ymd', strtotime( $form_values['start_date'] ) ) : date('Ymd');
+			} else {
+				//remove join, start, and end dates otherwise
+				unset( $form_values['join_date'], $form_values['start_date'], $form_values['end_date'] );
 			}
+
  
 			$transient->memberships->{$config['processor_id']}->params = $form_values;
 
