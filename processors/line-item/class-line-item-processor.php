@@ -122,7 +122,6 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 
 		global $transdata;
 
-		if ( ! empty( $num_terms ) ) $entity_params['num_terms'] = $num_terms;
 		$price_field_value['price_field_value_id'] = $price_field_value['id'];
 
 		$price_field_value['entity_table'] = $config['entity_table'];
@@ -138,9 +137,13 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 			
 			$entity_params = $transient->memberships->$processor_id->params;
 			
-			if ( ! empty( $num_terms ) ) $entity_params['num_terms'] = $num_terms;
+			$entity_params['num_terms'] = ! empty( $entity_params['num_terms'] ) ? 
+				$entity_params['num_terms'] : 
+				$price_field_value['membership_num_terms'];
 			
-			$entity_params['source'] = ! empty( $entity_params['source'] ) ? $entity_params['source'] : $form['name'];
+			$entity_params['source'] = ! empty( $entity_params['source'] ) ? 
+				$entity_params['source'] : 
+				$form['name'];
 			
 			if( isset( $price_field_value['membership_type_id'] ) )
 				$entity_params['membership_type_id'] = $price_field_value['membership_type_id'];
