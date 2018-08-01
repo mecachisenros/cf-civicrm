@@ -26,13 +26,13 @@ $price_sets = caldera_forms_civicrm()->helper->get_price_sets();
 
 <div class="caldera-config-group caldera-config-group-full">
 	<div class="caldera-config-field">
-		<label><input id="is_email_receipt" type="checkbox" name="{{_name}}[is_email_receipt]" value="1" {{#if is_email_receipt}}checked="checked"{{/if}}><?php _e( 'Email receipt.', 'caldera-forms-civicrm' ); ?></label>
+		<label><input id="{{_id}}_is_email_receipt" type="checkbox" name="{{_name}}[is_email_receipt]" value="1" {{#if is_email_receipt}}checked="checked"{{/if}}><?php _e( 'Email receipt.', 'caldera-forms-civicrm' ); ?></label>
 	</div>
 </div>
 
 <!-- Contact ID -->
 <h2><?php _e( 'Contact Link', 'caldera-forms-civicrm' ); ?></h2>
-<div id="contact_link" class="caldera-config-group">
+<div id="{{_id}}_contact_link" class="caldera-config-group">
 	<label><?php _e( 'Link to', 'caldera-forms-civicrm' ); ?></label>
 	<div class="caldera-config-field">
 		<?php caldera_forms_civicrm()->helper->contact_link_field(); ?>
@@ -44,7 +44,7 @@ $price_sets = caldera_forms_civicrm()->helper->get_price_sets();
 <!-- Order Fields -->
 <h2><?php _e( 'Order Fields', 'caldera-forms-civicrm' ); ?></h2>
 <!-- Financial Type -->
-<div id="financial_type_id" class="caldera-config-group">
+<div id="{{_id}}_financial_type_id" class="caldera-config-group">
 	<label><?php _e( 'Financial Type', 'caldera-forms-civicrm' ); ?></label>
 	<div class="caldera-config-field">
 		<select class="block-input field-config" name="{{_name}}[financial_type_id]">
@@ -56,7 +56,7 @@ $price_sets = caldera_forms_civicrm()->helper->get_price_sets();
 </div>
 
 <!-- Contribution Status -->
-<div id="contribution_status_id" class="caldera-config-group">
+<div id="{{_id}}_contribution_status_id" class="caldera-config-group">
 	<label><?php _e( 'Contribution Status', 'caldera-forms-civicrm' ); ?></label>
 	<div class="caldera-config-field">
 		<select class="block-input field-config" name="{{_name}}[contribution_status_id]">
@@ -68,7 +68,7 @@ $price_sets = caldera_forms_civicrm()->helper->get_price_sets();
 </div>
 
 <!-- Payment Method -->
-<div id="payment_instrument_id" class="caldera-config-group">
+<div id="{{_id}}_payment_instrument_id" class="caldera-config-group">
 	<label><?php _e( 'Payment Method', 'caldera-forms-civicrm' ); ?></label>
 	<div class="caldera-config-field">
 		<select class="block-input field-config" name="{{_name}}[payment_instrument_id]">
@@ -80,7 +80,7 @@ $price_sets = caldera_forms_civicrm()->helper->get_price_sets();
 </div>
 
 <!-- Recieve Date -->
-<div id="receive_date" class="caldera-config-group">
+<div id="{{_id}}_receive_date" class="caldera-config-group">
 	<label><?php _e( 'Receive Date', 'caldera-forms-civicrm' ); ?></label>
 	<div class="caldera-config-field">
 		{{{_field slug="receive_date"}}}
@@ -88,7 +88,7 @@ $price_sets = caldera_forms_civicrm()->helper->get_price_sets();
 </div>
 
 <!-- Transaction ID -->
-<div id="trxn_id" class="caldera-config-group">
+<div id="{{_id}}_trxn_id" class="caldera-config-group">
 	<label><?php _e( 'Transaction ID', 'caldera-forms-civicrm' ); ?></label>
 	<div class="caldera-config-field">
 		{{{_field slug="trxn_id"}}}
@@ -96,7 +96,7 @@ $price_sets = caldera_forms_civicrm()->helper->get_price_sets();
 </div>
 
 <!-- Currency -->
-<div id="currency" class="caldera-config-group">
+<div id="{{_id}}_currency" class="caldera-config-group">
 	<label><?php _e( 'Currency', 'caldera-forms-civicrm' ); ?></label>
 	<div class="caldera-config-field">
 		<select class="block-input field-config" name="{{_name}}[currency]">
@@ -108,7 +108,7 @@ $price_sets = caldera_forms_civicrm()->helper->get_price_sets();
 </div>
 
 <!-- Total Amount -->
-<div id="total_amount" class="caldera-config-group">
+<div id="{{_id}}_total_amount" class="caldera-config-group">
 	<label><?php _e( 'Total Amount', 'caldera-forms-civicrm' ); ?></label>
 	<div class="caldera-config-field">
 		{{{_field slug="total_amount"}}}

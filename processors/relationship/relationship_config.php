@@ -8,7 +8,7 @@ $relationships = civicrm_api3( 'RelationshipType', 'get', array(
 
 ?>
 
-<div id="relationship_type" class="caldera-config-group">
+<div id="{{_id}}_relationship_type" class="caldera-config-group">
 	<label><?php echo __( 'Relationship Type', 'caldera-forms-civicrm' ); ?></label>
 	<div class="caldera-config-field">
 		<select class="block-input field-config" name="{{_name}}[relationship_type]">
@@ -19,7 +19,7 @@ $relationships = civicrm_api3( 'RelationshipType', 'get', array(
 	</div>
 </div>
 
-<div id="contact_a" class="caldera-config-group">
+<div id="{{_id}}_contact_a" class="caldera-config-group">
 	<label><?php _e( 'Contact A', 'caldera-forms-civicrm' ); ?></label>
 	<div class="caldera-config-field">
 		<select class="block-input field-config" name="{{_name}}[contact_a]">
@@ -37,7 +37,7 @@ $relationships = civicrm_api3( 'RelationshipType', 'get', array(
 	</div>
 </div>
 
-<div id="contact_b" class="caldera-config-group">
+<div id="{{_id}}_contact_b" class="caldera-config-group">
 	<label><?php _e( 'Contact B', 'caldera-forms-civicrm' ); ?></label>
 	<div class="caldera-config-field">
 		<select class="block-input field-config" name="{{_name}}[contact_b]">

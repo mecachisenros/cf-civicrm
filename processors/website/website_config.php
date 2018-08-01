@@ -12,7 +12,7 @@
 ?>
 
 <h2><?php _e( 'Contact Link', 'caldera-forms-civicrm' ); ?></h2>
-<div id="contact_link" class="caldera-config-group">
+<div id="{{_id}}_contact_link" class="caldera-config-group">
 	<label><?php _e( 'Link to', 'caldera-forms-civicrm' ); ?></label>
 	<div class="caldera-config-field">
 		<?php caldera_forms_civicrm()->helper->contact_link_field() ?>
@@ -22,7 +22,7 @@
 <hr style="clear: both;" />
 
 <h2><?php _e( 'Website Type', 'caldera-forms-civicrm' ); ?></h2>
-<div id="website_type_id" class="caldera-config-group">
+<div id="{{_id}}_website_type_id" class="caldera-config-group">
 	<label><?php echo __('Website Type'); ?></label>
 	<div class="caldera-config-field">
 		<select class="block-input field-config" name="{{_name}}[website_type_id]">
@@ -38,7 +38,7 @@
 <?php
 	foreach( $websiteFields['values'] as $key => $value ) {
 		if( in_array($value['name'], $fields ) ){ ?>
-	<div id="<?php echo esc_attr( $value['name'] ); ?>" class="caldera-config-group">
+	<div id="{{_id}}_<?php echo esc_attr( $value['name'] ); ?>" class="caldera-config-group">
 		<label><?php echo __($value['title']); ?> </label>
 		<div class="caldera-config-field">
 		  <?php echo __('{{{_field slug="' . $value['name'] . '"}}}'); ?>

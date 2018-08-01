@@ -25,20 +25,20 @@ $membership_types = civicrm_api3( 'MembershipType', 'get', [
 
 <div class="caldera-config-group caldera-config-group-full">
 	<div class="caldera-config-field">
-		<label><input id="is_monetary" type="checkbox" name="{{_name}}[is_monetary]" value="1" {{#if is_monetary}}checked="checked"{{/if}}><?php _e( 'Is a paid for membership.', 'caldera-forms-civicrm' ); ?></label>
+		<label><input id="{{_id}}_is_monetary" type="checkbox" name="{{_name}}[is_monetary]" value="1" {{#if is_monetary}}checked="checked"{{/if}}><?php _e( 'Is a paid for membership.', 'caldera-forms-civicrm' ); ?></label>
 	</div>
 </div>
 
 <div class="caldera-config-group caldera-config-group-full">
 	<div class="caldera-config-field">
-		<label><input id="is_renewal" type="checkbox" name="{{_name}}[is_renewal]" value="1" {{#if is_renewal}}checked="checked"{{/if}}><?php _e( 'Extend/renew this membership if the Contact has a membership of the same type.', 'caldera-forms-civicrm' ); ?></label>
+		<label><input id="{{_id}}_is_renewal" type="checkbox" name="{{_name}}[is_renewal]" value="1" {{#if is_renewal}}checked="checked"{{/if}}><?php _e( 'Extend/renew this membership if the Contact has a membership of the same type.', 'caldera-forms-civicrm' ); ?></label>
 	</div>
 </div>
 
 <hr style="clear: both;" />
 
 <h2><?php _e( 'Contact Link', 'caldera-forms-civicrm' ); ?></h2>
-<div id="contact_link" class="caldera-config-group">
+<div id="{{_id}}_contact_link" class="caldera-config-group">
 	<label><?php _e( 'Link to', 'caldera-forms-civicrm' ); ?></label>
 	<div class="caldera-config-field">
 		<?php caldera_forms_civicrm()->helper->contact_link_field(); ?>
@@ -63,7 +63,7 @@ $membership_types = civicrm_api3( 'MembershipType', 'get', [
     <div class="price_field_value">
 	    <label><?php _e('Price Field Value', 'caldera-forms-civicrm');?></label>
 	    <div class="price_field_value caldera-config-field">
-	        <input type="text" class="block-input field-config magic-tag-enabled caldera-field-bind" id="{{_id}}" name="{{_name}}[price_field_value]" value="{{price_field_value}}">
+	        <input type="text" class="block-input field-config magic-tag-enabled caldera-field-bind" name="{{_name}}[price_field_value]" value="{{price_field_value}}">
 	    </div>
     </div>
 </div>
@@ -74,7 +74,7 @@ $membership_types = civicrm_api3( 'MembershipType', 'get', [
 <h2><?php _e( 'Membership Fields', 'caldera-forms-civicrm' ); ?></h2>
 <?php foreach ( $membership_fields as $key => $value ) { 
         if( ! in_array( $key, $ignore ) ) { ?>
-	<div id="<?php echo esc_attr( $key ); ?>" class="caldera-config-group">
+	<div id="{{_id}}_<?php echo esc_attr( $key ); ?>" class="caldera-config-group">
 		<label><?php echo esc_html( $value ); ?> </label>
 		<div class="caldera-config-field">
 			<?php echo '{{{_field slug="' . $key . '"}}}'; ?>

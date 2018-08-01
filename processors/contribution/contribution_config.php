@@ -20,7 +20,7 @@ foreach ( $contribution_fields_result['values'] as $key => $value ) {
 ?>
 
 <h2><?php _e( 'Contact Link', 'caldera-forms-civicrm' ); ?></h2>
-<div id="contact_link" class="caldera-config-group">
+<div id="{{_id}}_contact_link" class="caldera-config-group">
 	<label><?php _e( 'Link to', 'caldera-forms-civicrm' ); ?></label>
 	<div class="caldera-config-field">
 		<?php caldera_forms_civicrm()->helper->contact_link_field(); ?>
@@ -35,7 +35,7 @@ foreach ( $contribution_fields_result['values'] as $key => $value ) {
 
 <?php
 	foreach ( $contribution_fields as $key => $value ) { ?>
-	<div id="<?php echo esc_attr( $key ); ?>" class="caldera-config-group">
+	<div id="{{_id}}_<?php echo esc_attr( $key ); ?>" class="caldera-config-group">
 		<label><?php echo esc_html( $value ); ?></label>
 		<div class="caldera-config-field">
 			<?php
