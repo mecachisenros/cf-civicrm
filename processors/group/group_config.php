@@ -10,7 +10,7 @@ $groupsResult = civicrm_api3( 'Group', 'get', array(
 ?>
 
 <h2><?php _e( 'Contact Link', 'caldera-forms-civicrm' ); ?></h2>
-<div id="contact_link" class="caldera-config-group">
+<div id="{{_id}}_contact_link" class="caldera-config-group">
 	<label><?php _e( 'Link to', 'caldera-forms-civicrm' ); ?></label>
 	<div class="caldera-config-field">
 		<?php caldera_forms_civicrm()->helper->contact_link_field() ?>
@@ -20,7 +20,7 @@ $groupsResult = civicrm_api3( 'Group', 'get', array(
 
 <hr style="clear: both;" />
 
-<div class="caldera-config-group">
+<div id="{{_id}}_contact_group" class="caldera-config-group">
 	<label><?php _e('Group', 'caldera-forms-civicrm' ); ?></label>
 	<div class="caldera-config-field">
 		<select class="block-input field-config" name="{{_name}}[contact_group]">

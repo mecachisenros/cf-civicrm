@@ -36,7 +36,7 @@ $price_sets = caldera_forms_civicrm()->helper->get_price_sets();
 <div id="{{_id}}_price_field_value" class="caldera-config-group">
     <label><?php _e( 'Price Field Value', 'caldera-forms-civicrm' );?></label>
     <div class="binded_price_field caldera-config-field">
-        <input type="text" class="block-input field-config magic-tag-enabled caldera-field-bind" id="{{_id}}" name="{{_name}}[price_field_value]" value="{{price_field_value}}">
+        <input type="text" class="block-input field-config magic-tag-enabled caldera-field-bind" name="{{_name}}[price_field_value]" value="{{price_field_value}}">
     </div>
     <div class="is_fixed caldera-config-field">
         <label><input type="checkbox" name="{{_name}}[is_fixed_price_field]" value="1" {{#if is_fixed_price_field}}checked="checked"{{/if}}><?php _e( 'Use a fixed Price Field Option', 'caldera-forms-civicrm' ); ?></label>
@@ -63,7 +63,7 @@ $price_sets = caldera_forms_civicrm()->helper->get_price_sets();
 <div id="{{_id}}_entity_data" class="entity-data caldera-config-group">
     <label><?php _e( 'Entity Data (Membership or Participant)', 'caldera-forms-civicrm' ); ?></label>
     <div class="caldera-config-field">
-        <input type="text" class="block-input field-config magic-tag-enabled caldera-field-bind" id="{{_id}}" name="{{_name}}[entity_params]" value="{{entity_params}}">
+        <input type="text" class="block-input field-config magic-tag-enabled caldera-field-bind" name="{{_name}}[entity_params]" value="{{entity_params}}">
     </div>
 </div>
 
@@ -79,12 +79,11 @@ $price_sets = caldera_forms_civicrm()->helper->get_price_sets();
     <div id="{{_id}}_amount" class="caldera-config-group">
         <label><?php _e( 'Other Amount', 'caldera-forms-civicrm' );?></label>
         <div class="caldera-config-field">
-            <input type="text" class="block-input field-config magic-tag-enabled caldera-field-bind" id="{{_id}}" name="{{_name}}[amount]" value="{{amount}}">
+            <input type="text" class="block-input field-config magic-tag-enabled caldera-field-bind" name="{{_name}}[amount]" value="{{amount}}">
             <p><?php _e( 'Use this field for Other Amount', 'caldera-forms-civicrm');?></p>
         </div>
     </div>
 </div>
-
 
 <script>
     (function(){

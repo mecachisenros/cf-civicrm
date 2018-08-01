@@ -26,14 +26,14 @@ foreach ( $caseFieldsResult['values'] as $key => $value ) {
 
 <div class="caldera-config-group caldera-config-group-full">
 	<div class="caldera-config-field">
-		<label><input id="dismiss_case" type="checkbox" name="{{_name}}[dismiss_case]" value="1" {{#if dismiss_case}}checked="checked"{{/if}}><?php _e( 'Do not create Case if the contact already has a Case of same type.', 'caldera-forms-civicrm' ); ?></label>
+		<label><input id="{{_id}}_dismiss_case" type="checkbox" name="{{_name}}[dismiss_case]" value="1" {{#if dismiss_case}}checked="checked"{{/if}}><?php _e( 'Do not create Case if the contact already has a Case of same type.', 'caldera-forms-civicrm' ); ?></label>
 	</div>
 </div>
 
 <hr style="clear: both;" />
 
 <h2><?php _e( 'Contact Link', 'caldera-forms-civicrm' ); ?></h2>
-<div id="contact_link" class="caldera-config-group">
+<div id="{{_id}}_contact_link" class="caldera-config-group">
 	<label><?php _e( 'Link to', 'caldera-forms-civicrm' ); ?></label>
 	<div class="caldera-config-field">
 		<?php caldera_forms_civicrm()->helper->contact_link_field(); ?>
@@ -45,7 +45,7 @@ foreach ( $caseFieldsResult['values'] as $key => $value ) {
 
 <!-- Case Type -->
 <h2><?php _e( 'Case', 'caldera-forms-civicrm' ); ?></h2>
-<div id="case_type" class="caldera-config-group">
+<div id="{{_id}}_case_type" class="caldera-config-group">
 	<label><?php _e( 'Case Type', 'caldera-forms-civicrm' ); ?></label>
 	<div class="caldera-config-field">
 		<select class="block-input field-config required" name="{{_name}}[case_type_id]">
@@ -57,7 +57,7 @@ foreach ( $caseFieldsResult['values'] as $key => $value ) {
 </div>
 
 <!-- Case status -->
-<div id="case_status_id" class="caldera-config-group">
+<div id="{{_id}}_case_status_id" class="caldera-config-group">
 	<label><?php _e( 'Case Status', 'caldera-forms-civicrm' ); ?></label>
 	<div class="caldera-config-field">
 		<select class="block-input field-config required" name="{{_name}}[case_status_id]">
@@ -74,10 +74,10 @@ foreach ( $caseFieldsResult['values'] as $key => $value ) {
 <?php
 	foreach ( $caseFields as $key => $value ) {
 		if( $key != 'creator_id' ){ ?>
-		<div id="<?php echo esc_attr( $key ); ?>" class="caldera-config-group">
+		<div id="{{_id}}_<?php echo esc_attr( $key ); ?>" class="caldera-config-group">
 			<label><?php _e( $value, 'caldera-forms-civicrm' ); ?></label>
 			<div class="caldera-config-field">
-				<input type="text" class="block-input field-config magic-tag-enabled caldera-field-bind <?php if( $key == 'subject') echo 'required'; ?>" id="{{_id}}" name="{{_name}}[<?php echo $key; ?>]" value="{{<?php echo $key; ?>}}">
+				<input type="text" class="block-input field-config magic-tag-enabled caldera-field-bind <?php if( $key == 'subject') echo 'required'; ?>" name="{{_name}}[<?php echo $key; ?>]" value="{{<?php echo $key; ?>}}">
 			</div>
 		</div>
 <?php } } ?>

@@ -25,7 +25,7 @@ $fields = array( 'is_primary', 'is_billing', 'street_address', 'supplemental_add
 <hr style="clear: both;" />
 
 <h3><?php _e( 'Address Location Type', 'caldera-forms-civicrm' ); ?></h3>
-<div id="location_type_id" class="caldera-config-group">
+<div id="{{_id}}_location_type_id" class="caldera-config-group">
 	<label><?php echo __( 'Address Location Type', 'caldera-forms-civicrm' ); ?></label>
 	<div class="caldera-config-field">
 		<select class="block-input field-config" name="{{_name}}[location_type_id]">
@@ -42,7 +42,7 @@ $fields = array( 'is_primary', 'is_billing', 'street_address', 'supplemental_add
 <h2 style="display: inline-block;"><?php _e( 'Address Fields', 'caldera-forms-civicrm' ); ?></h2>
 <?php foreach( $addressFields['values'] as $key => $value ) {
 	if ( in_array( $value['name'], $fields ) ) { ?>
-	<div id="<?php echo esc_attr( $value['name'] ); ?>" class="caldera-config-group">
+	<div id="{{_id}}_<?php echo esc_attr( $value['name'] ); ?>" class="caldera-config-group">
 		<label><?php echo esc_html( $value['title'] ); ?> </label>
 		<div class="caldera-config-field">
 		  <?php echo '{{{_field slug="' . $value['name'] . '"}}}'; ?>

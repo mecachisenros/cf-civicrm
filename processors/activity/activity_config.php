@@ -44,7 +44,7 @@ foreach ( $activityFieldsResult['values'] as $key => $value ) {
 
 <!-- Activity Type -->
 <h2><?php _e( 'Activity', 'caldera-forms-civicrm' ); ?></h2>
-<div id="contact_type" class="caldera-config-group">
+<div id="{{_id}}_activity_type_id" class="caldera-config-group">
 	<label><?php _e( 'Activity Type', 'caldera-forms-civicrm' ); ?></label>
 	<div class="caldera-config-field">
 		<select class="block-input field-config" name="{{_name}}[activity_type_id]">
@@ -56,7 +56,7 @@ foreach ( $activityFieldsResult['values'] as $key => $value ) {
 </div>
 
 <!-- Activity status -->
-<div id="{{_id}}_activity_status" class="caldera-config-group">
+<div id="{{_id}}_activity_status_id" class="caldera-config-group">
 	<label><?php _e( 'Activity Status', 'caldera-forms-civicrm' ); ?></label>
 	<div class="caldera-config-field">
 		<select class="block-input field-config" name="{{_name}}[status_id]">
