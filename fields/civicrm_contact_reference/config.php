@@ -69,7 +69,7 @@ $contact_sub_types = civicrm_api3( 'ContactType', 'get', [
 		<?php esc_html_e( 'Group', 'caldera-forms-civicrm' ); ?>
 	</label>
 	<div class="caldera-config-field">
-		<select class="block-input field-config" name="{{_name}}[civicrm_group]" nonce="<?php echo wp_create_nonce('admin_get_groups'); ?>">
+		<select id="{{_id}}_civicrm_group" class="block-input field-config" name="{{_name}}[civicrm_group]" nonce="<?php echo wp_create_nonce('admin_get_groups'); ?>">
 		</select>
 		<p class="description">
 			<?php esc_html_e( 'Limit to contacts in group.', 'caldera-forms-civicrm' ); ?>
@@ -106,14 +106,14 @@ $contact_sub_types = civicrm_api3( 'ContactType', 'get', [
 						id: result[0]['id'],
 						text: result[0]['title']
 					};
-					$( 'select#{{_id}}_civicrm_group' )
+					$( '#{{_id}}_civicrm_group' )
 						.append( new Option( data.text, data.id, false, false ) )
 						.trigger( 'change' );
 				}
 			} );
 		}
 
-		$( 'select#{{_id}}_civicrm_group' ).cfcSelect2( {
+		$( '#{{_id}}_civicrm_group' ).cfcSelect2( {
 			ajax: {
 				url: ajaxurl,
 				dataType: 'json',
@@ -123,7 +123,7 @@ $contact_sub_types = civicrm_api3( 'ContactType', 'get', [
 					return {
 						search: params.term,
 						action: 'civicrm_get_groups',
-						nonce: $( 'select#{{_id}}_civicrm_group' ).attr( 'nonce' )
+						nonce: $( '#{{_id}}_civicrm_group' ).attr( 'nonce' )
 					};
 				},
 				processResults: function( data ) {
