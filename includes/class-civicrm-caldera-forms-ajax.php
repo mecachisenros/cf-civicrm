@@ -127,6 +127,7 @@ class CiviCRM_Caldera_Forms_AJAX {
 	 	$params = [
 	 		'sequential' => 1,
 	 		'return' => [ 'id', 'title' ],
+	 		'is_active' => 1,
 	 	];
 
 	 	if ( isset( $group_id ) ) $params['id'] = $group_id;
