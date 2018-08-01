@@ -493,10 +493,9 @@ class CiviCRM_Caldera_Forms_Helper {
 				$form['fields'][$mapped_field['ID']]['config']['default'] = $entity[$field];
 				// handle current employer, api returns name, no cid/employer_id
 				if ( $field == 'current_employer' && $mapped_field['type'] == 'civicrm_contact_reference' ) {
-					$employer = civicrm_api3( 'Contact', 'get', [ 'sort_name' => $entity[$field] ] );
+					$employer = civicrm_api3( 'Contact', 'get', [ 'contact_type' => 'Organization', 'organization_name' => $entity[$field] ] );
 					$form['fields'][$mapped_field['ID']]['config']['default'] = $employer['id'];
 				}
-
 
 				if ( $mapped_field['type'] == 'radio' ) {
 					$options = Caldera_Forms_Field_Util::find_option_values( $mapped_field );
