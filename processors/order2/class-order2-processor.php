@@ -110,13 +110,13 @@ class CiviCRM_Caldera_Forms_Order2_Processor {
 
 		$form_values['financial_type_id'] = $config['financial_type_id'];
 		$form_values['contribution_status_id'] = $config['contribution_status_id'];
-		$form_values['payment_instrument_id'] = $config['payment_instrument_id'];
+		$form_values['payment_instrument_id'] = ! isset( $config['is_mapped_field'] ) ? $config['payment_instrument_id'] : $form_values['mapped_payment_instrument_id'];
 		$form_values['currency'] = $config['currency'];
 
 		$form_values['receipt_date'] = date( 'YmdHis' );
 
 		// is pay later
-		if ( isset( $form_values['is_pay_later'] ) ) {
+		if ( isset( $config['is_pay_later'] ) && in_array( $form_values['payment_instrument_id'], [$config['is_pay_later']] ) ) {
 			$form_values['contribution_status_id'] = 'Pending';
 			unset( $form_values['trxn_id'] );
 		}
@@ -130,12 +130,20 @@ class CiviCRM_Caldera_Forms_Order2_Processor {
 		// line items
 		$line_items = [];
 		$count = 0;
-		
 		foreach ( $config_line_items as $item => $processor ) {
 			if( ! empty( $processor ) ) {
 				$processor = Caldera_Forms::do_magic_tags( $processor );
-				if ( ! strpos( $processor, 'civicrm_line_item' ) )
+				if ( ! strpos( $processor, 'civicrm_line_item' ) ) {
 					$line_items[$count] = $transient->line_items->$processor->params;
+					if ( 
+						isset( $line_items[$count]['params']['membership_type_id'] ) && 
+						isset( $config['is_pay_later'] ) && 
+						in_array( $form_values['payment_instrument_id'], [$config['is_pay_later']] ) ) {
+							// set membership as pending
+							$line_items[$count]['params']['status_id'] = 'Pending';
+							$line_items[$count]['params']['is_override'] = 1;
+					}
+				}
 				$count++;
 			} else {
 				unset( $config_line_items[$item] );
