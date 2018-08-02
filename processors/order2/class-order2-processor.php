@@ -118,6 +118,7 @@ class CiviCRM_Caldera_Forms_Order2_Processor {
 		// is pay later
 		if ( isset( $config['is_pay_later'] ) && in_array( $form_values['payment_instrument_id'], [$config['is_pay_later']] ) ) {
 			$form_values['contribution_status_id'] = 'Pending';
+			$form_values['is_pay_later'] = 1; // has to be set, if not we get a (Incomplete transaction)
 			unset( $form_values['trxn_id'] );
 		}
 		
