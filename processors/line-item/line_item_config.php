@@ -17,7 +17,7 @@ $fields = civicrm_api3( 'LineItem', 'getfields', [
 	'api_action' => 'create',
 ] );
 
-$price_sets = caldera_forms_civicrm()->helper->get_price_sets();
+$price_sets = caldera_forms_civicrm()->helper->cached_price_sets();
 
 ?>
 

@@ -18,7 +18,7 @@ $currencies = civicrm_api3( 'Contribution', 'getoptions', [
 	'field' => 'currency',
 ] );
 
-$price_sets = caldera_forms_civicrm()->helper->get_price_sets();
+$price_sets = caldera_forms_civicrm()->helper->cached_price_sets();
 
 ?>
 
@@ -68,7 +68,7 @@ $price_sets = caldera_forms_civicrm()->helper->get_price_sets();
 </div>
 
 <!-- Payment Method -->
-<div id="{{_id}}_payment_instrument_id" class="caldera-config-group">
+<!-- <div id="{{_id}}_payment_instrument_id" class="caldera-config-group">
 	<label><?php _e( 'Payment Method', 'caldera-forms-civicrm' ); ?></label>
 	<div class="caldera-config-field">
 		<select class="block-input field-config" name="{{_name}}[payment_instrument_id]">
@@ -76,6 +76,13 @@ $price_sets = caldera_forms_civicrm()->helper->get_price_sets();
 			<option value="<?php echo esc_attr( $id ); ?>" {{#is payment_instrument_id value=<?php echo $id; ?>}}selected="selected"{{/is}}><?php echo esc_html( $method ); ?></option>
 		<?php } ?>
 		</select>
+	</div>
+</div> -->
+
+<div id="{{_id}}_payment_instrument_id" class="caldera-config-group">
+	<label><?php _e( 'Payment Method', 'caldera-forms-civicrm' ); ?></label>
+	<div class="caldera-config-field">
+		<input type="text" class="block-input field-config magic-tag-enabled caldera-field-bind" name="{{_name}}[payment_instrument_id]" value="{{payment_instrument_id}}">
 	</div>
 </div>
 
@@ -104,6 +111,22 @@ $price_sets = caldera_forms_civicrm()->helper->get_price_sets();
 			<option value="<?php echo esc_attr( $id ); ?>" {{#is currency value="<?php echo $id; ?>"}}selected="selected"{{/is}}><?php echo esc_html( $currency ); ?></option>
 		<?php } ?>
 		</select>
+	</div>
+</div>
+
+<!-- Is pay later -->
+<div id="{{_id}}_is_pay_later" class="caldera-config-group">
+	<label><?php _e( 'Is Pay Later', 'caldera-forms-civicrm' ); ?></label>
+	<div class="caldera-config-field">
+		{{{_field slug="is_pay_later"}}}
+	</div>
+</div>
+
+<!-- Check number -->
+<div id="{{_id}}_check_number" class="caldera-config-group">
+	<label><?php _e( 'Check Number', 'caldera-forms-civicrm' ); ?></label>
+	<div class="caldera-config-field">
+		{{{_field slug="check_number"}}}
 	</div>
 </div>
 

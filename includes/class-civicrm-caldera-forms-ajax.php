@@ -33,6 +33,7 @@ class CiviCRM_Caldera_Forms_AJAX {
 
         add_action( 'wp_ajax_civicrm_get_contacts', [ $this, 'get_civicrm_contacts' ] );
         add_action( 'wp_ajax_civicrm_get_groups', [ $this, 'civicrm_get_groups' ] );
+        add_action( 'wp_ajax_flush_price_set_cache', [ $this, 'flush_price_set_cache' ] );
         add_action( 'wp_ajax_civicrm_contact_reference_get', [ $this, 'civicrm_contact_reference_get' ] );
         add_action( 'wp_ajax_nopriv_civicrm_contact_reference_get', [ $this, 'civicrm_contact_reference_get' ] );
 
@@ -136,6 +137,22 @@ class CiviCRM_Caldera_Forms_AJAX {
 		$groups = civicrm_api3( 'Group', 'get', $params );
 		
 		echo json_encode( $groups['values'] );
+		die;
+	}
+
+	public function flush_price_set_cache() {
+		delete_transient( 'cfc_civicrm_price_sets' );
+		if ( $this->plugin->helper->cached_price_sets() ) {
+			ob_start();
+			?>
+				<div style="margin-top: 20px;">
+					<?php _e( 'Price Sets have been rebuilt, please refresh the page to see the changes.', 'caldera-forms-civicrm' ); ?>
+				</div>
+			<?php
+			$result = ob_get_contents();
+			ob_end_clean();
+			echo $result;
+		}
 		die;
 	}
 }

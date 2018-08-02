@@ -109,20 +109,28 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 		return ['processor_id' => $config['processor_id']];
 	}
 
+	// public function guess_entity_table( $price_field_value, $entity_table = false ) {
+		
+	// 	if ( ! empty( $entity_table ) ) return $entity_table;
+
+	// 	if ( array_key_exists( 'membership_type_id', $price_field_value ) ) return 'civicrm_membership';
+	// 	return 'civicrm_contribution';
+	// }
+
 	/**
 	 * Process Membership Line Item.
+	 *
+	 * @since 0.4.4
 	 * 
-	 * @param  [type] $config            [description]
-	 * @param  [type] $form              [description]
-	 * @param  [type] $transient         [description]
-	 * @param  [type] $price_field_value [description]
-	 * @return [type]                    [description]
+	 * @param array $config Processor config
+	 * @param array $form Form config
+	 * @param object $transient Transient object
+	 * @param array $price_field_value The price field value
 	 */
 	public function process_membership( $config, $form, $transient, $price_field_value ) {
 
 		global $transdata;
 
-		if ( ! empty( $num_terms ) ) $entity_params['num_terms'] = $num_terms;
 		$price_field_value['price_field_value_id'] = $price_field_value['id'];
 
 		$price_field_value['entity_table'] = $config['entity_table'];
@@ -138,12 +146,16 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 			
 			$entity_params = $transient->memberships->$processor_id->params;
 			
-			if ( ! empty( $num_terms ) ) $entity_params['num_terms'] = $num_terms;
+			$entity_params['num_terms'] = ! empty( $entity_params['num_terms'] ) ? 
+				$entity_params['num_terms'] : 
+				$price_field_value['membership_num_terms'];
 			
-			$entity_params['source'] = ! empty( $entity_params['source'] ) ? $entity_params['source'] : $form['name'];
-			
-			if( isset( $price_field_value['membership_type_id'] ) )
-				$entity_params['membership_type_id'] = $price_field_value['membership_type_id'];
+			$entity_params['source'] = ! empty( $entity_params['source'] ) ? 
+				$entity_params['source'] : 
+				$form['name'];
+
+			// if( ! isset( $entity_params['is_price_field_based'] ) )
+			// 	$entity_params['membership_type_id'] = $price_field_value['membership_type_id'];
 		}
 		
 		$num_terms = $price_field_value['membership_num_terms'];
@@ -167,6 +179,16 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 
 	}
 
+	/**
+	 * Process Participant Line Item.
+	 * 
+	 * @since 0.4.4
+	 * 
+	 * @param array $config Processor config
+	 * @param array $form Form config
+	 * @param object $transient Transient object
+	 * @param array $price_field_value The price field value
+	 */
 	public function process_participant( $config, $form, $transient, $price_field_value ) {
 
 	}
@@ -174,11 +196,12 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 	/**
 	 * Process Contribution Line Item.
 	 * 
-	 * @param  [type] $config            [description]
-	 * @param  [type] $form              [description]
-	 * @param  [type] $transient         [description]
-	 * @param  [type] $price_field_value [description]
-	 * @return [type]                    [description]
+	 * @since 0.4.4
+	 * 
+	 * @param array $config Processor config
+	 * @param array $form Form config
+	 * @param object $transient Transient object
+	 * @param array $price_field_value The price field value
 	 */
 	public function process_contribution( $config, $form, $transient, $price_field_value ) {
 

@@ -45,110 +45,134 @@ class CiviCRM_Caldera_Forms_Forms {
         // reorder processors on save form
 		add_filter( 'caldera_forms_presave_form', [ $this, 'reorder_contact_processors' ], 20 );
 
-		add_filter( 'caldera_forms_submit_get_form', [ $this, 'set_transient_structure' ] );
 		/**
 		 * The transients are set and destroyed twice, 
 		 * one for the rendering of the form (autopopulation), 
 		 * and another one for the form submission.
 		 */
+		
 		// form render transient
-		add_filter( 'caldera_forms_render_get_form', [ $this, 'set_render_transient' ], 5 );
-		add_action( 'caldera_forms_render_end', [$this, 'delete_render_transient'] );
+		add_filter( 'caldera_forms_render_get_form', [ $this, 'set_form_transient' ], 1 );
+		add_action( 'caldera_forms_render_end', [ $this, 'delete_form_transient' ] );
 
 		// form submission transient
-		// add_action( 'caldera_forms_submit_process_before', [$this, 'set_transient'] );
-		add_action( 'caldera_forms_submit_complete', [ $this, 'delete_transient' ] );
+		add_filter( 'caldera_forms_submit_get_form', [ $this, 'set_form_transient' ] );
+		add_action( 'caldera_forms_submit_complete', [ $this, 'delete_form_transient' ] );
+		
+		// add CiviCRM panel
+		add_filter( 'caldera_forms_get_panel_extensions', [ $this, 'add_civicrm_tab' ], 10 );
 
-	}
-
-	public function set_transient_structure( $form ) {
-
-		$transient = new stdClass();
-
-		foreach ( $form['processors'] as $id => $processor ) {
-			if ( isset( $processor['runtimes'] ) ) {
-				if ( $processor['type'] == 'civicrm_contact' ) {
-					$transient->contacts->$id = new stdClass();
-				}
-				if ( $processor['type'] == 'civicrm_membership' ) {
-					$transient->memberships->$id = new stdClass();
-				}
-				if ( $processor['type'] == 'civicrm_participant' ) {
-					$transient->participants->$id = new stdClass();
-				}
-				if ( $processor['type'] == 'civicrm_order' ) {
-					$transient->orders->$id = new stdClass();
-				}
-				if ( $processor['type'] == 'civicrm_line_item' ) {
-					$transient->line_items->$id = new stdClass();
-				}
-			}
-		}
-
-		$transient->ID = $transient_id = $this->transient_id = $this->plugin->transient->unique_id();
-
-		$this->plugin->transient->save( $transient_id, $transient );
-
-		return $form;
 	}
 	
 	/**
-	 * Set transient at the begining of form processing.
+	 * Set form transient.
 	 * 
 	 * @since 0.4.4
 	 * @access public
 	 * @param array $form The form config
 	 * @return array $form The form config
 	 */
-	public function set_render_transient( $form ) {
-		// $this->set_transient_structure( $form );
+	public function set_form_transient( $form ) {
+
 		// bail if no processors
 		if ( empty( $form['processors'] ) ) return $form;
 
-		if ( Caldera_Forms::get_processor_by_type( 'civicrm_contact', $form ) )
-			$is_contact_processor = true;
+		$has_contact_processor = false;
 
-		// set transient if there's a contact processor
-		if ( isset( $is_contact_processor ) ) $this->set_transient();
+		if ( Caldera_Forms::get_processor_by_type( 'civicrm_contact', $form ) )
+			$has_contact_processor = true;
+
+		// set transient structure
+		if ( $has_contact_processor ) $this->set_transient_structure( $form );
 		
 		return $form;
 	}
-	
+
 	/**
-	 * Delete transient after form renders.
+	 * Delete form transient.
 	 * 
 	 * @access public
 	 * @since 0.4.4
 	 */
-	public function delete_render_transient( $form ) {
-		return $this->delete_transient();
-	}
-
-	/**
-	 * Set transient at the begining of form processing.
-	 * 
-	 * @since 0.4.4
-	 * @access public
-	 */
-	public function set_transient() {
-		// set unique id
-		$transient_id = $this->transient_id = $this->plugin->transient->unique_id();
-		// set transient
-		$data = new stdClass;
-		$data->ID = $transient_id;
-		$data->contacts = new stdClass();
-
-		return $this->plugin->transient->save( $transient_id, $data );
-	}
-
-	/**
-	 * Delete transient after submission.
-	 * 
-	 * @access public
-	 * @since 0.4.4
-	 */
-	public function delete_transient() {
+	public function delete_form_transient() {
 		return $this->plugin->transient->delete();
+	}
+
+	/**
+	 * Transient structure.
+	 *
+	 * @since 0.4.4
+	 * 
+	 * @param array $form Form config
+	 * @return array $form Form config
+	 */
+	public function set_transient_structure( $form ) {
+
+		$structure = new stdClass();
+
+		foreach ( $form['processors'] as $id => $processor ) {
+			if ( isset( $processor['runtimes'] ) ) {
+				if ( $processor['type'] == 'civicrm_contact' ) {
+					$structure->contacts = new stdClass();
+					$structure->contacts->$id = new stdClass();
+				}
+
+				if ( $processor['type'] == 'civicrm_membership' ) {
+					$structure->memberships = new stdClass();
+					$structure->memberships->$id = new stdClass();
+				}
+
+				if ( $processor['type'] == 'civicrm_participant' ) {
+					$structure->participants = new stdClass();
+					$structure->participants->$id = new stdClass();
+				}
+
+				if ( $processor['type'] == 'civicrm_order' ) {
+					$structure->orders = new stdClass();
+					$structure->orders->$id = new stdClass();
+				}
+
+				if ( $processor['type'] == 'civicrm_line_item' ) {
+					$structure->line_items = new stdClass();
+					$structure->line_items->$id = new stdClass();
+				}
+
+			}
+		}
+
+		/**
+		 * Transient structure, fires at form subsmission and at render time.
+		 *
+		 * @since 0.4.4
+		 *
+		 * @param object $transient The transient stricture
+		 * @param array $form Form config
+		 */
+		apply_filters( 'cfc_filter_transient_structure', $transient, $form );
+
+		$this->plugin->transient->save( null, $structure );
+
+		return $form;
+	}
+
+	/**
+	 * Add CiviCRM panel.
+	 *
+	 * @since 0.4.4
+	 * 
+	 * @param array $panels Panels
+	 * @return array $panels Panels
+	 */
+	public function add_civicrm_tab( $panels ) {
+		$panels['form_layout']['tabs'][ 'civicrm' ] = [
+			'name' => __( 'CiviCRM', 'caldera-forms-civicrm' ),
+			'label' => __( 'Caldera Forms CiviCRM', 'caldera-forms-civicrm' ),
+			'location' => 'lower',
+			'actions' => [],
+			'side_panel' => null,
+			'canvas' => CF_CIVICRM_INTEGRATION_PATH . 'panels/civicrm.php'
+		];
+		return $panels;
 	}
 
 

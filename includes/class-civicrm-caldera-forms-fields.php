@@ -88,6 +88,8 @@ class CiviCRM_Caldera_Forms_Fields {
 		// adds price field options Presets
 		add_filter( 'caldera_forms_field_option_presets', array( $this, 'price_field_options_presets' ) );
 
+		add_filter( 'caldera_forms_field_option_presets', [ $this, 'payment_instrument_options_presets' ] );
+
 		// auto-populate CiviCRM fields
 		add_filter( 'caldera_forms_render_get_field', array( $this, 'custom_fields_autopopulate' ), 20, 2 );
 		add_action( 'caldera_forms_autopopulate_types', array( $this, 'custom_fields_autopopulate_options' ) );
@@ -153,9 +155,27 @@ class CiviCRM_Caldera_Forms_Fields {
 
 	}
 
+	public function payment_instrument_options_presets( $presets ) {
+		$result = civicrm_api3( 'Contribution', 'getoptions', [
+			'field' => 'payment_instrument_id',
+		] );
+		
+		$options = [];
+		foreach ( $result['values'] as $id => $method ) {
+			$options[] = $id.'|'.$method;
+		}
+
+		$presets['payment_instrument_id'] = [
+			'name' => __( 'CiviCRM Payment Methods', 'caldera-forms-civicrm' ),
+			'data' => $options,
+		];
+
+		return $presets;
+	}
+
 	public function price_field_options_presets( $presets ) {
 		
-		$price_sets = apply_filters( 'cfc_price_set_autopopulate', $this->plugin->helper->get_price_sets() );
+		$price_sets = apply_filters( 'cfc_price_set_autopopulate', $this->plugin->helper->cached_price_sets() );
 
 		$price_fields = [];
 		foreach ( $price_sets as $price_set_id => $price_set ) {
@@ -258,7 +278,7 @@ class CiviCRM_Caldera_Forms_Fields {
 	 * @since 0.4.4
 	 */
 	public function price_field_autopopulate_options() {
-		foreach ( $this->plugin->helper->get_price_sets() as $price_set_id => $price_set ) {
+		foreach ( $this->plugin->helper->cached_price_sets() as $price_set_id => $price_set ) {
 			echo '<optgroup label="' . __( 'CiviCRM Price Set - ' . $price_set['title'], 'caldera-forms-civicrm' ) . '">';
 			foreach ( $price_set['price_fields'] as $price_field_id => $price_field ) {
 				echo "<option value=\"cfc_price_field_$price_field_id\"{{#is auto_type value=\"cfc_price_field_$price_field_id\"}} selected=\"selected\"{{/is}}>" . __( 'Price Field - ' . $price_field['label'] , 'caldera-forms-civicrm' ) . "</option>";
@@ -277,7 +297,7 @@ class CiviCRM_Caldera_Forms_Fields {
 	 */
 	public function price_field_autopopulate( $field, $form ) {
 		if ( ! empty( $field['config']['auto'] ) ) {
-			$price_sets = apply_filters( 'cfc_price_set_autopopulate', $this->plugin->helper->get_price_sets() );
+			$price_sets = apply_filters( 'cfc_price_set_autopopulate', $this->plugin->helper->cached_price_sets() );
 			foreach ( $price_sets as $price_set_id => $price_set ) {
 				foreach ( $price_set['price_fields'] as $price_field_id => $price_field ) {
 					if( $field['config']['auto_type'] == 'cfc_price_field_' . $price_field_id ) {
