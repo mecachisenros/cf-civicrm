@@ -68,16 +68,19 @@ class CiviCRM_Caldera_Forms_Processors {
 
 		// Include processor classes
 		include CF_CIVICRM_INTEGRATION_PATH . 'processors/contact/class-contact-processor.php';
-		include CF_CIVICRM_INTEGRATION_PATH . 'processors/order/class-order-processor.php';
-		include CF_CIVICRM_INTEGRATION_PATH . 'processors/order2/class-order2-processor.php';
-		include CF_CIVICRM_INTEGRATION_PATH . 'processors/line-item/class-line-item-processor.php';
-		include CF_CIVICRM_INTEGRATION_PATH . 'processors/membership/class-membership-processor.php';
+		// include CF_CIVICRM_INTEGRATION_PATH . 'processors/order/class-order-processor.php';
+		if ( in_array( 'CiviContribute', $this->enabled_components ) ) {
+			include CF_CIVICRM_INTEGRATION_PATH . 'processors/order2/class-order2-processor.php';
+			include CF_CIVICRM_INTEGRATION_PATH . 'processors/line-item/class-line-item-processor.php';
+			include CF_CIVICRM_INTEGRATION_PATH . 'processors/contribution/class-contribution-processor.php';
+		}
+		if ( in_array( 'CiviMember', $this->enabled_components ) )
+			include CF_CIVICRM_INTEGRATION_PATH . 'processors/membership/class-membership-processor.php';
 		include CF_CIVICRM_INTEGRATION_PATH . 'processors/group/class-group-processor.php';
 		include CF_CIVICRM_INTEGRATION_PATH . 'processors/activity/class-activity-processor.php';
 		include CF_CIVICRM_INTEGRATION_PATH . 'processors/relationship/class-relationship-processor.php';
 		include CF_CIVICRM_INTEGRATION_PATH . 'processors/entity-tag/class-entity-tag-processor.php';
 		include CF_CIVICRM_INTEGRATION_PATH . 'processors/address/class-address-processor.php';
-		include CF_CIVICRM_INTEGRATION_PATH . 'processors/contribution/class-contribution-processor.php';
 		include CF_CIVICRM_INTEGRATION_PATH . 'processors/email/class-email-processor.php';
 		include CF_CIVICRM_INTEGRATION_PATH . 'processors/phone/class-phone-processor.php';
 		include CF_CIVICRM_INTEGRATION_PATH . 'processors/note/class-note-processor.php';
@@ -99,25 +102,28 @@ class CiviCRM_Caldera_Forms_Processors {
 
 		// store processors in array
 		$this->processors['contact'] = new CiviCRM_Caldera_Forms_Contact_Processor( $this->plugin );
-		$this->processors['order'] = new CiviCRM_Caldera_Forms_Order_Processor( $this->plugin );
-		$this->processors['order2'] = new CiviCRM_Caldera_Forms_Order2_Processor( $this->plugin );
-		$this->processors['line_item'] = new CiviCRM_Caldera_Forms_Line_Item_Processor( $this->plugin );
-		$this->processors['membership'] = new CiviCRM_Caldera_Forms_Membership_Processor( $this->plugin );
-		$this->processors['group'] = new CiviCRM_Caldera_Forms_Group_Processor( $this->plugin );
+		// $this->processors['order'] = new CiviCRM_Caldera_Forms_Order_Processor( $this->plugin );
+		if ( in_array( 'CiviContribute', $this->enabled_components ) ) {
+			$this->processors['order2'] = new CiviCRM_Caldera_Forms_Order2_Processor( $this->plugin );
+			$this->processors['line_item'] = new CiviCRM_Caldera_Forms_Line_Item_Processor( $this->plugin );
+			$this->processors['contribution'] = new CiviCRM_Caldera_Forms_Contribution_Processor( $this->plugin );
+		}
+		if ( in_array( 'CiviMember', $this->enabled_components ) )
+			$this->processors['membership'] = new CiviCRM_Caldera_Forms_Membership_Processor( $this->plugin );
+		if ( in_array( 'CiviCase', $this->enabled_components ) )
+			$this->processors['case'] = new CiviCRM_Caldera_Forms_Case_Processor( $this->plugin );
 		$this->processors['activity'] = new CiviCRM_Caldera_Forms_Activity_Processor( $this->plugin );
-		$this->processors['contribution'] = new CiviCRM_Caldera_Forms_Contribution_Processor( $this->plugin );
 		$this->processors['relationship'] = new CiviCRM_Caldera_Forms_Relationship_Processor( $this->plugin );
-		$this->processors['entity_tag'] = new CiviCRM_Caldera_Forms_Entity_Tag_Processor( $this->plugin );
 		$this->processors['address'] = new CiviCRM_Caldera_Forms_Address_Processor( $this->plugin );
 		$this->processors['email'] = new CiviCRM_Caldera_Forms_Email_Processor( $this->plugin );
 		$this->processors['phone'] = new CiviCRM_Caldera_Forms_Phone_Processor( $this->plugin );
-		$this->processors['note'] = new CiviCRM_Caldera_Forms_Note_Processor( $this->plugin );
 		$this->processors['website'] = new CiviCRM_Caldera_Forms_Website_Processor( $this->plugin );
 		$this->processors['im'] = new CiviCRM_Caldera_Forms_Im_Processor( $this->plugin );
+		$this->processors['note'] = new CiviCRM_Caldera_Forms_Note_Processor( $this->plugin );
+		$this->processors['group'] = new CiviCRM_Caldera_Forms_Group_Processor( $this->plugin );
+		$this->processors['entity_tag'] = new CiviCRM_Caldera_Forms_Entity_Tag_Processor( $this->plugin );
 		if ( $this->enabled_extensions && in_array( 'org.civicoop.emailapi', $this->enabled_extensions ) )
 			$this->processors['send_email'] = new CiviCRM_Caldera_Forms_Send_Email_Processor( $this->plugin );
-		if ( in_array( 'CiviCase', $this->enabled_components ) )
-			$this->processors['case'] = new CiviCRM_Caldera_Forms_Case_Processor( $this->plugin );
 
 	}
 

@@ -34,6 +34,9 @@ class CiviCRM_Caldera_Forms_Contact_Reference {
 		// add custom fields to Caldera UI
 		add_filter( 'caldera_forms_get_field_types', [ $this, 'register_field_type' ] );
 		add_filter( 'caldera_forms_render_get_form', [ $this, 'enqueue_scripts' ], 10 );
+		// handle current_employer field
+		add_filter( 'cfc_filter_mapped_field_to_processor', [ $this, 'handle_current_employer_field' ], 10, 5 );
+		add_filter( 'cfc_filter_mapped_field_to_prerender', [ $this, 'pre_render_current_employer_value' ], 10, 5 );
 	}
 
 	/**
@@ -72,9 +75,66 @@ class CiviCRM_Caldera_Forms_Contact_Reference {
 
 	}
 
+	/**
+	 * Filter current_employer mapped field value.
+	 *
+	 * @since  0.4.4
+	 * 
+	 * @param string|int $mapped_field The mapped value
+	 * @param string $civi_field The field for an entity i.e. 'contact_id', 'current_employer', etc.
+	 * @param array $field The field config
+	 * @param array $config processor config
+	 * @param array $form Form config
+	 */
+	public function handle_current_employer_field( $mapped_field, $civi_field, $field, $config, $form ) {
+
+		if ( $civi_field == 'current_employer' && $field['type'] == 'civicrm_contact_reference' ) {
+			if ( ! is_numeric( $mapped_field ) && isset( $field['config']['new_organization'] ) ) {
+				$employer = civicrm_api3( 'Contact', 'create', [
+					'contact_type' => 'Organization',
+					'organization_name' => $mapped_field,
+				] );	
+			} else {
+				$employer = civicrm_api3( 'Contact', 'get', [
+					'contact_id' => $mapped_field,
+					'return' => 'organization_name'
+				] );
+			}
+			return $employer['values'][$employer['id']]['organization_name'];
+		}
+
+		return $mapped_field;
+	}
+
+	/**
+	 * Prerenderd default current_employer.
+	 *
+	 * @since  0.4.4
+	 * 
+	 * @param string|int $value The default value
+	 * @param string $civi_field The field for an entity i.e. 'contact_id', 'current_employer', etc.
+	 * @param array $field The field config
+	 * @param array $entity The current entity, i.e. Contact, Address, etc
+	 * @param array $config processor config
+	 */
+	public function pre_render_current_employer_value( $value, $civi_field, $field, $entity, $config ) {
+		if ( $civi_field == 'current_employer' && $field['type'] == 'civicrm_contact_reference' ) {
+			$employer = civicrm_api3( 'Contact', 'get', [ 'contact_type' => 'Organization', 'organization_name' => $entity[$civi_field] ] );
+			return $employer['id'];
+		}
+		return $value;
+	}
+
+	/**
+	 * Enqueue scripts
+	 *
+	 * @since 0.4.4
+	 * 
+	 * @param array $form Form config
+	 * @return array $form Form config
+	 */
 	public function enqueue_scripts( $form ) {
 		wp_register_script( 'cfc-select2', CF_CIVICRM_INTEGRATION_URL . 'assets/js/select2.js', [ 'jquery' ], CF_CIVICRM_INTEGRATION_VER );
-		
 		
 		$reference = false;
 		

@@ -113,7 +113,13 @@ class CiviCRM_Caldera_Forms_Order2_Processor {
 		$form_values['payment_instrument_id'] = $config['payment_instrument_id'];
 		$form_values['currency'] = $config['currency'];
 
-		$form_values['receipt_date'] = date('YmdHis');
+		$form_values['receipt_date'] = date( 'YmdHis' );
+
+		// is pay later
+		if ( isset( $form_values['is_pay_later'] ) ) {
+			$form_values['contribution_status_id'] = 'Pending';
+			unset( $form_values['trxn_id'] );
+		}
 		
 		// source
 		if( ! isset( $form_values['source'] ) )
@@ -134,12 +140,6 @@ class CiviCRM_Caldera_Forms_Order2_Processor {
 			} else {
 				unset( $config_line_items[$item] );
 			}
-		}
-
-		// check if the membership is the same type
-		$total_num_terms = '';
-		foreach ( $line_items as $key => $item ) {
-
 		}
 
 		$form_values['line_items'] = $line_items;

@@ -398,7 +398,7 @@ class CiviCRM_Caldera_Forms_Helper {
 	 * @return array $form_values
 	 */
 	public function map_fields_to_processor( $config, $form, &$form_values, $processor = null ){
-		foreach ( ( $processor ? $config[$processor] : $config ) as $key => $field_id ) {
+		foreach ( ( $processor ? $config[$processor] : $config ) as $civi_field => $field_id ) {
 			if ( ! empty( $field_id ) ) {
 
 				// do bracket magic tag
@@ -435,30 +435,27 @@ class CiviCRM_Caldera_Forms_Helper {
 					// if not a magic tag nor field id, must be a fixed value
 					// $mapped_field = $mapped_field ? $mapped_field : $field_id;
 
-					// handle current_employers field
-					if ( $key == 'current_employer' && $field['type'] == 'civicrm_contact_reference' ) {
-						if ( ! is_numeric( $mapped_field ) && isset( $field['config']['new_organization'] ) ) {
-							$employer = civicrm_api3( 'Contact', 'create', [
-								'contact_type' => 'Organization',
-								'organization_name' => $mapped_field,
-							] );	
-						} else {
-							$employer = civicrm_api3( 'Contact', 'get', [
-								'contact_id' => $mapped_field,
-								'return' => 'organization_name'
-							] );
-						}
-						$mapped_field = $employer['values'][$employer['id']]['organization_name'];
-					}
 				}
 				
+				/**
+				 * Filter mapped field value, fires for every processor field.
+				 *
+				 * @since  0.4.4
+				 * 
+				 * @param string|int $mapped_field The mapped value
+				 * @param string $civi_field The field for an entity i.e. 'contact_id', 'current_employer', etc.
+				 * @param array $field The field config
+				 * @param array $config processor config
+				 * @param array $form Form config
+				 */
+				$mapped_field = apply_filters( 'cfc_filter_mapped_field_to_processor', $mapped_field, $civi_field, $field, $config, $form );
 
         		if( ! empty( $mapped_field ) ){
 
 					if ( $processor ) {
-						$form_values[$processor][$key] = $mapped_field;
+						$form_values[$processor][$civi_field] = $mapped_field;
 					} else {
-						$form_values[$key] = $mapped_field;
+						$form_values[$civi_field] = $mapped_field;
 					}
 				}
 			}
@@ -475,31 +472,36 @@ class CiviCRM_Caldera_Forms_Helper {
 	 * @param array $config The processor settings
 	 * @param array $form The form settings
 	 * @param array $ignore_fields The fields to be ignored during data mapping
-	 * @param string $processor The processor key, only necessary for the Contact processor class
-	 * @return array $form The form settings
+	 * @param array $entity The entity being mapped with its values, i.e. Contact, Address, etc
+	 * @return array $processor The processor key, only necessary for the Contact processor class
 	 */
 	public function map_fields_to_prerender( $config, &$form, $ignore_fields, $entity, $processor = null ){
 
-		foreach ( ( $processor ? $config[$processor] : $config ) as $field => $value ) {
-			if ( ! empty( $value ) && ! in_array( $field, $ignore_fields ) ) {
+		foreach ( ( $processor ? $config[$processor] : $config ) as $civi_field => $field_id ) {
+			if ( ! empty( $field_id ) && ! in_array( $civi_field, $ignore_fields ) ) {
 
 				// Get field by ID or slug
-				$mapped_field =
-					Caldera_Forms_Field_Util::get_field( $value, $form ) ?
-					Caldera_Forms_Field_Util::get_field( $value, $form ) :
-					Caldera_Forms::get_field_by_slug(str_replace( '%', '', $value ), $form );
+				$field =
+					Caldera_Forms_Field_Util::get_field( $field_id, $form ) ?
+					Caldera_Forms_Field_Util::get_field( $field_id, $form ) :
+					Caldera_Forms::get_field_by_slug(str_replace( '%', '', $field_id ), $form );
 
-				// Set default value
-				$form['fields'][$mapped_field['ID']]['config']['default'] = $entity[$field];
-				// handle current employer, api returns name, no cid/employer_id
-				if ( $field == 'current_employer' && $mapped_field['type'] == 'civicrm_contact_reference' ) {
-					$employer = civicrm_api3( 'Contact', 'get', [ 'contact_type' => 'Organization', 'organization_name' => $entity[$field] ] );
-					$form['fields'][$mapped_field['ID']]['config']['default'] = $employer['id'];
-				}
+				/**
+				 * Filter prerenderd value (default value), fires for every processor field.
+				 *
+				 * @since  0.4.4
+				 * 
+				 * @param string|int $value The default value
+				 * @param string $civi_field The field for an entity i.e. 'contact_id', 'current_employer', etc.
+				 * @param array $field The field config
+				 * @param array $entity The current entity, i.e. Contact, Address, etc
+				 * @param array $config processor config
+				 */
+				$form['fields'][$field['ID']]['config']['default'] = apply_filters( 'cfc_filter_mapped_field_to_prerender', $entity[$civi_field], $civi_field, $field, $entity, $config );
 
-				if ( $mapped_field['type'] == 'radio' ) {
-					$options = Caldera_Forms_Field_Util::find_option_values( $mapped_field );
-					$form['fields'][$mapped_field['ID']]['config']['default'] = array_search( $entity[$field], $options );
+				if ( $field['type'] == 'radio' ) {
+					$options = Caldera_Forms_Field_Util::find_option_values( $field );
+					$form['fields'][$field['ID']]['config']['default'] = array_search( $entity[$civi_field], $options );
 				}
 			}
 		}
@@ -550,35 +552,6 @@ class CiviCRM_Caldera_Forms_Helper {
 		$entityFileDAO->save();
 	}
 
-	/**
-	 * Retrieve the select dropdown for contact links.
-	 *
-	 * @since 0.4.4
-	 *
-	 * @return str $contact_link The the select dropdown markup
-	 */
-	public function contact_link_order_field( $id ) {
-
-		ob_start();
-		?>
-				<select class="block-input field-config" name="{{_name}}[line_item][<?php echo $id; ?>][contact_link]">
-					<option value="1" {{#is line_item/<?php echo $id; ?>/contact_link value=1}}selected="selected"{{/is}}><?php _e( 'Contact 1', 'caldera-forms-civicrm' ); ?></option>
-					<option value="2" {{#is line_item/<?php echo $id; ?>/contact_link value=2}}selected="selected"{{/is}}><?php _e( 'Contact 2', 'caldera-forms-civicrm' ); ?></option>
-					<option value="3" {{#is line_item/<?php echo $id; ?>/contact_link value=3}}selected="selected"{{/is}}><?php _e( 'Contact 3', 'caldera-forms-civicrm' ); ?></option>
-					<option value="4" {{#is line_item/<?php echo $id; ?>/contact_link value=4}}selected="selected"{{/is}}><?php _e( 'Contact 4', 'caldera-forms-civicrm' ); ?></option>
-					<option value="5" {{#is line_item/<?php echo $id; ?>/contact_link value=5}}selected="selected"{{/is}}><?php _e( 'Contact 5', 'caldera-forms-civicrm' ); ?></option>
-					<option value="6" {{#is line_item/<?php echo $id; ?>/contact_link value=6}}selected="selected"{{/is}}><?php _e( 'Contact 6', 'caldera-forms-civicrm' ); ?></option>
-					<option value="7" {{#is line_item/<?php echo $id; ?>/contact_link value=7}}selected="selected"{{/is}}><?php _e( 'Contact 7', 'caldera-forms-civicrm' ); ?></option>
-					<option value="8" {{#is line_item/<?php echo $id; ?>/contact_link value=8}}selected="selected"{{/is}}><?php _e( 'Contact 8', 'caldera-forms-civicrm' ); ?></option>
-					<option value="9" {{#is line_item/<?php echo $id; ?>/contact_link value=9}}selected="selected"{{/is}}><?php _e( 'Contact 9', 'caldera-forms-civicrm' ); ?></option>
-					<option value="10" {{#is line_item/<?php echo $id; ?>/contact_link value=10}}selected="selected"{{/is}}><?php _e( 'Contact 10', 'caldera-forms-civicrm' ); ?></option>
-				</select>
-		<?php
-		$contact_link = ob_get_contents();
-		return $contact_link;
-
-	}
-
 	public function get_field_data_by_slug( $slug, $form ) {
 		$slug = strpos( $slug, '%' ) !== false ? str_replace( '%', '', $slug ) : $slug;
 		$field = Caldera_Forms::get_field_by_slug( $slug, $form );
@@ -586,14 +559,12 @@ class CiviCRM_Caldera_Forms_Helper {
 	}
 
 	/**
-	 * Get event price sets.
+	 * Get price sets.
 	 *
 	 * @since 0.4.4
 	 * @return array $price_sets The active price sets with their corresponding price fields and price filed values
 	 */
-	public function get_price_sets( $id = false ) {
-
-		if ( isset( $this->price_sets ) ) return $this->price_sets;
+	public function get_price_sets() {
 
 		$price_set_params = array(
 			'sequential' => 1,
@@ -608,10 +579,8 @@ class CiviCRM_Caldera_Forms_Helper {
 			),
 		);
 
-		if( $id ) $price_set_params['id'] = $id;
-
 		try {
-			$event_price_sets = civicrm_api3( 'PriceSet', 'get', $price_set_params );
+			$result_price_sets = civicrm_api3( 'PriceSet', 'get', $price_set_params );
 		} catch ( CiviCRM_API3_Exception $e ) {
 			return array( 'note' => $e->getMessage(), 'type' => 'error' );
 		}
@@ -633,7 +602,7 @@ class CiviCRM_Caldera_Forms_Helper {
 		}
 
 		$price_sets = array();
-		foreach ( $event_price_sets['values'] as $key => $price_set ) {
+		foreach ( $result_price_sets['values'] as $key => $price_set ) {
 			$price_set['price_set_id'] = $price_set_id = $price_set['id'];
 			$price_set['price_fields'] = $price_set['api.PriceField.get']['values'];
 			foreach ( $price_set['price_fields'] as $price_field_id => $price_field ) {
@@ -646,11 +615,36 @@ class CiviCRM_Caldera_Forms_Helper {
 			unset( $price_set['id'], $price_set['api.PriceField.get'] );
 			$price_sets[$price_set_id] = $price_set;
 		}
-		$this->price_sets = $price_sets;
 
-		return $this->price_sets;
+		return $price_sets;
 	}
 
+	/**
+	 * Get cached active price sets with their corresponding price fields and price filed values.
+	 *
+	 * @since 0.4.4
+	 *
+	 * @return array|Exception $price_sets
+	 */
+	public function cached_price_sets() {
+		$price_sets = get_transient( 'cfc_civicrm_price_sets' );
+		if ( $price_sets ) return $price_sets;
+		
+		if ( set_transient( 'cfc_civicrm_price_sets', $this->get_price_sets(), DAY_IN_SECONDS ) )
+			return get_transient( 'cfc_civicrm_price_sets' );
+		
+		throw new Exception( 'Price sets transient could not be set.' );
+		
+	}
+
+	/**
+	 * Get Price Field Value by id.
+	 *
+	 * @since  0.4.4
+	 * 
+	 * @param  int $id Price Field Value id
+	 * @return array $price_field_value The Price Field Value
+	 */
 	public function get_price_field_value( $id ) {
 		$price_field_value = civicrm_api3( 'PriceFieldValue', 'getsingle', [
 			'return' => [ 'id', 'price_field_id', 'label', 'amount', 'count', 'membership_type_id', 'membership_num_terms', 'financial_type_id' ],

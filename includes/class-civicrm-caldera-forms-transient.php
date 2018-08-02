@@ -17,13 +17,22 @@ class CiviCRM_Caldera_Forms_Transient {
     public $plugin;
 
     /**
+     * Transient name prefix.
+     *
+     * @since 0.4.4
+     * @access protected
+     * @var string $preifx Transient name prefix
+     */
+    protected $prefix = 'cfc_';
+
+    /**
      * Transient Id.
      * 
      * @since 0.4.4
      * @access protected
      * @var string $transient_id The transient id
      */
-    protected static $transient_id;
+    protected $transient_id;
 
     /**
      * Initialises this object.
@@ -41,24 +50,26 @@ class CiviCRM_Caldera_Forms_Transient {
      * @access public
      * @return string $transient_id The transient id
      */
-    public function unique_id() {
-        // $transient_id = uniqid('cfc_');
-        if ( ! isset( self::$transient_id ) ) self::$transient_id = uniqid( 'cfc_' );
-        return self::$transient_id;
+    protected function set_unique_id() {
+        if ( ! isset( $this->transient_id ) ) $this->transient_id = uniqid( $this->prefix );
+        return $this->transient_id;
     }
 
     /**
-     * Set transient.
+     * Save transient.
      * 
      * @since 0.4.4
      * @access public
-     * @param string $transient_id The transient id
+     * @param string|null|false $transient_id Transient id
      * @param object $values The values to store
      * @param int $expiration Time until expiration in seconds from now
      * @return bool True if values were stored, false otherwise
      */
     public function save( $transient_id, $data, $expiration = HOUR_IN_SECONDS ) {
-        return set_transient( $transient_id, (object)$data, $expiration );
+        if ( ! $transient_id )
+            $this->transient_id = $data->ID = $transient_id = $this->set_unique_id();
+
+        return set_transient( $transient_id, $data, $expiration );
     }
 
     /**
@@ -68,10 +79,9 @@ class CiviCRM_Caldera_Forms_Transient {
      * @access public
      * @return object|bool $transient The values or false if none was found
      */
-    public function get( $id = null ) {
-        if ( isset( $id ) ) return get_transient( self::$transient_id );
-        // if ( ! isset( self::$transient_id ) ) $this->unique_id('cfc_');
-        return get_transient( self::$transient_id );
+    public function get( $id = false ) {
+        if ( $id ) return get_transient( $id );
+        return get_transient( $this->transient_id );
     }
 
     /**
@@ -81,7 +91,9 @@ class CiviCRM_Caldera_Forms_Transient {
      * @access public
      * @return bool True if deletion was comleted, false otherwise
      */
-    public function delete() {
-        return delete_transient( self::$transient_id );
+    public function delete( $id = false ) {
+        if( $id ) return delete_transient( $id );
+        return delete_transient( $this->transient_id );
     }
+
 }
