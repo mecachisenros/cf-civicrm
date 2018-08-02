@@ -68,21 +68,20 @@ $price_sets = caldera_forms_civicrm()->helper->cached_price_sets();
 </div>
 
 <!-- Payment Method -->
-<!-- <div id="{{_id}}_payment_instrument_id" class="caldera-config-group">
+<div id="{{_id}}_payment_instrument_id" class="caldera-config-group">
 	<label><?php _e( 'Payment Method', 'caldera-forms-civicrm' ); ?></label>
-	<div class="caldera-config-field">
+	<div class="caldera-config-field payment_instrument_id">
 		<select class="block-input field-config" name="{{_name}}[payment_instrument_id]">
 		<?php foreach ( $payment_instruments['values'] as $id => $method ) { ?>
 			<option value="<?php echo esc_attr( $id ); ?>" {{#is payment_instrument_id value=<?php echo $id; ?>}}selected="selected"{{/is}}><?php echo esc_html( $method ); ?></option>
 		<?php } ?>
 		</select>
 	</div>
-</div> -->
-
-<div id="{{_id}}_payment_instrument_id" class="caldera-config-group">
-	<label><?php _e( 'Payment Method', 'caldera-forms-civicrm' ); ?></label>
-	<div class="caldera-config-field">
-		<input type="text" class="block-input field-config magic-tag-enabled caldera-field-bind" name="{{_name}}[payment_instrument_id]" value="{{payment_instrument_id}}">
+	<div class="is_mapped_field caldera-config-field">
+		<label><input type="checkbox" name="{{_name}}[is_mapped_field]" value="1" {{#if is_mapped_field}}checked="checked"{{/if}}><?php _e( 'Use Payment Method mapped field.', 'caldera-forms-civicrm' ); ?></label>
+	</div>
+	<div class="mapped_payment_instrument_id caldera-config-field">
+		<input type="text" class="block-input field-config magic-tag-enabled caldera-field-bind" name="{{_name}}[mapped_payment_instrument_id]" value="{{mapped_payment_instrument_id}}">
 	</div>
 </div>
 
@@ -118,8 +117,16 @@ $price_sets = caldera_forms_civicrm()->helper->cached_price_sets();
 <div id="{{_id}}_is_pay_later" class="caldera-config-group">
 	<label><?php _e( 'Is Pay Later', 'caldera-forms-civicrm' ); ?></label>
 	<div class="caldera-config-field">
-		{{{_field slug="is_pay_later"}}}
+		<select class="block-input field-config" name="{{_name}}[is_pay_later]">
+			<option value=""></option>
+			<?php foreach ( $payment_instruments['values'] as $id => $method ): ?>
+				<option value="<?php echo esc_attr( $id ); ?>" {{#is is_pay_later value=<?php echo esc_attr( $id ); ?>}}selected="selected"{{/is}}><?php echo esc_attr( $method ); ?></option>
+			<?php endforeach ?>
+		</select>
 	</div>
+	<p class="description">
+		<?php _e( 'Select a Payment Method considered as Pending (Pay later).', 'caldera-forms-civicrm' ); ?>
+	</p>
 </div>
 
 <!-- Check number -->
@@ -139,6 +146,8 @@ $price_sets = caldera_forms_civicrm()->helper->cached_price_sets();
 </div>
 <hr style="clear: both;" />
 
+
+
 <!-- Line Items -->
 <h1><?php _e( 'Line Items', 'caldera-forms-civicrm' ); ?></h1>
 
@@ -148,7 +157,7 @@ $price_sets = caldera_forms_civicrm()->helper->cached_price_sets();
 			id="{{_id}}_line_item_add" 
 			type="button" 
 			data-id="{{_id}}" 
-			data-complete="line_item_built" 
+			data-complete="cfc_line_item_built" 
 			class="pull-right button ajax-trigger" 
 			data-template="#line-item-tmpl" 
 			data-target-insert="append" 
@@ -178,19 +187,28 @@ $price_sets = caldera_forms_civicrm()->helper->cached_price_sets();
 	{{/unless}}
 </div>
 
-<script type="text/html" id="line-item-tmpl">
-	<div id="line_item_{{item_id}}" data-id="{{_id}}" class="line-item caldera-config-group">
-		<label><?php _e( 'Line Item', 'caldera-forms-civicrm' ); ?></label>
-		<div class="caldera-config-field">
-			<input type="text" exclude="system" class="block-input field-config magic-tag-enabled caldera-field-bind" name="{{_name}}[line_items][line_item_{{item_id}}]" value="">
-			<button type="button" class="button remove-line-item pull-right"><i class="icon-join"></i></button>
-		</div>
-	</div>
-</script>
-
 <script>
+	( function() {
+		setTimeout( function(){
+			$( '.line-item .field-config' ).closest( 'span' ).css( 'width', '80%' );
+		}, 3000 )
+		
+		$( '.caldera-editor-body' ).on( 'click', '.remove-line-item', function( e ) {
+			e.preventDefault();
+			$(this).closest( '.line-item' ).remove();
+		} );
 
-	var cfc_add_line_item = function( obj ) {
+		var prId = '{{_id}}',
+        payment_instrument_id = '#' + prId + '_payment_instrument_id';
+
+        $( payment_instrument_id + ' .is_mapped_field input' ).on( 'change', function( i, el ) {
+            var is_mapped_field = $( this ).prop( 'checked' );
+            $( '.mapped_payment_instrument_id', $( payment_instrument_id ) ).toggle( is_mapped_field );
+            $( '.payment_instrument_id', $( payment_instrument_id ) ).toggle( ! is_mapped_field );
+        } ).trigger( 'change' );
+	} )();
+
+	function cfc_add_line_item( obj ) {
 		
 		var id = obj.trigger.data('id'),
 		config = JSON.parse( $( '#' + id + ' .processor_config_string' ).val() ),
@@ -213,7 +231,7 @@ $price_sets = caldera_forms_civicrm()->helper->cached_price_sets();
 	// FIXME
 	// use this to modify appended element,
 	// can't figure out how to change the 'context' in the handlebars template
-	function line_item_built( obj ) {
+	function cfc_line_item_built( obj ) {
 
 		var id = $( '#line_item_' ).data( 'id' ),
 		item_id = 'line_item_' + ( $( '#' + id + '_line_items_wrapper .line-item' ).length ),
@@ -224,17 +242,14 @@ $price_sets = caldera_forms_civicrm()->helper->cached_price_sets();
 		// update id
 		$( '.' + id + '_line_items #line_item_' ).attr( 'id', item_id );
 	}
+</script>
 
-	jQuery( document ).ready( function( $ ) {
-		
-		setTimeout( function(){
-			$( '.line-item .field-config' ).closest( 'span' ).css( 'width', '80%' );
-		}, 3000 )
-		
-		$( '.caldera-editor-body' ).on( 'click', '.remove-line-item', function( e ) {
-			e.preventDefault();
-			$(this).closest( '.line-item' ).remove();
-		} );
-	} )
-
+<script type="text/html" id="line-item-tmpl">
+	<div id="line_item_{{item_id}}" data-id="{{_id}}" class="line-item caldera-config-group">
+		<label><?php _e( 'Line Item', 'caldera-forms-civicrm' ); ?></label>
+		<div class="caldera-config-field">
+			<input type="text" exclude="system" class="block-input field-config magic-tag-enabled caldera-field-bind" name="{{_name}}[line_items][line_item_{{item_id}}]" value="">
+			<button type="button" class="button remove-line-item pull-right"><i class="icon-join"></i></button>
+		</div>
+	</div>
 </script>
