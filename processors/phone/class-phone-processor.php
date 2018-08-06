@@ -112,7 +112,7 @@ class CiviCRM_Caldera_Forms_Phone_Processor {
 			// Get form values
 			$form_values = $this->plugin->helper->map_fields_to_processor( $config, $form, $form_values );
 
-			if( ! empty( $form_values ) ) {
+			if( ! empty( $form_values ) && ! empty( $form_values['phone'] )  ) {
 				$form_values['contact_id'] = $transient->contacts->{$this->contact_link}; // Contact ID set in Contact Processor
 
 				// Pass Phone ID if we got one
