@@ -109,13 +109,23 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 		return ['processor_id' => $config['processor_id']];
 	}
 
-	// public function guess_entity_table( $price_field_value, $entity_table = false ) {
+	public function guess_entity_table( $price_field_value ) {
 		
-	// 	if ( ! empty( $entity_table ) ) return $entity_table;
+		$this->price_sets = $this->plugin->helper->cached_price_sets();
 
-	// 	if ( array_key_exists( 'membership_type_id', $price_field_value ) ) return 'civicrm_membership';
-	// 	return 'civicrm_contribution';
-	// }
+		foreach ( $this->price_sets as $price_set_id => $price_set ) {
+			foreach ( $price_set['price_fields'] as $price_field_id => $price_field ) {
+				foreach ( $price_field['price_field_values'] as $price_field_value_id => $price_field_val ) {
+					if ( $price_field_value_id == $price_field_value['id'] ) {
+						$current_price_set = $this->price_sets[$price_set_id];
+						unset( $current_price_set['price_fields'] );
+						return $current_price_set;
+					}
+				}
+			}
+		}
+
+	}
 
 	/**
 	 * Process Membership Line Item.
