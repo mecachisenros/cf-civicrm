@@ -105,7 +105,7 @@ $price_sets = caldera_forms_civicrm()->helper->cached_price_sets();
 <div id="{{_id}}_currency" class="caldera-config-group">
 	<label><?php _e( 'Currency', 'caldera-forms-civicrm' ); ?></label>
 	<div class="caldera-config-field">
-		<select class="block-input field-config" name="{{_name}}[currency]">
+		<select class="cfc-select2 block-input field-config" name="{{_name}}[currency]">
 		<?php foreach ( $currencies['values'] as $id => $currency ) { ?>
 			<option value="<?php echo esc_attr( $id ); ?>" {{#is currency value="<?php echo $id; ?>"}}selected="selected"{{/is}}><?php echo esc_html( $currency ); ?></option>
 		<?php } ?>
@@ -189,6 +189,8 @@ $price_sets = caldera_forms_civicrm()->helper->cached_price_sets();
 
 <script>
 	( function() {
+		$( '.cfc-select2' ).cfcSelect2({width: '100%'});
+
 		setTimeout( function(){
 			$( '.line-item .field-config' ).closest( 'span' ).css( 'width', '80%' );
 		}, 3000 )
