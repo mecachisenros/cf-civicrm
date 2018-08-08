@@ -25,6 +25,8 @@ class CiviCRM_Caldera_Forms_Membership_Processor {
 	 */
 	protected $contact_link;
 
+	protected $memberships;
+
 	/**
 	 * The processor key.
 	 *
@@ -43,6 +45,10 @@ class CiviCRM_Caldera_Forms_Membership_Processor {
 		$this->plugin = $plugin;
 		// register this processor
 		add_filter( 'caldera_forms_get_form_processors', [ $this, 'register_processor' ] );
+		// filter form before rendering
+		add_filter( 'caldera_forms_render_get_form', [ $this, 'pre_render' ] );
+		// render membership notices
+		add_action( 'caldera_forms_render_start', [ $this, 'current_membership_notices' ] );
 
 	}
 
@@ -160,4 +166,87 @@ class CiviCRM_Caldera_Forms_Membership_Processor {
 		return ['processor_id' => $config['processor_id'] ];
 	}
 
+	/**
+	 * Autopopulates Form with Civi data.
+	 *
+	 * @uses 'caldera_forms_render_get_form' filter
+	 *
+	 * @since 0.4.4
+	 *
+	 * @param array $form The form
+	 * @return array $form The modified form
+	 */
+	public function pre_render( $form ) {
+		// continue as normal if form has no processors
+		if( empty( $form['processors'] ) ) return $form;
+		// enqueue forntend script
+		wp_enqueue_script( 'cfc-front' );
+
+		// cfc transient object
+		$transient = $this->plugin->transient->get();
+
+		foreach ( $form['processors'] as $processor => $pr_id ) {
+			if( $pr_id['type'] == $this->key_name && isset( $pr_id['runtimes'] ) ){
+
+				$contact_link = $pr_id['contact_link'] = 'cid_'.$pr_id['config']['contact_link'];
+
+				if ( isset( $transient->contacts->{$contact_link} ) ) {
+					try {
+
+						$is_member = civicrm_api3( 'Membership', 'get', [
+							'sequential' => 1,
+							'is_test' => 0,
+							'status_id' => [ 'IN' => [ 'New', 'Current', 'Grace' ] ],
+							'contact_id' => $transient->contacts->{$contact_link},
+						] );
+
+					} catch ( CiviCRM_API3_Exception $e ) {
+						// Ignore
+					}
+				}
+
+				if ( isset( $is_member ) && ! $is_member['is_error'] )
+					$this->memberships = $is_member['values'];
+
+				// if ( isset( $is_member ) && ! isset( $is_member['count'] ) ) {
+				// 	$form = $this->plugin->helper->map_fields_to_prerender(
+				// 		$pr_id['config'],
+				// 		$form,
+				// 		$this->fields_to_ignore,
+				// 		$is_member
+				// 	);
+				// }
+
+				// Clear member data
+				unset( $is_member );
+			}
+		}
+
+		return $form;
+	}
+
+	/**
+	 * Membership notices.
+	 *
+	 * @since 0.4.4
+	 * 
+	 * @param array $form Form config
+	 */
+	public function current_membership_notices( $form ) {
+		// output
+		if ( isset( $this->memberships ) ) {
+			$class = "cfc-notices-{$form['ID']}";
+			$out = "<div class=\"{$class}\">";
+			foreach ( $this->memberships as $key => $membership ) {
+				// FIXME
+				// use CiviCRM's date setting
+				$end_date = date_format( date_create( $membership['end_date'] ), 'F d, Y' );
+				$out .= '<div class="caldera-grid"><div class="alert alert-warning">';
+				$out .= sprintf( __( 'Your <strong>%1$s</strong> membership expires on %2$s.', 'caldera-forms-civicrm' ), $membership['membership_name'], $end_date );
+				$out .= '</div></div>';
+			}
+			$out .= '</div>';
+			echo $out;
+		}
+	}
 }

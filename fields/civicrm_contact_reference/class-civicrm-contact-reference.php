@@ -134,8 +134,6 @@ class CiviCRM_Caldera_Forms_Contact_Reference {
 	 * @return array $form Form config
 	 */
 	public function enqueue_scripts( $form ) {
-		wp_register_script( 'cfc-select2', CF_CIVICRM_INTEGRATION_URL . 'assets/js/select2.js', [ 'jquery' ], CF_CIVICRM_INTEGRATION_VER );
-		
 		$reference = false;
 		
 		foreach ( $form['fields'] as $field_id => $field ) {
@@ -146,7 +144,7 @@ class CiviCRM_Caldera_Forms_Contact_Reference {
 
 		if( $reference ){
 			wp_enqueue_script( 'cfc-select2' );
-			wp_enqueue_style( 'cfc-select2', CF_CIVICRM_INTEGRATION_URL . 'assets/css/select2.min.css', [], CF_CIVICRM_INTEGRATION_VER );
+			wp_enqueue_style( 'cfc-select2' );
 			wp_localize_script( 'cfc-select2', 'cfc', [ 'url' => admin_url( 'admin-ajax.php' ) ] );
 		}
 		return $form;
