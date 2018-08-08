@@ -180,16 +180,16 @@ $indStandardFields = array( 'first_name', 'last_name', 'middle_name', 'prefix_id
 
 <!-- === Address entity === -->
 <?php
-	$addressFields = civicrm_api3( 'Address', 'getfields', array(
+	$address_fields = civicrm_api3( 'Address', 'getfields', [
 		'sequential' => 1,
-	));
+	] );
 
-	$addressLocationType = civicrm_api3( 'Address', 'getoptions', array(
+	$address_location_type = civicrm_api3( 'Address', 'getoptions', [
 		'sequential' => 1,
 		'field' => 'location_type_id',
-	));
+	] );
 
-	$fields = array( 'is_primary', 'is_billing', 'street_address', 'supplemental_address_1', 'supplemental_address_2', 'city', 'state_province_id', 'postal_code', 'country_id' );
+	$fields = [ 'name', 'is_primary', 'is_billing', 'street_address', 'supplemental_address_1', 'supplemental_address_2', 'city', 'state_province_id', 'postal_code', 'country_id' ];
 ?>
 
 <div class="civicrm-address-entity">
@@ -201,7 +201,7 @@ $indStandardFields = array( 'first_name', 'last_name', 'middle_name', 'prefix_id
 			<div class="caldera-config-field">
 				<select class="block-input field-config" name="{{_name}}[civicrm_address][location_type_id]">
 				<option value="" {{#is civicrm_address/location_type_id value=""}}selected="selected"{{/is}}></option>
-				<?php foreach( $addressLocationType['values'] as $key => $value) { ?>
+				<?php foreach( $address_location_type['values'] as $key => $value) { ?>
 					<option value="<?php echo esc_attr( $value['key'] ); ?>" {{#is civicrm_address/location_type_id value=<?php echo $value['key']; ?>}}selected="selected"{{/is}}><?php echo esc_html( $value['value'] ); ?></option>
 				<?php } ?>
 				</select>
@@ -211,7 +211,7 @@ $indStandardFields = array( 'first_name', 'last_name', 'middle_name', 'prefix_id
 		<hr style="clear: both;" />
 
 		<h2 style="display: inline-block;"><?php _e( 'Address Fields', 'caldera-forms-civicrm' ); ?></h2>
-		<?php foreach( $addressFields['values'] as $key => $value ) {
+		<?php foreach( $address_fields['values'] as $key => $value ) {
 			if ( in_array( $value['name'], $fields ) ) { ?>
 			<div id="<?php echo esc_attr( $value['name'] ); ?>" class="caldera-config-group">
 				<label><?php echo esc_html( $value['title'] ); ?> </label>
@@ -226,29 +226,45 @@ $indStandardFields = array( 'first_name', 'last_name', 'middle_name', 'prefix_id
 
 <!-- === Phone entity === -->
 <?php
-	$phoneFields = civicrm_api3( 'Phone', 'getfields', array(
+	$phone_fields = civicrm_api3( 'Phone', 'getfields', [
 		'sequential' => 1,
-	));
+	] );
 
-	$phoneLocationType = civicrm_api3( 'Phone', 'getoptions', array(
+	$phone_location_type = civicrm_api3( 'Phone', 'getoptions', [
 		'sequential' => 1,
 		'field' => 'location_type_id',
-	));
+	] );
 
-	$pFields = array( 'is_primary', 'is_billing', 'phone', 'phone_numeric', 'phone_type_id' );
+	$phone_type = civicrm_api3( 'Phone', 'getoptions', [
+		'field' => 'phone_type_id',
+	] );
+
+	$pFields = array( 'is_primary', 'is_billing', 'phone', 'phone_numeric' );
 ?>
 
 <div class="civicrm-phone-entity">
 	<a id="civicrm-phone-fields-button" class="button civicrm-accordion" style="width: 100%; margin-bottom: 5px;"><?php _e( 'Contact Phone', 'caldera-forms-civicrm' ); ?></a>
 	<div class="civicrm-phone-fields" style="display: none;">
-		<h2><?php _e( 'Phone Location Type', 'caldera-forms-civicrm' ); ?></h2>
+
 		<div id="location_type_id" class="caldera-config-group">
 			<label><?php _e( 'Phone Location Type', 'caldera-forms-civicrm' ); ?></label>
 			<div class="caldera-config-field">
 				<select class="block-input field-config" name="{{_name}}[civicrm_phone][location_type_id]">
 				<option value="" {{#is civicrm_phone/location_type_id value=""}}selected="selected"{{/is}}></option>
-				<?php foreach( $phoneLocationType['values'] as $key => $value ) { ?>
+				<?php foreach( $phone_location_type['values'] as $key => $value ) { ?>
 					<option value="<?php echo esc_attr( $value['key'] ); ?>" {{#is civicrm_phone/location_type_id value=<?php echo $value['key']; ?>}}selected="selected"{{/is}}><?php echo esc_html( $value['value'] ); ?></option>
+				<?php } ?>
+				</select>
+			</div>
+		</div>
+
+		<div id="phone_type_id" class="caldera-config-group">
+			<label><?php _e( 'Phone Type', 'caldera-forms-civicrm' ); ?></label>
+			<div class="caldera-config-field">
+				<select class="block-input field-config" name="{{_name}}[civicrm_phone][phone_type_id]">
+					<option value="" {{#is civicrm_phone/location_type_id value=""}}selected="selected"{{/is}}></option>
+				<?php foreach( $phone_type['values'] as $id => $type ) { ?>
+					<option value="<?php echo esc_attr( $id ); ?>" {{#is civicrm_phone/phone_type_id value=<?php echo $id; ?>}}selected="selected"{{/is}}><?php echo esc_html( $type ); ?></option>
 				<?php } ?>
 				</select>
 			</div>
@@ -256,7 +272,7 @@ $indStandardFields = array( 'first_name', 'last_name', 'middle_name', 'prefix_id
 		<hr style="clear: both;" />
 
 		<h2 style="display: inline-block;"><?php _e( 'Phone Fields', 'caldera-forms-civicrm' ); ?></h2>
-		<?php foreach( $phoneFields['values'] as $key => $value ) {
+		<?php foreach( $phone_fields['values'] as $key => $value ) {
 			if ( in_array( $value['name'], $pFields ) ) { ?>
 			<div id="<?php echo esc_attr( $value['name'] ); ?>" class="caldera-config-group">
 				<label><?php echo esc_html( $value['title'] ); ?></label>
