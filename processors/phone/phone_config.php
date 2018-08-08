@@ -1,18 +1,23 @@
 <?php
 
-$phoneFields = civicrm_api3( 'Phone', 'getfields', array(
+$phone_fields = civicrm_api3( 'Phone', 'getfields', [
 	'sequential' => 1,
-));
+] );
 
-$phoneLocationType = civicrm_api3( 'Phone', 'getoptions', array(
+$phone_location_type = civicrm_api3( 'Phone', 'getoptions', [
 	'sequential' => 1,
 	'field' => 'location_type_id',
-));
+] );
 
-$fields = array( 'is_primary', 'is_billing', 'phone', 'phone_numeric', 'phone_type_id' );
+$phone_type = civicrm_api3( 'Phone', 'getoptions', [
+	'field' => 'phone_type_id',
+] );
+
+$fields = [ 'is_primary', 'is_billing', 'phone', 'phone_numeric' ];
 
 ?>
 
+<!-- Contact Link -->
 <h2><?php _e( 'Contact Link', 'caldera-forms-civicrm' ); ?></h2>
 <div id="{{_id}}_contact_link" class="caldera-config-group">
 	<label><?php _e( 'Link to', 'caldera-forms-civicrm' ); ?></label>
@@ -23,22 +28,36 @@ $fields = array( 'is_primary', 'is_billing', 'phone', 'phone_numeric', 'phone_ty
 </div>
 
 <hr style="clear: both;" />
-
-<h2><?php _e( 'Phone Location Type', 'caldera-forms-civicrm' ); ?></h2>
+<!-- Phone Location type -->
 <div id="{{_id}}_location_type_id" class="caldera-config-group">
 	<label><?php _e( 'Phone Location Type', 'caldera-forms-civicrm' ); ?></label>
 	<div class="caldera-config-field">
-		<select class="block-input field-config" name="{{_name}}[location_type_id]">
-		<?php foreach( $phoneLocationType['values'] as $key => $value ) { ?>
+		<select class="block-input field-config required" name="{{_name}}[location_type_id]">
+			<option value=""></option>
+		<?php foreach( $phone_location_type['values'] as $key => $value ) { ?>
 			<option value="<?php echo esc_attr( $value['key'] ); ?>" {{#is location_type_id value=<?php echo $value['key']; ?>}}selected="selected"{{/is}}><?php echo esc_html( $value['value'] ); ?></option>
+		<?php } ?>
+		</select>
+	</div>
+</div>
+
+<!-- Phone type -->
+<div id="{{_id}}_phone_type_id" class="caldera-config-group">
+	<label><?php _e( 'Phone Type', 'caldera-forms-civicrm' ); ?></label>
+	<div class="caldera-config-field">
+		<select class="block-input field-config required" name="{{_name}}[phone_type_id]">
+			<option value=""></option>
+		<?php foreach( $phone_type['values'] as $id => $type ) { ?>
+			<option value="<?php echo esc_attr( $id ); ?>" {{#is phone_type_id value=<?php echo $id; ?>}}selected="selected"{{/is}}><?php echo esc_html( $type ); ?></option>
 		<?php } ?>
 		</select>
 	</div>
 </div>
 <hr style="clear: both;" />
 
+<!-- Phone fields -->
 <h2 style="display: inline-block;"><?php _e( 'Phone Fields', 'caldera-forms-civicrm' ); ?></h2>
-<?php foreach( $phoneFields['values'] as $key => $value ) {
+<?php foreach( $phone_fields['values'] as $key => $value ) {
 	if ( in_array( $value['name'], $fields ) ) { ?>
 	<div id="{{_id}}_<?php echo esc_attr( $value['name'] ); ?>" class="caldera-config-group">
 		<label><?php echo esc_html( $value['title'] ); ?></label>

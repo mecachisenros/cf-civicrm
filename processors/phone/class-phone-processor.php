@@ -41,7 +41,7 @@ class CiviCRM_Caldera_Forms_Phone_Processor {
 	 * @access public
 	 * @var array $fields_to_ignore Fields to ignore
 	 */
-	public $fields_to_ignore = [ 'contact_link', 'location_type_id' ];
+	public $fields_to_ignore = [ 'contact_link', 'location_type_id', 'phone_type_id' ];
 
 	/**
 	 * Initialises this object.
@@ -96,13 +96,13 @@ class CiviCRM_Caldera_Forms_Phone_Processor {
 		$this->contact_link = 'cid_' . $config['contact_link'];
 
 		if ( ! empty( $transient->contacts->{$this->contact_link} ) ) {
-
+			
 			try {
 
 				$phone = civicrm_api3( 'Phone', 'getsingle', [
-					'sequential' => 1,
 					'contact_id' => $transient->contacts->{$this->contact_link},
 					'location_type_id' => $config['location_type_id'],
+					'phone_type_id' => $config['phone_type_id'],
 				] );
 
 			} catch ( CiviCRM_API3_Exception $e ) {
@@ -114,13 +114,12 @@ class CiviCRM_Caldera_Forms_Phone_Processor {
 
 			if( ! empty( $form_values ) && ! empty( $form_values['phone'] )  ) {
 				$form_values['contact_id'] = $transient->contacts->{$this->contact_link}; // Contact ID set in Contact Processor
+				$form_values['location_type_id'] = $config['location_type_id'];
+				$form_values['phone_type_id'] = $config['phone_type_id'];
 
 				// Pass Phone ID if we got one
-				if ( isset( $phone ) && is_array( $phone ) ) {
+				if ( isset( $phone ) && is_array( $phone ) )
 					$form_values['id'] = $phone['id']; // Phone ID
-				} else {
-					$form_values['location_type_id'] = $config['location_type_id'];
-				}
 
 				try {
 					$create_phone = civicrm_api3( 'Phone', 'create', $form_values );
@@ -153,15 +152,15 @@ class CiviCRM_Caldera_Forms_Phone_Processor {
 		foreach ( $form['processors'] as $processor => $pr_id ) {
 			if ( $pr_id['type'] == $this->key_name && isset( $pr_id['runtimes'] ) ) {
 
-				$contact_link = $pr_id['contact_link'] = 'cid_'.$pr_id['config']['contact_link'];
+				$contact_link = 'cid_'.$pr_id['config']['contact_link'];
 
 				if ( isset( $transient->contacts->{$contact_link} ) ) {
 					try {
 
-						$contact_phone = civicrm_api3( 'Phone', 'getsingle', [
-							'sequential' => 1,
+						$phone = civicrm_api3( 'Phone', 'getsingle', [
 							'contact_id' => $transient->contacts->{$contact_link},
 							'location_type_id' => $pr_id['config']['location_type_id'],
+							'phone_type_id' => $pr_id['config']['phone_type_id'],
 						] );
 
 					} catch ( CiviCRM_API3_Exception $e ) {
@@ -169,17 +168,17 @@ class CiviCRM_Caldera_Forms_Phone_Processor {
 					}
 				}
 
-				if ( isset( $contact_phone ) && ! isset( $contact_phone['count'] ) ) {
+				if ( isset( $phone ) && ! isset( $phone['count'] ) ) {
 					$form = $this->plugin->helper->map_fields_to_prerender(
 						$pr_id['config'],
 						$form,
 						$this->fields_to_ignore,
-						$contact_phone
+						$phone
 					);
 				}
 
 				// Clear Phone data
-				unset( $contact_phone );
+				unset( $phone );
 			}
 		}
 
