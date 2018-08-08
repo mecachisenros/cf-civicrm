@@ -30,11 +30,26 @@ class CiviCRM_Caldera_Forms_Assets {
      * @since 0.4.4
      */
     public function register_hooks() {
-
+        // register scripts and styles
+        add_action( 'wp_loaded', [ $this, 'register_scripts_and_styles' ] );
         // enqueue scripts and js in form editor
         add_action( 'caldera_forms_admin_assets_scripts_registered', array( $this, 'enqueue_civicrm_scripts' ) );
-		add_action( 'caldera_forms_admin_assets_styles_registered', array( $this, 'enqueue_civicrm_styles' ) );
+        add_action( 'caldera_forms_admin_assets_styles_registered', array( $this, 'enqueue_civicrm_styles' ) );
+    }
 
+    /**
+     * Register scripts and styles.
+     * 
+     * @since 0.4.4
+     */
+    public function register_scripts_and_styles() {
+        // select2
+        wp_register_script( 'cfc-select2', CF_CIVICRM_INTEGRATION_URL . 'assets/js/select2.js', [ 'jquery' ], CF_CIVICRM_INTEGRATION_VER );
+        wp_register_style( 'cfc-select2', CF_CIVICRM_INTEGRATION_URL . 'assets/css/select2.min.css', [], CF_CIVICRM_INTEGRATION_VER );
+        // admin script
+        wp_register_script( 'cfc-admin', CF_CIVICRM_INTEGRATION_URL . 'assets/js/admin.js', [ 'jquery' ], CF_CIVICRM_INTEGRATION_VER );
+         // frontend script
+        wp_register_script( 'cfc-front', CF_CIVICRM_INTEGRATION_URL . 'assets/js/front.js', [ 'jquery' ], CF_CIVICRM_INTEGRATION_VER );
     }
 
 	/**
@@ -49,8 +64,8 @@ class CiviCRM_Caldera_Forms_Assets {
             wp_dequeue_script( 'cfc-select2' );
 		// select2 4.0.3 script with tiny hack to register our own name and prevent conflicts
         if( $this->is_caldera_forms_admin() ) {
-			wp_enqueue_script( 'cfc-select2', CF_CIVICRM_INTEGRATION_URL . 'assets/js/select2.js', array( 'jquery' ), CF_CIVICRM_INTEGRATION_VER );
-			wp_enqueue_script( 'cfc-admin', CF_CIVICRM_INTEGRATION_URL . 'assets/js/admin.js', array( 'jquery' ), CF_CIVICRM_INTEGRATION_VER );
+			wp_enqueue_script( 'cfc-select2' );
+			wp_enqueue_script( 'cfc-admin' );
         }
 	}
 
@@ -66,7 +81,7 @@ class CiviCRM_Caldera_Forms_Assets {
             wp_dequeue_style( 'cfc-select2' );
 		// select2 4.0.3 style
         if( $this->is_caldera_forms_admin() )
-            wp_enqueue_style( 'cfc-select2', CF_CIVICRM_INTEGRATION_URL . 'assets/css/select2.min.css', array(), CF_CIVICRM_INTEGRATION_VER );
+            wp_enqueue_style( 'cfc-select2' );
 
     }
     
