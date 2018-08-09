@@ -32,7 +32,7 @@ class CiviCRM_Caldera_Forms_Order2_Processor {
 	 * @access protected
 	 * @var string $fee The fee
 	 */
-	protected $fee = false;
+	protected $charge_metadata;
 
 	/**
 	 * The processor key.
@@ -53,7 +53,7 @@ class CiviCRM_Caldera_Forms_Order2_Processor {
 		// register this processor
 		add_filter( 'caldera_forms_get_form_processors', array( $this, 'register_processor' ) );
 		// stripe successfull payment
-		add_action( 'cf_stripe_post_successful_charge', [ $this, 'get_balance_transaction' ], 10, 4 );
+		add_action( 'cf_stripe_post_successful_charge', [ $this, 'stripe_charge_metadata' ], 10, 4 );
 
 	}
 
@@ -110,10 +110,17 @@ class CiviCRM_Caldera_Forms_Order2_Processor {
 
 		$form_values['financial_type_id'] = $config['financial_type_id'];
 		$form_values['contribution_status_id'] = $config['contribution_status_id'];
-		$form_values['payment_instrument_id'] = ! isset( $config['is_mapped_field'] ) ? $config['payment_instrument_id'] : $form_values['mapped_payment_instrument_id'];
+		$form_values['payment_instrument_id'] = ! isset( $config['is_mapped_field'] ) ?
+			$config['payment_instrument_id'] :
+			$form_values['mapped_payment_instrument_id'];
+		
 		$form_values['currency'] = $config['currency'];
 
-		$form_values['receipt_date'] = date( 'YmdHis' );
+		// $form_values['receipt_date'] = date( 'YmdHis' );
+		
+		// contribution page for reciepts
+		if ( isset( $config['contribution_page_id'] ) )
+			$form_values['contribution_page_id'] = $config['contribution_page_id'];
 
 		// is pay later
 		if ( isset( $config['is_pay_later'] ) && in_array( $form_values['payment_instrument_id'], [$config['is_pay_later']] ) ) {
@@ -153,12 +160,21 @@ class CiviCRM_Caldera_Forms_Order2_Processor {
 
 		$form_values['line_items'] = $line_items;
 
-		// stripe payment processor fee
-		if ( $this->fee ) $form_values['fee_amount'] = $this->fee / 100;
+		// stripe metadata
+		if ( $this->charge_metadata ) $form_values = array_merge( $form_values, $this->charge_metadata );
 
-		// authorize transaction_id?
-		if( isset( $transdata[$transdata['transient']]['transaction_data']->transaction_id ) )
-			$form_values['trxn_id'] = $transdata[$transdata['transient']]['transaction_data']->transaction_id;
+		// FIXME
+		// move this into its own finction
+		// 
+		// authorize metadata
+		if( isset( $transdata[$transdata['transient']]['transaction_data']->transaction_id ) ) {
+			$metadata = [
+				'trxn_id' => $transdata[$transdata['transient']]['transaction_data']->transaction_id,
+				'card_type_id' => $this->get_option_by_label( $transdata[$transdata['transient']]['transaction_data']->card_type ),
+				'pan_truncation' => str_replace( 'X', '', $transdata[$transdata['transient']]['transaction_data']->account_number ),
+			];
+			$form_values = array_merge( $form_values, $metadata );
+		}
 
 		try {
 			$create_order = civicrm_api3( 'Order', 'create', $form_values );
@@ -172,7 +188,7 @@ class CiviCRM_Caldera_Forms_Order2_Processor {
 	}
 
 	/**
-	 * Process the Stripe balance transaction to get the fee.
+	 * Process the Stripe balance transaction to get the fee and card detials.
 	 *
 	 * @since  0.4.4
 	 * 
@@ -181,14 +197,47 @@ class CiviCRM_Caldera_Forms_Order2_Processor {
 	 * @param array $config The proessor config
 	 * @param array $form The form config
 	 */
-	public function get_balance_transaction( $return_charge, $transdata, $config, $form ) {
+	public function stripe_charge_metadata( $return_charge, $transdata, $config, $form ) {
 		
 		// stripe charge object from the successful payment
 		$balance_transaction_id = $transdata['stripe']->balance_transaction;
 		
 		\Stripe\Stripe::setApiKey( $config['secret'] );
 		$balance_transaction_object = \Stripe\BalanceTransaction::retrieve( $balance_transaction_id );
+		
+		$charge_metadata = [
+			'fee_amount' => $balance_transaction_object->fee / 100,
+			'card_type_id' => $this->get_option_by_label( $transdata['stripe']->source->brand ),
+			'pan_truncation' => $transdata['stripe']->source->last4,
+			'credit_card_exp_date' => [
+				'M' => $transdata['stripe']->source->exp_month,
+				'Y' => $transdata['stripe']->source->exp_year
+			]
+		];
 
-		$this->fee = $balance_transaction_object->fee;
+		$this->charge_metadata = $charge_metadata;
+	}
+
+	/**
+	 * Get OptionValue by label.
+	 *
+	 * @since 0.4.4
+	 * 
+	 * @param string $label
+	 * @return mixed $value
+	 */
+	public function get_option_by_label( $label ) {
+		try {
+			$option_value = civicrm_api3( 'OptionValue', 'getsingle', [
+				'label' => $label,
+			] );
+			
+		} catch ( CiviCRM_API3_Exception $e ) {
+			// ignore	
+		}
+
+		if ( isset( $option_value ) && is_array( $option_value ) )
+			return $option_value['value'];
+		return null;
 	}
 }
