@@ -20,6 +20,19 @@ $currencies = civicrm_api3( 'Contribution', 'getoptions', [
 
 $price_sets = caldera_forms_civicrm()->helper->cached_price_sets();
 
+$contribution_page = civicrm_api3( 'ContributionPage', 'get', [
+	'sequential' => 1,
+	'is_active' => 1,
+	'return' => [ 'title' ],
+	'option' => [ 'limit' => 0 ],
+] );
+
+$payment_processor = civicrm_api3( 'PaymentProcessor', 'get', [
+	'sequential' => 1,
+	'is_active' => 1,
+	'is_test' => 0,
+] );
+
 ?>
 
 <p><strong><?php _e( 'Note:', 'caldera-forms-civicrm' ); ?></strong> <?php _e( 'This processor does not process payment transactions on it\'s own, it just creates a Contribution in CiviCRM with single or multiple line items. In order to process live payment transaction a Caldera Forms add-on is needed.', 'caldera-forms-civicrm' ); ?></p>
@@ -144,6 +157,33 @@ $price_sets = caldera_forms_civicrm()->helper->cached_price_sets();
 		{{{_field slug="total_amount"}}}
 	</div>
 </div>
+
+<!-- Contribution page -->
+<div id="{{_id}}_contribution_page_id" class="caldera-config-group">
+	<label><?php _e( 'Contribution Page', 'caldera-forms-civicrm' ); ?></label>
+	<div class="caldera-config-field">
+		<select class="block-input field-config" name="{{_name}}[contribution_page_id]">
+			<option value=""></option>
+		<?php foreach ( $contribution_page['values'] as $key => $page ) { ?>
+			<option value="<?php echo esc_attr( $page['id'] ); ?>" {{#is contribution_page_id value=<?php echo $page['id']; ?>}}selected="selected"{{/is}}><?php echo esc_html( $page['title'] ); ?></option>
+		<?php } ?>
+		</select>
+	</div>
+</div>
+
+<!-- Payment Processor -->
+<div id="{{_id}}_payment_processor" class="caldera-config-group">
+	<label><?php _e( 'Payment Processor', 'caldera-forms-civicrm' ); ?></label>
+	<div class="caldera-config-field">
+		<select class="block-input field-config" name="{{_name}}[payment_processor]">
+			<option value=""></option>
+		<?php foreach ( $payment_processor['values'] as $key => $processor ) { ?>
+			<option value="<?php echo esc_attr( $processor['id'] ); ?>" {{#is payment_processor value=<?php echo $processor['id']; ?>}}selected="selected"{{/is}}><?php echo esc_html( $processor['name'] ); ?></option>
+		<?php } ?>
+		</select>
+	</div>
+</div>
+
 <hr style="clear: both;" />
 
 
