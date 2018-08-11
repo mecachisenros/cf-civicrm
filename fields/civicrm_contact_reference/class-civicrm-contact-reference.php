@@ -14,6 +14,14 @@ class CiviCRM_Caldera_Forms_Contact_Reference {
      */
     public $plugin;
 
+    /**
+     * Field key name.
+     *
+     * @since 0.4.4
+     * @var string $key_name Field key name
+     */
+    public $key_name = 'civicrm_contact_reference';
+
 	/**
 	 * Initialises this object.
 	 *
@@ -51,7 +59,7 @@ class CiviCRM_Caldera_Forms_Contact_Reference {
 	 */
 	public function register_field_type( $field_types ) {
 
-		$field_types['civicrm_contact_reference'] = [
+		$field_types[$this->key_name] = [
 			'field' => __( 'CiviCRM Contact Reference', 'caldera-forms-civicrm' ),
 			'file' => CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_contact_reference/field.php',
 			'category' => __( 'CiviCRM', 'caldera-forms-civicrm' ),
@@ -143,8 +151,8 @@ class CiviCRM_Caldera_Forms_Contact_Reference {
 		}
 
 		if( $reference ){
-			wp_enqueue_script( 'cfc-select2' );
 			wp_enqueue_style( 'cfc-select2' );
+			wp_enqueue_script( 'cfc-select2' );
 			wp_localize_script( 'cfc-select2', 'cfc', [ 'url' => admin_url( 'admin-ajax.php' ) ] );
 		}
 		return $form;
