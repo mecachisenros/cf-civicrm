@@ -97,33 +97,49 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 			$this->plugin->helper->get_price_field_value( $config['fixed_price_field_value'] ) :
 			$this->plugin->helper->get_price_field_value( Caldera_Forms::do_magic_tags( $config['price_field_value'] ) );
 
-		if ( $config['entity_table'] == 'civicrm_membership' )
-			$this->process_membership( $config, $form, $transient, $price_field_value );
+		if ( ! empty( $config['entity_table'] ) ) {
+			if ( $config['entity_table'] == 'civicrm_membership' )
+				$this->process_membership( $config, $form, $transient, $price_field_value );
 
-		if ( $config['entity_table'] == 'civicrm_participant' )
-			$this->process_participant( $config, $form, $transient, $price_field_value );
+			if ( $config['entity_table'] == 'civicrm_participant' )
+				$this->process_participant( $config, $form, $transient, $price_field_value );
 
-		if ( $config['entity_table'] == 'civicrm_contribution' )
-			$this->process_contribution( $config, $form, $transient, $price_field_value );
+			if ( $config['entity_table'] == 'civicrm_contribution' )
+				$this->process_contribution( $config, $form, $transient, $price_field_value );
+		} else {
+			$entity_table = $this->guess_entity_table( $price_field_value );
+			$entity = str_replace( 'civicrm_', '', $entity_table );
+			$this->{'process_' . $entity}( $config, $form, $transient, $price_field_value );
+		}
 
 		return ['processor_id' => $config['processor_id']];
 	}
 
-	public function guess_entity_table( $price_field_value ) {
-		
-		$this->price_sets = $this->plugin->helper->cached_price_sets();
+	public function guess_entity_table( $price_field_value, $entity_table = false ) {
 
-		foreach ( $this->price_sets as $price_set_id => $price_set ) {
-			foreach ( $price_set['price_fields'] as $price_field_id => $price_field ) {
-				foreach ( $price_field['price_field_values'] as $price_field_value_id => $price_field_val ) {
-					if ( $price_field_value_id == $price_field_value['id'] ) {
-						$current_price_set = $this->price_sets[$price_set_id];
-						unset( $current_price_set['price_fields'] );
-						return $current_price_set;
-					}
-				}
-			}
-		}
+		// FIXME
+		// only for memberships or contributions, need to find a way that checks for all tables
+
+		if ( ! empty( $entity_table ) ) return $entity_table;
+
+		if ( array_key_exists( 'membership_type_id', $price_field_value ) ) return 'civicrm_membership';
+		return 'civicrm_contribution';
+
+
+		// find entity table from priceset?
+		// $this->price_sets = $this->plugin->helper->cached_price_sets();
+
+		// foreach ( $this->price_sets as $price_set_id => $price_set ) {
+		// 	foreach ( $price_set['price_fields'] as $price_field_id => $price_field ) {
+		// 		foreach ( $price_field['price_field_values'] as $price_field_value_id => $price_field_val ) {
+		// 			if ( $price_field_value_id == $price_field_value['id'] ) {
+		// 				$current_price_set = $this->price_sets[$price_set_id];
+		// 				unset( $current_price_set['price_fields'] );
+		// 				break;
+		// 			}
+		// 		}
+		// 	}
+		// }
 
 	}
 
