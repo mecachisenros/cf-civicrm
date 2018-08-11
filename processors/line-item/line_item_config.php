@@ -24,7 +24,7 @@ $price_sets = caldera_forms_civicrm()->helper->cached_price_sets();
 <!-- Entity Table -->
 <div id="{{_id}}_entity_table" class="caldera-config-group entity">
     <label><?php _e( 'Entity Table', 'caldera-forms-civicrm' );?></label>
-    <select class="caldera-config-field required" name="{{_name}}[entity_table]">
+    <select class="caldera-config-field" name="{{_name}}[entity_table]">
         <option value="" {{#is entity_table value=""}}selected="selected"{{/is}}></option>
         <?php foreach ( $entities as $entity => $entity_name ) { ?>
             <option value="<?php echo esc_attr( $entity ); ?>" {{#is entity_table value="<?php echo $entity; ?>"}}selected="selected"{{/is}}><?php echo esc_html( $entity_name ); ?></option>
