@@ -91,6 +91,7 @@ $membership_types = civicrm_api3( 'MembershipType', 'get', [
             var is_price_filed_based = $( this ).prop( 'checked' );
             $( '.membership_type_id', $( membership_type ) ).toggle( ! is_price_filed_based );
             $( '.price_field_value', $( membership_type ) ).toggle( is_price_filed_based );
+            is_price_filed_based ? $( membership_type + ' select' ).removeClass( 'required' ) : $( membership_type + ' select' ).addClass( 'required' );
         } ).trigger( 'change' );
 
     } )();
