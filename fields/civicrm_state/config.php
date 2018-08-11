@@ -16,6 +16,14 @@
         </select>
     </div>
 </div>
+<div class="caldera-config-group">
+    <label for="{{_id}}_default"><?php esc_html_e('CiviCRM Country field'); ?></label>
+    <div class="caldera-config-field">
+        <input type="text" id="{{_id}}_civicrm_country" class="block-input field-config magic-tag-enabled" name="{{_name}}[civicrm_country]" value="{{civicrm_country}}">
+        <p class="description">The CiviCRM Country field <strong>slug</strong> for which the states should sync (needed when more than one Country/State fields are present in a form).</p>
+    </div>
+</div>
+
 {{#script}}
     if('{{default}}'){
         jQuery('#{{_id}}_default').val('{{default}}');

@@ -14,6 +14,14 @@ class CiviCRM_Caldera_Forms_Field_Country {
      */
     public $plugin;
 
+    /**
+     * Field key name.
+     *
+     * @since 0.4.4
+     * @var string Field key name
+     */
+    public $key_name = 'civicrm_country';
+
 	/**
 	 * Initialises this object.
 	 *
@@ -34,12 +42,14 @@ class CiviCRM_Caldera_Forms_Field_Country {
 	public function register_hooks() {
 
 		// add custom fields to Caldera UI
-		add_filter( 'caldera_forms_get_field_types', array( $this, 'register_field_type' ) );
+		add_filter( 'caldera_forms_get_field_types', [ $this, 'register_field_type' ] );
+		// enqueue scripts
+		add_filter( 'caldera_forms_render_get_form', [ $this, 'enqueue_scripts' ], 10 );
 
 		// render country name
-		add_filter( 'caldera_forms_view_field_civicrm_country', array( $this, 'field_render_view' ), 10, 3 );
+		add_filter( 'caldera_forms_view_field_civicrm_country', [ $this, 'field_render_view' ], 10, 3 );
 		// render country name in email summary
-		add_filter( 'caldera_forms_magic_summary_field_value', array( $this, 'field_render_summary' ), 10, 3 );
+		add_filter( 'caldera_forms_magic_summary_field_value', [ $this, 'field_render_summary' ], 10, 3 );
 
 	}
 
@@ -55,20 +65,20 @@ class CiviCRM_Caldera_Forms_Field_Country {
 	 */
 	public function register_field_type( $field_types ) {
 
-		$field_types['civicrm_country'] = array(
+		$field_types[$this->key_name] = [
 			'field' => __( 'CiviCRM Country', 'caldera-forms-civicrm' ),
 			'file' => CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_country/field.php',
 			'category' => __( 'CiviCRM', 'caldera-forms-civicrm' ),
 			'description' => __( 'CiviCRM Country dropdown', 'caldera-forms-civicrm' ),
-			'setup' => array(
+			'setup' => [
 				'template' => CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_country/config.php',
 				'preview' => CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_country/preview.php',
-				'default' => array(
+				'default' => [
 					'placeholder' => __( 'Select a Country', 'caldera-forms-civicrm' ),
 					'default' => $this->plugin->helper->get_civicrm_settings( 'defaultContactCountry' )
-				),
-			),
-		);
+				],
+			],
+		];
 
 		return $field_types;
 
@@ -117,6 +127,27 @@ class CiviCRM_Caldera_Forms_Field_Country {
 		}
 
 		return $field_value;
+	}
+
+	/**
+	 * Enqueue scripts
+	 *
+	 * @since 0.4.4
+	 * 
+	 * @param array $form Form config
+	 * @return array $form Form config
+	 */
+	public function enqueue_scripts( $form ) {
+		
+		foreach ( $form['fields'] as $field_id => $field ) {
+			if ( $field['type'] == $this->key_name ) {
+				wp_enqueue_style( 'cfc-select2' );
+				wp_enqueue_script( 'cfc-select2' );
+				break;
+			}
+		}
+
+		return $form;
 	}
 
 }
