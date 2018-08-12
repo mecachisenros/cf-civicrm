@@ -129,6 +129,15 @@ class CiviCRM_Caldera_Forms {
 	public $api;
 
 	/**
+	 * CiviCRM html object.
+	 *
+	 * @since 0.4.4
+	 * @access public
+	 * @var object $html The html object
+	 */
+	public $html;
+
+	/**
 	 * Returns a single instance of this object when called.
 	 *
 	 * @since 0.1.1
@@ -217,6 +226,8 @@ class CiviCRM_Caldera_Forms {
 		include CF_CIVICRM_INTEGRATION_PATH . 'includes/class-civicrm-caldera-forms-assets.php';
 		// Include assets management class
 		include CF_CIVICRM_INTEGRATION_PATH . 'includes/class-civicrm-caldera-forms-transient.php';
+		// Include html class
+		include CF_CIVICRM_INTEGRATION_PATH . 'includes/class-civicrm-caldera-forms-html.php';
 
 	}
 
@@ -247,6 +258,8 @@ class CiviCRM_Caldera_Forms {
 		$this->ajax = new CiviCRM_Caldera_Forms_AJAX( $this );
 		// init assets manager
 		$this->assets = new CiviCRM_Caldera_Forms_Assets( $this );
+		// init html class
+		$this->html = new CiviCRM_Caldera_Forms_HTML( $this );
 
 	}
 

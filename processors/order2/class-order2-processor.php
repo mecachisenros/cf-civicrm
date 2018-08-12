@@ -77,10 +77,24 @@ class CiviCRM_Caldera_Forms_Order2_Processor {
 			'single' => true,
 			'pre_processor' =>  [ $this, 'pre_processor' ],
 			'processor' => [ $this, 'processor' ],
+			'post_processor' => [ $this, 'post_processor'],
 		);
 
 		return $processors;
 
+	}
+
+	/**
+	 * Form pre processor callback.
+	 *
+	 * @since 0.4.4
+	 *
+	 * @param array $config Processor configuration
+	 * @param array $form Form configuration
+	 * @param string $processid The process id
+	 */
+	public function pre_processor( $config, $form, $processid ) {
+		
 	}
 
 	/**
@@ -90,11 +104,8 @@ class CiviCRM_Caldera_Forms_Order2_Processor {
 	 *
 	 * @param array $config Processor configuration
 	 * @param array $form Form configuration
+	 * @param string $processid The process id
 	 */
-	public function pre_processor( $config, $form, $processid ) {
-		
-	}
-
 	public function processor( $config, $form, $processid ) {
 		
 		global $transdata;
@@ -185,6 +196,53 @@ class CiviCRM_Caldera_Forms_Order2_Processor {
 		}
 		if( ! $create_order['is_error'] && isset( $create_order['id'] ) && $config['is_email_receipt'] )
 			civicrm_api3( 'Contribution', 'sendconfirmation', [ 'id' => $create_order['id'] ] );
+
+	}
+
+	/**
+	 * Form post processor callback.
+	 *
+	 * @since 0.4.4
+	 *
+	 * @param array $config Processor configuration
+	 * @param array $form Form configuration
+	 * @param string $processid The process id
+	 */
+	public function post_processor( $config, $form, $processid ) {
+
+		global $transdata;
+		$transient = $this->plugin->transient->get();
+
+		if ( true ) { //$config['is_thank_you'] ) {
+			add_filter( 'caldera_forms_ajax_return', function( $out, $_form ) use ( $transdata, $transient ){
+
+				/**
+				 * Filter thank you template path.
+				 *
+				 * @since 0.4.4
+				 * 
+				 * @param string $template_path The template path
+				 * @param array $form Form config
+				 */
+				$template_path = apply_filters( 'cfc_order_thank_you_template_path', CF_CIVICRM_INTEGRATION_PATH . 'template/thank-you.php', $_form );
+
+				$form_values = Caldera_Forms::get_submission_data( $_form );
+
+				$data = [
+					'values' => $form_values,
+					'form' => $_form,
+					'transdata' => $transdata,
+					'transient' => $transient
+				];
+
+				$html = $this->plugin->html->generate( $data, $template_path, $this->plugin );
+
+				$out['html'] = $out['html'] . $html;
+
+				return $out;
+
+			}, 10, 2 );
+		}
 
 	}
 
