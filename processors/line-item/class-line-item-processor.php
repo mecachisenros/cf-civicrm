@@ -98,16 +98,22 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 			$this->plugin->helper->get_price_field_value( Caldera_Forms::do_magic_tags( $config['price_field_value'] ) );
 
 		if ( ! empty( $config['entity_table'] ) ) {
-			if ( $config['entity_table'] == 'civicrm_membership' )
+			if ( $config['entity_table'] == 'civicrm_membership' ) {
+				$price_field_value['entity_table'] = $config['entity_table'];
 				$this->process_membership( $config, $form, $transient, $price_field_value );
+			}
 
-			if ( $config['entity_table'] == 'civicrm_participant' )
+			if ( $config['entity_table'] == 'civicrm_participant' ) {
 				$this->process_participant( $config, $form, $transient, $price_field_value );
+			}
 
-			if ( $config['entity_table'] == 'civicrm_contribution' )
+			if ( $config['entity_table'] == 'civicrm_contribution' ) {
+				$price_field_value['entity_table'] = $config['entity_table'];
 				$this->process_contribution( $config, $form, $transient, $price_field_value );
+			}
 		} else {
 			$entity_table = $this->guess_entity_table( $price_field_value );
+			$price_field_value['entity_table'] = $entity_table;
 			$entity = str_replace( 'civicrm_', '', $entity_table );
 			$this->{'process_' . $entity}( $config, $form, $transient, $price_field_value );
 		}
@@ -159,7 +165,7 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 
 		$price_field_value['price_field_value_id'] = $price_field_value['id'];
 
-		$price_field_value['entity_table'] = $config['entity_table'];
+		// $price_field_value['entity_table'] = $config['entity_table'];
 		$price_field_value['field_title'] = $price_field_value['label'];
 		$price_field_value['unit_price'] = $price_field_value['amount'];
 		$price_field_value['qty'] = 1;
@@ -185,6 +191,7 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 		}
 		
 		$num_terms = $price_field_value['membership_num_terms'];
+
 		unset(
 			$price_field_value['membership_num_terms'],
 			$price_field_value['contribution_type_id'],
@@ -193,12 +200,11 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 			$entity_params['price_field_value'],
 			$entity_params['is_price_field_based']
 		);
-
 		$line_item = [ 
 			'line_item' => [ $price_field_value ],
 			'params' => $entity_params
 		];
-        
+
 		$transient->line_items->{$config['processor_id']}->params = $line_item;
 
 		$this->plugin->transient->save( $transient->ID, $transient );
@@ -230,9 +236,6 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 	 * @param array $price_field_value The price field value
 	 */
 	public function process_contribution( $config, $form, $transient, $price_field_value ) {
-
-		if( ! isset( $price_field_value['entity_table'] ) )
-			$price_field_value['entity_table'] = 'civicrm_contribution';
 		
 		if ( ! isset( $price_field_value['price_field_value_id'] ) )
 			$price_field_value['price_field_value_id'] = $price_field_value['id'];
