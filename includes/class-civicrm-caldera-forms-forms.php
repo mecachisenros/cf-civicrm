@@ -61,8 +61,11 @@ class CiviCRM_Caldera_Forms_Forms {
 		
 		// add CiviCRM panel
 		add_filter( 'caldera_forms_get_panel_extensions', [ $this, 'add_civicrm_tab' ], 10 );
+		
 		// use label in summary
 		add_filter( 'caldera_forms_magic_summary_should_use_label', [ $this, 'summary_use_label' ], 10, 3 );
+		// exclude hidden fields from summary
+		add_filter( 'caldera_forms_summary_magic_fields', [ $this, 'exclude_hidden_fields_in_summary' ], 10, 2 );
 
 	}
 	
@@ -192,6 +195,25 @@ class CiviCRM_Caldera_Forms_Forms {
 			return true;
 
 		return $use;
+	}
+
+	/**
+	 * Filter out hidden fields in summary.
+	 *
+	 * @since 0.4.4
+	 *
+	 * @param array $fields Fields in order they will be displayed
+	 * @param array $form Form config
+	 */
+	public function exclude_hidden_fields_in_summary( $fields, $form ) {
+		if( Caldera_Forms::get_processor_by_type( 'civicrm_contact', $form ) ) {
+			foreach ( $fields as $id => $field ) {
+				if ( $field['type'] == 'hidden' ) {
+					unset( $fields[$id] );
+				}
+			}
+		}
+		return $fields;
 	}
 
 
