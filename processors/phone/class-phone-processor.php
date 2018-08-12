@@ -112,7 +112,8 @@ class CiviCRM_Caldera_Forms_Phone_Processor {
 			// Get form values
 			$form_values = $this->plugin->helper->map_fields_to_processor( $config, $form, $form_values );
 
-			if( ! empty( $form_values ) && ! empty( $form_values['phone'] )  ) {
+			// check phone length, using the 'better' phone field adds by default international prefixes
+			if( ! empty( $form_values ) && ! empty( $form_values['phone'] ) && strlen( $form_values['phone'] ) > 4 ) {
 				$form_values['contact_id'] = $transient->contacts->{$this->contact_link}; // Contact ID set in Contact Processor
 				$form_values['location_type_id'] = $config['location_type_id'];
 				$form_values['phone_type_id'] = $config['phone_type_id'];
