@@ -35,13 +35,40 @@ $payment_processor = civicrm_api3( 'PaymentProcessor', 'get', [
 
 ?>
 
-<p><strong><?php _e( 'Note:', 'caldera-forms-civicrm' ); ?></strong> <?php _e( 'This processor does not process payment transactions on it\'s own, it just creates a Contribution in CiviCRM with single or multiple line items. In order to process live payment transaction a Caldera Forms add-on is needed.', 'caldera-forms-civicrm' ); ?></p>
+<p class="description"><?php sprintf( _e( '<strong>Note:</strong> This processor does not process payment transactions on it\'s own, it just creates a Contribution in CiviCRM with single or multiple line items. In order to process live payment transaction, a Caldera Forms <a href="https://calderaforms.com/caldera-forms-add-ons/#/payment" target="_blank">add-on</a> is needed. Currently this processor intergrates with Caldera Forms\' Stripe and Authorize.net add-ons for <strong>single/one-off</strong> payments.', 'caldera-forms-civicrm' ) ); ?></p>
+<hr style="clear: both;" />
 
-<div class="caldera-config-group caldera-config-group-full">
+<!-- Email receipt -->
+<div id="{{_id}}_is_email_receipt" class="caldera-config-group caldera-config-group-full">
 	<div class="caldera-config-field">
-		<label><input id="{{_id}}_is_email_receipt" type="checkbox" name="{{_name}}[is_email_receipt]" value="1" {{#if is_email_receipt}}checked="checked"{{/if}}><?php _e( 'Email receipt.', 'caldera-forms-civicrm' ); ?></label>
+		<label><input type="checkbox" name="{{_name}}[is_email_receipt]" value="1" {{#if is_email_receipt}}checked="checked"{{/if}}><?php _e( 'Email receipt.', 'caldera-forms-civicrm' ); ?></label>
+	</div>
+	<!-- Contribution page -->
+	<div class="is_email_receipt_options">
+		<p class="description"><?php sprintf( _e( 'Reciepts are generated from CiviCRM. CiviCRM relies on the Contribution page and Payment processor (among other entities) to <strong>fill</strong> the data in the receipt, those settings are optional, but please set those if you want <em>better</em> reciepts.', 'caldera-forms-civicrm' ) ); ?></p>
+		<label><?php _e( 'Contribution Page', 'caldera-forms-civicrm' ); ?></label>
+		<div class="caldera-config-field">
+			<select class="block-input field-config" name="{{_name}}[contribution_page_id]">
+				<option value=""></option>
+			<?php foreach ( $contribution_page['values'] as $key => $page ) { ?>
+				<option value="<?php echo esc_attr( $page['id'] ); ?>" {{#is contribution_page_id value=<?php echo $page['id']; ?>}}selected="selected"{{/is}}><?php echo esc_html( $page['title'] ); ?></option>
+			<?php } ?>
+			</select>
+		</div>
+
+		<!-- Payment Processor -->
+		<label><?php _e( 'Payment Processor', 'caldera-forms-civicrm' ); ?></label>
+		<div class="caldera-config-field">
+			<select class="block-input field-config" name="{{_name}}[payment_processor]">
+				<option value=""></option>
+			<?php foreach ( $payment_processor['values'] as $key => $processor ) { ?>
+				<option value="<?php echo esc_attr( $processor['id'] ); ?>" {{#is payment_processor value=<?php echo $processor['id']; ?>}}selected="selected"{{/is}}><?php echo esc_html( $processor['name'] ); ?></option>
+			<?php } ?>
+			</select>
+		</div>
 	</div>
 </div>
+<hr style="clear: both;" />
 
 <!-- Contact ID -->
 <h2><?php _e( 'Contact Link', 'caldera-forms-civicrm' ); ?></h2>
@@ -98,6 +125,22 @@ $payment_processor = civicrm_api3( 'PaymentProcessor', 'get', [
 	</div>
 </div>
 
+<!-- Is pay later -->
+<div id="{{_id}}_is_pay_later" class="caldera-config-group">
+	<label><?php _e( 'Is Pay Later', 'caldera-forms-civicrm' ); ?></label>
+	<div class="caldera-config-field">
+		<select class="block-input field-config" name="{{_name}}[is_pay_later]">
+			<option value=""></option>
+			<?php foreach ( $payment_instruments['values'] as $id => $method ): ?>
+				<option value="<?php echo esc_attr( $id ); ?>" {{#is is_pay_later value=<?php echo esc_attr( $id ); ?>}}selected="selected"{{/is}}><?php echo esc_attr( $method ); ?></option>
+			<?php endforeach ?>
+		</select>
+	</div>
+	<p class="description">
+		<?php _e( 'Select a Payment Method considered as Pending (Pay later).', 'caldera-forms-civicrm' ); ?>
+	</p>
+</div>
+
 <!-- Recieve Date -->
 <div id="{{_id}}_receive_date" class="caldera-config-group">
 	<label><?php _e( 'Receive Date', 'caldera-forms-civicrm' ); ?></label>
@@ -126,22 +169,6 @@ $payment_processor = civicrm_api3( 'PaymentProcessor', 'get', [
 	</div>
 </div>
 
-<!-- Is pay later -->
-<div id="{{_id}}_is_pay_later" class="caldera-config-group">
-	<label><?php _e( 'Is Pay Later', 'caldera-forms-civicrm' ); ?></label>
-	<div class="caldera-config-field">
-		<select class="block-input field-config" name="{{_name}}[is_pay_later]">
-			<option value=""></option>
-			<?php foreach ( $payment_instruments['values'] as $id => $method ): ?>
-				<option value="<?php echo esc_attr( $id ); ?>" {{#is is_pay_later value=<?php echo esc_attr( $id ); ?>}}selected="selected"{{/is}}><?php echo esc_attr( $method ); ?></option>
-			<?php endforeach ?>
-		</select>
-	</div>
-	<p class="description">
-		<?php _e( 'Select a Payment Method considered as Pending (Pay later).', 'caldera-forms-civicrm' ); ?>
-	</p>
-</div>
-
 <!-- Check number -->
 <div id="{{_id}}_check_number" class="caldera-config-group">
 	<label><?php _e( 'Check Number', 'caldera-forms-civicrm' ); ?></label>
@@ -155,32 +182,6 @@ $payment_processor = civicrm_api3( 'PaymentProcessor', 'get', [
 	<label><?php _e( 'Total Amount', 'caldera-forms-civicrm' ); ?></label>
 	<div class="caldera-config-field">
 		{{{_field slug="total_amount"}}}
-	</div>
-</div>
-
-<!-- Contribution page -->
-<div id="{{_id}}_contribution_page_id" class="caldera-config-group">
-	<label><?php _e( 'Contribution Page', 'caldera-forms-civicrm' ); ?></label>
-	<div class="caldera-config-field">
-		<select class="block-input field-config" name="{{_name}}[contribution_page_id]">
-			<option value=""></option>
-		<?php foreach ( $contribution_page['values'] as $key => $page ) { ?>
-			<option value="<?php echo esc_attr( $page['id'] ); ?>" {{#is contribution_page_id value=<?php echo $page['id']; ?>}}selected="selected"{{/is}}><?php echo esc_html( $page['title'] ); ?></option>
-		<?php } ?>
-		</select>
-	</div>
-</div>
-
-<!-- Payment Processor -->
-<div id="{{_id}}_payment_processor" class="caldera-config-group">
-	<label><?php _e( 'Payment Processor', 'caldera-forms-civicrm' ); ?></label>
-	<div class="caldera-config-field">
-		<select class="block-input field-config" name="{{_name}}[payment_processor]">
-			<option value=""></option>
-		<?php foreach ( $payment_processor['values'] as $key => $processor ) { ?>
-			<option value="<?php echo esc_attr( $processor['id'] ); ?>" {{#is payment_processor value=<?php echo $processor['id']; ?>}}selected="selected"{{/is}}><?php echo esc_html( $processor['name'] ); ?></option>
-		<?php } ?>
-		</select>
 	</div>
 </div>
 
@@ -241,13 +242,20 @@ $payment_processor = civicrm_api3( 'PaymentProcessor', 'get', [
 		} );
 
 		var prId = '{{_id}}',
-        payment_instrument_id = '#' + prId + '_payment_instrument_id';
+        payment_instrument_id = '#' + prId + '_payment_instrument_id',
+        is_email_receipt = '#' + prId + '_is_email_receipt';
 
         $( payment_instrument_id + ' .is_mapped_field input' ).on( 'change', function( i, el ) {
             var is_mapped_field = $( this ).prop( 'checked' );
             $( '.mapped_payment_instrument_id', $( payment_instrument_id ) ).toggle( is_mapped_field );
             $( '.payment_instrument_id', $( payment_instrument_id ) ).toggle( ! is_mapped_field );
         } ).trigger( 'change' );
+
+        $( is_email_receipt + ' input' ).on( 'change', function( i, el ) {
+            var is_mapped_field = $( this ).prop( 'checked' );
+            $( '.is_email_receipt_options', $( is_email_receipt ) ).toggle( is_mapped_field );
+        } ).trigger( 'change' );
+
 	} )();
 
 	function cfc_add_line_item( obj ) {
