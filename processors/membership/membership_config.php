@@ -35,6 +35,19 @@ $membership_types = civicrm_api3( 'MembershipType', 'get', [
 	</div>
 </div>
 
+<div id="{{_id}}_preserve_join_date" class="caldera-config-group caldera-config-group-full">
+	<div class="caldera-config-field">
+		<label><input type="checkbox" name="{{_name}}[preserve_join_date]" value="1" {{#if preserve_join_date}}checked="checked"{{/if}}><?php _e( 'Preserve membership join date (Member since) for any oldest membership belonging to Organization.', 'caldera-forms-civicrm' ); ?></label>
+	</div>
+	<div class="member_of_contact_id caldera-config-group">
+		<label><?php _e( 'Organization', 'caldera-forms-civicrm' ); ?></label>
+		<div class="caldera-config-field">
+			<select id="{{_id}}_member_of_contact_id" class="block-input field-config" style="width: 100%;" nonce="<?php echo wp_create_nonce('admin_get_civi_contact'); ?>" name="{{_name}}[member_of_contact_id]">
+			</select>
+		</div>
+	</div>
+</div>
+
 <hr style="clear: both;" />
 
 <h2><?php _e( 'Contact Link', 'caldera-forms-civicrm' ); ?></h2>
@@ -85,7 +98,8 @@ $membership_types = civicrm_api3( 'MembershipType', 'get', [
 <script>
     ( function() {
         var prId = '{{_id}}',
-        membership_type = '#' + prId + '_membership_type_id';
+        membership_type = '#' + prId + '_membership_type_id',
+        preserve_join_date = '#' + prId + '_preserve_join_date';
 
         $( membership_type + ' .is_price_field_based input' ).on( 'change', function( i, el ) {
             var is_price_filed_based = $( this ).prop( 'checked' );
@@ -93,6 +107,12 @@ $membership_types = civicrm_api3( 'MembershipType', 'get', [
             $( '.price_field_value', $( membership_type ) ).toggle( is_price_filed_based );
             is_price_filed_based ? $( membership_type + ' select' ).removeClass( 'required' ) : $( membership_type + ' select' ).addClass( 'required' );
         } ).trigger( 'change' );
+
+        $( preserve_join_date + ' input' ).on( 'change', function( i, el ) {
+            var is_checked = $( this ).prop( 'checked' );
+            $( '.member_of_contact_id', $( preserve_join_date ) ).toggle( is_checked );
+        } ).trigger( 'change' );
+        cfc_select2_defaults( '#{{_id}}_member_of_contact_id', '{{member_of_contact_id}}' );
 
     } )();
 </script>
