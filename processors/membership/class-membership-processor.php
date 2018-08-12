@@ -123,7 +123,7 @@ class CiviCRM_Caldera_Forms_Membership_Processor {
 				// at least one term
 				$form_values['num_terms'] = empty( $form_values['num_terms'] ) ? $price_field_value['membership_num_terms'] : 1;
 			}
-			slack( [ 'membership' => [$price_field_value, $form_values['num_terms'] ] ] );
+
 			$form_values['source'] = isset( $form_values['source'] ) ? $form_values['source'] : $form['name'];
 
 			// set start and join date if is not renewal
