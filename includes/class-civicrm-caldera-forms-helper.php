@@ -655,4 +655,31 @@ class CiviCRM_Caldera_Forms_Helper {
 		return $price_field_value;
 	}
 
+	/**
+	 * Get membership types assocaited to an Organizaion.
+	 *
+	 * @since 0.4.4
+	 * 
+	 * @param int $cid Organization contact id
+	 * @return array|boolean The membership types for that organization or false
+	 */
+	public function get_organization_membership_types( $cid ) {
+		$membership_types = civicrm_api3( 'MembershipType', 'get', [
+		  'return' => ['id'],
+		  'member_of_contact_id' => $cid,
+		] );
+
+		if ( ! $membership_types['is_error'] && $membership_types['count'] ) {
+			$types = [];
+			foreach ( $membership_types['values'] as $id => $type ) {
+				$types[] = $id;
+			}
+		}
+
+		if ( isset( $types ) && ! empty( $types ) )
+			return $types;
+
+		return false;
+	}
+
 }

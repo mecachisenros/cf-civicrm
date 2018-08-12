@@ -44,7 +44,7 @@ $payment_processor = civicrm_api3( 'PaymentProcessor', 'get', [
 		<label><input type="checkbox" name="{{_name}}[is_email_receipt]" value="1" {{#if is_email_receipt}}checked="checked"{{/if}}><?php _e( 'Email receipt.', 'caldera-forms-civicrm' ); ?></label>
 	</div>
 	<!-- Contribution page -->
-	<div class="is_email_receipt_options">
+	<div class="is_email_receipt_options caldera-config-group">
 		<p class="description"><?php sprintf( _e( 'Reciepts are generated from CiviCRM. CiviCRM relies on the Contribution page and Payment processor (among other entities) to <strong>fill</strong> the data in the receipt, those settings are optional, but please set those if you want <em>better</em> reciepts.', 'caldera-forms-civicrm' ) ); ?></p>
 		<label><?php _e( 'Contribution Page', 'caldera-forms-civicrm' ); ?></label>
 		<div class="caldera-config-field">
@@ -252,8 +252,8 @@ $payment_processor = civicrm_api3( 'PaymentProcessor', 'get', [
         } ).trigger( 'change' );
 
         $( is_email_receipt + ' input' ).on( 'change', function( i, el ) {
-            var is_mapped_field = $( this ).prop( 'checked' );
-            $( '.is_email_receipt_options', $( is_email_receipt ) ).toggle( is_mapped_field );
+            var is_checked = $( this ).prop( 'checked' );
+            $( '.is_email_receipt_options', $( is_email_receipt ) ).toggle( is_checked );
         } ).trigger( 'change' );
 
 	} )();
