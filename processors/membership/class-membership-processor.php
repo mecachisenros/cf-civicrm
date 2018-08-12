@@ -25,7 +25,13 @@ class CiviCRM_Caldera_Forms_Membership_Processor {
 	 */
 	protected $contact_link;
 
-	protected $memberships;
+	/**
+	 * Current contact's memeberships.
+	 *
+	 * @since 0.4.4 
+	 * @var array
+	 */
+	protected $has_memberships;
 
 	/**
 	 * The processor key.
@@ -206,7 +212,7 @@ class CiviCRM_Caldera_Forms_Membership_Processor {
 				}
 
 				if ( isset( $is_member ) && ! $is_member['is_error'] )
-					$this->memberships = $is_member['values'];
+					$this->has_memberships = $is_member['values'];
 
 				// if ( isset( $is_member ) && ! isset( $is_member['count'] ) ) {
 				// 	$form = $this->plugin->helper->map_fields_to_prerender(
@@ -234,10 +240,10 @@ class CiviCRM_Caldera_Forms_Membership_Processor {
 	 */
 	public function current_membership_notices( $form ) {
 		// output
-		if ( isset( $this->memberships ) ) {
+		if ( isset( $this->has_memberships ) ) {
 			$class = "cfc-notices-{$form['ID']}";
 			$out = "<div class=\"{$class}\">";
-			foreach ( $this->memberships as $key => $membership ) {
+			foreach ( $this->has_memberships as $key => $membership ) {
 				// FIXME
 				// use CiviCRM's date setting
 				$end_date = date_format( date_create( $membership['end_date'] ), 'F d, Y' );
