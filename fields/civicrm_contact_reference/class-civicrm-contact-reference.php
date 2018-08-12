@@ -45,6 +45,11 @@ class CiviCRM_Caldera_Forms_Contact_Reference {
 		// handle current_employer field
 		add_filter( 'cfc_filter_mapped_field_to_processor', [ $this, 'handle_current_employer_field' ], 10, 5 );
 		add_filter( 'cfc_filter_mapped_field_to_prerender', [ $this, 'pre_render_current_employer_value' ], 10, 5 );
+
+		// render country name
+		add_filter( 'caldera_forms_view_field_' . $this->key_name, [ $this, 'field_render_view' ], 10, 3 );
+		// render country name in email summary
+		add_filter( 'caldera_forms_magic_summary_field_value', [ $this, 'field_render_summary' ], 10, 3 );
 	}
 
 	/**
@@ -156,6 +161,52 @@ class CiviCRM_Caldera_Forms_Contact_Reference {
 			wp_localize_script( 'cfc-select2', 'cfc', [ 'url' => admin_url( 'admin-ajax.php' ) ] );
 		}
 		return $form;
+	}
+
+	/**
+	 * Renders the view for this field type in the Caldera UI.
+	 *
+	 * @since 0.4.4
+	 *
+	 * @param array $field_value The field value to populate
+	 * @param array $form The containing form
+	 * @return array $field_value The modified field value
+	 */
+	public function field_render_view( $field_value, $field, $form ) {
+
+		// use API to retrieve contact sort name
+		$contact_data = civicrm_api3( 'Contact', 'get', [
+			'id' => $field_value,
+			'return' => ['sort_name'],
+		] );
+
+		// set as view if we get one
+		if ( $contact_data['is_error'] == '0' ) {
+			$item = array_pop( $contact_data['values'] );
+			$field_value = esc_html( $item['sort_name'] );
+		}
+
+		return $field_value;
+
+	}
+
+	/**
+	 * Renders the label for this field type in the email summary.
+	 *
+	 * @since 0.4.4
+	 *
+	 * @param  string $field_value The field value
+	 * @param  array $field The field config
+	 * @param  array $form The form config
+	 * @return string $field_value The modified field value
+	 */
+	public function field_render_summary( $field_value, $field, $form ){
+
+		if ( $field['type'] == $this->key_name ){
+			$field_value = $this->field_render_view( $field_value, $field, $form );
+		}
+
+		return $field_value;
 	}
 
 }
