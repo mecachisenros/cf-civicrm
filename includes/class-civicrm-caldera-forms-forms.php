@@ -61,6 +61,8 @@ class CiviCRM_Caldera_Forms_Forms {
 		
 		// add CiviCRM panel
 		add_filter( 'caldera_forms_get_panel_extensions', [ $this, 'add_civicrm_tab' ], 10 );
+		// use label in summary
+		add_filter( 'caldera_forms_magic_summary_should_use_label', [ $this, 'summary_use_label' ], 10, 3 );
 
 	}
 	
@@ -173,6 +175,23 @@ class CiviCRM_Caldera_Forms_Forms {
 			'canvas' => CF_CIVICRM_INTEGRATION_PATH . 'panels/civicrm.php'
 		];
 		return $panels;
+	}
+
+	/**
+	 * Use labels in summary.
+	 *
+	 * @since 0.4.4
+	 * @param boolean $use Wether to use or not
+	 * @param array $field Field config
+	 * @param array $form Form config
+	 * @return boolean $use
+	 */
+	public function summary_use_label( $use, $field, $form ) {
+		
+		if( Caldera_Forms::get_processor_by_type( 'civicrm_contact', $form ) )
+			return true;
+
+		return $use;
 	}
 
 
