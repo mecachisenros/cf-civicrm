@@ -68,6 +68,14 @@ $payment_processor = civicrm_api3( 'PaymentProcessor', 'get', [
 		</div>
 	</div>
 </div>
+
+<!-- Thank you -->
+<!-- <div id="{{_id}}_is_thank_you" class="caldera-config-group caldera-config-group-full">
+	<div class="caldera-config-field">
+		<label><input type="checkbox" name="{{_name}}[is_thank_you]" value="1" {{#if iis_thank_you}}checked="checked"{{/if}}><?php _e( 'Email receipt.', 'caldera-forms-civicrm' ); ?></label>
+		<p class="description"><?php sprintf( _e( 'Display Thank you template after submission.', 'caldera-forms-civicrm' ) ); ?></p>
+	</div>
+</div> -->
 <hr style="clear: both;" />
 
 <!-- Contact ID -->
