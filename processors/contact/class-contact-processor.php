@@ -325,21 +325,23 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 
 			// Get form values
 			$form_values = $this->plugin->helper->map_fields_to_processor( $config, $form, $form_values, 'civicrm_phone' );
-
+			
 			if( ! empty( $form_values['civicrm_phone'] ) ) {
 				$form_values['civicrm_phone']['contact_id'] = $transient->contacts->{$this->contact_link}; // Contact ID set in Contact Processor
-				$form_values['location_type_id'] = $config['location_type_id'];
-				$form_values['phone_type_id'] = $config['phone_type_id'];
+				$form_values['civicrm_phone']['location_type_id'] = $config['civicrm_phone']['location_type_id'];
+				$form_values['civicrm_phone']['phone_type_id'] = $config['civicrm_phone']['phone_type_id'];
 
 				// Pass Phone ID if we got one
 				if ( isset( $phone ) && is_array( $phone ) )
 					$form_values['civicrm_phone']['id'] = $phone['id']; // Phone ID
 
-				try {
-					$create_phone = civicrm_api3( 'Phone', 'create', $form_values['civicrm_phone'] );
-				} catch ( CiviCRM_API3_Exception $e ) {
-					$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
-					return [ 'note' => $error, 'type' => 'error' ];
+				if ( ! empty( $form_values['civicrm_phone']['phone'] ) && strlen( $form_values['civicrm_phone']['phone'] ) > 4 ) {
+					try {
+						$create_phone = civicrm_api3( 'Phone', 'create', $form_values['civicrm_phone'] );
+					} catch ( CiviCRM_API3_Exception $e ) {
+						$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
+						return [ 'note' => $error, 'type' => 'error' ];
+					}
 				}
 			}
 		}
