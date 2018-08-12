@@ -51,9 +51,9 @@ class CiviCRM_Caldera_Forms_Order2_Processor {
 	public function __construct( $plugin ) {
         $this->plugin = $plugin;
 		// register this processor
-		add_filter( 'caldera_forms_get_form_processors', array( $this, 'register_processor' ) );
-		// stripe successfull payment
-		add_action( 'cf_stripe_post_successful_charge', [ $this, 'stripe_charge_metadata' ], 10, 4 );
+		add_filter( 'caldera_forms_get_form_processors', [ $this, 'register_processor' ] );
+		// add payment processor hooks
+		add_action( 'caldera_forms_submit_pre_process_start', [ $this, 'add_payment_processor_hooks' ], 10, 3 );
 
 	}
 
@@ -171,6 +171,7 @@ class CiviCRM_Caldera_Forms_Order2_Processor {
 			$metadata = [
 				'trxn_id' => $transdata[$transdata['transient']]['transaction_data']->transaction_id,
 				'card_type_id' => $this->get_option_by_label( $transdata[$transdata['transient']]['transaction_data']->card_type ),
+				'credit_card_type' => $transdata[$transdata['transient']]['transaction_data']->card_type,
 				'pan_truncation' => str_replace( 'X', '', $transdata[$transdata['transient']]['transaction_data']->account_number ),
 			];
 			$form_values = array_merge( $form_values, $metadata );
@@ -188,34 +189,83 @@ class CiviCRM_Caldera_Forms_Order2_Processor {
 	}
 
 	/**
-	 * Process the Stripe balance transaction to get the fee and card detials.
+	 * Add payment processor hooks before pre process starts.
 	 *
-	 * @since  0.4.4
+	 * @since 0.4.4
 	 * 
-	 * @param array $return_charge Data about the successful charge
-	 * @param array $transdata Data used to create transaction
-	 * @param array $config The proessor config
-	 * @param array $form The form config
+	 * @param array $form Form config
+	 * @param array $referrer URL referrer
+	 * @param string $process_id The process id
 	 */
-	public function stripe_charge_metadata( $return_charge, $transdata, $config, $form ) {
-		
-		// stripe charge object from the successful payment
-		$balance_transaction_id = $transdata['stripe']->balance_transaction;
-		
-		\Stripe\Stripe::setApiKey( $config['secret'] );
-		$balance_transaction_object = \Stripe\BalanceTransaction::retrieve( $balance_transaction_id );
-		
-		$charge_metadata = [
-			'fee_amount' => $balance_transaction_object->fee / 100,
-			'card_type_id' => $this->get_option_by_label( $transdata['stripe']->source->brand ),
-			'pan_truncation' => $transdata['stripe']->source->last4,
-			'credit_card_exp_date' => [
-				'M' => $transdata['stripe']->source->exp_month,
-				'Y' => $transdata['stripe']->source->exp_year
-			]
-		];
+	public function add_payment_processor_hooks( $form, $referrer, $process_id ) {
 
-		$this->charge_metadata = $charge_metadata;
+		// authorize single
+		if ( Caldera_Forms::get_processor_by_type( 'auth-net-single', $form ) && ( Caldera_Forms_Field_Util::has_field_type( 'civicrm_country', $form ) || Caldera_Forms_Field_Util::has_field_type( 'civicrm_state', $form ) ) ) {
+
+			/**
+			 * Filter Authorize single payment customer data.
+			 *
+			 * @since 0.4.4
+			 * 
+			 * @param object $customer Customer data
+			 * @param string $prefix processor slug prefix
+			 * @param object $data_object Processor data object
+			 * @return object $customer Customer data
+			 */
+			add_filter( 'cf_authorize_net_setup_customer', function( $customer, $prefix, $data_object ) use ( $form ) {
+
+				foreach ( $data_object->get_fields() as $name => $field ) {
+					if ( $name == $prefix . 'card_state' || $name == $prefix . 'card_country' ) {
+						if ( ! empty( $field['config_field'] ) ) {
+							// get field config
+							$field_config = Caldera_Forms_Field_Util::get_field( $field['config_field'], $form );
+							
+							// replace country id with label
+							if ( $field_config['type'] == 'civicrm_country' )
+								$customer->country = $this->plugin->fields->field_objects['civicrm_country']->field_render_view( $customer->country, $field_config, $form );
+							// replace state id with label
+							if ( $field_config['type'] == 'civicrm_state' )
+								$customer->state = $this->plugin->fields->field_objects['civicrm_state']->field_render_view( $customer->state, $field_config, $form );
+						}
+					}
+				}
+				return $customer;
+			}, 10, 3 );
+		}
+
+		// stripe
+		if ( Caldera_Forms::get_processor_by_type( 'stripe', $form ) ) {
+			/**
+			 * Process the Stripe balance transaction to get the fee and card detials.
+			 *
+			 * @since  0.4.4
+			 * 
+			 * @param array $return_charge Data about the successful charge
+			 * @param array $transdata Data used to create transaction
+			 * @param array $config The proessor config
+			 * @param array $form The form config
+			 */
+			add_action( 'cf_stripe_post_successful_charge', function( $return_charge, $transdata, $config, $stripe_form ) {
+				// stripe charge object from the successful payment
+				$balance_transaction_id = $transdata['stripe']->balance_transaction;
+				
+				\Stripe\Stripe::setApiKey( $config['secret'] );
+				$balance_transaction_object = \Stripe\BalanceTransaction::retrieve( $balance_transaction_id );
+				
+				$charge_metadata = [
+					'fee_amount' => $balance_transaction_object->fee / 100,
+					'card_type_id' => $this->get_option_by_label( $transdata['stripe']->source->brand ),
+					'credit_card_type' => $transdata['stripe']->source->brand,
+					'pan_truncation' => $transdata['stripe']->source->last4,
+					'credit_card_exp_date' => [
+						'M' => $transdata['stripe']->source->exp_month,
+						'Y' => $transdata['stripe']->source->exp_year
+					]
+				];
+
+				$this->charge_metadata = $charge_metadata;
+			}, 10, 4 );
+		}
 	}
 
 	/**
