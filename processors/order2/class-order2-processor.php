@@ -213,6 +213,9 @@ class CiviCRM_Caldera_Forms_Order2_Processor {
 		global $transdata;
 		$transient = $this->plugin->transient->get();
 
+		// preserve join dates 
+		$this->preserve_membership_join_date( $config, $form, $processid );
+
 		if ( true ) { //$config['is_thank_you'] ) {
 			add_filter( 'caldera_forms_ajax_return', function( $out, $_form ) use ( $transdata, $transient ){
 
@@ -244,6 +247,58 @@ class CiviCRM_Caldera_Forms_Order2_Processor {
 			}, 10, 2 );
 		}
 
+	}
+
+	/**
+	 * Preserve join date for current membership being processed.
+	 *
+	 * Background, implemented for new memberships considered as renewals to keep the join date from a
+	 * previous membership of the same type.
+	 *
+	 * @since 0.4.4
+	 * @param array $config Processor configuration
+	 * @param array $form Form configuration
+	 * @param string $processid The process id
+	 */
+	function preserve_membership_join_date( $config, $form, $processid ) {
+		
+		$transient = $this->plugin->transient->get();
+		
+		if ( Caldera_Forms::get_processor_by_type( 'civicrm_membership', $form ) ) {
+
+			foreach ( $form['processors'] as $id => $processor ) {
+				if ( $processor['type'] == 'civicrm_membership' && isset( $processor['config']['preserve_join_date'] ) ) {
+
+					// get oldest membersip
+					$oldest_membership = $this->plugin->helper->get_current_membership( 
+						$transient->contacts->{$this->contact_link},
+						$transient->memberships->$id->params['membership_type_id'],
+						'ASC'
+					);
+
+					// get latest membership
+					if ( $oldest_membership )
+						$latest_membership = $this->plugin->helper->get_current_membership( 
+							$transient->contacts->{$this->contact_link},
+							$transient->memberships->$id->params['membership_type_id']
+						);
+
+					if ( $latest_membership && date( 'Y-m-d', strtotime( $oldest_membership['join_date'] ) ) < date( 'Y-m-d', strtotime( $latest_membership['join_date'] ) ) ) {
+						// associated memberships
+						$associated_memberships = $this->plugin->helper->get_organization_membership_types( $processor['config']['member_of_contact_id'] );
+						// is latest/current membership one of associated?
+						if ( $associated_memberships && in_array( $latest_membership['membership_type_id'], $associated_memberships ) ) {
+							// set oldest join date
+							$latest_membership['join_date'] = $oldest_membership['join_date'];
+							// update membership
+							$update_membership = civicrm_api3( 'Membership', 'create', $latest_membership );
+						}
+					}
+				}
+			}
+		}
+
+		return $form;
 	}
 
 	/**
