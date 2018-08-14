@@ -265,7 +265,8 @@ class CiviCRM_Caldera_Forms_Order2_Processor {
 		$transient = $this->plugin->transient->get();
 		
 		if ( Caldera_Forms::get_processor_by_type( 'civicrm_membership', $form ) ) {
-
+			// associated memberships
+			$associated_memberships = $this->plugin->helper->get_organization_membership_types( $processor['config']['member_of_contact_id'] );
 			foreach ( $form['processors'] as $id => $processor ) {
 				if ( $processor['type'] == 'civicrm_membership' && isset( $processor['config']['preserve_join_date'] ) ) {
 
@@ -284,8 +285,6 @@ class CiviCRM_Caldera_Forms_Order2_Processor {
 						);
 
 					if ( $latest_membership && date( 'Y-m-d', strtotime( $oldest_membership['join_date'] ) ) < date( 'Y-m-d', strtotime( $latest_membership['join_date'] ) ) ) {
-						// associated memberships
-						$associated_memberships = $this->plugin->helper->get_organization_membership_types( $processor['config']['member_of_contact_id'] );
 						// is latest/current membership one of associated?
 						if ( $associated_memberships && in_array( $latest_membership['membership_type_id'], $associated_memberships ) ) {
 							// set oldest join date
@@ -294,6 +293,8 @@ class CiviCRM_Caldera_Forms_Order2_Processor {
 							$update_membership = civicrm_api3( 'Membership', 'create', $latest_membership );
 						}
 					}
+
+					unset( $latest_membership, $oldest_membership );
 				}
 			}
 		}
