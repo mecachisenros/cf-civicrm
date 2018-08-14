@@ -286,11 +286,8 @@ class CiviCRM_Caldera_Forms_Order2_Processor {
 					);
 
 					// is pay later, filter membership status to pending 
-					if ( $this->is_pay_later ) {
-						add_filter( 'cfc_current_membership_get_status', function( $statuses ) {
-							return [ 'Pending' ];
-						} );
-					}
+					if ( $this->is_pay_later )
+						add_filter( 'cfc_current_membership_get_status', [ $this, 'set_pending_status' ], 10 );
 
 					// get latest membership
 					if ( $oldest_membership )
@@ -299,6 +296,9 @@ class CiviCRM_Caldera_Forms_Order2_Processor {
 							$transient->memberships->$id->params['membership_type_id']
 						);
 
+					// remove filter
+					remove_filter( 'cfc_current_membership_get_status', [ $this, 'set_pending_status' ], 10 );
+					
 					if ( $latest_membership && date( 'Y-m-d', strtotime( $oldest_membership['join_date'] ) ) < date( 'Y-m-d', strtotime( $latest_membership['join_date'] ) ) ) {
 						// is latest/current membership one of associated?
 						if ( $associated_memberships && in_array( $latest_membership['membership_type_id'], $associated_memberships ) ) {
@@ -315,6 +315,17 @@ class CiviCRM_Caldera_Forms_Order2_Processor {
 		}
 
 		return $form;
+	}
+
+	/**
+	 * Set Pending status.
+	 *
+	 * @uses 'cfc_current_membership_get_status' flter
+	 * @since 0.4.4
+	 * @param array $statuses Membership statuses array
+	 */
+	public function set_pending_status( $statuses ) {
+		return [ 'Pending' ];
 	}
 
 	/**
