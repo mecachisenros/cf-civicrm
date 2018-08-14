@@ -270,6 +270,13 @@ class CiviCRM_Caldera_Forms_Order2_Processor {
 			foreach ( $form['processors'] as $id => $processor ) {
 				if ( $processor['type'] == 'civicrm_membership' && isset( $processor['config']['preserve_join_date'] ) ) {
 
+					// is pay later, filter membership status to pending 
+					if ( isset( $config['is_pay_later'] ) && in_array( $form_values['payment_instrument_id'], [$config['is_pay_later']] ) ) {
+						add_filter( 'cfc_current_membership_get_status', function( $statuses ) {
+							return [ 'Pending' ];
+						} );
+					}
+
 					// get oldest membersip
 					$oldest_membership = $this->plugin->helper->get_current_membership( 
 						$transient->contacts->{$this->contact_link},

@@ -699,7 +699,7 @@ class CiviCRM_Caldera_Forms_Helper {
 			'sequential' => 1,
 			'contact_id' => $cid,
 			'membership_type_id' => $membership_type,
-			'status_id' => [ 'IN' => [ 'New', 'Current', 'Grace' ] ],
+			'status_id' => [ 'IN' => apply_filters( 'cfc_current_membership_get_status', [ 'New', 'Current', 'Grace' ] ) ],
 			'options' => [ 'sort' => 'join_date ' . $sort, 'limit' => 1 ],
 			'is_test' => 0,
 		] );
