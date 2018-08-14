@@ -140,14 +140,6 @@ class CiviCRM_Caldera_Forms_Membership_Processor {
 				//remove join, start, and end dates otherwise
 				unset( $form_values['join_date'], $form_values['start_date'], $form_values['end_date'] );
 			}
-
-			// override and preserve join date for a new membership considered as renewal
-			// the contact must have a current membership of the same type
-			if ( isset( $config['preserve_join_date'] ) && isset( $is_member['id'] ) ) {
-				$associated_memberships = $this->plugin->helper->get_organization_membership_types( $config['member_of_contact_id'] );
-				if ( $associated_memberships && in_array( $form_values['membership_type_id'], $associated_memberships ) )
-					$form_values['join_date'] = $is_member['join_date'];
-			}
  
 			$transient->memberships->{$config['processor_id']}->params = $form_values;
 
