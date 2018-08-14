@@ -278,12 +278,16 @@ class CiviCRM_Caldera_Forms_Order2_Processor {
 			foreach ( $form['processors'] as $id => $processor ) {
 				if ( $processor['type'] == 'civicrm_membership' && isset( $processor['config']['preserve_join_date'] ) ) {
 
+					// add expired
+					add_filter( 'cfc_current_membership_get_status', [ $this, 'add_expired_status' ], 10 );
 					// get oldest membersip
 					$oldest_membership = $this->plugin->helper->get_current_membership( 
 						$transient->contacts->{$this->contact_link},
 						$transient->memberships->$id->params['membership_type_id'],
 						'ASC'
 					);
+					// remove filter
+					remove_filter( 'cfc_current_membership_get_status', [ $this, 'add_expired_status' ], 10 );
 
 					// is pay later, filter membership status to pending 
 					if ( $this->is_pay_later )
@@ -320,12 +324,24 @@ class CiviCRM_Caldera_Forms_Order2_Processor {
 	/**
 	 * Set Pending status.
 	 *
-	 * @uses 'cfc_current_membership_get_status' flter
+	 * @uses 'cfc_current_membership_get_status' filter
 	 * @since 0.4.4
 	 * @param array $statuses Membership statuses array
 	 */
 	public function set_pending_status( $statuses ) {
 		return [ 'Pending' ];
+	}
+
+	/**
+	 * Add expired status.
+	 *
+	 * @uses 'cfc_current_membership_get_status' filter
+	 * @since 0.4.4
+	 * @param array $statuses Membership statuses array
+	 */
+	public function add_expired_status( $statuses ) {
+		$statuses[] = 'Expired';
+		return $statuses;
 	}
 
 	/**
