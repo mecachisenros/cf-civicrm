@@ -35,6 +35,15 @@ class CiviCRM_Caldera_Forms_Order2_Processor {
 	protected $charge_metadata;
 
 	/**
+	 * Is pay later.
+	 *
+	 * @since 0.4.4
+	 * @access public
+	 * @var boolean $is_pay_later
+	 */
+	public $is_pay_later;
+
+	/**
 	 * The processor key.
 	 *
 	 * @since 0.4.4
@@ -135,6 +144,7 @@ class CiviCRM_Caldera_Forms_Order2_Processor {
 
 		// is pay later
 		if ( isset( $config['is_pay_later'] ) && in_array( $form_values['payment_instrument_id'], [$config['is_pay_later']] ) ) {
+			$this->is_pay_later = true;
 			$form_values['contribution_status_id'] = 'Pending';
 			$form_values['is_pay_later'] = 1; // has to be set, if not we get a (Incomplete transaction)
 			unset( $form_values['trxn_id'] );
@@ -155,9 +165,7 @@ class CiviCRM_Caldera_Forms_Order2_Processor {
 				if ( ! strpos( $processor, 'civicrm_line_item' ) ) {
 					$line_items[$count] = $transient->line_items->$processor->params;
 					if ( 
-						isset( $line_items[$count]['params']['membership_type_id'] ) && 
-						isset( $config['is_pay_later'] ) && 
-						in_array( $form_values['payment_instrument_id'], [$config['is_pay_later']] ) ) {
+						isset( $line_items[$count]['params']['membership_type_id'] ) && $this->is_pay_later ) {
 							// set membership as pending
 							$line_items[$count]['params']['status_id'] = 'Pending';
 							$line_items[$count]['params']['is_override'] = 1;
@@ -270,19 +278,19 @@ class CiviCRM_Caldera_Forms_Order2_Processor {
 			foreach ( $form['processors'] as $id => $processor ) {
 				if ( $processor['type'] == 'civicrm_membership' && isset( $processor['config']['preserve_join_date'] ) ) {
 
-					// is pay later, filter membership status to pending 
-					if ( isset( $config['is_pay_later'] ) && in_array( $form_values['payment_instrument_id'], [$config['is_pay_later']] ) ) {
-						add_filter( 'cfc_current_membership_get_status', function( $statuses ) {
-							return [ 'Pending' ];
-						} );
-					}
-
 					// get oldest membersip
 					$oldest_membership = $this->plugin->helper->get_current_membership( 
 						$transient->contacts->{$this->contact_link},
 						$transient->memberships->$id->params['membership_type_id'],
 						'ASC'
 					);
+
+					// is pay later, filter membership status to pending 
+					if ( $this->is_pay_later ) {
+						add_filter( 'cfc_current_membership_get_status', function( $statuses ) {
+							return [ 'Pending' ];
+						} );
+					}
 
 					// get latest membership
 					if ( $oldest_membership )
