@@ -70,7 +70,7 @@ class CiviCRM_Caldera_Forms_Processors {
 		include CF_CIVICRM_INTEGRATION_PATH . 'processors/contact/class-contact-processor.php';
 		// include CF_CIVICRM_INTEGRATION_PATH . 'processors/order/class-order-processor.php';
 		if ( in_array( 'CiviContribute', $this->enabled_components ) ) {
-			include CF_CIVICRM_INTEGRATION_PATH . 'processors/order2/class-order2-processor.php';
+			include CF_CIVICRM_INTEGRATION_PATH . 'processors/order/class-order-processor.php';
 			include CF_CIVICRM_INTEGRATION_PATH . 'processors/line-item/class-line-item-processor.php';
 			include CF_CIVICRM_INTEGRATION_PATH . 'processors/contribution/class-contribution-processor.php';
 		}
