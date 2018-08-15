@@ -104,7 +104,7 @@ class CiviCRM_Caldera_Forms_Processors {
 		$this->processors['contact'] = new CiviCRM_Caldera_Forms_Contact_Processor( $this->plugin );
 		// $this->processors['order'] = new CiviCRM_Caldera_Forms_Order_Processor( $this->plugin );
 		if ( in_array( 'CiviContribute', $this->enabled_components ) ) {
-			$this->processors['order2'] = new CiviCRM_Caldera_Forms_Order2_Processor( $this->plugin );
+			$this->processors['order'] = new CiviCRM_Caldera_Forms_Order_Processor( $this->plugin );
 			$this->processors['line_item'] = new CiviCRM_Caldera_Forms_Line_Item_Processor( $this->plugin );
 			$this->processors['contribution'] = new CiviCRM_Caldera_Forms_Contribution_Processor( $this->plugin );
 		}

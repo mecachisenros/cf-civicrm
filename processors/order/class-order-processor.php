@@ -5,7 +5,7 @@
  *
  * @since 0.4.4
  */
-class CiviCRM_Caldera_Forms_Order2_Processor {
+class CiviCRM_Caldera_Forms_Order_Processor {
 
 	/**
 	 * Plugin reference.
@@ -79,10 +79,10 @@ class CiviCRM_Caldera_Forms_Order2_Processor {
 	public function register_processor( $processors ) {
 
 		$processors[$this->key_name] = array(
-			'name' => __( 'CiviCRM Order Alt', 'caldera-forms-civicrm' ),
+			'name' => __( 'CiviCRM Order', 'caldera-forms-civicrm' ),
 			'description' => __( 'Add CiviCRM Order (Contribution with multiple Line Items, ie Events registrations, Donations, Memberships, etc.)', 'caldera-forms-civicrm' ),
 			'author' => 'Andrei Mondoc',
-			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/order2/order_config.php',
+			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/order/order_config.php',
 			'single' => true,
 			'pre_processor' =>  [ $this, 'pre_processor' ],
 			'processor' => [ $this, 'processor' ],
