@@ -20,6 +20,7 @@
 <script>
 	jQuery( function( $ ) {
 
+
 		if( '<?php echo esc_attr( $field['config']['default'] ); ?>' ) {
 			$.ajax( {
 				url : cfc.url,
@@ -72,14 +73,45 @@
 			},
 			allowClear: true,
 			placeholder: '<?php echo $placeholder; ?>',
-			tags:  '<?php echo esc_attr( $field['config']['new_organization'] ); ?>',
-			createTag: function( params ) {
-				return {
-					id: params.term,
-					text: params.term,
-					newTag: true
+			<?php if ( isset( $field['config']['new_organization'] ) ): ?>
+			language: {
+				noResults: function ( params ) {
+					var html = '<div>No results found...</div>' +
+						'<div class="caldera-grid"><div class="row"><div class="col-sm-9 first_col"><div class="form-group"><div>' +
+						'<input placeholder="Organization name" type="text" id="<?php echo esc_attr( $field_id ); ?>_org_name" class="form-control" name="<?php echo esc_attr( $field_id ); ?>_new" value="">' +
+						'</div></div></div><div class="col-sm-3 last_col"><div class="form-group"><div>' +
+						'<input type="submit" id="<?php echo esc_attr( $field_id ); ?>_btn" name="<?php echo esc_attr( $field_id ); ?>_btn" class="btn btn-primary" value="Add new">' +
+						'</div></div></div></div></div>';
+					return html;
 				}
+			},
+			escapeMarkup: function ( markup ) {
+				if ( markup.indexOf( 'No results found' ) != -1 ) {
+					// trigger event to attach click event to 'Add new' input
+					$.Event( 'cfc:add-new-rendered' );
+					// delay event
+					setTimeout( function() { 
+						$( 'body' ).trigger( 'cfc:add-new-rendered', '<?php echo esc_attr( $field_id ); ?>' ) 
+					}, 1000 );
+				}
+				return markup;
 			}
+		<?php endif; ?>
+		} );
+
+		// attach click event on cfc:add-new-rendered
+		$( 'body' ).on( 'cfc:add-new-rendered', function( e, field_id ) {
+			e.preventDefault();
+			var add_new = $( '#' + field_id + '_btn');
+			$( add_new ).on( 'click', function( e ) {
+				var org_name = $( '#' + field_id + '_org_name' ).val();
+				if ( org_name ) {
+					var option = new Option( org_name, org_name, false, false );
+					$( '#' + field_id ).append( new Option( org_name, org_name, false, false ) );
+					$( '#' + field_id ).val( org_name ).trigger( 'change' );
+					$( '#' + field_id ).cfcSelect2( 'close' );
+				}
+			} );
 		} );
 	} );
 </script>
