@@ -46,6 +46,9 @@ $membership_types = civicrm_api3( 'MembershipType', 'get', [
 			</select>
 		</div>
 	</div>
+	<div class="is_membership_type caldera-config-group">
+		<input type="checkbox" name="{{_name}}[is_membership_type]" value="1" {{#if is_membership_type}}checked="checked"{{/if}}><?php _e( 'Membership type based.', 'caldera-forms-civicrm' ); ?>
+	</div>
 </div>
 
 <hr style="clear: both;" />
@@ -86,7 +89,7 @@ $membership_types = civicrm_api3( 'MembershipType', 'get', [
 <!-- Membership fields -->
 <h2><?php _e( 'Membership Fields', 'caldera-forms-civicrm' ); ?></h2>
 <?php foreach ( $membership_fields as $key => $value ) { 
-        if( ! in_array( $key, $ignore ) ) { ?>
+		if( ! in_array( $key, $ignore ) ) { ?>
 	<div id="{{_id}}_<?php echo esc_attr( $key ); ?>" class="caldera-config-group">
 		<label><?php echo esc_html( $value ); ?> </label>
 		<div class="caldera-config-field">
@@ -96,23 +99,25 @@ $membership_types = civicrm_api3( 'MembershipType', 'get', [
 <?php } } ?>
 
 <script>
-    ( function() {
-        var prId = '{{_id}}',
-        membership_type = '#' + prId + '_membership_type_id',
-        preserve_join_date = '#' + prId + '_preserve_join_date';
+	( function() {
+		var prId = '{{_id}}',
+		membership_type = '#' + prId + '_membership_type_id',
+		preserve_join_date = '#' + prId + '_preserve_join_date';
 
-        $( membership_type + ' .is_price_field_based input' ).on( 'change', function( i, el ) {
-            var is_price_filed_based = $( this ).prop( 'checked' );
-            $( '.membership_type_id', $( membership_type ) ).toggle( ! is_price_filed_based );
-            $( '.price_field_value', $( membership_type ) ).toggle( is_price_filed_based );
-            is_price_filed_based ? $( membership_type + ' select' ).removeClass( 'required' ) : $( membership_type + ' select' ).addClass( 'required' );
-        } ).trigger( 'change' );
+		$( membership_type + ' .is_price_field_based input' ).on( 'change', function( i, el ) {
+			var is_price_filed_based = $( this ).prop( 'checked' );
+			$( '.membership_type_id', $( membership_type ) ).toggle( ! is_price_filed_based );
+			$( '.price_field_value', $( membership_type ) ).toggle( is_price_filed_based );
+			is_price_filed_based ? $( membership_type + ' select' ).removeClass( 'required' ) : $( membership_type + ' select' ).addClass( 'required' );
+		} ).trigger( 'change' );
 
-        $( preserve_join_date + ' input' ).on( 'change', function( i, el ) {
-            var is_checked = $( this ).prop( 'checked' );
-            $( '.member_of_contact_id', $( preserve_join_date ) ).toggle( is_checked );
-        } ).trigger( 'change' );
-        cfc_select2_defaults( '#{{_id}}_member_of_contact_id', '{{member_of_contact_id}}' );
+		$( preserve_join_date + ' input' ).on( 'change', function( i, el ) {
+			var is_checked = $( this ).prop( 'checked' );
+			$( '.member_of_contact_id', $( preserve_join_date ) ).toggle( is_checked );
+			$( '.is_membership_type', $( preserve_join_date ) ).toggle( is_checked );
+		} ).trigger( 'change' );
 
-    } )();
+		cfc_select2_defaults( '#{{_id}}_member_of_contact_id', '{{member_of_contact_id}}' );
+
+	} )();
 </script>

@@ -278,16 +278,24 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 			foreach ( $form['processors'] as $id => $processor ) {
 				if ( $processor['type'] == 'civicrm_membership' && isset( $processor['config']['preserve_join_date'] ) ) {
 
-					// add expired
-					add_filter( 'cfc_current_membership_get_status', [ $this, 'add_expired_status' ], 10 );
-					// get oldest membersip
-					$oldest_membership = $this->plugin->helper->get_current_membership( 
-						$transient->contacts->{$this->contact_link},
-						$transient->memberships->$id->params['membership_type_id'],
-						'ASC'
-					);
-					// remove filter
-					remove_filter( 'cfc_current_membership_get_status', [ $this, 'add_expired_status' ], 10 );
+					if ( isset( $processor['config']['is_membership_type'] ) ) {
+						// add expired
+						add_filter( 'cfc_current_membership_get_status', [ $this, 'add_expired_status' ], 10 );
+						// get oldest membersip
+						$oldest_membership = $this->plugin->helper->get_membership( 
+							$transient->contacts->{$this->contact_link},
+							$transient->memberships->$id->params['membership_type_id'],
+							'ASC'
+						);
+						// remove filter
+						remove_filter( 'cfc_current_membership_get_status', [ $this, 'add_expired_status' ], 10 );
+					} else {
+						$oldest_membership = $this->plugin->helper->get_membership( 
+							$transient->contacts->{$this->contact_link},
+							false,
+							'ASC'
+						);
+					}
 
 					// is pay later, filter membership status to pending 
 					if ( $this->is_pay_later )
@@ -295,7 +303,7 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 
 					// get latest membership
 					if ( $oldest_membership )
-						$latest_membership = $this->plugin->helper->get_current_membership( 
+						$latest_membership = $this->plugin->helper->get_membership( 
 							$transient->contacts->{$this->contact_link},
 							$transient->memberships->$id->params['membership_type_id']
 						);
