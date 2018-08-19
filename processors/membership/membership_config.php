@@ -37,7 +37,7 @@ $membership_types = civicrm_api3( 'MembershipType', 'get', [
 
 <div id="{{_id}}_preserve_join_date" class="caldera-config-group caldera-config-group-full">
 	<div class="caldera-config-field">
-		<label><input type="checkbox" name="{{_name}}[preserve_join_date]" value="1" {{#if preserve_join_date}}checked="checked"{{/if}}><?php _e( 'Preserve membership join date (Member since) for any oldest membership belonging to Organization.', 'caldera-forms-civicrm' ); ?></label>
+		<label><input class="preserve_join_date" type="checkbox" name="{{_name}}[preserve_join_date]" value="1" {{#if preserve_join_date}}checked="checked"{{/if}}><?php _e( 'Preserve membership join date (Member since) for any oldest membership belonging to Organization.', 'caldera-forms-civicrm' ); ?></label>
 	</div>
 	<div class="member_of_contact_id caldera-config-group">
 		<label><?php _e( 'Organization', 'caldera-forms-civicrm' ); ?></label>
@@ -111,7 +111,7 @@ $membership_types = civicrm_api3( 'MembershipType', 'get', [
 			is_price_filed_based ? $( membership_type + ' select' ).removeClass( 'required' ) : $( membership_type + ' select' ).addClass( 'required' );
 		} ).trigger( 'change' );
 
-		$( preserve_join_date + ' input' ).on( 'change', function( i, el ) {
+		$( preserve_join_date + ' input.preserve_join_date' ).on( 'change', function( i, el ) {
 			var is_checked = $( this ).prop( 'checked' );
 			$( '.member_of_contact_id', $( preserve_join_date ) ).toggle( is_checked );
 			$( '.is_membership_type', $( preserve_join_date ) ).toggle( is_checked );
