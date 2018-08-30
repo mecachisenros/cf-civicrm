@@ -248,7 +248,7 @@ class CiviCRM_Caldera_Forms_Membership_Processor {
 				$end_date = date_format( date_create( $membership['end_date'] ), 'F d, Y' );
 				$out .= '<div class="caldera-grid"><div class="alert alert-warning">';
 				$out .= sprintf( __( 'Your <strong>%1$s</strong> membership expires on %2$s.', 'caldera-forms-civicrm' ), $membership['membership_name'], $end_date );
-				$out .= '</div>';
+				$out .= '</div></div>';
 			}
 			$out .= '</div>';
 			echo $out;
