@@ -30,22 +30,21 @@ if ( isset( $field['config']['civicrm_country'] ) ) {
 
 <?php ob_start(); ?>
 <script type="text/javascript">
-	jQuery( document ).on( 'cf.add', function( $ ) {
-	
+	jQuery( document ).ready( function( $ ) {
 	<?php if( $country_field ): ?>
 		
 		var countries = $( 'select[data-field="<?php echo esc_attr( $country_field['ID'] ) ?>"]' ),
 		states = $( 'select[data-field="<?php echo esc_attr( $field_base_id ) ?>"]' );
 
 		if ( countries !== undefined ) {
-			countries.change( function() {
+			countries.on( 'change cf.add', function() {
 				if ( $( this ).data( 'options' ) == undefined ) {
 					$( this ).data( 'options', $( 'select[data-field="<?php echo esc_attr( $field_base_id ) ?>"] option' ).clone() );
 				}
 				var id = $( this ).val(),
 				options = $( this ).data( 'options' ).filter( '[data-crm-country-id="' + id + '"]' );
 				states.html( options );
-			} ).trigger( 'change' );
+			} ).trigger( 'change' ).trigger( 'cf.add' );
 		}
 	
 	<?php else: ?>
@@ -55,21 +54,21 @@ if ( isset( $field['config']['civicrm_country'] ) ) {
 		states = $( 'select[id*="_cf_civicrm_state"]' );
 
 		if ( countries !== undefined ) {
-			countries.change( function(){
+			countries.on( 'change cf.add', function(){
 				if ( $( this ).data( 'options' ) == undefined ) {
 					$( this ).data( 'options', $( 'select[id*="_cf_civicrm_state"] option' ).clone() );
 				}
 				var id = $( this ).val(),
 				options = $( this ).data( 'options' ).filter( '[data-crm-country-id="' + id + '"]' );
 				states.html( options );
-			}).trigger('change');
+			}).trigger( 'change' ).trigger( 'cf.add' );
 		}
 	<?php endif; ?>
 
 		// select2 widget
 		$( '.cfc-select2' ).cfcSelect2();
 
-	} ).trigger( 'cf.add' );
+	} );
 </script>
 <?php
 	$script_template = ob_get_clean();
