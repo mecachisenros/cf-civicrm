@@ -21,11 +21,20 @@
 
 			 ?>
 		</select>
-		<script>
-			jQuery( document ).ready( function( $ ) {
-				$( '.cfc-select2' ).cfcSelect2();
-			} );
-		</script>
 		<?php echo $field_caption; ?>
 	<?php echo $field_after; ?>
 <?php echo $wrapper_after; ?>
+
+<?php ob_start(); ?>
+<script>
+	jQuery( document ).ready( function( $ ) {
+		$( '.cfc-select2' ).cfcSelect2();
+	} );
+</script>
+<?php
+	$script_template = ob_get_clean();
+	if( ! empty( $form[ 'grid_object' ] ) && is_object( $form[ 'grid_object' ] ) ){
+		$form[ 'grid_object' ]->append( $script_template, $field[ 'grid_location' ] );
+	}else{
+		echo $script_template;
+	}

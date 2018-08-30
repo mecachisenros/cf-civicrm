@@ -24,48 +24,57 @@ if ( isset( $field['config']['civicrm_country'] ) ) {
 				echo '<option value="' . esc_attr( $key ) . '" data-crm-country-id="' . esc_attr( $value['country_id'] ) . '"' . $selected . '>' . esc_html( $value['name'] ) . '</option>';
 			 } ?>
 		</select>
-		<script type="text/javascript">
-			jQuery( document ).ready( function( $ ) {
-			
-			<?php if( $country_field ): ?>
-				
-				var countries = $( 'select[data-field="<?php echo esc_attr( $country_field['ID'] ) ?>"]' ),
-				states = $( 'select[data-field="<?php echo esc_attr( $field_base_id ) ?>"]' );
-
-				if ( countries !== undefined ) {
-					countries.change( function() {
-						if ( $( this ).data( 'options' ) == undefined ) {
-							$( this ).data( 'options', $( 'select[data-field="<?php echo esc_attr( $field_base_id ) ?>"] option' ).clone() );
-						}
-						var id = $( this ).val(),
-						options = $( this ).data( 'options' ).filter( '[data-crm-country-id="' + id + '"]' );
-						states.html( options );
-					} ).trigger( 'change' );
-				}
-			
-			<?php else: ?>
-
-				// keep to not break current forms
-				var countries = $( 'select[id*="_cf_civicrm_country"]' ),
-				states = $( 'select[id*="_cf_civicrm_state"]' );
-
-				if ( countries !== undefined ) {
-					countries.change( function(){
-						if ( $( this ).data( 'options' ) == undefined ) {
-							$( this ).data( 'options', $( 'select[id*="_cf_civicrm_state"] option' ).clone() );
-						}
-						var id = $( this ).val(),
-						options = $( this ).data( 'options' ).filter( '[data-crm-country-id="' + id + '"]' );
-						states.html( options );
-					}).trigger('change');
-				}
-			<?php endif; ?>
-
-				// select2 widget
-				$( '.cfc-select2' ).cfcSelect2();
-
-			} );
-		</script>
 		<?php echo $field_caption; ?>
 	<?php echo $field_after; ?>
 <?php echo $wrapper_after; ?>
+
+<?php ob_start(); ?>
+<script type="text/javascript">
+	jQuery( document ).ready( function( $ ) {
+	
+	<?php if( $country_field ): ?>
+		
+		var countries = $( 'select[data-field="<?php echo esc_attr( $country_field['ID'] ) ?>"]' ),
+		states = $( 'select[data-field="<?php echo esc_attr( $field_base_id ) ?>"]' );
+
+		if ( countries !== undefined ) {
+			countries.change( function() {
+				if ( $( this ).data( 'options' ) == undefined ) {
+					$( this ).data( 'options', $( 'select[data-field="<?php echo esc_attr( $field_base_id ) ?>"] option' ).clone() );
+				}
+				var id = $( this ).val(),
+				options = $( this ).data( 'options' ).filter( '[data-crm-country-id="' + id + '"]' );
+				states.html( options );
+			} ).trigger( 'change' );
+		}
+	
+	<?php else: ?>
+
+		// keep to not break current forms
+		var countries = $( 'select[id*="_cf_civicrm_country"]' ),
+		states = $( 'select[id*="_cf_civicrm_state"]' );
+
+		if ( countries !== undefined ) {
+			countries.change( function(){
+				if ( $( this ).data( 'options' ) == undefined ) {
+					$( this ).data( 'options', $( 'select[id*="_cf_civicrm_state"] option' ).clone() );
+				}
+				var id = $( this ).val(),
+				options = $( this ).data( 'options' ).filter( '[data-crm-country-id="' + id + '"]' );
+				states.html( options );
+			}).trigger('change');
+		}
+	<?php endif; ?>
+
+		// select2 widget
+		$( '.cfc-select2' ).cfcSelect2();
+
+	} );
+</script>
+<?php
+	$script_template = ob_get_clean();
+	if( ! empty( $form[ 'grid_object' ] ) && is_object( $form[ 'grid_object' ] ) ){
+		$form[ 'grid_object' ]->append( $script_template, $field[ 'grid_location' ] );
+	}else{
+		echo $script_template;
+	}
