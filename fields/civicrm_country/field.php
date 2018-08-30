@@ -28,7 +28,7 @@
 <?php ob_start(); ?>
 <script>
 	jQuery( document ).ready( function( $ ) {
-		$( document ).on( 'change cf.add', function( e, field ) {
+		$( document ).on( 'change cf.form.init', function( e, field ) {
 			$( '.cfc-select2' ).cfcSelect2();
 		} )
 	} );
