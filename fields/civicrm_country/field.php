@@ -27,9 +27,11 @@
 
 <?php ob_start(); ?>
 <script>
-	jQuery( document ).on( 'cf.add' function( $ ) {
-		$( '.cfc-select2' ).cfcSelect2();
-	} ).trigger( 'cf.add' );
+	jQuery( document ).ready( function( $ ) {
+		$( document ).on( 'change cf.add', function( e, field ) {
+			$( '.cfc-select2' ).cfcSelect2();
+		} )
+	} );
 </script>
 <?php
 	$script_template = ob_get_clean();
