@@ -37,14 +37,14 @@ if ( isset( $field['config']['civicrm_country'] ) ) {
 		states = $( 'select[data-field="<?php echo esc_attr( $field_base_id ) ?>"]' );
 
 		if ( countries !== undefined ) {
-			countries.on( 'change cf.add', function() {
+			countries.on( 'change cf.form.init', function() {
 				if ( $( this ).data( 'options' ) == undefined ) {
 					$( this ).data( 'options', $( 'select[data-field="<?php echo esc_attr( $field_base_id ) ?>"] option' ).clone() );
 				}
 				var id = $( this ).val(),
 				options = $( this ).data( 'options' ).filter( '[data-crm-country-id="' + id + '"]' );
 				states.html( options );
-			} ).trigger( 'change' ).trigger( 'cf.add' );
+			} ).trigger( 'change' );
 		}
 	
 	<?php else: ?>
@@ -54,14 +54,14 @@ if ( isset( $field['config']['civicrm_country'] ) ) {
 		states = $( 'select[id*="_cf_civicrm_state"]' );
 
 		if ( countries !== undefined ) {
-			countries.on( 'change cf.add', function(){
+			countries.on( 'change cf.form.init', function(){
 				if ( $( this ).data( 'options' ) == undefined ) {
 					$( this ).data( 'options', $( 'select[id*="_cf_civicrm_state"] option' ).clone() );
 				}
 				var id = $( this ).val(),
 				options = $( this ).data( 'options' ).filter( '[data-crm-country-id="' + id + '"]' );
 				states.html( options );
-			}).trigger( 'change' ).trigger( 'cf.add' );
+			}).trigger( 'change' );
 		}
 	<?php endif; ?>
 
