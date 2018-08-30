@@ -30,7 +30,7 @@ if ( isset( $field['config']['civicrm_country'] ) ) {
 
 <?php ob_start(); ?>
 <script type="text/javascript">
-	jQuery( document ).ready( function( $ ) {
+	jQuery( document ).on( 'cf.add', function( $ ) {
 	
 	<?php if( $country_field ): ?>
 		
@@ -69,7 +69,7 @@ if ( isset( $field['config']['civicrm_country'] ) ) {
 		// select2 widget
 		$( '.cfc-select2' ).cfcSelect2();
 
-	} );
+	} ).trigger( 'cf.add' );
 </script>
 <?php
 	$script_template = ob_get_clean();
