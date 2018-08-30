@@ -37,7 +37,7 @@ if ( isset( $field['config']['civicrm_country'] ) ) {
 		states = $( 'select[data-field="<?php echo esc_attr( $field_base_id ) ?>"]' );
 
 		if ( countries !== undefined ) {
-			countries.on( 'change cf.form.init', function() {
+			countries.on( 'change cf.form.init cf.add', function() {
 				if ( $( this ).data( 'options' ) == undefined ) {
 					$( this ).data( 'options', $( 'select[data-field="<?php echo esc_attr( $field_base_id ) ?>"] option' ).clone() );
 				}
@@ -54,7 +54,7 @@ if ( isset( $field['config']['civicrm_country'] ) ) {
 		states = $( 'select[id*="_cf_civicrm_state"]' );
 
 		if ( countries !== undefined ) {
-			countries.on( 'change cf.form.init', function(){
+			countries.on( 'change cf.form.init cf.add', function(){
 				if ( $( this ).data( 'options' ) == undefined ) {
 					$( this ).data( 'options', $( 'select[id*="_cf_civicrm_state"] option' ).clone() );
 				}
