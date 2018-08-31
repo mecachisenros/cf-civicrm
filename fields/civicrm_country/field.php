@@ -27,16 +27,16 @@
 
 <?php ob_start(); ?>
 <script>
-	jQuery( document ).ready( function( $ ) {
-		$( document ).on( 'change cf.form.init cf.add', function( e, field ) {
-			$( '.cfc-select2' ).cfcSelect2();
+	jQuery( function( $ ) {
+		$( document ).on( 'cf.form.init cf.add', function( e, field ) {
+			$( 'select[data-field="<?php echo esc_attr( $field_base_id ) ?>"]' ).cfcSelect2();
 		} )
 	} );
 </script>
 <?php
 	$script_template = ob_get_clean();
 	if( ! empty( $form[ 'grid_object' ] ) && is_object( $form[ 'grid_object' ] ) ){
-		$form[ 'grid_object' ]->append( $script_template, $field[ 'grid_location' ] );
+		$form[ 'grid_object' ]->after( $script_template, $field[ 'grid_location' ] );
 	}else{
 		echo $script_template;
 	}
