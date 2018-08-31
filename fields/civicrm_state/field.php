@@ -28,7 +28,7 @@ if ( isset( $field['config']['civicrm_country'] ) ) {
 	<?php echo $field_after; ?>
 <?php echo $wrapper_after; ?>
 
-<?php ob_start(); slack( $country_field ); ?>
+<?php ob_start(); ?>
 <script type="text/javascript">
 	jQuery( document ).ready( function( $ ) {
 	<?php if( $country_field ): ?>
