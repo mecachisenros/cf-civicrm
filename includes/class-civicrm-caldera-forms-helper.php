@@ -691,17 +691,19 @@ class CiviCRM_Caldera_Forms_Helper {
 	 * @param string $sort Sort by join date ASC or DESC
 	 * @return array|boolean The current membetships or false
 	 */
-	public function get_membership( $cid = false, $membership_type = false, $sort = 'DESC' ) {
+	public function get_membership( $cid = false, $membership_type = false, $sort = 'DESC', $skip_status = false ) {
 
 		if ( ! $cid ) return false;
 		
 		$params = [
 			'sequential' => 1,
 			'contact_id' => $cid,
-			'status_id' => [ 'IN' => apply_filters( 'cfc_current_membership_get_status', [ 'New', 'Current', 'Grace' ] ) ],
 			'options' => [ 'sort' => 'join_date ' . $sort, 'limit' => 1 ],
 			'is_test' => 0,
 		];
+
+		if ( ! $skip_status )
+			$params['status_id'] = [ 'IN' => apply_filters( 'cfc_current_membership_get_status', [ 'New', 'Current', 'Grace' ] ) ];
 
 		if ( $membership_type )
 			$params['membership_type_id'] = $membership_type;

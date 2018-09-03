@@ -273,43 +273,50 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 		$transient = $this->plugin->transient->get();
 		
 		if ( Caldera_Forms::get_processor_by_type( 'civicrm_membership', $form ) ) {
-			// associated memberships
-			$associated_memberships = $this->plugin->helper->get_organization_membership_types( $processor['config']['member_of_contact_id'] );
 			foreach ( $form['processors'] as $id => $processor ) {
 				if ( $processor['type'] == 'civicrm_membership' && isset( $processor['config']['preserve_join_date'] ) ) {
+					// associated memberships
+					$associated_memberships = $this->plugin->helper->get_organization_membership_types( $processor['config']['member_of_contact_id'] );
 
+					// add expired and cancelled
+					add_filter( 'cfc_current_membership_get_status', [ $this, 'add_expired_status' ], 10 );
 					if ( isset( $processor['config']['is_membership_type'] ) ) {
-						// add expired
-						add_filter( 'cfc_current_membership_get_status', [ $this, 'add_expired_status' ], 10 );
 						// get oldest membersip
 						$oldest_membership = $this->plugin->helper->get_membership( 
 							$transient->contacts->{$this->contact_link},
 							$transient->memberships->$id->params['membership_type_id'],
 							'ASC'
 						);
-						// remove filter
-						remove_filter( 'cfc_current_membership_get_status', [ $this, 'add_expired_status' ], 10 );
 					} else {
 						$oldest_membership = $this->plugin->helper->get_membership( 
 							$transient->contacts->{$this->contact_link},
-							false,
-							'ASC'
+							$membership_type = false,
+							$sort = 'ASC'
 						);
 					}
-
-					// is pay later, filter membership status to pending 
-					if ( $this->is_pay_later )
-						add_filter( 'cfc_current_membership_get_status', [ $this, 'set_pending_status' ], 10 );
-
-					// get latest membership
-					if ( $oldest_membership )
-						$latest_membership = $this->plugin->helper->get_membership( 
-							$transient->contacts->{$this->contact_link},
-							$transient->memberships->$id->params['membership_type_id']
-						);
-
 					// remove filter
-					remove_filter( 'cfc_current_membership_get_status', [ $this, 'set_pending_status' ], 10 );
+					remove_filter( 'cfc_current_membership_get_status', [ $this, 'add_expired_status' ], 10 );
+
+					if ( $this->is_pay_later ) {
+						// is pay later, filter membership status to pending 
+						add_filter( 'cfc_current_membership_get_status', [ $this, 'set_pending_status' ], 10 );
+						// get latest membership
+						if ( $oldest_membership )
+							$latest_membership = $this->plugin->helper->get_membership( 
+								$transient->contacts->{$this->contact_link},
+								$transient->memberships->$id->params['membership_type_id']
+							);
+						// remove filter
+						remove_filter( 'cfc_current_membership_get_status', [ $this, 'set_pending_status' ], 10 );
+					} else {
+						if ( $oldest_membership )
+							$latest_membership = $this->plugin->helper->get_membership( 
+								$transient->contacts->{$this->contact_link},
+								$transient->memberships->$id->params['membership_type_id'],
+								$sort = 'DESC',
+								$skip_status = true
+							);
+					}
 					
 					if ( $latest_membership && date( 'Y-m-d', strtotime( $oldest_membership['join_date'] ) ) < date( 'Y-m-d', strtotime( $latest_membership['join_date'] ) ) ) {
 						// is latest/current membership one of associated?
@@ -321,7 +328,7 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 						}
 					}
 
-					unset( $latest_membership, $oldest_membership );
+					unset( $latest_membership, $oldest_membership, $associated_memberships );
 				}
 			}
 		}
@@ -341,15 +348,14 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 	}
 
 	/**
-	 * Add expired status.
+	 * Add expired and cancelled statuses.
 	 *
 	 * @uses 'cfc_current_membership_get_status' filter
 	 * @since 0.4.4
 	 * @param array $statuses Membership statuses array
 	 */
 	public function add_expired_status( $statuses ) {
-		$statuses[] = 'Expired';
-		return $statuses;
+		return array_merge( $statuses, [ 'Expired', 'Cancelled' ] );
 	}
 
 	/**
