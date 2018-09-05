@@ -71,7 +71,6 @@ class CiviCRM_Caldera_Forms_Relationship_Processor {
 
 		// cfc transient object
 		$transient = $this->plugin->transient->get();
-		$this->contact_link = 'cid_' . $config['contact_link'];
 
 		$relationship = civicrm_api3( 'Relationship', 'get', [
 			'sequential' => 1,
