@@ -70,8 +70,6 @@ class CiviCRM_Caldera_Forms_Activity_Processor {
 
 	}
 
-	public static $transient_id;
-
 	/**
 	 * Form processor callback.
 	 *
@@ -83,10 +81,8 @@ class CiviCRM_Caldera_Forms_Activity_Processor {
 	public function pre_processor( $config, $form, $proccesid ) {
 		global $transdata;
 		// cfc transient object
-		// $transient = $this->plugin->transient->get();
+		$transient = $this->plugin->transient->get();
 		$this->contact_link = 'cid_' . $config['contact_link'];
-
-		$transient = self::$transient_id ? $this->plugin->transient->get( self::$transient_id ) : $this->plugin->transient->get();
 		
 		// Get form values
 		$form_values = $this->plugin->helper->map_fields_to_processor( $config, $form, $form_values );
