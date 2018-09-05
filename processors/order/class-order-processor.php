@@ -44,6 +44,15 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 	public $is_pay_later;
 
 	/**
+	 * The order result.
+	 *
+	 * @since 0.4.4
+	 * @access public
+	 * @var array $order
+	 */
+	public $order;
+
+	/**
 	 * The processor key.
 	 *
 	 * @since 0.4.4
@@ -198,12 +207,11 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 
 		try {
 			$create_order = civicrm_api3( 'Order', 'create', $form_values );
+			$this->order = $create_order;
 		} catch ( CiviCRM_API3_Exception $e ) {
 			$transdata['error'] = true;
 			$transdata['note'] = $e->getMessage() . '<br><br><pre' . $e->getTraceAsString() . '</pre>';
 		}
-		if( ! $create_order['is_error'] && isset( $create_order['id'] ) && $config['is_email_receipt'] )
-			civicrm_api3( 'Contribution', 'sendconfirmation', [ 'id' => $create_order['id'] ] );
 
 	}
 
@@ -254,6 +262,9 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 
 			}, 10, 2 );
 		}
+
+		// send confirmation/receipt 
+		$this->maybe_send_confirmation( $this->order, $config );
 
 	}
 
@@ -435,6 +446,27 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 
 				$this->charge_metadata = $charge_metadata;
 			}, 10, 4 );
+		}
+	}
+
+	/**
+	 * Send email confirmation/receipt.
+	 *
+	 * @since 0.4.4
+	 * 
+	 * @param array $order The Order api result
+	 * @param array $config Processor config
+	 */
+	public function maybe_send_confirmation( $order, $config ) {
+		
+		if ( ! $order || ! isset( $order ) ) return;
+
+		if ( ! $order['is_error'] && isset( $order['id'] ) && $config['is_email_receipt'] ) {
+			try {
+				civicrm_api3( 'Contribution', 'sendconfirmation', [ 'id' => $order['id'] ] );
+			} catch ( CiviCRM_API3_Exception $e ) {
+				Civi::log()->debug( 'Unable to send confirmation email for Contribution id ' . $order['id'] );
+			}
 		}
 	}
 
