@@ -486,6 +486,9 @@ class CiviCRM_Caldera_Forms_Helper {
 					Caldera_Forms_Field_Util::get_field( $field_id, $form ) :
 					Caldera_Forms::get_field_by_slug(str_replace( '%', '', $field_id ), $form );
 
+				// don't prerender hidden field values
+				if ( $field['type'] == 'hidden' ) continue;
+
 				/**
 				 * Filter prerenderd value (default value), fires for every processor field.
 				 *
