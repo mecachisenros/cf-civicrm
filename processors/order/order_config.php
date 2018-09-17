@@ -3,6 +3,7 @@
 $financial_types = civicrm_api3( 'FinancialType', 'get', [
 	'sequential' => 1,
 	'is_active' => 1,
+	'option' => [ 'limit' => 0 ],
 ] );
 
 $contribution_status = civicrm_api3( 'Contribution', 'getoptions', [
