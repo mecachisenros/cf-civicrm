@@ -3,7 +3,7 @@
 $financial_types = civicrm_api3( 'FinancialType', 'get', [
 	'sequential' => 1,
 	'is_active' => 1,
-	'option' => [ 'limit' => 0 ],
+	'options' => [ 'limit' => 0 ],
 ] );
 
 $contribution_status = civicrm_api3( 'Contribution', 'getoptions', [
@@ -25,7 +25,7 @@ $contribution_page = civicrm_api3( 'ContributionPage', 'get', [
 	'sequential' => 1,
 	'is_active' => 1,
 	'return' => [ 'title' ],
-	'option' => [ 'limit' => 0 ],
+	'options' => [ 'limit' => 0 ],
 ] );
 
 $payment_processor = civicrm_api3( 'PaymentProcessor', 'get', [
