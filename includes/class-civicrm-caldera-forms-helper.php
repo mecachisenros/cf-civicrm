@@ -733,4 +733,74 @@ class CiviCRM_Caldera_Forms_Helper {
 		return false;
 	}
 
+	/**
+	 * Dedupe CiviCRM Contact.
+	 *
+	 * @since 0.4.4
+	 * @param array $contact Contact data
+	 * @param string $contact_type Contact type
+	 * @param int $dedupe_rule_id Dedupe Rule ID
+	 * @return int $contact_id The contact id
+	 */
+	public function civi_contact_dedupe( $contact, $contact_type, $dedupe_rule_id ) {
+		// Dupes params
+		$dedupeParams = CRM_Dedupe_Finder::formatParams( $contact, $contact_type );
+		$dedupeParams['check_permission'] = FALSE;
+
+		// Check dupes
+		$cids = CRM_Dedupe_Finder::dupesByParams( $dedupeParams, $contact_type, NULL, [], $dedupe_rule_id );
+
+		return $cids ? array_pop( array_reverse( $cids ) ) : 0;
+	}
+
+	/**
+	 * Get current Contact data.
+	 *
+	 * Checks for a valid checksum, and if the user is logged in,
+	 * logged in user data has precedence over checksum.
+	 * 
+	 * @since 0.4.4
+	 * @return array|boolean $contact The Contact data, false otherwise 
+	 */
+	public function current_contact_data_get() {
+
+		$contact = false;
+
+		// checksum links first
+		if ( isset( $_GET['cid'] ) && isset( $_GET['cs'] ) ) {
+
+			$cid = $_GET['cid'];
+			$cs = $_GET['cs'];
+
+			// Check for valid checksum
+			$valid_user = CRM_Contact_BAO_Contact_Utils::validChecksum( $cid, $cs );
+
+			if ( $valid_user )
+				$contact = $this->plugin->helper->get_civi_contact( $cid );
+
+		}
+
+		// logged in overrides checksum
+		if ( is_user_logged_in() )
+			$contact = $this->get_current_contact();
+
+		return $contact;
+
+	}
+
+	/**
+	 * Get current Contact data.
+	 *
+	 * @since 0.4.4
+	 * @return array|boolean $contact The contact data or false
+	 */
+	public function get_current_contact() {
+		if ( is_user_logged_in() ) {
+			$current_user = wp_get_current_user();
+			$current_user = $this->get_wp_civi_contact( $current_user->ID );
+			return $this->get_civi_contact( $current_user );
+		}
+		return false;
+	}
+
 }
