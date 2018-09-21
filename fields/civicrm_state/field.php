@@ -72,12 +72,12 @@ if ( isset( $field['config']['civicrm_country'] ) ) {
 	<?php endif; ?>
 		$( document ).on( 'cf.form.init cf.add', function( e, data ) {
 			// init event
-			if ( data.fieldIds && data.fieldIds.indexOf( '<?php echo esc_attr( $field_id ) ?>' ) != -1 ) {
+			if ( data && data.fieldIds && data.fieldIds.indexOf( '<?php echo esc_attr( $field_id ) ?>' ) != -1 ) {
 				init();
 				$( 'select[data-field="<?php echo esc_attr( $field_base_id ) ?>"]' ).cfcSelect2();
 			}
 			// add event 
-			if ( data.field && data.field == '<?php echo esc_attr( $field_id ) ?>' ) {
+			if ( data && data.field && data.field == '<?php echo esc_attr( $field_id ) ?>' ) {
 				init();
 				$( 'select[data-field="<?php echo esc_attr( $field_base_id ) ?>"]' ).cfcSelect2();
 			}
