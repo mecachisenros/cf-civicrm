@@ -649,13 +649,27 @@ class CiviCRM_Caldera_Forms_Helper {
 	 * @return array $price_field_value The Price Field Value
 	 */
 	public function get_price_field_value( $id ) {
-		$price_field_value = civicrm_api3( 'PriceFieldValue', 'getsingle', [
-			'return' => [ 'id', 'price_field_id', 'label', 'amount', 'count', 'membership_type_id', 'membership_num_terms', 'financial_type_id' ],
-			'id' => $id,
-			'is_active' => 1,
-		] );
-		$price_field_value['amount'] = number_format( $price_field_value['amount'], 2, '.', '' );
-		return $price_field_value;
+
+		// when using a checkbox the value that gets passed is an array
+		if ( is_array( $id ) )
+			$id = array_pop( $id );
+
+		try {
+			$price_field_value = civicrm_api3( 'PriceFieldValue', 'getsingle', [
+				'return' => [ 'id', 'price_field_id', 'label', 'amount', 'count', 'membership_type_id', 'membership_num_terms', 'financial_type_id' ],
+				'id' => $id,
+				'is_active' => 1,
+			] );
+		} catch ( CiviCRM_API3_Exception $e ) {
+
+		}
+
+		if ( ! $price_field_value['is_error'] ) {
+			$price_field_value['amount'] = number_format( $price_field_value['amount'], 2, '.', '' );
+			return $price_field_value;
+		}
+
+		return false;
 	}
 
 	/**
