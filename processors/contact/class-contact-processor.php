@@ -146,15 +146,31 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 				}
 			}
 
-			// Dupes params
-			$dedupeParams = CRM_Dedupe_Finder::formatParams( $form_values['civicrm_contact'], $config['civicrm_contact']['contact_type'] );
-			$dedupeParams['check_permission'] = FALSE;
+			// FIXME
+			// the prepopulated Contact and submitter of the form is always Contact with Link 1
+			// the Contact with Link 1 should always be first in the processors array
+			$first_contact_processor = array_pop( array_reverse( $form['processors'] ) );
 
-			// Check dupes
-			$ids = CRM_Dedupe_Finder::dupesByParams( $dedupeParams, $config['civicrm_contact']['contact_type'], NULL, [], $config['civicrm_contact']['dedupe_rule'] );
+			if ( is_array( $first_contact_processor ) && $first_contact_processor['ID'] == $config['processor_id'] ) {
+				// logged in contact
+				$contact = $this->plugin->helper->get_current_contact();
+				// if not logged in, do dedupe
+				$contact_id = $contact ? $contact['contact_id'] : $this->plugin->helper->civi_contact_dedupe(
+					$form_values['civicrm_contact'], // contact data
+					$config['civicrm_contact']['contact_type'], // contact type
+					$config['civicrm_contact']['dedupe_rule'] // dedupe rule
+				);
+			} else {
+				// dedupe contact
+				$contact_id = $this->plugin->helper->civi_contact_dedupe(
+					$form_values['civicrm_contact'], // contact data
+					$config['civicrm_contact']['contact_type'], // contact type
+					$config['civicrm_contact']['dedupe_rule'] // dedupe rule
+				);
+			}
 
-			// Pass contact id if found
-			$form_values['civicrm_contact']['contact_id'] = $ids ? $ids[0] : 0;
+			// pass first contact or deduped contact
+			$form_values['civicrm_contact']['contact_id'] = $contact_id;
 
 			// Prevent API overriding exisiting contact_sub_type
 			// If we have a contact_id, get the contact and push the sub-type set in Contact config
@@ -622,51 +638,12 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 
 			if( $pr_id['type'] == $this->key_name && isset( $pr_id['runtimes'] ) ){
 
-				if ( isset( $pr_id['config']['auto_pop'] ) && $pr_id['config']['auto_pop'] == 1 && $civicrm_contact_pr[0]['ID'] == $pr_id['ID'] ) {
-
-					// Get contact_id if user is logged in
-					if ( is_user_logged_in() ) {
-						$current_user = wp_get_current_user();
-						$current_user = $this->plugin->helper->get_wp_civi_contact( $current_user->ID );
-						
-						$contact = $this->plugin->helper->get_civi_contact( $current_user );
-						
-					} else {
-						$contact = 0;
-					}
-					
-				}
-				
-				// FIXME
-				// Just for testing, remove later
-				// if ( isset( $_GET['cid'] ) && $civicrm_contact_pr[0]['ID'] == $pr_id['ID'] ) {
-				//	 $cid = $_GET['cid'];
-				//	 $civi_contact = $this->plugin->helper->get_civi_contact( $cid );
-				// }
-				
-				// Get request cid(contact_id) and cs(checksum)
-				// FIXME
-				// Checksum overrides Logged in, is this what we want?
-				if ( isset( $_GET['cid'] ) && isset( $_GET['cs'] ) && $civicrm_contact_pr[0]['ID'] == $pr_id['ID'] ) {
-					
-					$cid = $_GET['cid'];
-					$cs = $_GET['cs'];
-					
-					// Check for valid checksum
-					$valid_user = CRM_Contact_BAO_Contact_Utils::validChecksum( $cid, $cs );
-					
-					if ( $valid_user ) {
-						$contact = $this->plugin->helper->get_civi_contact( $cid );
-					}
-					
-					// FIXME
-					// Add permission check
-					$permissions = CRM_Core_Permission::getPermission();
-					
-				}
+				if ( isset( $pr_id['config']['auto_pop'] ) && $pr_id['config']['auto_pop'] == 1 && $civicrm_contact_pr[0]['ID'] == $pr_id['ID'] )
+					// get contact data
+					$contact = $this->plugin->helper->current_contact_data_get();
 					
 				// Map CiviCRM contact data to form defaults
-				if ( isset( $contact ) && $contact != 0 ) {
+				if ( isset( $contact ) && is_array( $contact ) ) {
 					// contact link reference
 					$contact_link = $pr_id['contact_link'] = 'cid_'.$pr_id['config']['contact_link'];
 					// set contact link in transient
