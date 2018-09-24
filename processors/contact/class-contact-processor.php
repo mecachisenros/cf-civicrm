@@ -138,7 +138,7 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 
 			// FIXME Add Email processor option to set Defaul email for deduping?
 			// Override Contact processor email address with first Email processor
-			if ( $civicrm_email_pr ) {
+			if ( $civicrm_email_pr && empty( $config['civicrm_contact']['email'] ) ) {
 				foreach ( $civicrm_email_pr[0]['config'] as $field => $value ) {
 					if ( $field === 'email' ) {
 						$form_values[$field] = $transdata['data'][$value];
@@ -190,7 +190,27 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 				$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
 				return [ 'note' => $error, 'type' => 'error' ];
 			}
-			
+
+			// FIXME
+			// Civi's API doesn't update the primary email address doing a Contact.create,
+			// so do it manually
+			// check current contact is logged in and if primary email is set
+			if ( isset( $config['civicrm_contact']['email'] ) && isset( $contact ) && $create_contact['id'] == $contact['contact_id'] ) {
+				// update if email has changed
+				if ( $contact['email'] != $form_values['civicrm_contact']['email'] ) {
+					try {
+						$new_email = civicrm_api3( 'Email', 'create', [
+							'id' => $contact['email_id'],
+							'email' => $form_values['civicrm_contact']['email'],
+							'is_primary' => 1,
+						] );
+					} catch ( CiviCRM_API3_Exception $e ) {
+						$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
+						return [ 'note' => $error, 'type' => 'error' ];
+					}
+				}
+			}
+
 			// Store $cid
 			$transient->contacts->{$this->contact_link} = $create_contact['id'];
 			$this->plugin->transient->save( $transient->ID, $transient );
