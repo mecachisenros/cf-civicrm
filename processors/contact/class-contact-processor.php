@@ -304,6 +304,13 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 				// Concatenate DATE + TIME
 				// $form_values['activity_date_time'] = $form_values['activity_date_time'];
 
+				if ( isset( $config['civicrm_address']['is_override'] ) ) {
+					foreach ( $this->plugin->processors['address']->fields as $key => $field ) {
+						if ( ! isset( $form_values['civicrm_address'][$field] ) )
+							$form_values['civicrm_address'][$field] = '';
+					}
+				}
+
 				try {
 					$create_address = civicrm_api3( 'Address', 'create', $form_values['civicrm_address'] );
 				} catch ( CiviCRM_API3_Exception $e ) {
