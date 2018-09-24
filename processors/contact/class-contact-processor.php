@@ -305,7 +305,7 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 				// $form_values['activity_date_time'] = $form_values['activity_date_time'];
 
 				if ( isset( $config['civicrm_address']['is_override'] ) ) {
-					foreach ( $this->plugin->processors['address']->fields as $key => $field ) {
+					foreach ( $this->plugin->processors->processors['address']->fields as $key => $field ) {
 						if ( ! isset( $form_values['civicrm_address'][$field] ) )
 							$form_values['civicrm_address'][$field] = '';
 					}

@@ -9,7 +9,7 @@ $address_location_type = civicrm_api3( 'Address', 'getoptions', [
 	'field' => 'location_type_id',
 ] );
 
-$fields = [ 'name', 'is_primary', 'is_billing', 'street_address', 'supplemental_address_1', 'supplemental_address_2', 'city', 'state_province_id', 'postal_code', 'country_id' ];
+$fields = caldera_forms_civicrm()->processors->processors['address']->fields;
 
 ?>
 
