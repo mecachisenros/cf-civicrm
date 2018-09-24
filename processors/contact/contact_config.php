@@ -195,6 +195,13 @@ $indStandardFields = array( 'first_name', 'last_name', 'middle_name', 'prefix_id
 <div class="civicrm-address-entity">
 	<a id="civicrm-address-fields-button" class="button civicrm-accordion" style="width: 100%; margin-bottom: 5px;"><?php _e( 'Contact Address', 'caldera-forms-civicrm' ); ?></a>
 	<div class="civicrm-address-fields" style="display: none;">
+		<div class="caldera-config-group caldera-config-group-full">
+			<div class="caldera-config-field">
+				<label><input id="{{_id}}_is_override" type="checkbox" name="{{_name}}[civicrm_address][is_override]" value="1" {{#if civicrm_address/is_override}}checked="checked"{{/if}}><?php _e( 'Write empty/blank fields values.', 'caldera-forms-civicrm' ); ?></label>
+				<p class="description"><?php _e( 'If a mapped field\'s value is empty/blank it will still be sent to CiviCRM when this setting is enabled.' ) ?></p>
+			</div>
+		</div>
+
 		<h3><?php _e( 'Address Location Type', 'caldera-forms-civicrm' ); ?></h3>
 		<div id="location_type_id" class="caldera-config-group">
 			<label><?php echo __( 'Address Location Type', 'caldera-forms-civicrm' ); ?></label>

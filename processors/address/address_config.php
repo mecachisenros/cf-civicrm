@@ -13,6 +13,13 @@ $fields = [ 'name', 'is_primary', 'is_billing', 'street_address', 'supplemental_
 
 ?>
 
+<div class="caldera-config-group caldera-config-group-full">
+	<div class="caldera-config-field">
+		<label><input id="{{_id}}_is_override" type="checkbox" name="{{_name}}[is_override]" value="1" {{#if is_override}}checked="checked"{{/if}}><?php _e( 'Write empty/blank fields values.', 'caldera-forms-civicrm' ); ?></label>
+		<p class="description"><?php _e( 'If a mapped field\'s value is empty/blank it will still be sent to CiviCRM when this setting is enabled.' ) ?></p>
+	</div>
+</div>
+
 <h2><?php _e( 'Contact Link', 'caldera-forms-civicrm' ); ?></h2>
 <div id="contact_link" class="caldera-config-group">
 	<label><?php _e( 'Link to', 'caldera-forms-civicrm' ); ?></label>

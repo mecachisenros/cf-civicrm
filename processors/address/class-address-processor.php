@@ -8,11 +8,11 @@
 class CiviCRM_Caldera_Forms_Address_Processor {
 
 	/**
-     * Plugin reference.
-     *
-     * @since 0.4.4
-     */
-    public $plugin;
+	 * Plugin reference.
+	 *
+	 * @since 0.4.4
+	 */
+	public $plugin;
 
 	/**
 	 * The processor key.
@@ -22,6 +22,8 @@ class CiviCRM_Caldera_Forms_Address_Processor {
 	 * @var str $key_name The processor key
 	 */
 	public $key_name = 'civicrm_address';
+
+	public $fields = [ 'name', 'is_primary', 'is_billing', 'street_address', 'supplemental_address_1', 'supplemental_address_2', 'city', 'state_province_id', 'postal_code', 'country_id' ];
 
 	/**
 	 * Fields to ignore while prepopulating
@@ -112,6 +114,13 @@ class CiviCRM_Caldera_Forms_Address_Processor {
 				// FIXME
 				// Concatenate DATE + TIME
 				// $form_values['activity_date_time'] = $form_values['activity_date_time'];
+
+				if ( isset( $config['is_override'] ) ) {
+					foreach ( $this->fields as $key => $field ) {
+						if ( ! isset( $form_values[$field] ) )
+							$form_values[$field] = '';
+					}
+				}
 
 				try {
 					$create_address = civicrm_api3( 'Address', 'create', $form_values );
