@@ -12,17 +12,19 @@ The Caldera Forms CiviCRM plugin contains a set of form processors that interact
 * Map Custom Fields data
 * Add Relationships to each contact
 * Create Activities on form submission
-* Checksum support to auto-populate form with URLs like **example.com/support?cid={contact.contact_id}&{contact.checksum}**
+* Checksum support to auto-populate form with URLs like **example.com/some-page?cid={contact.contact_id}&{contact.checksum}**
+* Add Memberships (CiviMember)
+* Add Contributions with Line Items (for live transactions a [Caldera Forms Payment add-on](https://calderaforms.com/caldera-forms-add-ons/#/payment) is needed)
 
 ### Requirements
 
 To use this plugin, the following is needed:
 
 * WordPress
-* CiviCRM 4.6.x or 4.7.x
+* CiviCRM 4.7.x/5.x (4.6.x *should* work as well)
 * [Caldera Forms](https://wordpress.org/plugins/caldera-forms/ "Caldera Forms WordPress plugin") to be installed
 
-*WARNING* This plugin is in active development (stable beta) and is currently being tested with CiviCRM versions 4.6.x and 4.7.x.
+*WARNING* This plugin is in active development (stable beta) and is currently being tested with CiviCRM version 5.x.
 
 ### Using Caldera Forms CiviCRM
 

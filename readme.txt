@@ -35,9 +35,17 @@ This plugin is in active development. For feature requests and bug reports (or i
 == Changelog ==
 
 = 0.4.4 =
+* Bug fixes
+* Added option to submit empty/blank values for Address entity
 * Moved scripts and styles to it's own Assets class
 * Added $helper property as a replacement for CiviCRM_Caldera_Forms_Helper static methods and properties
-* Fixed usability issue in #61
+* Moved Bulk insert/presets and Autopopulate options to their own classes 
+* Fixed usability issue in #61 https://github.com/mecachisenros/caldera-forms-civicrm/issues/61
+* Contact Reference custom field (with option to add new Organization)
+* Membership processor (for paid and free Memberships)
+* Order processor to process Contributions for Donations and Memberships (to process live transactions a payment add-on is needed see https://calderaforms.com/caldera-forms-add-ons/#/payment it currently integrates with the Stripe and Authorize.net add-ons)
+* Line Item processor (adds Line Items to Contributions through the Order processor)
+* Added pluggable template after ajax submission (the idea is to serve as a replacement for Civi's Thank you page)
 
 = 0.4.3 =
 * Fix to prevent select2 conflicts if different vesions are present
