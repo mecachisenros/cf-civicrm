@@ -45,6 +45,10 @@ if ( isset( $field['config']['civicrm_country'] ) ) {
 					}
 					var id = $( this ).val(),
 					options = clone.filter( '[data-crm-country-id="' + id + '"]' );
+					// handle country with no states/provinces
+					if ( ! options.length ) {
+						options = new Option( 'N/A', 0, false, false );
+					}
 					states.html( options );
 				} ).trigger( 'change' );
 			}
@@ -63,7 +67,11 @@ if ( isset( $field['config']['civicrm_country'] ) ) {
 						$( this ).data( 'options', clone );
 					}
 					var id = $( this ).val(),
-					options =clone.filter( '[data-crm-country-id="' + id + '"]' );
+					options = clone.filter( '[data-crm-country-id="' + id + '"]' );
+					// handle country with no states/provinces
+					if ( ! options.length ) {
+						options = new Option( 'N/A', 0, false, false );
+					}
 					states.html( options );
 				} ).trigger( 'change' );
 			}
