@@ -77,6 +77,7 @@ class CiviCRM_Caldera_Forms_Activity_Processor {
 	 *
 	 * @param array $config Processor configuration
 	 * @param array $form Form configuration
+	 * @param string $processid The process id
 	 */
 	public function processor( $config, $form, $proccesid ) {
 		global $transdata;
@@ -106,9 +107,9 @@ class CiviCRM_Caldera_Forms_Activity_Processor {
 				$create_activity = civicrm_api3( 'Activity', 'create', $form_values );
 			} catch ( CiviCRM_API3_Exception $e ) {
 				$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
-                                $transdata['error'] = TRUE;
-                                $transdata['note'] = $error;
-                                return;
+				$transdata['error'] = TRUE;
+				$transdata['note'] = $error;
+				return;
 			}
 
 			if ( ! empty( $config['file_id'] ) ) {
