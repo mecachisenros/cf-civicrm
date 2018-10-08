@@ -36,7 +36,7 @@ Conditions are used to manage the logic used for each processor. Without adding 
 
 Variables are dynamic form values that have use in either other areas of your form or in different parts of your website. Use a static variable to hold data that you might need to use as a magic tag in some other part of the Caldera Forms Builder. Use a passback variable to send data to the next HTTP request as query variables when using the redirect proccesor. For example you can send fields from one form to another.
 
-The variables are set in the first form simiarl to this:
+The variables are set in the first form similar to this:
 
 ![Caldera Variables Set](./images/caldera-variables-set.jpg)
 
