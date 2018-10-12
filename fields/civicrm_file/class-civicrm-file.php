@@ -17,20 +17,11 @@ class CiviCRM_Caldera_Forms_Field_File {
 	/**
 	 * CiviCRM file mapping fields.
 	 *
-	 * @since 0.4.2
+	 * @since 0.4.4
 	 * @access public
 	 * @var array $files
 	 */
-	public $files = array();
-
-	/**
-	 * Count files.
-	 *
-	 * @since 0.4.2
-	 * @access protected
-	 * @var int $files
-	 */
-	protected $count = 0;
+	public $file_fields = [];
 
 	/**
 	 * Initialises this object.
@@ -57,6 +48,7 @@ class CiviCRM_Caldera_Forms_Field_File {
 		// add civicrm file upload config template for file field
 		add_action( 'caldera_forms_field_settings_template', [ $this, 'civicrm_upload_config_template' ], 20, 2 );
 
+
 	}
 
 	/**
@@ -73,15 +65,17 @@ class CiviCRM_Caldera_Forms_Field_File {
 	 */
 	public function civicrm_upload_handler( $handler, $form, $field ) {
 
+
 		// abort if civicrm upload is not enable
 		if ( in_array( $field['type'], [ 'file', 'advanced_file' ] ) && ! isset( $field['config']['civicrm_file_upload'] ) ) return $handler;
 
-		$this->count++;
-		$this->files['file_' . $this->count] = [
-			'field_id' => $field['ID'],
-			'upload' => $field['config']['civicrm_file_upload'],
-			'file_id' => ''
-		];
+		// build fields array
+		if ( empty( $this->file_fields ) ) {
+			$this->file_fields[$field['ID']] = [
+				'form_id' => $form['ID'],
+				'files' => []
+			];
+		}
 
 		return [ $this, 'handle_civicrm_uploads' ];
 
@@ -98,10 +92,8 @@ class CiviCRM_Caldera_Forms_Field_File {
 	 */
 	public function handle_civicrm_uploads( $file, $args ) {
 
-		// we can't use the Attachment API because it requires an entity_id
-		// by the time the files are uploded the processors have not been precessed yet
-		// therefore we create a File and store the reference in a transient
-  		$upload_directory = CRM_Core_Config::singleton()->customFileUploadDir;
+		// upload directory
+		$upload_directory = CRM_Core_Config::singleton()->customFileUploadDir;
 
 		$params = [
 			'name' => $file['name'],
@@ -112,23 +104,21 @@ class CiviCRM_Caldera_Forms_Field_File {
 
 		move_uploaded_file( $file['tmp_name'], $upload_directory . $params['uri'] );
 
-		$create_file = civicrm_api3( 'File', 'create', $params );
+		// this triggers more than once per form
+		if ( empty( $this->file_fields[$args['field_id']]['files'] ) ) {
+			// create and add file to array
+			$create_file = civicrm_api3( 'File', 'create', $params );
+			$this->file_fields[$args['field_id']]['files'][$create_file['id']] = $file;
 
-		foreach ( $_FILES as $field_id => $parts ) {
-			if( $file === $parts ) {
-				foreach ( $this->files as $file_number => $map ) {
-					if ( $this->files[$file_number]['field_id'] == $field_id  && ! empty( $this->files[$file_number]['upload'] ) ) {
-						$this->files[$file_number]['file_id'] = $create_file['id'];
-					}
+		} else {
+			// check if file is already added
+			foreach ( $this->file_fields[$args['field_id']]['files'] as $file_id => $file_parts ) {
+				if ( $file_parts !==  $file ) {
+					$create_file = civicrm_api3( 'File', 'create', $params );
+					$this->file_fields[$args['field_id']]['files'][$create_file['id']] = $file;
 				}
 			}
-		 }
-		
-		$transient = $this->plugin->transient->get();
-		$transient->files = $this->files;
-
-		$this->plugin->transient->save( $transient->ID, $transient );
-		$this->plugin->helper->set_file_entity_ids( $this->files );
+		}
 
 		$upload['url'] = $create_file['id'];
 		$upload['type'] = $create_file['values']['mime_type'];

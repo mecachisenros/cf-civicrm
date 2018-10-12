@@ -13,7 +13,7 @@ class CiviCRM_Caldera_Forms_Activity_Processor {
 	 * @since 0.4.4
 	 * @access public
 	 * @var object $plugin The plugin instance
- 	 */
+	 */
 	public $plugin;
 	
 	/**
@@ -80,7 +80,9 @@ class CiviCRM_Caldera_Forms_Activity_Processor {
 	 * @param string $processid The process id
 	 */
 	public function processor( $config, $form, $proccesid ) {
+
 		global $transdata;
+
 		// cfc transient object
 		$transient = $this->plugin->transient->get();
 		$this->contact_link = 'cid_' . $config['contact_link'];
@@ -104,7 +106,7 @@ class CiviCRM_Caldera_Forms_Activity_Processor {
 			// $form_values['activity_date_time'] = $form_values['activity_date_time'];
 
 			try {
-				$create_activity = civicrm_api3( 'Activity', 'create', $form_values );
+				$activity = civicrm_api3( 'Activity', 'create', $form_values );
 			} catch ( CiviCRM_API3_Exception $e ) {
 				$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
 				$transdata['error'] = TRUE;
@@ -112,29 +114,18 @@ class CiviCRM_Caldera_Forms_Activity_Processor {
 				return;
 			}
 
-			if ( ! empty( $config['file_id'] ) ) {
+			/**
+			 * Handle File/Advanced File fields for attachments.
+			 * @since 0.4.2
+			 */
+			if ( ! empty( $config['file_id'] ) )
+				$this->plugin->helper->handle_file_attachments_core( 
+					'civicrm_activity',
+					$activity['id'],
+					$config['file_id'],
+					$form
+				);
 
-				$transdata['civicrm']['civicrm_files'] = $this->plugin->helper->get_file_entity_ids();
-
-				if ( is_array( $transdata['data'][$config['file_id']] ) ) {
-
-					// handle multiple upload file 'advanced_file', limit to 3 files
-					$file_ids = $transdata['data'][$config['file_id']];
-					for ( $x = 0; $x < $this->plugin->helper->get_civicrm_settings( 'max_attachments' ); $x++ ) {
-  						$this->plugin->helper->create_civicrm_entity_file( 'civicrm_activity', $create_activity['id'], $file_ids[$x] );
-					}
-
-				} else {
-					// single file
-					foreach ( $transdata['civicrm']['civicrm_files'] as $field_number => $file ) {
-						if ( $config['file_id'] == $file['field_id'] && ! empty( $file['file_id'] ) ) {
-
-							$this->plugin->helper->create_civicrm_entity_file( 'civicrm_activity', $create_activity['id'], $file['file_id'] );
-
-						}
-					}
-				}
-			}
 		}
 	}
 }

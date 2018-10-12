@@ -51,75 +51,12 @@ class CiviCRM_Caldera_Forms_Helper {
 	public $states;
 
 	/**
-	 * Holds contact ids for linking processors.
-	 *
-	 * @since 0.1
-	 * @access public
-	 * @var aray $civi_transdata The contact ids for linking processors
-	 */
-	public $civi_transdata = [];
-
-	/**
 	 * Initialises this object.
 	 *
 	 * @since 0.4.4
 	 */
 	public function __construct( $plugin ) {
 		$this->plugin = $plugin;
-	}
-
-	/**
-	 * Holds field/file ids for attachments.
-	 *
-	 * @since 0.4.2
-	 * @access public
-	 * @var array $file_entity_transdata File entity ids
-	 */
-	public $file_entity_transdata = [];
-
-	/**
-	 * Sets the contact_id/contact_id mapping.
-	 *
-	 * @since 0.1
-	 *
-	 * @param int $contact_link The Contact link from processor $config
-	 * @param int $cid The Contact ID
-	 */
-	public function set_civi_transdata( $contact_link, $cid ) {
-		$this->civi_transdata['contact_id_' . $contact_link] = $cid;
-	}
-
-	/**
-	 * Returns all contact_link/contact_id mappings.
-	 *
-	 * @since 0.1
-	 *
-	 * @return array $civi_transdata The contact_link/contact_id mapping array
-	 */
-	public function get_civi_transdata() {
-		return $this->civi_transdata;
-	}
-
-	/**
-	 * Sets the field/file ids.
-	 *
-	 * @since 0.4.2
-	 *
-	 * @param array $params
-	 */
-	public function set_file_entity_ids( $params ) {
-		$this->file_entity_transdata = $params;
-	}
-
-	/**
-	 * Returns the field/file ids.
-	 *
-	 * @since 0.4.2
-	 *
-	 * @return array $params
-	 */
-	public function get_file_entity_ids() {
-		return $this->file_entity_transdata;
 	}
 
 	/**
@@ -555,6 +492,59 @@ class CiviCRM_Caldera_Forms_Helper {
 		$entityFileDAO->save();
 	}
 
+	/**
+	 * Handle core entities file attachments.
+	 *
+	 * @since 0.4.4
+	 *
+	 * @param string $entity Core entity table, ie 'civicrm_activity', 'civicrm_note'
+	 * @param int $entity_id Entity ID
+	 * @param string $field_id Form field ID
+	 * @param array $form The form config
+	 */
+	public function handle_file_attachments_core( $entity, $entity_id, $field_id, $form ) {
+
+		// get field type for the mapped file field
+		$field_type = Caldera_Forms_Field_Util::get_type( $field_id, $form );
+
+		if ( $field_type == 'file' ) { // file type
+
+			$file_fields = $this->plugin->fields->field_objects['civicrm_file']->file_fields;
+
+			if ( ! empty( $file_fields[$field_id]['files'] ) ) {
+				foreach ( $file_fields[$field_id]['files'] as $file_id => $file ) {
+					$this->create_civicrm_entity_file(
+						$entity,
+						$entity_id,
+						$file_id
+					);
+				}
+			}
+
+		} elseif ( $field_type == 'advanced_file' ) { // advanced file
+			global $transdata;
+			// get civicrm file ids from $transdata
+			if ( ! empty( $transdata['data'][$field_id] ) ) {
+				foreach ( $transdata['data'][$field_id] as $civi_file_id ) {
+					$this->create_civicrm_entity_file(
+						$entity,
+						$entity_id,
+						$civi_file_id
+					);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Get field value by slug or magic tag slug.
+	 *
+	 * @since 0.4.4
+	 *
+	 * @param string $slug Field slug or slug magic tag ie %field_slug%
+	 * @param array $form Form config
+	 * @return string|array The field value
+	 */
 	public function get_field_data_by_slug( $slug, $form ) {
 		$slug = strpos( $slug, '%' ) !== false ? str_replace( '%', '', $slug ) : $slug;
 		$field = Caldera_Forms::get_field_by_slug( $slug, $form );

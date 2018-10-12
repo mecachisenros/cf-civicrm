@@ -82,13 +82,13 @@ class CiviCRM_Caldera_Forms_Note_Processor {
 
 		$transient = $this->plugin->transient->get();
 		$this->contact_link = 'cid_' . $config['contact_link'];
-		
+
 		// Get form values
 		$form_values = $this->plugin->helper->map_fields_to_processor( $config, $form, $form_values );
 
 		if ( ! empty( $form_values ) ) {
 			$form_values['entity_id'] = $transient->contacts->{$this->contact_link}; // Contact ID set in Contact Processor
-
+			$form_values['modified_date'] = date( 'YmdHis', strtotime( 'now' ) );
 			// Add Note to contact
 			try {
 				$note = civicrm_api3( 'Note', 'create', $form_values );
@@ -97,17 +97,18 @@ class CiviCRM_Caldera_Forms_Note_Processor {
 				return [ 'note' => $error, 'type' => 'error' ];
 			}
 
-			// handle attachment using CRM_Core_DAO_EntityFile
-			if ( ! empty( $config['note_attachment'] ) ) {
+			/**
+			 * Handle File/Advanced File fields for attachments.
+			 * @since 0.4.2
+			 */
+			if ( ! empty( $config['note_attachment'] ) )
+				$this->plugin->helper->handle_file_attachments_core( 
+					'civicrm_note',
+					$note['id'],
+					$config['note_attachment'],
+					$form
+				);
 
-				foreach ( $transient->files as $field_number => $file ) {
-					if ( $config['note_attachment'] == $file['field_id'] && ! empty( $file['file_id'] ) ) {
-
-						$this->plugin->helper->create_civicrm_entity_file( 'civicrm_note', $note['id'], $file['file_id'] );
-
-					}
-				}
-			}
 		}
 	}
 }
