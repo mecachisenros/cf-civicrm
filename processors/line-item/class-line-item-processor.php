@@ -171,26 +171,17 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 		$price_field_value['qty'] = 1;
 		$price_field_value['line_total'] = $price_field_value['amount'] * $price_field_value['qty'];
 		
-		
 		// membership params aka 'params'
 		$processor_id = Caldera_Forms::do_magic_tags( $config['entity_params'] );
 		if ( isset( $transient->memberships->$processor_id->params ) && ! empty( $config['entity_params'] ) ) {
-			
+
 			$entity_params = $transient->memberships->$processor_id->params;
-			
-			$entity_params['num_terms'] = ! empty( $entity_params['num_terms'] ) ? 
-				$entity_params['num_terms'] : 
-				$price_field_value['membership_num_terms'];
 
 			$entity_params['source'] = ! empty( $entity_params['source'] ) ? 
 				$entity_params['source'] : 
 				$form['name'];
 
-			// if( ! isset( $entity_params['is_price_field_based'] ) )
-			// 	$entity_params['membership_type_id'] = $price_field_value['membership_type_id'];
 		}
-		
-		$num_terms = $price_field_value['membership_num_terms'];
 
 		unset(
 			$price_field_value['membership_num_terms'],

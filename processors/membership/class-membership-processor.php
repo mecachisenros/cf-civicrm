@@ -104,6 +104,7 @@ class CiviCRM_Caldera_Forms_Membership_Processor {
 		// Get form values
 		$form_values = $this->plugin->helper->map_fields_to_processor( $config, $form, $form_values );
 
+		// price field value, if applicable
 		$price_field_value = isset( $config['is_price_field_based'] ) ? 
 			$this->plugin->helper->get_price_field_value( $form_values['price_field_value'] ) : false;
 
@@ -127,7 +128,7 @@ class CiviCRM_Caldera_Forms_Membership_Processor {
 			if ( isset( $config['is_renewal'] ) && isset( $is_member['id'] ) ) {
 				$form_values['id'] = $is_member['id'];
 				// at least one term
-				$form_values['num_terms'] = empty( $form_values['num_terms'] ) ? $price_field_value['membership_num_terms'] : 1;
+				$form_values['num_terms'] = $this->get_num_terms( $form_values, $price_field_value );
 			}
 
 			$form_values['source'] = isset( $form_values['source'] ) ? $form_values['source'] : $form['name'];
@@ -228,6 +229,28 @@ class CiviCRM_Caldera_Forms_Membership_Processor {
 		}
 
 		return $form;
+	}
+
+	/**
+	 * Get Membership number of terms.
+	 *
+	 * @since 0.4.4
+	 *
+	 * @param array $form_values The submitted form values/data
+	 * @param array|boolean $price_field_value The price field value or false
+	 * @return int $num_terms The membership number of terms
+	 */
+	public function get_num_terms( $form_values, $price_field_value = false ) {
+		// processor num_terms
+		if ( $form_values && ! empty( $form_values['num_terms'] ) )
+			return $form_values['num_terms'];
+
+		// fallback to price field/price set num_term if applicable
+		if ( $price_field_value && ! empty( $price_field_value['membership_num_terms'] ) )
+			return $price_field_value['membership_num_terms'];
+
+		// fallback to at least 1 term, this will be the term setup in the Membership Type settings
+		return 1;
 	}
 
 	/**
