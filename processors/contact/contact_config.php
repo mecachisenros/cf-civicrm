@@ -114,7 +114,7 @@ $indStandardFields = array( 'first_name', 'last_name', 'middle_name', 'prefix_id
 	<div class="caldera-config-field">
 		<select class="block-input field-config required" name="{{_name}}[civicrm_contact][dedupe_rule]">
 		<option value="" {{#is dedupe_rule value=""}}selected="selected"{{/is}}></option>
-		<?php foreach( CiviCRM_Caldera_Forms_Helper::get_dedupe_rules() as $type => $rule ) {
+		<?php foreach( caldera_forms_civicrm()->helper->get_dedupe_rules() as $type => $rule ) {
 			foreach ( $rule as $key => $value ) { ?>
 				<option value="<?php echo esc_attr( $key ); ?>" data-crm-type="<?php echo esc_attr( $type ); ?>" {{#is civicrm_contact/dedupe_rule value=<?php echo $key; ?>}}selected="selected"{{/is}}><?php echo esc_html( "[{$type}] - {$value}" ); ?></option>
 		<?php } } ?>

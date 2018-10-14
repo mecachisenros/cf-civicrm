@@ -184,6 +184,18 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 				}
 			}
 
+			// handle contact image url
+			if ( ! empty( $config['civicrm_contact']['image_URL'] ) && ! empty( $form_values['civicrm_contact']['image_URL'] ) ) {
+				try {
+					$file = civicrm_api3( 'File', 'getsingle', [ 'id' => $form_values['civicrm_contact']['image_URL'] ] );
+				} catch ( CiviCRM_API3_Exception $e ) {
+					
+				}
+
+				if ( is_array( $file ) && ! $file['is_error'] )
+					$form_values['civicrm_contact']['image_URL'] = CRM_Utils_System::url( 'civicrm/contact/imagefile', ['photo' => $file['uri']], true );
+			}
+
 			try {
 				$create_contact = civicrm_api3( 'Contact', 'create', $form_values['civicrm_contact'] );
 			} catch ( CiviCRM_API3_Exception $e ) {
