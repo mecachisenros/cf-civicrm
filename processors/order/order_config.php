@@ -19,8 +19,6 @@ $currencies = civicrm_api3( 'Contribution', 'getoptions', [
 	'field' => 'currency',
 ] );
 
-$price_sets = caldera_forms_civicrm()->helper->cached_price_sets();
-
 $contribution_page = civicrm_api3( 'ContributionPage', 'get', [
 	'sequential' => 1,
 	'is_active' => 1,

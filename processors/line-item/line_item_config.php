@@ -42,6 +42,7 @@ $price_sets = caldera_forms_civicrm()->helper->cached_price_sets();
         <label><input type="checkbox" name="{{_name}}[is_fixed_price_field]" value="1" {{#if is_fixed_price_field}}checked="checked"{{/if}}><?php _e( 'Use a fixed Price Field Option', 'caldera-forms-civicrm' ); ?></label>
     </div>
     <div class="fixed_price_field caldera-config-field">
+    <?php if ( $price_sets ): ?>
         <select class="block-input field-config" name="{{_name}}[fixed_price_field_value]">
             <option value=""><?php _e( 'Select a Price Field', 'caldera-forms-civicrm' ); ?></option>
             <?php
@@ -56,6 +57,9 @@ $price_sets = caldera_forms_civicrm()->helper->cached_price_sets();
                 }
                 ?>
         </select>
+    <?php else: ?>
+        <div class="field-config"><?php _e( 'No price sets.', 'caldera-forms-civicrm' ); ?></div>
+    <?php endif; ?>
     </div>
 </div>
 

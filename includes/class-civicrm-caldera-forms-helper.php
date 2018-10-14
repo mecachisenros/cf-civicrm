@@ -588,6 +588,9 @@ class CiviCRM_Caldera_Forms_Helper {
 			return array( 'note' => $e->getMessage(), 'type' => 'error' );
 		}
 
+		// false if no price field values or price sets
+		if ( ! $all_price_field_values['count'] || ! $result_price_sets['count'] ) return false;
+
 		$price_field_values = array();
 		foreach ( $all_price_field_values['values'] as $id => $price_field_value ) {
 			$price_field_value['amount'] = number_format( $price_field_value['amount'], 2, '.', '' );
@@ -617,16 +620,19 @@ class CiviCRM_Caldera_Forms_Helper {
 	 *
 	 * @since 0.4.4
 	 *
-	 * @return array|Exception $price_sets
+	 * @return array|false $price_sets
 	 */
 	public function cached_price_sets() {
 		$price_sets = get_transient( 'cfc_civicrm_price_sets' );
 		if ( $price_sets ) return $price_sets;
 		
-		if ( set_transient( 'cfc_civicrm_price_sets', $this->get_price_sets(), DAY_IN_SECONDS ) )
-			return get_transient( 'cfc_civicrm_price_sets' );
-		
-		throw new Exception( 'Price sets transient could not be set.' );
+		// set transient only if we have price sets
+		if ( $this->get_price_sets() ) {
+			if ( set_transient( 'cfc_civicrm_price_sets', $this->get_price_sets(), DAY_IN_SECONDS ) )
+				return get_transient( 'cfc_civicrm_price_sets' );
+		}
+
+		return false;
 		
 	}
 

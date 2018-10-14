@@ -60,7 +60,8 @@ class CiviCRM_Caldera_Forms_Forms {
 		add_action( 'caldera_forms_submit_complete', [ $this, 'delete_form_transient' ] );
 		
 		// add CiviCRM panel
-		add_filter( 'caldera_forms_get_panel_extensions', [ $this, 'add_civicrm_tab' ], 10 );
+		if ( in_array( 'CiviContribute', $this->plugin->processors->enabled_components ) )  
+			add_filter( 'caldera_forms_get_panel_extensions', [ $this, 'add_civicrm_tab' ], 10 );
 		
 		// use label in summary
 		add_filter( 'caldera_forms_magic_summary_should_use_label', [ $this, 'summary_use_label' ], 10, 3 );
