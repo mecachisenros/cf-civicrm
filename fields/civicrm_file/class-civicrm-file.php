@@ -99,6 +99,7 @@ class CiviCRM_Caldera_Forms_Field_File {
 			'name' => $file['name'],
 			'mime_type' => $file['type'],
 			'tmp_name' => $file['tmp_name'],
+			'upload_date' => date( 'YmdHis', strtotime( 'now' ) ),
 			'uri' => CRM_Utils_File::makeFileName( str_replace( ' ', '_', $file['name'] ) )
 		];
 
