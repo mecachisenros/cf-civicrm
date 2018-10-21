@@ -58,7 +58,7 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 	 */
 	public function register_processor( $processors ) {
 
-		$processors[$this->key_name] = array(
+		$processors[$this->key_name] = [
 			'name' => __( 'CiviCRM Line Item', 'caldera-forms-civicrm' ),
 			'description' => __( 'Add Line Item for the Order Processor', 'caldera-forms-civicrm' ),
 			'author' => 'Andrei Mondoc',
@@ -66,7 +66,7 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 			'pre_processor' => [ $this, 'pre_processor' ],
 			'processor' => [ $this, 'processor' ],
 			'magic_tags' => [ 'processor_id' ],
-		);
+		];
 
 		return $processors;
 

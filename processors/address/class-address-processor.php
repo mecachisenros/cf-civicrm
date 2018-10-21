@@ -32,7 +32,7 @@ class CiviCRM_Caldera_Forms_Address_Processor {
 	 * @access public
 	 * @var array $fields_to_ignore Fields to ignore
 	 */
-	public $fields_to_ignore = array( 'contact_link', 'location_type_id' );
+	public $fields_to_ignore = [ 'contact_link', 'location_type_id' ];
 
 	/**
 	 * Initialises this object.
@@ -42,9 +42,9 @@ class CiviCRM_Caldera_Forms_Address_Processor {
 	public function __construct( $plugin ) {
 		$this->plugin = $plugin;
 		// register this processor
-		add_filter( 'caldera_forms_get_form_processors', array( $this, 'register_processor' ) );
+		add_filter( 'caldera_forms_get_form_processors', [ $this, 'register_processor' ] );
 		// filter form before rendering
-		add_filter( 'caldera_forms_render_get_form', array( $this, 'pre_render') );
+		add_filter( 'caldera_forms_render_get_form', [ $this, 'pre_render' ] );
 
 	}
 
@@ -60,13 +60,13 @@ class CiviCRM_Caldera_Forms_Address_Processor {
 	 */
 	public function register_processor( $processors ) {
 
-		$processors[$this->key_name] = array(
+		$processors[$this->key_name] = [
 			'name' => __( 'CiviCRM Address', 'caldera-forms-civicrm' ),
 			'description' => __( 'Add CiviCRM address to contacts', 'caldera-forms-civicrm' ),
 			'author' => 'Andrei Mondoc',
 			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/address/address_config.php',
-			'pre_processor' => array( $this, 'pre_processor' ),
-		);
+			'pre_processor' => [ $this, 'pre_processor' ],
+		];
 
 		return $processors;
 
@@ -90,10 +90,10 @@ class CiviCRM_Caldera_Forms_Address_Processor {
 		if ( ! empty( $transient->contacts->{$this->contact_link} ) ) {
 
 			try {
-				$address = civicrm_api3( 'Address', 'getsingle', array(
+				$address = civicrm_api3( 'Address', 'getsingle', [
 					'contact_id' => $transient->contacts->{$this->contact_link},
 					'location_type_id' => $config['location_type_id'],
-				));
+				] );
 			} catch ( CiviCRM_API3_Exception $e ) {
 				// Ignore if none found
 			}
@@ -126,7 +126,7 @@ class CiviCRM_Caldera_Forms_Address_Processor {
 					$create_address = civicrm_api3( 'Address', 'create', $form_values );
 				} catch ( CiviCRM_API3_Exception $e ) {
 					$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
-	                return array( 'note' => $error, 'type' => 'error' );
+					return [ 'note' => $error, 'type' => 'error' ];
 				}
 			}
 		}

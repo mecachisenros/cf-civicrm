@@ -1,10 +1,10 @@
 <?php
 
-$tagResult = $result = civicrm_api3( 'Tag', 'get', array(
+$tagResult = $result = civicrm_api3( 'Tag', 'get', [
 	'sequential' => 1,
 	'used_for' => 'civicrm_contact',
-	'options' => array( 'limit' => 0 ),
-));
+	'options' => [ 'limit' => 0 ],
+] );
 
 ?>
 

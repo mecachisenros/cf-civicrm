@@ -1,28 +1,28 @@
 <?php
 
-$ignore_fields = array( 'target_contact_id', 'source_contact_id', 'assignee_contact_id', 'source_record_id', 'contact_id' );
+$ignore_fields = [ 'target_contact_id', 'source_contact_id', 'assignee_contact_id', 'source_record_id', 'contact_id' ];
 
-$activities = civicrm_api3( 'Activity', 'getoptions', array(
+$activities = civicrm_api3( 'Activity', 'getoptions', [
 	'sequential' => 1,
 	'field' => 'activity_type_id',
-));
+] );
 
-$activity_status = civicrm_api3( 'Activity', 'getoptions', array(
+$activity_status = civicrm_api3( 'Activity', 'getoptions', [
 	'sequential' => 1,
 	'field' => 'status_id',
-));
+] );
 
-$campaign_id = civicrm_api3( 'Campaign', 'get', array(
+$campaign_id = civicrm_api3( 'Campaign', 'get', [
 	'sequential' => 1,
 	'is_active' => 1,
-	'options' => array( 'limit' => 0 ),
-));
+	'options' => [ 'limit' => 0 ],
+] );
 
-$activityFieldsResult = civicrm_api3( 'Activity', 'getfields', array(
+$activityFieldsResult = civicrm_api3( 'Activity', 'getfields', [
 	'sequential' => 1,
-));
+] );
 
-$activityFields = array();
+$activityFields = [];
 foreach ( $activityFieldsResult['values'] as $key => $value ) {
 	if ( ! in_array( $value['name'], caldera_forms_civicrm()->helper->activity_fields ) ) {
 		$activityFields[$value['name']] = $value['title'];

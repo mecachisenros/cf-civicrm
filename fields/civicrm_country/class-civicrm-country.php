@@ -8,19 +8,19 @@
 class CiviCRM_Caldera_Forms_Field_Country {
 
 	/**
-     * Plugin reference.
-     *
-     * @since 0.4.4
-     */
-    public $plugin;
+	 * Plugin reference.
+	 *
+	 * @since 0.4.4
+	 */
+	public $plugin;
 
-    /**
-     * Field key name.
-     *
-     * @since 0.4.4
-     * @var string Field key name
-     */
-    public $key_name = 'civicrm_country';
+	/**
+	 * Field key name.
+	 *
+	 * @since 0.4.4
+	 * @var string Field key name
+	 */
+	public $key_name = 'civicrm_country';
 
 	/**
 	 * Initialises this object.
@@ -96,9 +96,9 @@ class CiviCRM_Caldera_Forms_Field_Country {
 	public function field_render_view( $field_value, $field, $form ) {
 
 		// use API to retrieve Country name
-		$country_data = civicrm_api3( 'Country', 'get', array(
+		$country_data = civicrm_api3( 'Country', 'get', [
 			'id' => $field_value,
-		));
+		] );
 
 		// set as view if we get one
 		if ( $country_data['is_error'] == '0' ) {

@@ -28,7 +28,7 @@ class CiviCRM_Caldera_Forms_Dummy_Processor {
 	public function __construct() {
 
 		// register this processor
-		add_filter( 'caldera_forms_get_form_processors', array( $this, 'register_processor' ) );
+		add_filter( 'caldera_forms_get_form_processors', [ $this, 'register_processor' ] );
 
 	}
 
@@ -45,7 +45,7 @@ class CiviCRM_Caldera_Forms_Dummy_Processor {
 	public function register_processor( $processors ) {
 
 		// define processor
-		$processors[$this->key_name] = array(
+		$processors[$this->key_name] = [
 
 			// Required: Processor name
 			'name' => __( 'Processor Name', 'caldera-forms-civicrm' ),
@@ -63,13 +63,13 @@ class CiviCRM_Caldera_Forms_Dummy_Processor {
 			'author_url' => 'http://example.com/my_processor',
 
 			// Optional: Pre-processor function used to verify and check data, can stop processing and return to user
-			'pre_processor' => array( $this, 'pre_processor' ),
+			'pre_processor' => [ $this, 'pre_processor' ],
 
 			// Optional: Processor function used to handle data, cannot stop processing. Returned data saved as entry meta
-			'processor' => array( $this, 'processor' ),
+			'processor' => [ $this, 'processor' ],
 
 			// Optional: Post-processor function used to cleanup or capture data from processing
-			'post_processor' => array( $this, 'post_processor' ),
+			'post_processor' => [ $this, 'post_processor' ],
 
 			// Optional: Config template for setting up the processor in form builder
 			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/dummy_config.php',
@@ -84,7 +84,7 @@ class CiviCRM_Caldera_Forms_Dummy_Processor {
 			'single' => false,
 
 			// Optional: Array of values processor returns to be used in magic tag autocomplete list
-			'magic_tags' => array(
+			'magic_tags' => [
 
 				// Adds {processor_slug:returned_tag} to magic tags
 				'returned_tag',
@@ -92,25 +92,25 @@ class CiviCRM_Caldera_Forms_Dummy_Processor {
 				// Adds {processor_slug:another_returned} to magic tags etc..
 				'another_returned',
 
-			),
+			],
 
 			// Optional: Array of WordPress script handle / urls to javascript files used in form builder
-			'scripts' => array(
+			'scripts' => [
 
 				// jQuery is already included, this is just an example of a handle
 				'jquery',
 
-			),
+			],
 
 			// Optional: Array of WordPress style handle / urls to stylesheet files used in form builder
-			'styles' => array(
+			'styles' => [
 
 				// doesn't exist, but just an example of a style url
 				plugin_dir_url(__FILE__) . 'assets/css/style.css',
 
-			),
+			],
 
-		);
+		];
 
 		return $processors;
 

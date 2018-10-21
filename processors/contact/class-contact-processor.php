@@ -8,12 +8,12 @@
 class CiviCRM_Caldera_Forms_Contact_Processor {
 
 	/**
-     * Plugin reference.
-     *
-     * @since 0.4.4
+	 * Plugin reference.
+	 *
+	 * @since 0.4.4
 	 * @access public
-     * @var object $plugin The plugin instance
-     */
+	 * @var object $plugin The plugin instance
+	 */
 	public $plugin;
 	
 	/**
@@ -149,7 +149,8 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 			// FIXME
 			// the prepopulated Contact and submitter of the form is always Contact with Link 1
 			// the Contact with Link 1 should always be first in the processors array
-			$first_contact_processor = array_pop( array_reverse( $form['processors'] ) );
+			$first_contact_processor = array_reverse( $form['processors'] );
+			$first_contact_processor = array_pop( $first_contact_processor );
 
 			if ( is_array( $first_contact_processor ) && $first_contact_processor['ID'] == $config['processor_id'] ) {
 				// logged in contact
@@ -366,10 +367,10 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 				$phone = civicrm_api3( 'Phone', 'getsingle', [
 					'contact_id' => $transient->contacts->{$this->contact_link},
 					'location_type_id' => $config['civicrm_phone']['location_type_id'],
-					'phone_type_id' => $config['phone_type_id'],
+					'phone_type_id' => $config['civicrm_phone']['phone_type_id'],
 				] );
 
-			} catch ( Exception $e ) {
+			} catch ( CiviCRM_API3_Exception $e ) {
 				// Ignore if none found
 			}
 
@@ -510,15 +511,15 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 				if ( isset( $website ) && is_array( $website ) ) {
 					$form_values['civicrm_website']['id'] = $website['id']; // Website ID
 				} else {
-	                $form_values['civicrm_website']['website_type_id'] = $config['civicrm_website']['website_type_id'];
-	            }
+					$form_values['civicrm_website']['website_type_id'] = $config['civicrm_website']['website_type_id'];
+				}
 
-	            try {
+				try {
 					$create_email = civicrm_api3( 'Website', 'create', $form_values['civicrm_website'] );
-	            } catch ( CiviCRM_API3_Exception $e ) {
-	            	$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
+				} catch ( CiviCRM_API3_Exception $e ) {
+					$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
 					return [ 'note' => $error, 'type' => 'error' ];
-	            }
+				}
 			}
 		}
 	}
@@ -544,7 +545,7 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 					'location_type_id' => $config['civicrm_im']['location_type_id'],
 				] );
 
-			} catch ( Exception $e ) {
+			} catch ( CiviCRM_API3_Exception $e ) {
 				// Ignore if none found
 			}
 
@@ -558,15 +559,15 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 				if ( isset( $im ) && is_array( $im ) ) {
 					$form_values['civicrm_im']['id'] = $im['id']; // Im ID
 				} else {
-	                $form_values['civicrm_im']['location_type_id'] = $config['civicrm_im']['location_type_id']; // IM Location type set in Processor config
-	            }
+					$form_values['civicrm_im']['location_type_id'] = $config['civicrm_im']['location_type_id']; // IM Location type set in Processor config
+				}
 
-	            try {
+				try {
 					$create_im = civicrm_api3( 'Im', 'create', $form_values['civicrm_im'] );
-	            } catch ( CiviCRM_API3_Exception $e ) {
-	            	$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
+				} catch ( CiviCRM_API3_Exception $e ) {
+					$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
 					return [ 'note' => $error, 'type' => 'error' ];
-	            }
+				}
 			}
 		}
 	}
@@ -914,7 +915,7 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 						'location_type_id' => $pr_id['config']['civicrm_im']['location_type_id'],
 					] );
 
-				} catch ( Exception $e ) {
+				} catch ( CiviCRM_API3_Exception $e ) {
 					// Ignore if we have more than one Im with same location type or none
 				}
 			}

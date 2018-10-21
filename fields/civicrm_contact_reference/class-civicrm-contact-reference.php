@@ -8,19 +8,19 @@
 class CiviCRM_Caldera_Forms_Contact_Reference {
 
 	/**
-     * Plugin reference.
-     *
-     * @since 0.4.4
-     */
-    public $plugin;
+	 * Plugin reference.
+	 *
+	 * @since 0.4.4
+	 */
+	public $plugin;
 
-    /**
-     * Field key name.
-     *
-     * @since 0.4.4
-     * @var string $key_name Field key name
-     */
-    public $key_name = 'civicrm_contact_reference';
+	/**
+	 * Field key name.
+	 *
+	 * @since 0.4.4
+	 * @var string $key_name Field key name
+	 */
+	public $key_name = 'civicrm_contact_reference';
 
 	/**
 	 * Initialises this object.

@@ -41,13 +41,13 @@ class CiviCRM_Caldera_Forms_HTML {
 		
 		// no template path message
 		if ( ! is_readable( $template_path ) )
-            return sprintf('<h2>Could not read <em>"%s"</em> file.<h2>', $template_path );
+			return sprintf('<h2>Could not read <em>"%s"</em> file.<h2>', $template_path );
 
-        ob_start();
-        
-        include $template_path;
-        
-        return ob_get_clean();
+		ob_start();
+
+		include $template_path;
+
+		return ob_get_clean();
 
 	}
 

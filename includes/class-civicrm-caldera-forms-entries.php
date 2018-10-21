@@ -8,11 +8,11 @@
 class CiviCRM_Caldera_Forms_Entries {
 
 	/**
-     * Plugin reference.
-     *
-     * @since 0.4.4
-     */
-    public $plugin;
+	 * Plugin reference.
+	 *
+	 * @since 0.4.4
+	 */
+	public $plugin;
 
 	/**
 	 * Initialises this object.
@@ -33,7 +33,7 @@ class CiviCRM_Caldera_Forms_Entries {
 	 */
 	public function register_hooks() {
 
-		add_filter( 'caldera_forms_get_entry', array( $this, 'get_entry' ), 10, 3 );
+		add_filter( 'caldera_forms_get_entry', [ $this, 'get_entry' ], 10, 3 );
 
 	}
 
@@ -43,10 +43,10 @@ class CiviCRM_Caldera_Forms_Entries {
 			$field = Caldera_Forms_Field_Util::get_field( $field_id, $form );
 			if ( ! empty( $values['value'] ) && $field['type'] == 'file' && isset( $field['config']['civicrm_file_upload'] ) ) {
 				try {
-					$attachment = civicrm_api3('Attachment', 'getsingle', array(
+					$attachment = civicrm_api3( 'Attachment', 'getsingle', [
   						'id' => $values['value'],
-					));
-				} catch (Exception $e) {
+					] );
+				} catch ( CiviCRM_API3_Exception $e ) {
 
 				}
 				if ( isset( $attachment ) && ! $attachment['is_error'] ) {

@@ -8,41 +8,41 @@
 class CiviCRM_Caldera_Forms_Forms {
 
 	/**
-     * Plugin reference.
-     *
-     * @since 0.4.4
+	 * Plugin reference.
+	 *
+	 * @since 0.4.4
 	 * @access public
-     * @var object $plugin The plugin instance
-     */
+	 * @var object $plugin The plugin instance
+	 */
 	public $plugin;
 	
 	/**
-     * Transient Id reference.
-     *
-     * @since 0.4.4
+	 * Transient Id reference.
+	 *
+	 * @since 0.4.4
 	 * @access protected
-     * @var string $transient_id The transient id reference
-     */
-    protected $transient_id;
+	 * @var string $transient_id The transient id reference
+	 */
+	protected $transient_id;
 
-    /**
-     * Initialises this object.
-     *
-     * @since 0.4
-     */
-    public function __construct( $plugin ) {
+	/**
+	 * Initialises this object.
+	 *
+	 * @since 0.4
+	 */
+	public function __construct( $plugin ) {
 		$this->plugin = $plugin;
-        $this->register_hooks();
-    }
+		$this->register_hooks();
+	}
 
-    /**
-     * Register hooks.
-     *
-     * @since 0.4
-     */
-    public function register_hooks() {
+	/**
+	 * Register hooks.
+	 *
+	 * @since 0.4
+	 */
+	public function register_hooks() {
 
-        // reorder processors on save form
+		// reorder processors on save form
 		add_filter( 'caldera_forms_presave_form', [ $this, 'reorder_contact_processors' ], 20 );
 
 		/**
@@ -114,7 +114,7 @@ class CiviCRM_Caldera_Forms_Forms {
 	 */
 	public function set_transient_structure( $form ) {
 
-		$structure = new stdClass();
+		$structure = ( object ) [];
 
 		foreach ( $form['processors'] as $id => $processor ) {
 			if ( isset( $processor['runtimes'] ) ) {
@@ -154,7 +154,7 @@ class CiviCRM_Caldera_Forms_Forms {
 		 * @param object $transient The transient stricture
 		 * @param array $form Form config
 		 */
-		apply_filters( 'cfc_filter_transient_structure', $transient, $form );
+		apply_filters( 'cfc_filter_transient_structure', $structure, $form );
 
 		$this->plugin->transient->save( null, $structure );
 
@@ -217,8 +217,7 @@ class CiviCRM_Caldera_Forms_Forms {
 		return $fields;
 	}
 
-
-    /**
+	/**
 	 * Reorder Contact processors, fires when a form is saved.
 	 *
 	 * @uses 'caldera_forms_presave_form' filter
@@ -228,7 +227,7 @@ class CiviCRM_Caldera_Forms_Forms {
 	 * @return array $form The modified form
 	 */
 	public function reorder_contact_processors( $form ) {
-        // continue as normal if form has no processors
+		// continue as normal if form has no processors
 		if ( empty( $form['processors'] ) ) return $form;
 
 		$contact_processors = $rest_processors = [];
@@ -243,8 +242,8 @@ class CiviCRM_Caldera_Forms_Forms {
 
 		// Sort Contact processors based on Contact Link
 		uasort( $contact_processors, function( $a, $b ) {
-            return $a['config']['contact_link'] - $b['config']['contact_link'];
-        });
+			return $a['config']['contact_link'] - $b['config']['contact_link'];
+		} );
 
 		$form['processors'] = array_merge( $contact_processors, $rest_processors );
 

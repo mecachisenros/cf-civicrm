@@ -8,13 +8,13 @@
 class CiviCRM_Caldera_Forms_Price_Sets_Presets {
 
 	/**
-     * Plugin reference.
-     *
-     * @since 0.4.4
-     */
-    public $plugin;
+	 * Plugin reference.
+	 *
+	 * @since 0.4.4
+	 */
+	public $plugin;
 
-    /**
+	/**
 	 * The custom fields data array.
 	 *
 	 * @since 0.4.4

@@ -8,19 +8,19 @@
 class CiviCRM_Caldera_Forms_Field_State {
 
 	/**
-     * Plugin reference.
-     *
-     * @since 0.4.4
-     */
-    public $plugin;
+	 * Plugin reference.
+	 *
+	 * @since 0.4.4
+	 */
+	public $plugin;
 
-    /**
-     * Field key name
-     *
-     * @since 0.4.4
-     * @var string $key_name The field key name
-     */
-    public $key_name = 'civicrm_state';
+	/**
+	 * Field key name
+	 *
+	 * @since 0.4.4
+	 * @var string $key_name The field key name
+	 */
+	public $key_name = 'civicrm_state';
 
 	/**
 	 * Initialises this object.

@@ -1,16 +1,16 @@
 <?php
 
-$financial_types = civicrm_api3( 'Contribution', 'getoptions', array(
+$financial_types = civicrm_api3( 'Contribution', 'getoptions', [
 	'sequential' => 1,
 	'field' => 'financial_type_id',
-));
+] );
 
-$contribution_fields_result = civicrm_api3( 'Contribution', 'getfields', array(
+$contribution_fields_result = civicrm_api3( 'Contribution', 'getfields', [
   'sequential' => 1,
   'api_action' => 'create',
-));
+] );
 
-$contribution_fields = array();
+$contribution_fields = [];
 foreach ( $contribution_fields_result['values'] as $key => $value ) {
 	if ( in_array( $value['name'], caldera_forms_civicrm()->helper->contribution_fields ) ) {
 		$contribution_fields[$value['name']] = $value['title'];
@@ -41,7 +41,7 @@ foreach ( $contribution_fields_result['values'] as $key => $value ) {
 			<?php
 				if( $key != 'financial_type_id' ) {
 					echo '{{{_field ';
-					if ( in_array( $key, array( 'currency_code', 'total_amount', 'financial_type_id' ) ) ) echo 'required="true" ';
+					if ( in_array( $key, [ 'currency_code', 'total_amount', 'financial_type_id' ] ) ) echo 'required="true" ';
 					echo 'slug="' . $key . '"}}}';
 				} else {
 					?>

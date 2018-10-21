@@ -1,10 +1,10 @@
 <?php
 
-$noteFields = civicrm_api3( 'Note', 'getfields', array(
+$noteFields = civicrm_api3( 'Note', 'getfields', [
 	'sequential' => 1,
-));
+] );
 
-$fields = array( 'note', 'subject' );
+$fields = [ 'note', 'subject' ];
 
 ?>
 

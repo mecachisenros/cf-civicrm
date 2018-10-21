@@ -1,14 +1,14 @@
 <?php
-	$websiteFields = civicrm_api3('Website', 'getfields', array(
+	$websiteFields = civicrm_api3( 'Website', 'getfields', [
 		'sequential' => 1,
-	));
+	] );
 
-	$websiteType = civicrm_api3('website', 'getoptions', array(
+	$websiteType = civicrm_api3( 'Website', 'getoptions', [
 		'sequential' => 1,
-		'field' => "website_type_id",
-	));
+		'field' => 'website_type_id',
+	] );
 
-	$fields = array( 'url' );
+	$fields = [ 'url' ];
 ?>
 
 <h2><?php _e( 'Contact Link', 'caldera-forms-civicrm' ); ?></h2>

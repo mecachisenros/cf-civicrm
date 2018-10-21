@@ -8,12 +8,12 @@
 class CiviCRM_Caldera_Forms_Case_Processor {
 
 	/**
-     * Plugin reference.
-     *
-     * @since 0.4.4
+	 * Plugin reference.
+	 *
+	 * @since 0.4.4
 	 * @access public
 	 * @var object $plugin The plugin instance
-     */
+	 */
 	public $plugin;
 	
 	/**
@@ -90,10 +90,10 @@ class CiviCRM_Caldera_Forms_Case_Processor {
 
 		if ( $config['dismiss_case'] ) {
 			$existing_cases = civicrm_api3( 'Case', 'get', [
-  				'sequential' => 1,
-  				'contact_id' => $transient->contacts->{$this->contact_link},
-  				'case_type_id' => $config['case_type_id'],
-  				'options' => [ 'limit' => 0 ],
+				'sequential' => 1,
+				'contact_id' => $transient->contacts->{$this->contact_link},
+				'case_type_id' => $config['case_type_id'],
+				'options' => [ 'limit' => 0 ],
 			] );
 		}
 

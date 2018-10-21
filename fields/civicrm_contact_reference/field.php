@@ -29,7 +29,7 @@
 					contact_id: '<?php echo esc_attr( $field['config']['default'] ); ?>',
 					action: 'civicrm_contact_reference_get',
 					field_id: $( '#<?php echo esc_attr( $field_id ); ?>' ).data( 'field' ),
-    				form_id: '<?php echo esc_attr( $form['ID'] ); ?>',
+					form_id: '<?php echo esc_attr( $form['ID'] ); ?>',
 					nonce: $( '#<?php echo esc_attr( $field_id ); ?>' ).attr( 'nonce' )
 				},
 				success : function( response ) {
@@ -45,21 +45,21 @@
 			} );
 		}
 		$( '#<?php echo esc_attr( $field_id ); ?>' ).cfcSelect2( {
-	  		ajax: {
-    			url: cfc.url,
-    			dataType: 'json',
-    			type: 'post',
-    			delay: 250,
-    			data: function ( params ) {
-      				return {
-        				search: params.term,
-        				action: 'civicrm_contact_reference_get',
-        				field_id: $( '#<?php echo esc_attr( $field_id ); ?>' ).data( 'field' ),
-        				form_id: '<?php echo esc_attr( $form['ID'] ); ?>',
-        				nonce: $( '#<?php echo esc_attr( $field_id ); ?>' ).attr( 'nonce' )
-      				};
-    			},
-    			processResults: function( data ) {
+			ajax: {
+				url: cfc.url,
+				dataType: 'json',
+				type: 'post',
+				delay: 250,
+				data: function ( params ) {
+					return {
+						search: params.term,
+						action: 'civicrm_contact_reference_get',
+						field_id: $( '#<?php echo esc_attr( $field_id ); ?>' ).data( 'field' ),
+						form_id: '<?php echo esc_attr( $form['ID'] ); ?>',
+						nonce: $( '#<?php echo esc_attr( $field_id ); ?>' ).attr( 'nonce' )
+						};
+				},
+				processResults: function( data ) {
 					var options = [];
 					if ( data ) {
 						$.each( data, function( index, contact ) {

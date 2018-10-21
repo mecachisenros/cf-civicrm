@@ -8,11 +8,11 @@
 class CiviCRM_Caldera_Forms_Fields {
 
 	/**
-     * Plugin reference.
-     *
-     * @since 0.4.4
-     */
-    public $plugin;
+	 * Plugin reference.
+	 *
+	 * @since 0.4.4
+	 */
+	public $plugin;
 
 	/**
 	 * The custom field objects reference array.

@@ -146,8 +146,8 @@ $contact_sub_types = civicrm_api3( 'ContactType', 'get', [
 		$( '.{{_id}}_contact_type select' ).on( 'change', function() {
 			var selected = $( this ).val();
 			$( '.{{_id}}_new_organization' ).toggle( selected == 'Organization' );
-            if ( selected != 'Organization' )
-            	$( '.{{_id}}_new_organization input' ).prop( 'checked', false );
+			if ( selected != 'Organization' )
+				$( '.{{_id}}_new_organization input' ).prop( 'checked', false );
 		} ).trigger( 'change' );
 	} );
 </script>

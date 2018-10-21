@@ -8,11 +8,11 @@
 class CiviCRM_Caldera_Forms_Relationship_Processor {
 
 	/**
-     * Plugin reference.
-     *
-     * @since 0.4.4
-     */
-    public $plugin;
+	 * Plugin reference.
+	 *
+	 * @since 0.4.4
+	 */
+	public $plugin;
 
 	/**
 	 * The processor key.

@@ -8,12 +8,12 @@
 class CiviCRM_Caldera_Forms_Website_Processor {
 
 	/**
-     * Plugin reference.
-     *
-     * @since 0.4.4
+	 * Plugin reference.
+	 *
+	 * @since 0.4.4
 	 * @access public
 	 * @var object $plugin The plugin instance
-     */
+	 */
 	public $plugin;
 
 	/**
@@ -119,15 +119,15 @@ class CiviCRM_Caldera_Forms_Website_Processor {
 				if ( isset( $website ) && is_array( $website ) ) {
 					$form_values['id'] = $website['id']; // Website ID
 				} else {
-	                $form_values['website_type_id'] = $config['website_type_id'];
-	            }
+					$form_values['website_type_id'] = $config['website_type_id'];
+				}
 
-	            try {
+				try {
 					$create_email = civicrm_api3( 'Website', 'create', $form_values );
-	            } catch ( CiviCRM_API3_Exception $e ) {
-	            	$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
+				} catch ( CiviCRM_API3_Exception $e ) {
+					$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
 					return [ 'note' => $error, 'type' => 'error' ];
-	            }
+				}
 			}
 		}
 	}

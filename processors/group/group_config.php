@@ -1,11 +1,11 @@
 <?php
 
-$groupsResult = civicrm_api3( 'Group', 'get', array(
+$groupsResult = civicrm_api3( 'Group', 'get', [
 	'sequential' => 1,
-	'cache_date' => array('IS NULL' => 1),
+	'cache_date' => [ 'IS NULL' => 1 ],
 	'is_active' => 1,
-	'options' => array('limit' => 0),
-));
+	'options' => [ 'limit' => 0 ],
+] );
 
 ?>
 

@@ -1,14 +1,14 @@
 <?php
-	$imFields = civicrm_api3('Im', 'getfields', array(
+	$imFields = civicrm_api3( 'Im', 'getfields', [
 		'sequential' => 1,
-	));
+	] );
 
-	$imType = civicrm_api3('im', 'getoptions', array(
+	$imType = civicrm_api3( 'Im', 'getoptions', [
 		'sequential' => 1,
 		'field' => 'location_type_id',
-	));
+	] );
 
-	$fields = array( 'name', 'provider_id', 'is_primary', 'is_billing' );
+	$fields = [ 'name', 'provider_id', 'is_primary', 'is_billing' ];
 ?>
 
 <h2><?php _e( 'Contact Link', 'caldera-forms-civicrm' ); ?></h2>
@@ -41,7 +41,7 @@
 	<div id="{{_id}}_<?php echo esc_attr( $value['name'] ); ?>" class="caldera-config-group">
 		<label><?php echo __($value['title']); ?> </label>
 		<div class="caldera-config-field">
-		  <?php echo __('{{{_field slug="' . $value['name'] . '"}}}'); ?>
+			<?php echo __('{{{_field slug="' . $value['name'] . '"}}}'); ?>
 		</div>
 	</div>
 <?php } } ?>

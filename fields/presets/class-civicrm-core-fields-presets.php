@@ -8,37 +8,37 @@
 class CiviCRM_Caldera_Forms_Core_Fields_Presets {
 
 	/**
-     * Plugin reference.
-     *
-     * @since 0.4.4
-     */
-    public $plugin;
+	 * Plugin reference.
+	 *
+	 * @since 0.4.4
+	 */
+	public $plugin;
 
-    /**
-     * List of core fields.
-     *
-     * @since 0.4.4
-     * @var $core_fields
-     */
-    public $core_fields = [
-    	'prefix_id' => 'prefix_id',
-    	'suffix_id' => 'suffix_id',
-    	'gender_id' => 'gender_id',
-    	'communication_style_id' => 'communication_style_id',
-    	'do_not_email' => 'do_not_email',
-    	'do_not_sms' => 'do_not_sms',
-    	'do_not_trade' => 'do_not_trade',
-    	'is_opt_out' => 'is_opt_out',
-    	'country_id' => 'country_id',
-    	'state_province_id' => 'state_province_id,',
-    	'location_type_id' => 'address_location_type_id',
-    	'e_location_type_id' => 'email_location_type_id',
-    	'p_location_type_id' => 'phone_location_type_id',
-    	'phone_type_id' => 'phone_type_id',
-    	'website_type_id' => 'website_type_id',
-    	'provider_id' => 'provider_id',
-    	'preferred_language' => 'preferred_language'
-    ];
+	/**
+	 * List of core fields.
+	 *
+	 * @since 0.4.4
+	 * @var $core_fields
+	 */
+	public $core_fields = [
+		'prefix_id' => 'prefix_id',
+		'suffix_id' => 'suffix_id',
+		'gender_id' => 'gender_id',
+		'communication_style_id' => 'communication_style_id',
+		'do_not_email' => 'do_not_email',
+		'do_not_sms' => 'do_not_sms',
+		'do_not_trade' => 'do_not_trade',
+		'is_opt_out' => 'is_opt_out',
+		'country_id' => 'country_id',
+		'state_province_id' => 'state_province_id,',
+		'location_type_id' => 'address_location_type_id',
+		'e_location_type_id' => 'email_location_type_id',
+		'p_location_type_id' => 'phone_location_type_id',
+		'phone_type_id' => 'phone_type_id',
+		'website_type_id' => 'website_type_id',
+		'provider_id' => 'provider_id',
+		'preferred_language' => 'preferred_language'
+	];
 
 	/**
 	 * Initialises this object.
@@ -164,159 +164,155 @@ class CiviCRM_Caldera_Forms_Core_Fields_Presets {
 
 				// Prefix
 				case 'prefix_id':
-					$prefix_id = civicrm_api3( 'Contact', 'getoptions', array(
+					$prefix_id = civicrm_api3( 'Contact', 'getoptions', [
 						'sequential' => 1,
 						'field' => 'prefix_id',
-					));
+					] );
 					foreach ( $prefix_id['values'] as $index ) {
-						//foreach ( $index as $key => $value ) {
-							$field['config']['option'][$index['key']] = array(
+							$field['config']['option'][$index['key']] = [
 								'value' => $index['key'],
 								'label' => $index['value']
-							);
-						//}
+							];
 					}
 					break;
 
 				// Suffix
 				case 'suffix_id':
-					$suffix_id = civicrm_api3( 'Contact', 'getoptions', array(
+					$suffix_id = civicrm_api3( 'Contact', 'getoptions', [
 						'sequential' => 1,
 						'field' => 'suffix_id',
-					));
+					] );
 					foreach ( $suffix_id['values'] as $index ) {
-							$field['config']['option'][$index['key']] = array(
+							$field['config']['option'][$index['key']] = [
 								'value' => $index['key'],
 								'label' => $index['value']
-							);
+							];
 					}
 					break;
 
 				// Gender
 				case 'gender_id':
-					$prefix_id = civicrm_api3( 'Contact', 'getoptions', array(
+					$prefix_id = civicrm_api3( 'Contact', 'getoptions', [
 						'sequential' => 1,
 						'field' => 'gender_id',
-					));
+					] );
 					foreach ( $prefix_id['values'] as $index ) {
-						//foreach ( $index as $key => $value ) {
-							$field['config']['option'][$index['key']] = array(
+							$field['config']['option'][$index['key']] = [
 								'value' => $index['key'],
 								'label' => $index['value']
-							);
-						//}
+							];
 					}
 					break;
 
 				// Communication Style
 				case 'communication_style_id':
-					$communication_style_id = civicrm_api3( 'Contact', 'getoptions', array(
+					$communication_style_id = civicrm_api3( 'Contact', 'getoptions', [
 						'sequential' => 1,
 						'field' => 'communication_style_id',
-					));
+					] );
 					foreach ( $communication_style_id['values'] as $index ) {
-							$field['config']['option'][$index['key']] = array(
+							$field['config']['option'][$index['key']] = [
 								'value' => $index['key'],
 								'label' => $index['value']
-							);
+							];
 					}
 					break;
 
 				// Do Not Email
 				case 'do_not_email':
-					$do_not_email = civicrm_api3( 'Contact', 'getoptions', array(
+					$do_not_email = civicrm_api3( 'Contact', 'getoptions', [
 						'sequential' => 1,
 						'field' => 'do_not_email',
-					));
+					] );
 					foreach ( $do_not_email['values'] as $index ) {
-							$field['config']['option'][$index['key']] = array(
+							$field['config']['option'][$index['key']] = [
 								'value' => $index['key'],
 								'label' => $index['value']
-							);
+							];
 					}
 					break;
 
 				// Do Not Phone
 				case 'do_not_phone':
-					$do_not_phone = civicrm_api3( 'Contact', 'getoptions', array(
+					$do_not_phone = civicrm_api3( 'Contact', 'getoptions', [
 						'sequential' => 1,
 						'field' => 'do_not_phone',
-					));
+					] );
 					foreach ( $do_not_phone['values'] as $index ) {
-							$field['config']['option'][$index['key']] = array(
+							$field['config']['option'][$index['key']] = [
 								'value' => $index['key'],
 								'label' => $index['value']
-							);
+							];
 					}
 					break;
 
 				// Do Not Mail
 				case 'do_not_mail':
-					$do_not_mail = civicrm_api3( 'Contact', 'getoptions', array(
+					$do_not_mail = civicrm_api3( 'Contact', 'getoptions', [
 						'sequential' => 1,
 						'field' => 'do_not_mail',
-					));
+					] );
 					foreach ( $do_not_mail['values'] as $index ) {
-							$field['config']['option'][$index['key']] = array(
+							$field['config']['option'][$index['key']] = [
 								'value' => $index['key'],
 								'label' => $index['value']
-							);
+							];
 					}
 					break;
 
 				// Do Not SMS
 				case 'do_not_sms':
-					$do_not_sms = civicrm_api3( 'Contact', 'getoptions', array(
+					$do_not_sms = civicrm_api3( 'Contact', 'getoptions', [
 						'sequential' => 1,
 						'field' => 'do_not_sms',
-					));
+					] );
 					foreach ( $do_not_sms['values'] as $index ) {
-							$field['config']['option'][$index['key']] = array(
+							$field['config']['option'][$index['key']] = [
 								'value' => $index['key'],
 								'label' => $index['value']
-							);
+							];
 					}
 					break;
 
 				// Do Not Trade
 				case 'do_not_trade':
-					$do_not_trade = civicrm_api3( 'Contact', 'getoptions', array(
+					$do_not_trade = civicrm_api3( 'Contact', 'getoptions', [
 						'sequential' => 1,
 						'field' => 'do_not_trade',
-					));
+					] );
 					foreach ( $do_not_trade['values'] as $index ) {
-							$field['config']['option'][$index['key']] = array(
+							$field['config']['option'][$index['key']] = [
 								'value' => $index['key'],
 								'label' => $index['value']
-							);
+							];
 					}
 					break;
 
 				// Is Opt Out
 				case 'is_opt_out':
-					$is_opt_out = civicrm_api3( 'Contact', 'getoptions', array(
+					$is_opt_out = civicrm_api3( 'Contact', 'getoptions', [
 						'sequential' => 1,
 						'field' => 'is_opt_out',
-					));
+					] );
 					foreach ( $is_opt_out['values'] as $index ) {
-							$field['config']['option'][$index['key']] = array(
+							$field['config']['option'][$index['key']] = [
 								'value' => $index['key'],
 								'label' => $index['value']
-							);
+							];
 					}
 					break;
 
 				// Country
 				case 'country_id':
-					$country_id = civicrm_api3( 'Country', 'get', array(
+					$country_id = civicrm_api3( 'Country', 'get', [
 						'sequential' => 1,
-						'options' => array('limit' => 0),
-					));
+						'options' => [ 'limit' => 0 ],
+					] );
 					foreach ( $country_id['values'] as $key => $value ) {
-							$field['config']['option'][$value['id']] = array(
+							$field['config']['option'][$value['id']] = [
 								'value' => $value['id'],
 								'label' => $value['name']
-							);
+							];
 					}
 					break;
 
@@ -324,103 +320,103 @@ class CiviCRM_Caldera_Forms_Core_Fields_Presets {
 				case 'state_province_id':
 					$state_province_id = $this->plugin->helper->get_state_province();
 					foreach ( $state_province_id as $key => $value ) {
-							$field['config']['option'][$key] = array(
+							$field['config']['option'][$key] = [
 								'value' => $key,
 								'label' => $value
-							);
+							];
 					}
 					break;
 
 				// Address Location Type
 				case 'location_type_id':
-					$location_type_id = civicrm_api3( 'Address', 'getoptions', array(
+					$location_type_id = civicrm_api3( 'Address', 'getoptions', [
 						'sequential' => 1,
 						'field' => 'location_type_id',
-					));
+					] );
 					foreach ( $location_type_id['values'] as $index ) {
-							$field['config']['option'][$index['key']] = array(
+							$field['config']['option'][$index['key']] = [
 								'value' => $index['key'],
 								'label' => $index['value']
-							);
+							];
 					}
 					break;
 
 				// Email Location Type
 				case 'e_location_type_id':
-					$e_location_type_id = civicrm_api3( 'Email', 'getoptions', array(
+					$e_location_type_id = civicrm_api3( 'Email', 'getoptions', [
 						'sequential' => 1,
 						'field' => 'location_type_id',
-					));
+					] );
 					foreach ( $e_location_type_id['values'] as $index ) {
-							$field['config']['option'][$index['key']] = array(
+							$field['config']['option'][$index['key']] = [
 								'value' => $index['key'],
 								'label' => $index['value']
-							);
+							];
 					}
 					break;
 
 				// Phone Location Type
 				case 'p_location_type_id':
-					$p_location_type_id = civicrm_api3( 'Phone', 'getoptions', array(
+					$p_location_type_id = civicrm_api3( 'Phone', 'getoptions', [
 						'sequential' => 1,
 						'field' => 'location_type_id',
-					));
+					] );
 					foreach ( $p_location_type_id['values'] as $index ) {
-							$field['config']['option'][$index['key']] = array(
+							$field['config']['option'][$index['key']] = [
 								'value' => $index['key'],
 								'label' => $index['value']
-							);
+							];
 					}
 					break;
 
 				// Phone Type
 				case 'phone_type_id':
-					$phone_type_id = civicrm_api3( 'Phone', 'getoptions', array(
+					$phone_type_id = civicrm_api3( 'Phone', 'getoptions', [
 						'sequential' => 1,
 						'field' => 'phone_type_id',
-					));
+					] );
 					foreach ( $phone_type_id['values'] as $index ) {
-							$field['config']['option'][$index['key']] = array(
+							$field['config']['option'][$index['key']] = [
 								'value' => $index['key'],
 								'label' => $index['value']
-							);
+							];
 					}
 					break;
 
 				// Website Type
 				case 'website_type_id':
-					$website_type_id = civicrm_api3( 'Website', 'getoptions', array(
+					$website_type_id = civicrm_api3( 'Website', 'getoptions', [
 						'sequential' => 1,
 						'field' => 'website_type_id',
-					));
+					] );
 					foreach ( $website_type_id['values'] as $index ) {
-							$field['config']['option'][$index['key']] = array(
+							$field['config']['option'][$index['key']] = [
 								'value' => $index['key'],
 								'label' => $index['value']
-							);
+							];
 					}
 					break;
 				// IM Type
 				case 'provider_id':
-					$provider_id = civicrm_api3( 'Im', 'getoptions', array(
+					$provider_id = civicrm_api3( 'Im', 'getoptions', [
 						'sequential' => 1,
 						'field' => 'provider_id',
-					));
+					] );
 					foreach ( $provider_id['values'] as $index ) {
-							$field['config']['option'][$index['key']] = array(
+							$field['config']['option'][$index['key']] = [
 								'value' => $index['key'],
 								'label' => $index['value']
-							);
+							];
 					}
 					break;
 				// Preferred Language
 				case 'preferred_language':
 					$preferred_language = CRM_Contact_BAO_Contact::buildOptions('preferred_language');
 					foreach ( $preferred_language as $key => $value ) {
-							$field['config']['option'][$key] = array(
+							$field['config']['option'][$key] = [
 								'value' => $key,
 								'label' => $value
-							);
+							];
 					}
 					break;
 			}

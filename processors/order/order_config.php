@@ -194,8 +194,6 @@ $payment_processor = civicrm_api3( 'PaymentProcessor', 'get', [
 
 <hr style="clear: both;" />
 
-
-
 <!-- Line Items -->
 <h1><?php _e( 'Line Items', 'caldera-forms-civicrm' ); ?></h1>
 
@@ -215,8 +213,8 @@ $payment_processor = civicrm_api3( 'PaymentProcessor', 'get', [
 </div>
 
 <div class="{{_id}}_line_items" id="{{_id}}_line_items_wrapper">
-    {{#each this.line_items as |value item|}}
-	    <div id="{{item}}" data-id="{{_id}}" class="line-item caldera-config-group">
+	{{#each this.line_items as |value item|}}
+		<div id="{{item}}" data-id="{{_id}}" class="line-item caldera-config-group">
 			<label><?php _e( 'Line Item', 'caldera-forms-civicrm' ); ?></label>
 			<div class="caldera-config-field">
 				<input type="text" class="block-input field-config magic-tag-enabled caldera-field-bind" name="{{../_name}}[line_items][{{item}}]" value="{{value}}">
@@ -249,25 +247,25 @@ $payment_processor = civicrm_api3( 'PaymentProcessor', 'get', [
 		} );
 
 		var prId = '{{_id}}',
-        payment_instrument_id = '#' + prId + '_payment_instrument_id',
-        is_email_receipt = '#' + prId + '_is_email_receipt';
+		payment_instrument_id = '#' + prId + '_payment_instrument_id',
+		is_email_receipt = '#' + prId + '_is_email_receipt';
 
-        $( payment_instrument_id + ' .is_mapped_field input' ).on( 'change', function( i, el ) {
-            var is_mapped_field = $( this ).prop( 'checked' );
-            $( '.mapped_payment_instrument_id', $( payment_instrument_id ) ).toggle( is_mapped_field );
-            $( '.payment_instrument_id', $( payment_instrument_id ) ).toggle( ! is_mapped_field );
-        } ).trigger( 'change' );
+		$( payment_instrument_id + ' .is_mapped_field input' ).on( 'change', function( i, el ) {
+			var is_mapped_field = $( this ).prop( 'checked' );
+			$( '.mapped_payment_instrument_id', $( payment_instrument_id ) ).toggle( is_mapped_field );
+			$( '.payment_instrument_id', $( payment_instrument_id ) ).toggle( ! is_mapped_field );
+		} ).trigger( 'change' );
 
-        $( is_email_receipt + ' input' ).on( 'change', function( i, el ) {
-            var is_checked = $( this ).prop( 'checked' );
-            $( '.is_email_receipt_options', $( is_email_receipt ) ).toggle( is_checked );
-        } ).trigger( 'change' );
+		$( is_email_receipt + ' input' ).on( 'change', function( i, el ) {
+			var is_checked = $( this ).prop( 'checked' );
+			$( '.is_email_receipt_options', $( is_email_receipt ) ).toggle( is_checked );
+		} ).trigger( 'change' );
 
 	} )();
 
 	function cfc_add_line_item( obj ) {
 		
-		var id = obj.trigger.data('id'),
+		var id = obj.trigger.data( 'id' ),
 		config = JSON.parse( $( '#' + id + ' .processor_config_string' ).val() ),
 		item_id = 'line_item_' + ( $( '#' + id + ' .line-item' ).length + 1 ),
 		_name = 'config[processors][' + id + '][config]';

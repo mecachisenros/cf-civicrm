@@ -8,12 +8,12 @@
 class CiviCRM_Caldera_Forms_Im_Processor {
 
 	/**
-     * Plugin reference.
-     *
-     * @since 0.4.4
+	 * Plugin reference.
+	 *
+	 * @since 0.4.4
 	 * @access public
 	 * @var object $plugin The plugin instance
-     */
+	 */
 	public $plugin;
 	
 	/**
@@ -105,7 +105,7 @@ class CiviCRM_Caldera_Forms_Im_Processor {
 					'location_type_id' => $config['location_type_id'],
 				] );
 
-			} catch ( Exception $e ) {
+			} catch ( CiviCRM_API3_Exception $e ) {
 				// Ignore if none found
 			}
 
@@ -119,15 +119,15 @@ class CiviCRM_Caldera_Forms_Im_Processor {
 				if ( isset( $im ) && is_array( $im ) ) {
 					$form_values['id'] = $im['id']; // Im ID
 				} else {
-	                $form_values['location_type_id'] = $config['location_type_id']; // Im Location type set in Processor config
-	            }
+					$form_values['location_type_id'] = $config['location_type_id']; // Im Location type set in Processor config
+				}
 
-	            try {
+				try {
 					$create_im = civicrm_api3( 'Im', 'create', $form_values );	            	
-	            } catch ( CiviCRM_API3_Exception $e ) {
-	            	$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
+				} catch ( CiviCRM_API3_Exception $e ) {
+					$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
 					return [ 'note' => $error, 'type' => 'error' ];
-	            }
+				}
 			}
 		}
 	}

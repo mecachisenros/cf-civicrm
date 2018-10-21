@@ -8,12 +8,12 @@
 class CiviCRM_Caldera_Forms_Email_Processor {
 
 	/**
-     * Plugin reference.
-     *
-     * @since 0.4.4
+	 * Plugin reference.
+	 *
+	 * @since 0.4.4
 	 * @access public
 	 * @var object $plugin The plugin instance
-     */
+	 */
 	public $plugin;
 	
 	/**
@@ -41,7 +41,7 @@ class CiviCRM_Caldera_Forms_Email_Processor {
 	 * @access public
 	 * @var array $fields_to_ignore Fields to ignore
 	 */
-	public $fields_to_ignore = array( 'contact_link', 'location_type_id' );
+	public $fields_to_ignore = [ 'contact_link', 'location_type_id' ];
 
 	/**
 	 * Initialises this object.

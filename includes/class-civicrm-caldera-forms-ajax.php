@@ -8,91 +8,91 @@
 class CiviCRM_Caldera_Forms_AJAX {
 
 	/**
-     * Plugin reference.
-     *
-     * @since 0.4.4
-     */
-    public $plugin;
-
-    /**
-     * Initialises this object.
-     *
-     * @since 0.4
-     */
-    public function __construct( $plugin ) {
-		$this->plugin = $plugin;
-        $this->register_hooks();
-    }
-
-    /**
-     * Register hooks.
-     *
-     * @since 0.4.2
-     */
-    public function register_hooks() {
-
-        add_action( 'wp_ajax_civicrm_get_contacts', [ $this, 'get_civicrm_contacts' ] );
-        add_action( 'wp_ajax_civicrm_get_groups', [ $this, 'civicrm_get_groups' ] );
-        add_action( 'wp_ajax_flush_price_set_cache', [ $this, 'flush_price_set_cache' ] );
-        add_action( 'wp_ajax_civicrm_contact_reference_get', [ $this, 'civicrm_contact_reference_get' ] );
-        add_action( 'wp_ajax_nopriv_civicrm_contact_reference_get', [ $this, 'civicrm_contact_reference_get' ] );
-
-    }
-
-    /**
-	 * Get CiviCRM Contacts.
+	 * Plugin reference.
 	 *
-	 * @uses 'wp_ajax' filter
-	 * @since 0.4.2
+	 * @since 0.4.4
 	 */
+	public $plugin;
+
+	/**
+	* Initialises this object.
+	*
+	* @since 0.4
+	*/
+	public function __construct( $plugin ) {
+		$this->plugin = $plugin;
+		$this->register_hooks();
+	}
+
+	/**
+	* Register hooks.
+	*
+	* @since 0.4.2
+	*/
+	public function register_hooks() {
+
+		add_action( 'wp_ajax_civicrm_get_contacts', [ $this, 'get_civicrm_contacts' ] );
+		add_action( 'wp_ajax_civicrm_get_groups', [ $this, 'civicrm_get_groups' ] );
+		add_action( 'wp_ajax_flush_price_set_cache', [ $this, 'flush_price_set_cache' ] );
+		add_action( 'wp_ajax_civicrm_contact_reference_get', [ $this, 'civicrm_contact_reference_get' ] );
+		add_action( 'wp_ajax_nopriv_civicrm_contact_reference_get', [ $this, 'civicrm_contact_reference_get' ] );
+
+	}
+
+	/**
+	* Get CiviCRM Contacts.
+	*
+	* @uses 'wp_ajax' filter
+	* @since 0.4.2
+	*/
 	public function get_civicrm_contacts() {
-	    if ( isset( $_POST['search'] ) ) $search_term = $_POST['search'];
-	 	if ( isset( $_POST['contact_id'] ) ) $contact_id = $_POST['contact_id'];
+		if ( isset( $_POST['search'] ) ) $search_term = $_POST['search'];
+			if ( isset( $_POST['contact_id'] ) ) $contact_id = $_POST['contact_id'];
 
-	 	if ( ! wp_verify_nonce( $_POST['nonce'], 'admin_get_civi_contact' ) ) return;
+			if ( ! wp_verify_nonce( $_POST['nonce'], 'admin_get_civi_contact' ) ) return;
 
-	 	if( isset( $contact_id ) )
-	 		$params['contact_id'] = $contact_id;
-	 	// sort name
-	 	if( isset( $search_term ) )
-	 		$params['sort_name'] = $search_term;
+			if ( isset( $contact_id ) )
+				$params['contact_id'] = $contact_id;
+			// sort name
+			if ( isset( $search_term ) )
+				$params['sort_name'] = $search_term;
 
-	 	$result = $this->get_contacts( $params, $with_email = true );
+			$result = $this->get_contacts( $params, $with_email = true );
 
 		echo json_encode( $result );
 		die;
 	}
 
 	public function civicrm_contact_reference_get() {
-	 	if ( isset( $_POST['search'] ) ) $search_term = $_POST['search'];
-	 	if ( isset( $_POST['contact_id'] ) ) $contact_id = $_POST['contact_id'];
-	 	if ( isset( $_POST['field_id'] ) ) $field_id = $_POST['field_id'];
-	 	if ( isset( $_POST['form_id'] ) ) $form_id = $_POST['form_id'];
-	 	if ( ! wp_verify_nonce( $_POST['nonce'], 'civicrm_contact_reference_get' ) ) return;
+		if ( isset( $_POST['search'] ) ) $search_term = $_POST['search'];
+		if ( isset( $_POST['contact_id'] ) ) $contact_id = $_POST['contact_id'];
+		if ( isset( $_POST['field_id'] ) ) $field_id = $_POST['field_id'];
+		if ( isset( $_POST['form_id'] ) ) $form_id = $_POST['form_id'];
+		if ( ! wp_verify_nonce( $_POST['nonce'], 'civicrm_contact_reference_get' ) ) return;
 
-	 	// form config
-	 	$form = Caldera_Forms::get_form( $form_id );
-	 	// field config
-	 	$field = Caldera_Forms_Field_Util::get_field( $field_id, $form );
+		// form config
+		$form = Caldera_Forms::get_form( $form_id );
+		// field config
+		$field = Caldera_Forms_Field_Util::get_field( $field_id, $form );
 
-	 	// contact_type
-	 	if ( isset( $field['config']['contact_type'] ) )
-	 		$params['contact_type'] = $field['config']['contact_type'];
-	 	// contact_sub_type
-	 	if ( isset( $field['config']['contact_sub_type'] ) )
-	 		$params['contact_sub_type'] = $field['config']['contact_sub_type'];
-	 	// groups
-	 	if ( isset( $field['config']['civicrm_group'] ) )
-	 		$params['group'] = $field['config']['civicrm_group'];
-	 	// sort name
-	 	if( isset( $search_term ) )
-	 		$params['sort_name'] = $search_term;
-	 	// contact_id
-	 	if ( isset( $contact_id ) ) {
-	 		$params['contact_id'] = $contact_id;
-	 	}
+		// contact_type
+		if ( isset( $field['config']['contact_type'] ) )
+			$params['contact_type'] = $field['config']['contact_type'];
+		// contact_sub_type
+		if ( isset( $field['config']['contact_sub_type'] ) )
+			$params['contact_sub_type'] = $field['config']['contact_sub_type'];
+		// groups
+		if ( isset( $field['config']['civicrm_group'] ) )
+			$params['group'] = $field['config']['civicrm_group'];
+		// sort name
+		if( isset( $search_term ) )
+			$params['sort_name'] = $search_term;
+		// contact_id
+		if ( isset( $contact_id ) ) {
+			$params['contact_id'] = $contact_id;
+		}
 
-	 	$result = $this->get_contacts( $params );
+		$result = $this->get_contacts( $params );
 
 		echo json_encode( $result );
 		die;
@@ -121,18 +121,18 @@ class CiviCRM_Caldera_Forms_AJAX {
 
 	public function civicrm_get_groups() {
 		if ( isset( $_POST['search'] ) ) $search_term = $_POST['search'];
-	 	if ( isset( $_POST['group_id'] ) ) $group_id = $_POST['group_id'];
+		if ( isset( $_POST['group_id'] ) ) $group_id = $_POST['group_id'];
 
-	 	if ( ! wp_verify_nonce( $_POST['nonce'], 'admin_get_groups' ) ) return;
+		if ( ! wp_verify_nonce( $_POST['nonce'], 'admin_get_groups' ) ) return;
 
-	 	$params = [
-	 		'sequential' => 1,
-	 		'return' => [ 'id', 'title' ],
-	 		'is_active' => 1,
-	 	];
+		$params = [
+			'sequential' => 1,
+			'return' => [ 'id', 'title' ],
+			'is_active' => 1,
+		];
 
-	 	if ( isset( $group_id ) ) $params['id'] = $group_id;
-	 	if ( isset( $search_term ) && ! empty( $search_term ) ) $params['title'] = [ 'LIKE' => '%' . $search_term . '%' ];
+		if ( isset( $group_id ) ) $params['id'] = $group_id;
+		if ( isset( $search_term ) && ! empty( $search_term ) ) $params['title'] = [ 'LIKE' => '%' . $search_term . '%' ];
 		
 		$groups = civicrm_api3( 'Group', 'get', $params );
 		

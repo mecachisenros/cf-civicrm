@@ -141,7 +141,7 @@ class CiviCRM_Caldera_Forms_Membership_Processor {
 				//remove join, start, and end dates otherwise
 				unset( $form_values['join_date'], $form_values['start_date'], $form_values['end_date'] );
 			}
- 
+
 			$transient->memberships->{$config['processor_id']}->params = $form_values;
 
 			$this->plugin->transient->save( $transient->ID, $transient );

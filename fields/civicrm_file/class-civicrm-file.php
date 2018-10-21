@@ -8,11 +8,11 @@
 class CiviCRM_Caldera_Forms_Field_File {
 
 	/**
-     * Plugin reference.
-     *
-     * @since 0.4.4
-     */
-    public $plugin;
+	 * Plugin reference.
+	 *
+	 * @since 0.4.4
+	 */
+	public $plugin;
 
 	/**
 	 * CiviCRM file mapping fields.
@@ -60,7 +60,7 @@ class CiviCRM_Caldera_Forms_Field_File {
 	 *
 	 * @param array|string|callable $handler Callable
 	 * @param array $form Form config
- 	 * @param array $field Field config
+	 * @param array $field Field config
 	 * @return array $handler The custom upload callback
 	 */
 	public function civicrm_upload_handler( $handler, $form, $field ) {

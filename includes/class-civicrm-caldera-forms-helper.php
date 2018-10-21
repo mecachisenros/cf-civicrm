@@ -8,11 +8,11 @@
 class CiviCRM_Caldera_Forms_Helper {
 
 	/**
-     * Plugin reference.
-     *
-     * @since 0.4.4
-     */
-    public $plugin;
+	 * Plugin reference.
+	 *
+	 * @since 0.4.4
+	 */
+	public $plugin;
 
 	/**
 	 * Contact fields.
@@ -114,7 +114,7 @@ class CiviCRM_Caldera_Forms_Helper {
 		$custom_group = civicrm_api3( 'CustomGroup', 'get', [
 			'sequential' => 1,
 			'is_active' => 1,
-			'extends' => apply_filters( 'civicrm_custom_fields_contact_type', $extends ),
+			'extends' => apply_filters( 'cfc_custom_fields_contact_type', $extends ),
 			'api.CustomField.get' => [ 'is_active' => 1, 'options' => [ 'limit' => 0 ] ],
 			'options' => [ 'limit' => 0 ],
 		]);
@@ -167,7 +167,11 @@ class CiviCRM_Caldera_Forms_Helper {
 				'id' => $cid,
 			];
 
-			$fields = civicrm_api3( 'Contact', 'getsingle', $params );
+			try {
+				$fields = civicrm_api3( 'Contact', 'getsingle', $params );
+			} catch ( CiviCRM_API3_Exception $e ) {
+
+			}
 
 			// Custom fields
 			$c_fields = implode( ',', array_keys( $this->plugin->helper->get_contact_custom_fields() ) );
@@ -175,7 +179,12 @@ class CiviCRM_Caldera_Forms_Helper {
 			if ( empty( $c_fields ) ) return $fields;
 
 			$params['return'] = $c_fields;
-			$custom_fields = civicrm_api3( 'Contact', 'getsingle', $params );
+
+			try {
+				$custom_fields = civicrm_api3( 'Contact', 'getsingle', $params );
+			} catch ( CiviCRM_API3_Exception $e ) {
+				
+			}
 
 			return array_merge( $fields, $custom_fields );
 
@@ -305,17 +314,21 @@ class CiviCRM_Caldera_Forms_Helper {
 
 		$custom_id = str_replace( 'custom_', '', $custom_id );
 		$id = (int)$custom_id;
+		
+		try {
+			$result = civicrm_api3( 'CustomField', 'getsingle', [
+				'sequential' => 1,
+				'id' => $id,
+				'api.CustomGroup.getsingle' => [
+					'id' => '$value.custom_group_id',
+					'return' => [ 'extends_entity_column_value', 'extends' ]
+				],
+			] );
+		} catch( CiviCRM_API3_Exception $e ) {
 
-		$result = civicrm_api3( 'CustomField', 'getsingle', [
-			'sequential' => 1,
-			'id' => $id,
-			'api.CustomGroup.getsingle' => [
-				'id' => '$value.custom_group_id',
-				'return' => [ 'extends_entity_column_value', 'extends' ]
-			],
-		] );
+		}
 
-		if( isset( $result['api.CustomGroup.getsingle']['extends_entity_column_value'] ) ) {
+		if ( isset( $result['api.CustomGroup.getsingle']['extends_entity_column_value'] ) ) {
 			return implode( ',', $result['api.CustomGroup.getsingle']['extends_entity_column_value'] );
 		} else {
 			return $result['api.CustomGroup.getsingle']['extends'];
@@ -387,7 +400,7 @@ class CiviCRM_Caldera_Forms_Helper {
 				 */
 				$mapped_field = apply_filters( 'cfc_filter_mapped_field_to_processor', $mapped_field, $civi_field, $field, $config, $form );
 
-        		if( ! empty( $mapped_field ) ){
+				if( ! empty( $mapped_field ) ){
 
 					if ( $processor ) {
 						$form_values[$processor][$civi_field] = $mapped_field;
@@ -461,7 +474,7 @@ class CiviCRM_Caldera_Forms_Helper {
 				'sequential' => 1,
 				'options' => [ 'limit' => 0 ],
 			] );
-		} catch ( Exception $e ) {
+		} catch ( CiviCRM_API3_Exception $e ) {
 
 		}
 
@@ -559,45 +572,45 @@ class CiviCRM_Caldera_Forms_Helper {
 	 */
 	public function get_price_sets() {
 
-		$price_set_params = array(
+		$price_set_params = [
 			'sequential' => 1,
 			'is_active' => 1,
 			'is_reserved' => 0,
-			'options' => array( 'limit' => 0 ),
-			'api.PriceField.get' => array(
+			'options' => [ 'limit' => 0 ],
+			'api.PriceField.get' => [
 				'sequential' => 0,
 				'price_set_id' => "\$value.id",
 				'is_active' => 1,
-				'options' => array( 'limit' => 0 ),
-			),
-		);
+				'options' => [ 'limit' => 0 ],
+			],
+		];
 
 		try {
 			$result_price_sets = civicrm_api3( 'PriceSet', 'get', $price_set_params );
 		} catch ( CiviCRM_API3_Exception $e ) {
-			return array( 'note' => $e->getMessage(), 'type' => 'error' );
+			return [ 'note' => $e->getMessage(), 'type' => 'error' ];
 		}
 
 		try {
-			$all_price_field_values = civicrm_api3( 'PriceFieldValue', 'get', array(
+			$all_price_field_values = civicrm_api3( 'PriceFieldValue', 'get', [
 				'sequential' => 0,
 				'is_active' => 1,
-				'options' => array( 'limit' => 0 ),
-			));
+				'options' => [ 'limit' => 0 ],
+			] );
 		} catch ( CiviCRM_API3_Exception $e ) {
-			return array( 'note' => $e->getMessage(), 'type' => 'error' );
+			return [ 'note' => $e->getMessage(), 'type' => 'error' ];
 		}
 
 		// false if no price field values or price sets
 		if ( ! $all_price_field_values['count'] || ! $result_price_sets['count'] ) return false;
 
-		$price_field_values = array();
+		$price_field_values = [];
 		foreach ( $all_price_field_values['values'] as $id => $price_field_value ) {
 			$price_field_value['amount'] = number_format( $price_field_value['amount'], 2, '.', '' );
 			$price_field_values[$id] = $price_field_value;
 		}
 
-		$price_sets = array();
+		$price_sets = [];
 		foreach ( $result_price_sets['values'] as $key => $price_set ) {
 			$price_set['price_set_id'] = $price_set_id = $price_set['id'];
 			$price_set['price_fields'] = $price_set['api.PriceField.get']['values'];

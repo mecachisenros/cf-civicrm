@@ -1,14 +1,14 @@
 <?php
-	$emailFields = civicrm_api3('Email', 'getfields', array(
+	$emailFields = civicrm_api3( 'Email', 'getfields', [
 		'sequential' => 1,
-	));
+	] );
 
-	$emailLocationType = civicrm_api3('Email', 'getoptions', array(
+	$emailLocationType = civicrm_api3( 'Email', 'getoptions', [
 		'sequential' => 1,
-		'field' => "location_type_id",
-	));
+		'field' => 'location_type_id',
+	] );
 
-	$fields = array( 'is_primary', 'is_billing', 'email', 'on_hold', 'is_bulkmail' );
+	$fields = [ 'is_primary', 'is_billing', 'email', 'on_hold', 'is_bulkmail' ];
 ?>
 
 <h2><?php _e( 'Contact Link', 'caldera-forms-civicrm' ); ?></h2>
@@ -41,7 +41,7 @@
 	<div id="{{_id}}_<?php echo $value['name']; ?>" class="caldera-config-group">
 		<label><?php echo __($value['title']); ?> </label>
 		<div class="caldera-config-field">
-		  <?php echo __('{{{_field slug="' . $value['name'] . '"}}}'); ?>
+			<?php echo __('{{{_field slug="' . $value['name'] . '"}}}'); ?>
 		</div>
 	</div>
 <?php } } ?>

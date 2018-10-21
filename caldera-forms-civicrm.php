@@ -281,12 +281,12 @@ class CiviCRM_Caldera_Forms {
 	 * @since 0.4.4
 	 */
 	public function caldera_forms_version_notice() {
-        ?>
+		?>
 			<div class="notice notice-error">
 				<p><?php _e( 'Caldera Forms CiviCRM requires Caldera Forms v1.7 or higher.', 'caldera-forms-civicrm' ); ?></p>
 			</div>
-        <?php
-    }
+		<?php
+	}
 
 	/**
 	 * Load translation files.

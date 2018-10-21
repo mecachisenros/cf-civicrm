@@ -7,12 +7,12 @@
 class CiviCRM_Caldera_Forms_Send_Email_Processor {
 
 	/**
-     * Plugin reference.
-     *
-     * @since 0.4.4
+	 * Plugin reference.
+	 *
+	 * @since 0.4.4
 	 * @access public
 	 * @var object $plugin The plugin instance
-     */
+	 */
 	public $plugin;
 
 	/**

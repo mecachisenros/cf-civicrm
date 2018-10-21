@@ -1,12 +1,12 @@
 <?php
 
-$messageTemplates = civicrm_api3('MessageTemplate', 'get', array(
+$messageTemplates = civicrm_api3( 'MessageTemplate', 'get', [
 	'sequential' => 1,
-	'return' => array("id", "msg_title", "msg_subject"),
-	'workflow_id' => array('IS NULL' => 1),
+	'return' => [ 'id', 'msg_title', 'msg_subject' ],
+	'workflow_id' => [ 'IS NULL' => 1 ],
 	'is_active' => 1,
-	'options' => array('limit' => 0),
-));
+	'options' => [ 'limit' => 0 ],
+] );
 
 ?>
 

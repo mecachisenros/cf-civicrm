@@ -16,9 +16,9 @@ $current_fields = [ 'source' ];
 
 $membership_types = civicrm_api3( 'MembershipType', 'get', [
 	'sequential' => 1,
-    'is_active' => 1,
-    'visibility' => 'Public',
-	'options' => array( 'limit' => 0 ),
+	'is_active' => 1,
+	'visibility' => 'Public',
+	'options' => [ 'limit' => 0 ],
 ] );
 
 ?>
@@ -74,14 +74,14 @@ $membership_types = civicrm_api3( 'MembershipType', 'get', [
 		</select>
 	</div>
 	<div class="is_price_field_based caldera-config-field">
-        <label><input type="checkbox" name="{{_name}}[is_price_field_based]" value="1" {{#if is_price_field_based}}checked="checked"{{/if}}><?php _e( 'Use Price Field based Membership Type.', 'caldera-forms-civicrm' ); ?></label>
-    </div>
-    <div class="price_field_value">
-	    <label><?php _e('Price Field Value', 'caldera-forms-civicrm');?></label>
-	    <div class="price_field_value caldera-config-field">
-	        <input type="text" class="block-input field-config magic-tag-enabled caldera-field-bind" name="{{_name}}[price_field_value]" value="{{price_field_value}}">
-	    </div>
-    </div>
+		<label><input type="checkbox" name="{{_name}}[is_price_field_based]" value="1" {{#if is_price_field_based}}checked="checked"{{/if}}><?php _e( 'Use Price Field based Membership Type.', 'caldera-forms-civicrm' ); ?></label>
+	</div>
+	<div class="price_field_value">
+		<label><?php _e('Price Field Value', 'caldera-forms-civicrm');?></label>
+		<div class="price_field_value caldera-config-field">
+			<input type="text" class="block-input field-config magic-tag-enabled caldera-field-bind" name="{{_name}}[price_field_value]" value="{{price_field_value}}">
+		</div>
+	</div>
 </div>
 
 <hr style="clear: both;" />

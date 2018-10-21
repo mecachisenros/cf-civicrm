@@ -1,23 +1,23 @@
 <?php
 
-$caseTypes = civicrm_api3( 'Case', 'getoptions', array(
+$caseTypes = civicrm_api3( 'Case', 'getoptions', [
 	'sequential' => 1,
 	'field' => 'case_type_id',
-));
+] );
 
-$case_status = civicrm_api3( 'Case', 'getoptions', array(
+$case_status = civicrm_api3( 'Case', 'getoptions', [
 	'sequential' => 1,
 	'field' => 'case_status_id',
-));
+] );
 
-$caseFieldsResult = civicrm_api3( 'Case', 'getfields', array(
+$caseFieldsResult = civicrm_api3( 'Case', 'getfields', [
 	'sequential' => 1,
 	'api_action' => 'create'
-));
+] );
 
-$caseFields = array();
+$caseFields = [];
 foreach ( $caseFieldsResult['values'] as $key => $value ) {
-	if ( ! in_array( $value['name'], array( 'case_type_id', 'id', 'is_deleted', 'status_id', 'activity_id', 'contact_id' ) ) ) {
+	if ( ! in_array( $value['name'], [ 'case_type_id', 'id', 'is_deleted', 'status_id', 'activity_id', 'contact_id' ] ) ) {
 		$caseFields[$value['name']] = $value['title'];
 	}
 }

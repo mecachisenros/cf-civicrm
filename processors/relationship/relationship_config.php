@@ -1,10 +1,10 @@
 <?php
 
-$relationships = civicrm_api3( 'RelationshipType', 'get', array(
+$relationships = civicrm_api3( 'RelationshipType', 'get', [
 	'sequential' => 1,
 	'is_active' => 1,
-	'options' => array( 'limit' => 0 ),
-));
+	'options' => [ 'limit' => 0 ],
+] );
 
 ?>
 

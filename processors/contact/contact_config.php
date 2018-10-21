@@ -51,22 +51,22 @@
 <?php
 
 // Get Contact Types
-$contactTypeResult = civicrm_api3( 'ContactType', 'get', array(
+$contactTypeResult = civicrm_api3( 'ContactType', 'get', [
 	'sequential' => 0,
 	'is_active' => 1,
-	'parent_id' => array( 'IS NULL' => 1 ),
-	'options' => array( 'limit' => 0 ),
-));
+	'parent_id' => [ 'IS NULL' => 1 ],
+	'options' => [ 'limit' => 0 ],
+] );
 
-$contactSubTypeResult = civicrm_api3( 'ContactType', 'get', array(
+$contactSubTypeResult = civicrm_api3( 'ContactType', 'get', [
 	'sequential' => 1,
-	'parent_id' => array( 'IS NOT NULL' => 1 ),
+	'parent_id' => [ 'IS NOT NULL' => 1 ],
 	'is_active' => 1,
-	'options' => array( 'limit' => 0 ),
-));
+	'options' => [ 'limit' => 0 ],
+] );
 
-$orgStandardFields = array( 'organization_name', 'sic_code', 'legal_name' );
-$indStandardFields = array( 'first_name', 'last_name', 'middle_name', 'prefix_id', 'suffix_id', 'current_employer', 'birth_date', 'gender_id', 'job_title' );
+$orgStandardFields = [ 'organization_name', 'sic_code', 'legal_name' ];
+$indStandardFields = [ 'first_name', 'last_name', 'middle_name', 'prefix_id', 'suffix_id', 'current_employer', 'birth_date', 'gender_id', 'job_title' ];
 
 ?>
 
@@ -129,11 +129,11 @@ $indStandardFields = array( 'first_name', 'last_name', 'middle_name', 'prefix_id
 	<h2 style="display: inline-block;"><?php _e( 'Standard Fields', 'caldera-forms-civicrm' ); ?></h2>
 	<?php
 
-	$contactFieldsResult = civicrm_api3( 'Contact', 'getfields', array(
+	$contactFieldsResult = civicrm_api3( 'Contact', 'getfields', [
 		'sequential' => 1,
-	));
+	] );
 
-	$contactFields = array();
+	$contactFields = [];
 	foreach ( $contactFieldsResult['values'] as $key => $value ) {
 		if ( in_array( $value['name'], caldera_forms_civicrm()->helper->contact_fields ) ) {
 			$contactFields[$value['name']] = $value['title'];
@@ -246,7 +246,7 @@ $indStandardFields = array( 'first_name', 'last_name', 'middle_name', 'prefix_id
 		'field' => 'phone_type_id',
 	] );
 
-	$pFields = array( 'is_primary', 'is_billing', 'phone', 'phone_numeric' );
+	$pFields = [ 'is_primary', 'is_billing', 'phone', 'phone_numeric' ];
 ?>
 
 <div class="civicrm-phone-entity">
@@ -294,11 +294,11 @@ $indStandardFields = array( 'first_name', 'last_name', 'middle_name', 'prefix_id
 
 <!-- === Note entity === -->
 <?php
-	$noteFields = civicrm_api3( 'Note', 'getfields', array(
+	$noteFields = civicrm_api3( 'Note', 'getfields', [
 		'sequential' => 1,
-	));
+	] );
 
-	$nFields = array( 'note', 'subject' );
+	$nFields = [ 'note', 'subject' ];
 ?>
 
 <div class="civicrm-note-entity">
@@ -321,16 +321,16 @@ $indStandardFields = array( 'first_name', 'last_name', 'middle_name', 'prefix_id
 
 <!-- === Email entity === -->
 <?php
-	$emailFields = civicrm_api3('Email', 'getfields', array(
+	$emailFields = civicrm_api3( 'Email', 'getfields', [
 		'sequential' => 1,
-	));
+	] );
 
-	$emailLocationType = civicrm_api3('Email', 'getoptions', array(
+	$emailLocationType = civicrm_api3( 'Email', 'getoptions', [
 		'sequential' => 1,
-		'field' => "location_type_id",
-	));
+		'field' => 'location_type_id',
+	] );
 
-	$eFields = array( 'is_primary', 'is_billing', 'email', 'on_hold', 'is_bulkmail' );
+	$eFields = [ 'is_primary', 'is_billing', 'email', 'on_hold', 'is_bulkmail' ];
 ?>
 <div class="civicrm-email-entity">
 	<a id="civicrm-email-fields-button" class="button civicrm-accordion" style="width: 100%; margin-bottom: 5px;"><?php _e( 'Contact Email', 'caldera-forms-civicrm' ); ?></a>
@@ -366,16 +366,16 @@ $indStandardFields = array( 'first_name', 'last_name', 'middle_name', 'prefix_id
 
 <!-- === Website entity === -->
 <?php
-	$websiteFields = civicrm_api3('Website', 'getfields', array(
+	$websiteFields = civicrm_api3( 'Website', 'getfields', [
 		'sequential' => 1,
-	));
+	] );
 
-	$websiteType = civicrm_api3('website', 'getoptions', array(
+	$websiteType = civicrm_api3( 'Website', 'getoptions', [
 		'sequential' => 1,
-		'field' => "website_type_id",
-	));
+		'field' => 'website_type_id',
+	] );
 
-	$wFields = array( 'url' );
+	$wFields = [ 'url' ];
 ?>
 
 <div class="civicrm-website-entity">
@@ -413,16 +413,16 @@ $indStandardFields = array( 'first_name', 'last_name', 'middle_name', 'prefix_id
 
 <!-- === Im entity === -->
 <?php
-	$imFields = civicrm_api3('Im', 'getfields', array(
+	$imFields = civicrm_api3( 'Im', 'getfields', [
 		'sequential' => 1,
-	));
+	] );
 
-	$imType = civicrm_api3('Im', 'getoptions', array(
+	$imType = civicrm_api3( 'Im', 'getoptions', [
 		'sequential' => 1,
-		'field' => "location_type_id",
-	));
+		'field' => 'location_type_id',
+	] );
 
-	$iFields = array( 'name', 'provider_id', 'is_primary', 'is_billing' );
+	$iFields = [ 'name', 'provider_id', 'is_primary', 'is_billing' ];
 ?>
 
 <div class="civicrm-im-entity">
@@ -460,12 +460,12 @@ $indStandardFields = array( 'first_name', 'last_name', 'middle_name', 'prefix_id
 
 <!-- === Group entity === -->
 <?php
-	$groupsResult = civicrm_api3( 'Group', 'get', array(
+	$groupsResult = civicrm_api3( 'Group', 'get', [
 		'sequential' => 1,
-		'cache_date' => array('IS NULL' => 1),
+		'cache_date' => [ 'IS NULL' => 1 ],
 		'is_active' => 1,
-		'options' => array('limit' => 0),
-	));
+		'options' => [ 'limit' => 0 ],
+	] );
 ?>
 
 <div class="civicrm-group-entity">
@@ -489,11 +489,11 @@ $indStandardFields = array( 'first_name', 'last_name', 'middle_name', 'prefix_id
 
 <!-- === Tag entity === -->
 <?php
-	$tagResult = $result = civicrm_api3( 'Tag', 'get', array(
+	$tagResult = $result = civicrm_api3( 'Tag', 'get', [
 		'sequential' => 1,
 		'used_for' => 'civicrm_contact',
-		'options' => array( 'limit' => 0 ), 
-	));
+		'options' => [ 'limit' => 0 ], 
+	] );
 ?>
 
 <div class="civicrm-tag-entity">

@@ -67,7 +67,7 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 	 * @since 0.4.4
 	 */
 	public function __construct( $plugin ) {
-        $this->plugin = $plugin;
+		$this->plugin = $plugin;
 		// register this processor
 		add_filter( 'caldera_forms_get_form_processors', [ $this, 'register_processor' ] );
 		// add payment processor hooks
@@ -87,7 +87,7 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 	 */
 	public function register_processor( $processors ) {
 
-		$processors[$this->key_name] = array(
+		$processors[$this->key_name] = [
 			'name' => __( 'CiviCRM Order', 'caldera-forms-civicrm' ),
 			'description' => __( 'Add CiviCRM Order (Contribution with multiple Line Items, ie Events registrations, Donations, Memberships, etc.)', 'caldera-forms-civicrm' ),
 			'author' => 'Andrei Mondoc',
@@ -96,7 +96,7 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 			'pre_processor' =>  [ $this, 'pre_processor' ],
 			'processor' => [ $this, 'processor' ],
 			'post_processor' => [ $this, 'post_processor'],
-		);
+		];
 
 		return $processors;
 
