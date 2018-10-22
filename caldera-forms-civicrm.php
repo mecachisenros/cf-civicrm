@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Caldera Forms CiviCRM
  * Description: CiviCRM integration for Caldera Forms.
- * Version: 0.4.4
+ * Version: 1.0
  * Author: Andrei Mondoc
  * Author URI: https://github.com/mecachisenros
  * Plugin URI: https://github.com/mecachisenros/caldera-forms-civicrm
@@ -16,7 +16,7 @@
  *
  * @since 0.1
  */
-define( 'CF_CIVICRM_INTEGRATION_VER', '0.4.4' );
+define( 'CF_CIVICRM_INTEGRATION_VER', '1.0' );
 define( 'CF_CIVICRM_INTEGRATION_URL', plugin_dir_url( __FILE__ ) );
 define( 'CF_CIVICRM_INTEGRATION_PATH', plugin_dir_path( __FILE__ ) );
 
@@ -183,7 +183,7 @@ class CiviCRM_Caldera_Forms {
 	private function check_dependencies() {
 
 		// Bail if Caldera Forms is not available
-		if ( ! defined( 'CFCORE_VER' ) || ! version_compare( CFCORE_VER, '1.7', '>=' ) ) {
+		if ( ! defined( 'CFCORE_VER' ) || ! version_compare( CFCORE_VER, '1.7.3', '>=' ) ) {
 			add_action( 'admin_notices', [$this, 'caldera_forms_version_notice'] );
 			return false;
 		}

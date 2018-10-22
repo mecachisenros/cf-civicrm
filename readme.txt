@@ -2,8 +2,8 @@
 Contributors: mecachisenros, needle
 Tags: civicrm, caldera, forms, integration
 Requires at least: 4.5
-Tested up to: 4.9.4
-Stable tag: 0.4.3
+Tested up to: 4.9.8
+Stable tag: 1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -16,7 +16,7 @@ The Caldera Forms CiviCRM plugin contains a set of form processors that interact
 
 ### Requirements
 
-This plugin requires a minimum of *CiviCRM 4.6* and *Caldera Forms 1.4.2*.
+This plugin requires a minimum of *CiviCRM 4.6* and *Caldera Forms 1.7.3*.
 
 ### Plugin Development
 
