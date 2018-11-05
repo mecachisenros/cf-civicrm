@@ -81,12 +81,10 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 	 * @param array $form Form configuration
 	 */
 	public function pre_processor( $config, $form, $processid ) {
-		
+
 	}
 
 	public function processor( $config, $form, $processid ) {
-
-		global $transdata;
 
 		$transient = $this->plugin->transient->get();
 		
@@ -97,13 +95,14 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 			$this->plugin->helper->get_price_field_value( $config['fixed_price_field_value'] ) :
 			$this->plugin->helper->get_price_field_value( Caldera_Forms::do_magic_tags( $config['price_field_value'] ) );
 
-		if ( ! empty( $config['entity_table'] ) ) {
+		if ( ! empty( $config['entity_table'] ) && $price_field_value ) {
 			if ( $config['entity_table'] == 'civicrm_membership' ) {
 				$price_field_value['entity_table'] = $config['entity_table'];
 				$this->process_membership( $config, $form, $transient, $price_field_value );
 			}
 
 			if ( $config['entity_table'] == 'civicrm_participant' ) {
+				$price_field_value['entity_table'] = $config['entity_table'];
 				$this->process_participant( $config, $form, $transient, $price_field_value );
 			}
 
@@ -111,7 +110,7 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 				$price_field_value['entity_table'] = $config['entity_table'];
 				$this->process_contribution( $config, $form, $transient, $price_field_value );
 			}
-		} else {
+		} elseif ( $price_field_value ) {
 			$entity_table = $this->guess_entity_table( $price_field_value );
 			$price_field_value['entity_table'] = $entity_table;
 			$entity = str_replace( 'civicrm_', '', $entity_table );
@@ -125,6 +124,7 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 
 		// FIXME
 		// only for memberships or contributions, need to find a way that checks for all tables
+		if ( ! isset( $this->price_sets ) ) $this->price_sets = $this->plugin->helper->cached_price_sets();
 
 		if ( ! empty( $entity_table ) ) return $entity_table;
 
@@ -133,7 +133,6 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 
 
 		// find entity table from priceset?
-		// $this->price_sets = $this->plugin->helper->cached_price_sets();
 
 		// foreach ( $this->price_sets as $price_set_id => $price_set ) {
 		// 	foreach ( $price_set['price_fields'] as $price_field_id => $price_field ) {
@@ -161,11 +160,7 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 	 */
 	public function process_membership( $config, $form, $transient, $price_field_value ) {
 
-		global $transdata;
-
 		$price_field_value['price_field_value_id'] = $price_field_value['id'];
-
-		// $price_field_value['entity_table'] = $config['entity_table'];
 		$price_field_value['field_title'] = $price_field_value['label'];
 		$price_field_value['unit_price'] = $price_field_value['amount'];
 		$price_field_value['qty'] = 1;
@@ -213,6 +208,40 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 	 * @param array $price_field_value The price field value
 	 */
 	public function process_participant( $config, $form, $transient, $price_field_value ) {
+
+		// if price field is disabled by cfc we won't have a price_field_value
+		if ( ! $price_field_value['id'] ) return;
+
+		$price_field_value['price_field_value_id'] = $price_field_value['id'];
+		$price_field_value['field_title'] = $price_field_value['label'];
+		$price_field_value['unit_price'] = $price_field_value['amount'];
+		$price_field_value['qty'] = 1;
+		$price_field_value['line_total'] = $price_field_value['amount'] * $price_field_value['qty'];
+
+		// membership params aka 'params'
+		$processor_id = Caldera_Forms::do_magic_tags( $config['entity_params'] );
+
+		if ( isset( $transient->participants->$processor_id->params ) && ! empty( $config['entity_params'] ) ) {
+
+			$entity_params = $transient->participants->$processor_id->params;
+
+			$entity_params['source'] = ! empty( $entity_params['source'] ) ? 
+				$entity_params['source'] : 
+				$form['name'];
+
+			$entity_params['fee_level'] = $price_field_value['label'];
+			$entity_params['fee_amount'] = $price_field_value['amount'];
+
+		}
+
+		$line_item = [ 
+			'line_item' => [ $price_field_value ],
+			'params' => $entity_params
+		];
+
+		$transient->line_items->{$config['processor_id']}->params = $line_item;
+
+		$this->plugin->transient->save( $transient->ID, $transient );
 
 	}
 

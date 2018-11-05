@@ -50,6 +50,8 @@ class CiviCRM_Caldera_Forms_Helper {
 	 */
 	public $states;
 
+	public $current_contact_data;
+
 	/**
 	 * Initialises this object.
 	 *
@@ -658,7 +660,6 @@ class CiviCRM_Caldera_Forms_Helper {
 	 * @return array $price_field_value The Price Field Value
 	 */
 	public function get_price_field_value( $id ) {
-
 		// when using a checkbox the value that gets passed is an array
 		if ( is_array( $id ) )
 			$id = array_pop( $id );
@@ -667,13 +668,12 @@ class CiviCRM_Caldera_Forms_Helper {
 			$price_field_value = civicrm_api3( 'PriceFieldValue', 'getsingle', [
 				'return' => [ 'id', 'price_field_id', 'label', 'amount', 'count', 'membership_type_id', 'membership_num_terms', 'financial_type_id' ],
 				'id' => $id,
-				'is_active' => 1,
 			] );
 		} catch ( CiviCRM_API3_Exception $e ) {
 
 		}
 
-		if ( ! $price_field_value['is_error'] ) {
+		if ( $price_field_value ) {
 			$price_field_value['amount'] = number_format( $price_field_value['amount'], 2, '.', '' );
 			return $price_field_value;
 		}
@@ -773,6 +773,8 @@ class CiviCRM_Caldera_Forms_Helper {
 	 */
 	public function current_contact_data_get() {
 
+		if ( ! empty( $this->current_contact_data ) ) return $this->current_contact_data;
+
 		$contact = false;
 
 		// checksum links first
@@ -790,8 +792,10 @@ class CiviCRM_Caldera_Forms_Helper {
 		}
 
 		// logged in overrides checksum
-		if ( is_user_logged_in() )
+		if ( is_user_logged_in() ) {
 			$contact = $this->get_current_contact();
+			$this->current_contact_data = $contact;
+		}
 
 		return $contact;
 
@@ -810,6 +814,95 @@ class CiviCRM_Caldera_Forms_Helper {
 			return $this->get_civi_contact( $current_user );
 		}
 		return false;
+	}
+
+	/**
+	 * Get a Participant custom fields.
+	 *
+	 * @since 1.0
+	 * @return array $custom_fields The array of custom fields - e.g. ['custom_x' => 'Label of custom_x']
+	 */
+	public static function get_participant_custom_fields() {
+
+		try {
+			$custom_groups = civicrm_api3( 'CustomGroup', 'get', [
+				'sequential' => 1,
+				'is_active' => 1,
+				'extends' => 'Participant',
+				'api.CustomField.get' => [ 'is_active' => 1, 'options' => [ 'limit' => 0 ] ],
+				'options' => [ 'limit' => 0 ],
+			] );
+		} catch ( CiviCRM_API3_Exception $e ) {
+			return [ 'note' => $e->getMessage(), 'type' => 'error' ];
+		}
+
+		$custom_fields = [];
+		foreach ( $custom_groups['values'] as $key => $custom_group ) {
+			foreach ( $custom_group['api.CustomField.get']['values'] as $k => $custom_field ) {
+				$custom_fields['custom_' . $custom_field['id']] = [
+					'label' => $custom_field['label'],
+					'extends_entity_column_id' => $custom_group['extends_entity_column_id'],
+					'extends_entity_column_value' => $custom_group['extends_entity_column_value'] 
+				];
+			}
+		}
+
+		return $custom_fields;
+
+	}
+
+	/**
+	 * Get processor by type.
+	 * 
+	 * @since 1.0
+	 * @param string $processor_type The processor type
+	 * @param array $form Form config
+	 * @return array $processors The processors config
+	 */
+	public function get_processor_by_type( $processor_type, $form ) {
+		// get form processors
+		$processors = Caldera_Forms::get_processor_by_type( $processor_type, $form );
+		// filter out non associative keys
+		if ( $processors )
+			return array_filter( $processors, function( $processor, $id ) {
+				return $id === $processor['ID'];
+			}, ARRAY_FILTER_USE_BOTH );
+
+		return false;
+	}
+
+	/**
+	 * Get processor id from magic tag.
+	 *
+	 * @since 1.0
+	 * @param string $magic_tag The processor_id magig tag
+	 * @param array|boolean $form The form config or false
+	 * @return string|boolean $processor_id The processor_id or false otherwise
+	 */
+	public function get_processor_from_magic( $magic_tag, $form = false ) {
+
+		if ( ! is_string( $magic_tag ) ) return false;
+
+		if ( strpos( $magic_tag, '{' ) === false ) return false;
+
+		if ( strpos( $magic_tag, 'processor_id' ) === false ) return false; 
+
+		// clean up magic tag
+		$magic_tag = str_replace( [ '{', '}' ], '', $magic_tag );
+		// get parts
+		$parts = explode( ':', $magic_tag );
+
+		if( ! $form ) global $form;
+
+		// if form has more than one processor of same type
+		// the magic tag has the format of processor_type:processor_id:<id>
+		// otherwise the format is processor_type:processor_id
+		if ( count( $parts ) > 2 ) {
+				return array_pop( $parts );
+		} else {
+			return key( $this->get_processor_by_type( $parts[0], $form ) );
+		}
+
 	}
 
 }

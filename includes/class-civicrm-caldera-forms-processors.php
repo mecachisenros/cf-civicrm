@@ -68,7 +68,6 @@ class CiviCRM_Caldera_Forms_Processors {
 
 		// Include processor classes
 		include CF_CIVICRM_INTEGRATION_PATH . 'processors/contact/class-contact-processor.php';
-		// include CF_CIVICRM_INTEGRATION_PATH . 'processors/order/class-order-processor.php';
 		if ( in_array( 'CiviContribute', $this->enabled_components ) ) {
 			include CF_CIVICRM_INTEGRATION_PATH . 'processors/order/class-order-processor.php';
 			include CF_CIVICRM_INTEGRATION_PATH . 'processors/line-item/class-line-item-processor.php';
@@ -76,6 +75,8 @@ class CiviCRM_Caldera_Forms_Processors {
 		}
 		if ( in_array( 'CiviMember', $this->enabled_components ) )
 			include CF_CIVICRM_INTEGRATION_PATH . 'processors/membership/class-membership-processor.php';
+		if ( in_array( 'CiviEvent', $this->enabled_components ) )
+			include CF_CIVICRM_INTEGRATION_PATH . 'processors/participant/class-participant-processor.php';
 		include CF_CIVICRM_INTEGRATION_PATH . 'processors/group/class-group-processor.php';
 		include CF_CIVICRM_INTEGRATION_PATH . 'processors/activity/class-activity-processor.php';
 		include CF_CIVICRM_INTEGRATION_PATH . 'processors/relationship/class-relationship-processor.php';
@@ -109,6 +110,8 @@ class CiviCRM_Caldera_Forms_Processors {
 		}
 		if ( in_array( 'CiviMember', $this->enabled_components ) )
 			$this->processors['membership'] = new CiviCRM_Caldera_Forms_Membership_Processor( $this->plugin );
+		if ( in_array( 'CiviEvent', $this->enabled_components ) )
+			$this->processors['participant'] = new CiviCRM_Caldera_Forms_Participant_Processor( $this->plugin );
 		if ( in_array( 'CiviCase', $this->enabled_components ) )
 			$this->processors['case'] = new CiviCRM_Caldera_Forms_Case_Processor( $this->plugin );
 		$this->processors['activity'] = new CiviCRM_Caldera_Forms_Activity_Processor( $this->plugin );

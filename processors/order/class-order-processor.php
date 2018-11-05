@@ -171,16 +171,16 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 		foreach ( $config_line_items as $item => $processor ) {
 			if( ! empty( $processor ) ) {
 				$processor = Caldera_Forms::do_magic_tags( $processor );
-				if ( ! strpos( $processor, 'civicrm_line_item' ) ) {
+				// line item is enabled and is not empty
+				if ( ! strpos( $processor, 'civicrm_line_item' ) && ! empty( ( array ) $transient->line_items->$processor ) ) {
 					$line_items[$count] = $transient->line_items->$processor->params;
-					if ( 
-						isset( $line_items[$count]['params']['membership_type_id'] ) && $this->is_pay_later ) {
+					if ( isset( $line_items[$count]['params']['membership_type_id'] ) && $this->is_pay_later ) {
 							// set membership as pending
 							$line_items[$count]['params']['status_id'] = 'Pending';
 							$line_items[$count]['params']['is_override'] = 1;
 					}
+					$count++;
 				}
-				$count++;
 			} else {
 				unset( $config_line_items[$item] );
 			}
@@ -243,7 +243,7 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 				 * @param string $template_path The template path
 				 * @param array $form Form config
 				 */
-				$template_path = apply_filters( 'cfc_order_thank_you_template_path', CF_CIVICRM_INTEGRATION_PATH . 'template/thank-you.php', $_form );
+				$template_path = apply_filters( 'cfc_order_thank_you_template_path', CF_CIVICRM_INTEGRATION_PATH . 'templates/thank-you.php', $_form );
 
 				$form_values = Caldera_Forms::get_submission_data( $_form );
 

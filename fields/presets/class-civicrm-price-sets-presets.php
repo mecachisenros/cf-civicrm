@@ -48,7 +48,7 @@ class CiviCRM_Caldera_Forms_Price_Sets_Presets {
 
 		// auto-populate Price Fields
 		add_action( 'caldera_forms_autopopulate_types', [ $this, 'autopopulate_price_field_types' ] );
-		add_filter( 'caldera_forms_render_get_field', [ $this, 'autopopulate_price_field_values' ], 20, 2 );
+		add_filter( 'caldera_forms_render_get_field', [ $this, 'autopopulate_price_field_values' ], 10, 2 );
 
 	}
 
@@ -118,7 +118,7 @@ class CiviCRM_Caldera_Forms_Price_Sets_Presets {
 				foreach ( $this->price_sets as $price_set_id => $price_set ) {
 					foreach ( $price_set['price_fields'] as $price_field_id => $price_field ) {
 						if( $field['config']['auto_type'] == 'cfc_price_field_' . $price_field_id ) {
-							foreach ( $price_field['price_field_values'] as $value_id => $price_field_value) {
+							foreach ( $price_field['price_field_values'] as $value_id => $price_field_value ) {
 								$field['config']['option'][$value_id] = [
 									'value' => $value_id,
 									'label' => $price_field_value['label'] . ' - ' . $field['config']['price_field_currency'] . ' ' . $price_field_value['amount'],
