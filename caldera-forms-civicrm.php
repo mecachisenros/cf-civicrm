@@ -138,6 +138,15 @@ class CiviCRM_Caldera_Forms {
 	public $html;
 
 	/**
+	 * CiviDiscount helper object.
+	 *
+	 * @since 1.0
+	 * @access public
+	 * @var object $cividiscount The CiviDiscount helper object
+	 */
+	public $cividiscount;
+
+	/**
 	 * Returns a single instance of this object when called.
 	 *
 	 * @since 0.1.1
@@ -228,6 +237,8 @@ class CiviCRM_Caldera_Forms {
 		include CF_CIVICRM_INTEGRATION_PATH . 'includes/class-civicrm-caldera-forms-transient.php';
 		// Include html class
 		include CF_CIVICRM_INTEGRATION_PATH . 'includes/class-civicrm-caldera-forms-html.php';
+		// include CiviDiscount helper class
+		include CF_CIVICRM_INTEGRATION_PATH . 'includes/class-civicrm-caldera-forms-cividiscount.php';
 
 	}
 
@@ -260,6 +271,9 @@ class CiviCRM_Caldera_Forms {
 		$this->assets = new CiviCRM_Caldera_Forms_Assets( $this );
 		// init html class
 		$this->html = new CiviCRM_Caldera_Forms_HTML( $this );
+		// init cividiscount class
+		if ( $this->processors->enabled_extensions && in_array( 'org.civicrm.module.cividiscount', $this->processors->enabled_extensions ) )
+			$this->cividiscount = new CiviCRM_Caldera_Forms_CiviDiscount( $this );
 
 	}
 

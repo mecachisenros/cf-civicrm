@@ -36,6 +36,9 @@ class CiviCRM_Caldera_Forms_AJAX {
 		add_action( 'wp_ajax_flush_price_set_cache', [ $this, 'flush_price_set_cache' ] );
 		add_action( 'wp_ajax_civicrm_contact_reference_get', [ $this, 'civicrm_contact_reference_get' ] );
 		add_action( 'wp_ajax_nopriv_civicrm_contact_reference_get', [ $this, 'civicrm_contact_reference_get' ] );
+		// event code discount
+		add_action( 'wp_ajax_do_code_cividiscount', [ $this, 'do_code_cividiscount' ] );
+		add_action( 'wp_ajax_nopriv_do_code_cividiscount', [ $this, 'do_code_cividiscount' ] );
 
 	}
 
@@ -153,6 +156,27 @@ class CiviCRM_Caldera_Forms_AJAX {
 			ob_end_clean();
 			echo $result;
 		}
+		die;
+	}
+
+	public function do_code_cividiscount() {
+
+		if ( ! wp_verify_nonce( $_POST['nonce'], 'civicrm_cividiscount_code' ) ) return;
+		if ( isset( $_POST['cividiscount_code'] ) ) $code = $_POST['cividiscount_code'];
+		if ( isset( $_POST['form_id'] ) ) $form_id = $_POST['form_id'];
+		if ( isset( $_POST['form_id_attr'] ) ) $form_id_attr = $_POST['form_id_attr'];
+		
+		$discount = $this->plugin->cividiscount->get_by_code( $code );
+
+		if ( $discount ) {
+			// form config
+			$form = Caldera_Forms::get_form( $form_id );
+			// add count
+			$form['form_count'] = str_replace( $form['ID'].'_', '', $form_id_attr );
+			$discounted_options = $this->plugin->cividiscount->do_code_event_discount_options( $discount, $form );
+		}
+
+		echo json_encode( $discounted_options );
 		die;
 	}
 }

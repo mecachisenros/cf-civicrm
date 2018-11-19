@@ -95,6 +95,18 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 			$this->plugin->helper->get_price_field_value( $config['fixed_price_field_value'] ) :
 			$this->plugin->helper->get_price_field_value( Caldera_Forms::do_magic_tags( $config['price_field_value'] ) );
 
+		unset( 
+			$price_field_value['name'],
+			$price_field_value['weight'],
+			$price_field_value['is_default'],
+			$price_field_value['is_active'],
+			$price_field_value['visibility_id']
+		);
+
+		// add tax amount
+		if ( isset( $price_field_value['tax_amount'] ) && $this->plugin->helper->get_tax_settings()['invoicing'] )
+			$price_field_value['amount'] += $price_field_value['tax_amount'];
+
 		if ( ! empty( $config['entity_table'] ) && $price_field_value ) {
 			if ( $config['entity_table'] == 'civicrm_membership' ) {
 				$price_field_value['entity_table'] = $config['entity_table'];
@@ -187,7 +199,7 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 			$entity_params['is_price_field_based']
 		);
 		$line_item = [ 
-			'line_item' => [ $price_field_value ],
+			'line_item' => [ $price_field_value['price_field_value_id'] => $price_field_value ],
 			'params' => $entity_params
 		];
 
@@ -200,7 +212,7 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 	/**
 	 * Process Participant Line Item.
 	 * 
-	 * @since 0.4.4
+	 * @since 1.0
 	 * 
 	 * @param array $config Processor config
 	 * @param array $form Form config
@@ -212,13 +224,17 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 		// if price field is disabled by cfc we won't have a price_field_value
 		if ( ! $price_field_value['id'] ) return;
 
+		// get price field
+		$price_field = $this->plugin->helper->get_price_set_column_by_id( $price_field_value['price_field_id'], 'price_field' );
+
 		$price_field_value['price_field_value_id'] = $price_field_value['id'];
-		$price_field_value['field_title'] = $price_field_value['label'];
+		$price_field_value['label'] = $price_field_value['label'];
+		$price_field_value['field_title'] = $price_field['label'];
 		$price_field_value['unit_price'] = $price_field_value['amount'];
 		$price_field_value['qty'] = 1;
 		$price_field_value['line_total'] = $price_field_value['amount'] * $price_field_value['qty'];
 
-		// membership params aka 'params'
+		// participant params aka 'params'
 		$processor_id = Caldera_Forms::do_magic_tags( $config['entity_params'] );
 
 		if ( isset( $transient->participants->$processor_id->params ) && ! empty( $config['entity_params'] ) ) {
@@ -229,13 +245,25 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 				$entity_params['source'] : 
 				$form['name'];
 
+			// need to set price set id, otherwise Participant.create from Order.create
+			// will create a non-linked LineItem as the contribution has been created yet
+			$entity_params['price_set_id'] = $price_field['price_set_id'];
 			$entity_params['fee_level'] = $price_field_value['label'];
 			$entity_params['fee_amount'] = $price_field_value['amount'];
 
 		}
 
+		unset(
+			$price_field_value['id'],
+			$price_field_value['amount'],
+			$price_field_value['contribution_type_id'],
+			$price_field_value['non_deductible_amount'],
+			$entity_params['price_field_value'],
+			$entity_params['is_price_field_based']			
+		);
+
 		$line_item = [ 
-			'line_item' => [ $price_field_value ],
+			'line_item' => [ $price_field_value['price_field_value_id'] => $price_field_value ],
 			'params' => $entity_params
 		];
 
@@ -284,4 +312,5 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 
 		$this->plugin->transient->save( $transient->ID, $transient );
 	}
+
 }

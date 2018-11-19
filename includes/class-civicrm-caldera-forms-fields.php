@@ -62,7 +62,7 @@ class CiviCRM_Caldera_Forms_Fields {
 		include CF_CIVICRM_INTEGRATION_PATH . 'fields/presets/class-civicrm-custom-fields-presets.php';
 		if ( in_array( 'CiviContribute', $this->plugin->processors->enabled_components ) )
 			include CF_CIVICRM_INTEGRATION_PATH . 'fields/presets/class-civicrm-price-sets-presets.php';
-
+		include CF_CIVICRM_INTEGRATION_PATH . 'fields/discount/class-civicrm-discount.php';
 	}
 
 	/**
@@ -83,6 +83,10 @@ class CiviCRM_Caldera_Forms_Fields {
 		$this->presets_objects['civicrm_custom_fields'] = new CiviCRM_Caldera_Forms_Custom_Fields_Presets( $this->plugin );
 		if ( in_array( 'CiviContribute', $this->plugin->processors->enabled_components ) )
 			$this->presets_objects['civicrm_price_sets'] = new CiviCRM_Caldera_Forms_Price_Sets_Presets( $this->plugin );
+
+		// discount field for cividiscount integration
+		if ( $this->plugin->processors->enabled_extensions && in_array( 'org.civicrm.module.cividiscount', $this->plugin->processors->enabled_extensions ) )
+			$this->field_objects['civicrm_discount'] = new CiviCRM_Caldera_Forms_Field_Discount( $this->plugin );
 
 	}
 }
