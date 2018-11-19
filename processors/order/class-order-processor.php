@@ -168,12 +168,16 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 		// line items
 		$line_items = [];
 		$count = 0;
+		$total_tax_amount = 0;
 		foreach ( $config_line_items as $item => $processor ) {
 			if( ! empty( $processor ) ) {
 				$processor = Caldera_Forms::do_magic_tags( $processor );
 				// line item is enabled and is not empty
 				if ( ! strpos( $processor, 'civicrm_line_item' ) && ! empty( ( array ) $transient->line_items->$processor ) ) {
 					$line_items[$count] = $transient->line_items->$processor->params;
+					// tax amount
+					if ( isset( $line_items[$count]['line_item'][0]['tax_amount'] ) && $this->plugin->helper->get_tax_settings()['invoicing'] ) $total_tax_amount += $line_items[$count]['line_item'][0]['tax_amount'];
+					// membership is pay later
 					if ( isset( $line_items[$count]['params']['membership_type_id'] ) && $this->is_pay_later ) {
 							// set membership as pending
 							$line_items[$count]['params']['status_id'] = 'Pending';
@@ -185,6 +189,10 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 				unset( $config_line_items[$item] );
 			}
 		}
+
+		// add total tax amount
+		if ( $total_tax_amount )
+			$form_values['tax_amount'] = $total_tax_amount;
 
 		$form_values['line_items'] = $line_items;
 

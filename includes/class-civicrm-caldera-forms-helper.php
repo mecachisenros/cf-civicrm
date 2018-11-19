@@ -53,6 +53,24 @@ class CiviCRM_Caldera_Forms_Helper {
 	public $current_contact_data;
 
 	/**
+	 * CiviCRM tax and invoicing settings.
+	 *
+	 * @since 1.0
+	 * @access public
+	 * @var array $tax_settings
+	 */
+	public $tax_settings;
+
+	/**
+	 * CiviCRM tax rates.
+	 *
+	 * @since 1.0
+	 * @access public
+	 * @var array $tax_rates Holds tax rates in the form of [ <financial_type_id> => <tax_rate> ]
+	 */
+	public $tax_rates;
+
+	/**
 	 * Initialises this object.
 	 *
 	 * @since 0.4.4
@@ -474,6 +492,8 @@ class CiviCRM_Caldera_Forms_Helper {
 		try {
 			$result = civicrm_api3( 'Extension', 'get', [
 				'sequential' => 1,
+				'status' => 'installed',
+				'statusLabel' => 'Enabled',
 				'options' => [ 'limit' => 0 ],
 			] );
 		} catch ( CiviCRM_API3_Exception $e ) {
@@ -567,12 +587,117 @@ class CiviCRM_Caldera_Forms_Helper {
 	}
 
 	/**
+	 * Get CiviCRM tax and invoicing settings.
+	 *
+	 * @since 1.0
+	 * @return array $tax_settings
+	 */
+	public function get_tax_settings() {
+		if ( is_array( $this->tax_settings ) ) return $this->tax_settings;
+		$this->tax_settings = $this->get_civicrm_settings( 'contribution_invoice_settings' );
+		return $this->tax_settings;
+	}
+
+	/**
+	 * Get CiviCRM tax rates.
+	 *
+	 * @since 1.0
+	 * @return array|bool Array of tax rates in the form of [ <financial_type_id> => <tax_rate> ]
+	 */
+	public function get_tax_rates() {
+
+		if ( is_array( $this->tax_rates ) ) return $this->tax_rates;
+
+		$tax_financial_accounts = civicrm_api3( 'EntityFinancialAccount', 'get', [
+			'return' => [
+				'id',
+				'entity_table',
+				'entity_id',
+				'account_relationship',
+				'financial_account_id',
+				'financial_account_id.financial_account_type_id',
+				'financial_account_id.tax_rate'
+			],
+			'financial_account_id.is_tax' => 1,
+			'options' => [ 'limit' => 0 ]
+		] );
+			
+		if ( $tax_financial_accounts['count'] ) {
+			// buils tax rates
+			$this->tax_rates = array_reduce( $tax_financial_accounts['values'], function( $tax_rates, $financial_account ) {
+				$tax_rates[$financial_account['entity_id']] = $financial_account['financial_account_id.tax_rate'];
+				return $tax_rates;
+			}, [] );
+
+			return $this->tax_rates;
+			
+		}
+
+		return false;
+	}
+
+	/**
+	 * Calculate percentage for a given amount.
+	 *
+	 * @since 1.0
+	 * @param string $amount The amount
+	 * @param string $percentage The percentage
+	 * @return string $amount Calculated percentage amount
+	 */
+	public function calculate_percentage( $amount, $percentage ) {
+		return ( $percentage / 100 ) * $amount;
+	}
+
+	/**
+	 * Format tax label as per CiviCRM.
+	 * 
+	 * @param string $label The label
+	 * @param string $amount The amount
+	 * @param string $tax_amount The tax amount
+	 * @return string $label The formated label
+	 */
+	public function format_tax_label( $label, $amount, $tax_amount, $currency = false ) {
+
+		$tax_settings = $this->get_tax_settings();
+		$tax_term = $tax_settings['tax_term'];
+		$taxed_amount = $this->format_money( $amount + $tax_amount, $currency );
+		$tax_amount = $this->format_money( $tax_amount, $currency );
+		$amount = $this->format_money( $amount, $currency );
+
+		$format = [
+			'Do_not_show' => sprintf( '%1$s - %2$s', $label, $taxed_amount ),
+			'Inclusive' => sprintf( '%1$s - %2$s (includes %3$s of %4$s)', $label, $taxed_amount, $tax_term, $tax_amount ),
+			'Exclusive' => sprintf( '%1$s - %2$s + %3$s %4$s', $label, $amount, $tax_amount, $tax_term )
+		];
+
+		return $format[$tax_settings['tax_display_settings']];
+
+	}
+
+	/**
+	 * Format money, as per CiviCRM settings.
+	 *
+	 * @since 1.0
+	 * @param string $amount The amount
+	 * @param string $currency Optional, the currency
+	 * @return string $formated_amount The formated amount
+	 */
+	public function format_money( $amount, $currency = false ) {
+		return CRM_Utils_Money::format( $amount, $currency );		
+	}
+
+	/**
 	 * Get price sets.
 	 *
 	 * @since 0.4.4
 	 * @return array $price_sets The active price sets with their corresponding price fields and price filed values
 	 */
 	public function get_price_sets() {
+		
+		// get tax settings
+		$tax_settings = $this->get_tax_settings();
+		// get tax rates
+		$tax_rates = $this->get_tax_rates();
 
 		$price_set_params = [
 			'sequential' => 1,
@@ -586,6 +711,7 @@ class CiviCRM_Caldera_Forms_Helper {
 				'options' => [ 'limit' => 0 ],
 			],
 		];
+
 
 		try {
 			$result_price_sets = civicrm_api3( 'PriceSet', 'get', $price_set_params );
@@ -617,8 +743,14 @@ class CiviCRM_Caldera_Forms_Helper {
 			$price_set['price_set_id'] = $price_set_id = $price_set['id'];
 			$price_set['price_fields'] = $price_set['api.PriceField.get']['values'];
 			foreach ( $price_set['price_fields'] as $price_field_id => $price_field ) {
+				$price_set['price_fields'][$price_field_id]['price_field_id'] = $price_field_id;
 				foreach ( $price_field_values as $value_id => $price_field_value) {
+					$price_field_value['price_field_value_id'] = $value_id;
 					if ( $price_field_id == $price_field_value['price_field_id'] ) {
+						if ( $tax_settings['invoicing'] && $tax_rates && array_key_exists( $price_field_value['financial_type_id'], $tax_rates ) ) {
+							$price_field_value['tax_rate'] = $tax_rates[$price_field_value['financial_type_id']];
+							$price_field_value['tax_amount'] = $this->calculate_percentage( $price_field_value['amount'], $price_field_value['tax_rate'] );
+						}
 						$price_set['price_fields'][$price_field_id]['price_field_values'][$value_id] = $price_field_value;
 					}
 				}
@@ -664,21 +796,53 @@ class CiviCRM_Caldera_Forms_Helper {
 		if ( is_array( $id ) )
 			$id = array_pop( $id );
 
-		try {
-			$price_field_value = civicrm_api3( 'PriceFieldValue', 'getsingle', [
-				'return' => [ 'id', 'price_field_id', 'label', 'amount', 'count', 'membership_type_id', 'membership_num_terms', 'financial_type_id' ],
-				'id' => $id,
-			] );
-		} catch ( CiviCRM_API3_Exception $e ) {
+		$price_field_value = $this->get_price_set_column_by_id( $id, 'price_field_value' );
+		// filter price field value
+		$price_field_value = apply_filters( 'cfc_filter_price_field_value_get', $price_field_value, $id );
 
+		return $price_field_value;
+	}
+
+	/**
+	 * Get price_set/price_field/price_field_value by id specifing the column name.
+	 *
+	 * @since 1.0
+	 * @param int $id The entity id
+	 * @param string $column_name The column name, price_set|price_field|price_field_value
+	 * @return array $column The requested entity or false 
+	 */
+	public function get_price_set_column_by_id( $id, $column_name ) {
+		
+		$price_sets = $this->cached_price_sets();
+
+		if ( $column_name == 'price_set' && array_key_exists( $id, $price_set ) ) {
+			$column = $price_set[$id];
 		}
 
-		if ( $price_field_value ) {
-			$price_field_value['amount'] = number_format( $price_field_value['amount'], 2, '.', '' );
-			return $price_field_value;
+		if ( $column_name == 'price_field' ) {
+			foreach ( $price_sets as $price_set_id => $price_set ) {
+				foreach ( $price_set['price_fields'] as $price_field_id => $price_field ) {
+					if ( array_key_exists( $id, $price_set['price_fields'] ) )
+						$column = $price_set['price_fields'][$id];
+				}
+			}
 		}
+
+		if ( $column_name == 'price_field_value' ) {
+			foreach ( $price_sets as $price_set_id => $price_set ) {
+				foreach ( $price_set['price_fields'] as $price_field_id => $price_field ) {
+					foreach ( $price_field['price_field_values'] as $price_field_value_id => $price_field_value ) {
+						if ( array_key_exists( $id, $price_field['price_field_values'] ) )
+							$column = $price_field['price_field_values'][$id];
+					}
+				}
+			}
+		}
+
+		if ( $column ) return $column;
 
 		return false;
+
 	}
 
 	/**
