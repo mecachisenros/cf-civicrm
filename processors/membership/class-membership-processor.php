@@ -34,6 +34,15 @@ class CiviCRM_Caldera_Forms_Membership_Processor {
 	protected $has_memberships;
 
 	/**
+	 * Membership statuses considered 'current'.
+	 *
+	 * @since 0.4.4
+	 * @access public
+	 * @var array The membership statuses considered 'current'
+	 */
+	public $membership_statuses_current;
+
+	/**
 	 * The processor key.
 	 *
 	 * @since 0.4.4
@@ -190,6 +199,8 @@ class CiviCRM_Caldera_Forms_Membership_Processor {
 
 		// cfc transient object
 		$transient = $this->plugin->transient->get();
+		// get membership current statuses
+		$membership_statuses = $this->get_membership_statuses_current();
 
 		foreach ( $form['processors'] as $processor => $pr_id ) {
 			if( $pr_id['type'] == $this->key_name && isset( $pr_id['runtimes'] ) ){
@@ -197,13 +208,15 @@ class CiviCRM_Caldera_Forms_Membership_Processor {
 				$contact_link = $pr_id['contact_link'] = 'cid_'.$pr_id['config']['contact_link'];
 
 				if ( isset( $transient->contacts->{$contact_link} ) ) {
+
 					try {
 
 						$is_member = civicrm_api3( 'Membership', 'get', [
 							'sequential' => 1,
 							'is_test' => 0,
-							'status_id' => [ 'IN' => [ 'New', 'Current', 'Grace' ] ],
+							'status_id' => [ 'IN' => $membership_statuses ? $membership_statuses : [ 'New', 'Current', 'Grace' ] ],
 							'contact_id' => $transient->contacts->{$contact_link},
+							'options' => [ 'limit' => 0 ]
 						] );
 
 					} catch ( CiviCRM_API3_Exception $e ) {
@@ -251,6 +264,33 @@ class CiviCRM_Caldera_Forms_Membership_Processor {
 
 		// fallback to at least 1 term, this will be the term setup in the Membership Type settings
 		return 1;
+	}
+
+	/**
+	 * Get membership statuses considered 'current'.
+	 *
+	 * @since 0.4.4
+	 * @return array $membership_statuses_current The membership statuses
+	 */
+	public function get_membership_statuses_current() {
+
+		if ( ! empty( $this->membership_statuses_current ) ) return $this->membership_statuses_current;
+
+		try {
+			$statuses = civicrm_api3( 'MembershipStatus', 'get', [
+				'sequential' => 1,
+				'return' => [ 'name' ],
+				'is_current_member' => 1,
+				'options' => [ 'limit' => 0 ]
+			] );
+		} catch ( CiviCRM_API3_Exception  $e ) {
+
+		}
+
+		if ( is_array( $statuses ) && $statuses['count'] && ! $statuses['is_error'] )
+			$this->membership_statuses_current = array_column( $statuses['values'], 'name' );
+
+		return $this->membership_statuses_current;
 	}
 
 	/**
