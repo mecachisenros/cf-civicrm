@@ -606,7 +606,7 @@ class CiviCRM_Caldera_Forms_Helper {
 
 		$price_field_values = [];
 		foreach ( $all_price_field_values['values'] as $id => $price_field_value ) {
-			$price_field_value['amount'] = number_format( $price_field_value['amount'], 2, '.', '' );
+			$price_field_value['amount'] = number_format( $price_field_value['amount'], 3, '.', '' );
 			$price_field_values[$id] = $price_field_value;
 		}
 
@@ -674,7 +674,7 @@ class CiviCRM_Caldera_Forms_Helper {
 		}
 
 		if ( ! $price_field_value['is_error'] ) {
-			$price_field_value['amount'] = number_format( $price_field_value['amount'], 2, '.', '' );
+			$price_field_value['amount'] = number_format( $price_field_value['amount'], 3, '.', '' );
 			return $price_field_value;
 		}
 
