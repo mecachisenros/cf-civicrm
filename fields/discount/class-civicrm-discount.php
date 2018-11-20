@@ -81,26 +81,17 @@ class CiviCRM_Caldera_Forms_Field_Discount {
 	}
 
 	/**
-	 * Enqueue scripts
+	 * Localize scripts
 	 *
-	 * @since 0.4.4
-	 * 
+	 * @since 1.0
 	 * @param array $form Form config
 	 * @return array $form Form config
 	 */
 	public function localize_scripts( $form ) {
-		$reference = false;
-		
-		foreach ( $form['fields'] as $field_id => $field ) {
-			if ( $field['type'] == $this->key_name ) {
-				$reference = true;
-				break;
-			}
-		}
 
-		if( $reference ) {
+		if ( Caldera_Forms_Field_Util::has_field_type( $this->key_name, $form ) )
 			wp_localize_script( 'cf-cividiscountjs', 'cfc', [ 'url' => admin_url( 'admin-ajax.php' ) ] );
-		}
+
 		return $form;
 	}
 
