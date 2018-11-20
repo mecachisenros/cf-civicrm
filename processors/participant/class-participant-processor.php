@@ -787,10 +787,7 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 		// participant processors
 		$processors = $this->plugin->helper->get_processor_by_type( $this->key_name, $form );
 		if ( ! $processors ) return false;
-		// contact processors
-		$contacts = $this->plugin->helper->get_processor_by_type( 'civicrm_contact', $form );
-		// return registrations if is set and only one contact, otherwise recalculate
-		if ( count( $contacts ) == 1 && ! empty( $this->registrations ) ) return $this->registrations;
+
 		// cfc transient
 		$transient = $this->plugin->transient->get();
 
