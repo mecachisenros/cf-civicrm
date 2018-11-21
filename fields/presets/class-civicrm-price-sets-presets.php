@@ -110,6 +110,7 @@ class CiviCRM_Caldera_Forms_Price_Sets_Presets {
 	 * @param  array $field The field config
 	 * @param  array $form The Form config
 	 * @return array The filtered field config
+     * Do not show the price next to the label fields
 	 */
 	public function autopopulate_price_field_values( $field, $form ) {
 
@@ -121,7 +122,7 @@ class CiviCRM_Caldera_Forms_Price_Sets_Presets {
 							foreach ( $price_field['price_field_values'] as $value_id => $price_field_value) {
 								$field['config']['option'][$value_id] = [
 									'value' => $value_id,
-									'label' => $price_field_value['label'] . ' - ' . $field['config']['price_field_currency'] . ' ' . $price_field_value['amount'],
+                                    'label' => $price_field_value['label'] . ' - ' . $field['config']['price_field_currency'] . ' ' . number_format($price_field_value['amount'], 2,  '.', '' ),
 									'calc_value' => $price_field_value['amount']
 								];
 							}
