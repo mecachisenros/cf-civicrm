@@ -673,9 +673,12 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 
 			if( $pr_id['type'] == $this->key_name && isset( $pr_id['runtimes'] ) ){
 
-				if ( isset( $pr_id['config']['auto_pop'] ) && $pr_id['config']['auto_pop'] == 1 && $civicrm_contact_pr[0]['ID'] == $pr_id['ID'] )
+				if ( isset( $pr_id['config']['auto_pop'] ) && $pr_id['config']['auto_pop'] == 1 && $civicrm_contact_pr[0]['ID'] == $pr_id['ID'] ) {
 					// get contact data
 					$contact = $this->plugin->helper->current_contact_data_get();
+				}elseif ( isset( $pr_id['config']['auto_pop_query'] ) && isset($_GET[$pr_id['config']['auto_pop_query']]) ){
+					$contact = $this->plugin->helper->get_civi_contact( $_GET['pid'] );
+				}
 					
 				// Map CiviCRM contact data to form defaults
 				if ( isset( $contact ) && is_array( $contact ) ) {

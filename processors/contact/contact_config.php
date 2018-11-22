@@ -1,7 +1,12 @@
 <div class="civicrm-entity-fields">
 	<div class="caldera-config-group caldera-config-group-full">
 		<div class="caldera-config-field">
-			<label><input id="auto_pop" type="checkbox" name="{{_name}}[auto_pop]" value="1" {{#if auto_pop}}checked="checked"{{/if}}><?php _e( 'Auto populate contact data with CiviCRM data if user is logged in. (Only for the first contact processor)', 'caldera-forms-civicrm' ); ?></label>
+			<label><input id="auto_pop" type="checkbox" name="{{_name}}[auto_pop]" value="1" {{#if auto_pop}}checked="checked"{{/if}}><?php _e( 'Auto populate with data from the logged in user (only for the first contact processor).', 'caldera-forms-civicrm' ); ?></label>
+		</div>
+	</div>
+	<div class="caldera-config-group caldera-config-group-full">
+		<div class="caldera-config-field">
+			<label><?php _e( 'Auto populate with data from the contact with id specified by the following query parameter', 'caldera-forms-civicrm' ); ?><input id="auto_pop_query" type="text" name="{{_name}}[auto_pop_query]" value="{{auto_pop_query}}"></label>
 		</div>
 	</div>
 	<div class="caldera-config-group caldera-config-group-full">
@@ -140,9 +145,9 @@ $indStandardFields = [ 'first_name', 'last_name', 'middle_name', 'prefix_id', 's
 		}
 	}
 
-	unset( $contactFields['id'], $contactFields['contact_type'], $contactFields['contact_sub_type'] );
+	unset( $contactFields['contact_type'], $contactFields['contact_sub_type'] );
 	$contactFields = array_diff_key( $contactFields, caldera_forms_civicrm()->helper->get_contact_custom_fields() );
-
+	
 	foreach( $contactFields as $key => $value ) { ?>
 	<div class="caldera-config-group" id="<?php echo esc_attr( $key ); ?>"
 		<?php
