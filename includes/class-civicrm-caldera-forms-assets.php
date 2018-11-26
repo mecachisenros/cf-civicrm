@@ -35,6 +35,8 @@ class CiviCRM_Caldera_Forms_Assets {
 		// enqueue scripts and js in form editor
 		add_action( 'caldera_forms_admin_assets_scripts_registered', [ $this, 'enqueue_civicrm_scripts' ] );
 		add_action( 'caldera_forms_admin_assets_styles_registered', [ $this, 'enqueue_civicrm_styles' ] );
+		// enqueue late in editor
+		add_action( 'caldera_forms_editor_footer', [ $this, 'enqueue_in_editor_footer' ] );
 	}
 
 	/**
@@ -48,6 +50,8 @@ class CiviCRM_Caldera_Forms_Assets {
 		wp_register_style( 'cfc-select2', CF_CIVICRM_INTEGRATION_URL . 'assets/css/select2.min.css', [], CF_CIVICRM_INTEGRATION_VER );
 		// admin script
 		wp_register_script( 'cfc-admin', CF_CIVICRM_INTEGRATION_URL . 'assets/js/admin.js', [ 'jquery' ], CF_CIVICRM_INTEGRATION_VER );
+		// auto populate price field conditional options 
+		wp_register_script( 'cfc-autopop-conditionals', CF_CIVICRM_INTEGRATION_URL . 'assets/js/autopop_conditionals.js', [ 'jquery' ], CF_CIVICRM_INTEGRATION_VER );
 		// frontend script
 		wp_register_script( 'cfc-front', CF_CIVICRM_INTEGRATION_URL . 'assets/js/front.js', [ 'jquery' ], CF_CIVICRM_INTEGRATION_VER );
 	}
@@ -83,6 +87,15 @@ class CiviCRM_Caldera_Forms_Assets {
 		if( $this->is_caldera_forms_admin() )
 			wp_enqueue_style( 'cfc-select2' );
 
+	}
+
+	/**
+	 * Enqueue conditional script in editor footer.
+	 *
+	 * @since 1.0
+	 */
+	public function enqueue_in_editor_footer() {
+		wp_enqueue_script( 'cfc-autopop-conditionals' );
 	}
 
 	/**
