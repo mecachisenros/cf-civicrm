@@ -216,6 +216,21 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 		try {
 			$create_order = civicrm_api3( 'Order', 'create', $form_values );
 			$this->order = $create_order;
+
+			// create product
+			if ( isset( $form_values['product_id'] ) ) {
+				$params = [
+					'product_id' => $form_values['product_id'],
+					'contribution_id' => $create_order['id'],
+					'quantity' => 1 // FIXME, can this be set via UI?
+				];
+
+				if ( isset( $transdata['data'][$config['product_id'] . '_option'] ) )
+					$params['product_option'] = $transdata['data'][$config['product_id'] . '_option'];
+				
+				$create_premium = civicrm_api3( 'ContributionProduct', 'create', $params );
+				
+			}
 		} catch ( CiviCRM_API3_Exception $e ) {
 			$transdata['error'] = true;
 			$transdata['note'] = $e->getMessage() . '<br><br><pre' . $e->getTraceAsString() . '</pre>';

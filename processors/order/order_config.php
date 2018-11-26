@@ -184,6 +184,14 @@ $payment_processor = civicrm_api3( 'PaymentProcessor', 'get', [
 	</div>
 </div>
 
+<!-- Premium -->
+<div id="{{_id}}_premium" class="caldera-config-group">
+	<label><?php _e( 'Premium', 'caldera-forms-civicrm' ); ?></label>
+	<div class="caldera-config-field">
+		{{{_field slug="product_id" type="civicrm_premium"}}}
+	</div>
+</div>
+
 <!-- Total Amount -->
 <div id="{{_id}}_total_amount" class="caldera-config-group">
 	<label><?php _e( 'Total Amount', 'caldera-forms-civicrm' ); ?></label>
