@@ -12,8 +12,11 @@ jQuery( document ).ready( function( $ ) {
 			curval = target.find( '.caldera-conditional-value-field' ).first();
 
 		var field_id = this.value,
-			form = core_form.formJSON(),
-			config = form.config.fields[field_id].config;
+			form = core_form.formJSON();
+
+		if ( ! field_id || ( ! form.config && ! form.config[field_id] ) ) return;
+
+		var config = form.config.fields[field_id].config;
 
 		if ( curval.length ) {
 			if ( curval.val().length )
