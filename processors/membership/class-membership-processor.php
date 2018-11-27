@@ -134,11 +134,8 @@ class CiviCRM_Caldera_Forms_Membership_Processor {
 			$form_values['contact_id'] = $transient->contacts->{$this->contact_link};
 
 			// renew/extend necessary params
-			if ( isset( $config['is_renewal'] ) && isset( $is_member['id'] ) ) {
+			if ( isset( $config['is_renewal'] ) && isset( $is_member['id'] ) )
 				$form_values['id'] = $is_member['id'];
-				// at least one term
-				$form_values['num_terms'] = $this->get_num_terms( $form_values, $price_field_value );
-			}
 
 			$form_values['source'] = isset( $form_values['source'] ) ? $form_values['source'] : $form['name'];
 
@@ -150,6 +147,9 @@ class CiviCRM_Caldera_Forms_Membership_Processor {
 				//remove join, start, and end dates otherwise
 				unset( $form_values['join_date'], $form_values['start_date'], $form_values['end_date'] );
 			}
+
+			// get num_terms
+			$form_values['num_terms'] = $this->get_num_terms( $form_values, $price_field_value );
 
 			$transient->memberships->{$config['processor_id']}->params = $form_values;
 
