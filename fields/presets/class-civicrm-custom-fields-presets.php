@@ -21,7 +21,7 @@ class CiviCRM_Caldera_Forms_Custom_Fields_Presets {
 	 * @access public
 	 * @var array $processors The custom fields data array
 	 */
-	public $custom_fields_data = [];
+	public $custom_fields = [];
 
 	/**
 	 * Allowed CiviCRM field tyes.
@@ -31,6 +31,15 @@ class CiviCRM_Caldera_Forms_Custom_Fields_Presets {
 	 * @var array $allowed_html_types Field types
 	 */
 	public $allowed_html_types = [ 'Select', 'Radio', 'CheckBox', 'Multi-Select', 'AdvMulti-Select' ];
+
+	/**
+	 * The entites the custom fields extend.
+	 *
+	 * @since 1.0 
+	 * @access public
+	 * @var array The entities
+	 */
+	public $extend_entities = [];
 
 	/**
 	 * Initialises this object.
@@ -73,38 +82,34 @@ class CiviCRM_Caldera_Forms_Custom_Fields_Presets {
 	public function custom_fields_options_presets( $presets ) {
 
 		// get all custom fields
-		$customFields = $this->custom_fields_data_get();
+		$custom_fields = $this->custom_fields_get();
 
-		$custom = [];
-		if ( $customFields && ! $customFields['is_error'] && $customFields['count'] != 0 ) {
-			foreach ( $customFields['values'] as $key => $field ) {
-				if ( in_array( $field['html_type'], $this->allowed_html_types ) && isset( $field['option_group_id'] ) && ! empty( $field['option_group_id'] ) ) {
-					// get custom group
-					$params['id'] = $field['custom_group_id'];
-					$customGroup = [];
-					CRM_Core_BAO_CustomGroup::retrieve( $params, $customGroup );
+		if ( ! $custom_fields ) return $presets;
 
-					// get options
-					$customOptions = CRM_Core_OptionGroup::valuesByID( (int)$field['option_group_id'] );
+		$extends = $this->entities_extend_get();
 
-					// contact types and activity for filtering
-					$extends = array_merge( [ 'Contact', 'Activity' ], CRM_Contact_BAO_ContactType::basicTypes(), CRM_Contact_BAO_ContactType::subTypes() );
+		array_map( function( $field ) use ( &$presets, $extends ) {
 
-					if ( in_array( $customGroup['extends'], $extends ) ) {
-						$options = [];
-						foreach ( $customOptions as $key => $value ) {
-							$options[] = $key.'|'.$value;
-						}
-						$custom[$field['name']] = [
-							'name' => sprintf( __( 'CiviCRM - %1$s - %2$s', 'caldera-forms-civicrm' ), $customGroup['title'], $field['label'] ),
-							'data' => $options,
-						];
-					}
-				}
-			}
-		}
-	
-		$presets = array_merge( $custom, $presets );
+			if ( ! in_array( $field['html_type'], $this->allowed_html_types ) ) return;
+
+			if ( ! in_array( $field['custom_group_id.extends'], $extends ) ) return;
+			
+			if ( ! $field['option_group_id'] ) return;
+			
+			$custom_options = $this->option_values_get( $field['option_group_id'] );
+
+			if ( ! $custom_options ) return;
+
+			$presets['custom_' . $field['id']] = [
+				'name' => sprintf( __( 'CiviCRM - %1$s - %2$s', 'caldera-forms-civicrm' ), $field['custom_group_id.title'], $field['label'] ),
+				'data' => array_reduce( $custom_options, function( $options, $option ) {
+					$options[] = $option['value'] . '|' . $option['label'];
+					return $options;
+				}, [] )
+			];
+
+		}, $custom_fields );
+
 		return $presets;
 
 	}
@@ -120,25 +125,23 @@ class CiviCRM_Caldera_Forms_Custom_Fields_Presets {
 	public function autopopulate_custom_fields_types() {
 
 		// get all custom fields
-		$customFields = $this->custom_fields_data_get();
+		$custom_fields = $this->custom_fields_get();
 
-		if ( $customFields && !$customFields['is_error'] && $customFields['count'] != 0 ) {
+		if ( ! $custom_fields ) return;
 
-			$custom = [];
-			foreach ( $customFields['values'] as $key => $field ) {
-				if ( in_array( $field['html_type'], $thia->allowed_html_types ) && isset( $field['option_group_id'] ) && ! empty( $field['option_group_id'] ) ) {
-					// get custom group
-					$params['id'] = $field['custom_group_id'];
-					$customGroup = [];
-					CRM_Core_BAO_CustomGroup::retrieve( $params, $customGroup );
+		$extends = $this->entities_extend_get();
+		
+		array_map( function( $field ) use ( $extends ) {
 
-					$extends = array_merge( [ 'Contact', 'Activity' ], CRM_Contact_BAO_ContactType::basicTypes(), CRM_Contact_BAO_ContactType::subTypes() );
-					if ( in_array( $customGroup['extends'], $extends ) ) {
-						echo "<option value=\"custom_{$field['id']}\"{{#is auto_type value=\"custom_{$field['id']}\"}} selected=\"selected\"{{/is}}>" . sprintf( __( 'CiviCRM - %1$s - %2$s', 'caldera-forms-civicrm' ), $customGroup['title'], $field['label'] ) . "</option>";
-					}
-				}
-			}
-		}
+			if ( ! in_array( $field['html_type'], $this->allowed_html_types ) ) return;
+
+			if ( ! in_array( $field['custom_group_id.extends'], $extends ) ) return;
+			
+			if ( ! $field['option_group_id'] ) return;
+
+			echo "<option value=\"custom_{$field['id']}\"{{#is auto_type value=\"custom_{$field['id']}\"}} selected=\"selected\"{{/is}}>" . sprintf( __( 'CiviCRM - %1$s - %2$s', 'caldera-forms-civicrm' ), $field['custom_group_id.title'], $field['label'] ) . "</option>";
+
+		}, $custom_fields );
 
 	}
 
@@ -155,29 +158,32 @@ class CiviCRM_Caldera_Forms_Custom_Fields_Presets {
 	 */
 	public function autopopulate_custom_fields_values( $field, $form ) {
 
-		if ( ! empty( $field['config']['auto'] ) ) {
+		if ( ! $field['config']['auto'] ) return $field;
 
-			// get all custom fields
-			$customFields = $this->custom_fields_data_get();
+		if ( strpos( $field['config']['auto_type'], 'custom_' ) === false ) return $field;
 
-			if ( $customFields && ! $customFields['is_error'] && $customFields['count'] != 0 ) {
+		// it's a custom field, get all custom fields
+		$custom_fields = $this->custom_fields_get();
 
-				foreach ( $customFields['values'] as $key => $civiField ) {
-					if ( in_array( $civiField['html_type'], $this->allowed_html_types ) && isset( $field['option_group_id'] ) && ! empty( $field['option_group_id'] ) ) {
-						switch ( $field['config']['auto_type'] ) {
-							case 'custom_' . $civiField['id']:
-								$customOptions = CRM_Core_OptionGroup::valuesByID( (int)$civiField['option_group_id'] );
-								foreach ( $customOptions as $key => $value ) {
-									$field['config']['option'][$key] = [
-										'value' => $key,
-										'label' => $value
-									];
-								}
-								break;
-						}
-					}
-				}
-			}
+		if ( ! $custom_fields ) return $field;
+
+		foreach ( $custom_fields as $key => $custom_field ) {
+
+			if ( ! in_array( $custom_field['html_type'], $this->allowed_html_types ) && ! isset( $custom_field['option_group_id'] ) ) continue;
+
+			if ( $field['config']['auto_type'] !== 'custom_' . $custom_field['id'] ) continue;
+
+			$custom_options = $this->option_values_get( $custom_field['option_group_id'] );
+
+			if ( ! $custom_options ) continue;
+
+			$field['config']['option'] = array_reduce( $custom_options, function( $options, $option ) {
+				$options[$option['value']] = [
+					'value' => $option['value'],
+					'label' => $option['label']
+				];
+				return $options;
+			}, [] );
 
 		}
 
@@ -190,20 +196,64 @@ class CiviCRM_Caldera_Forms_Custom_Fields_Presets {
 	 *
 	 * @since 0.2
 	 *
-	 * @return array $presets The modified presets
+	 * @return array|bool $custom_fields The custom fields, or false
 	 */
-	public function custom_fields_data_get() {
+	public function custom_fields_get(  ) {
 
 		// return data if it's already retrieved
-		if ( ! empty( $this->custom_fields_data ) ) return $this->custom_fields_data;
+		if ( ! empty( $this->custom_fields ) ) return $this->custom_fields;
 
 		// get all custom fields
-		$this->custom_fields_data = civicrm_api3( 'CustomField', 'get', [
+		$custom_fields = civicrm_api3( 'CustomField', 'get', [
 			'sequential' => 1,
-			'options' => [ 'limit' => 0 ],
 			'is_active' => 1,
+			'return' => [ 'name', 'label', 'custom_group_id', 'option_group_id', 'html_type', 'custom_group_id.extends', 'custom_group_id.title' ],
+			'options' => [ 'limit' => 0 ],
 		] );
 
+
+		if ( ! is_array( $custom_fields ) && ! $custom_fields['count'] ) return false;
+		
+		// get option values
+		// $option_group_ids = array_column( $custom_fields['values'], 'option_group_id' );
+
+		$this->custom_fields = $custom_fields['values'];
+		
+		return $this->custom_fields;
+
+	}
+
+	/**
+	 * Get option values for a given option group.
+	 *
+	 * @since 1.0
+	 * @param int $option_group_id The option group id
+	 * @return array|false $option_values The option values, or false
+	 */
+	public function option_values_get( $option_group_id ) {
+
+		$option_values = civicrm_api3( 'OptionValue', 'get', [
+			'sequential' => 1,
+			'option_group_id' => $option_group_id
+		] );
+
+		if ( $option_values['count'] && ! $option_values['is_error'] ) return $option_values['values'];
+
+		return false;
+
+	}
+
+	/**
+	 * Get extend entities to return custom fields for autopopulation and presets.
+	 *
+	 * @since 1.0
+	 * @return array $extends The entites
+	 */
+	public function entities_extend_get() {
+
+		$extends = array_merge( [ 'Contact', 'Activity' ], CRM_Contact_BAO_ContactType::basicTypes(), CRM_Contact_BAO_ContactType::subTypes() );
+
+		return apply_filters( 'cfc_custom_fields_extends_entities', $extends );
 	}
 
 }

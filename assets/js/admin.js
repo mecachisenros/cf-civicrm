@@ -120,12 +120,12 @@ jQuery( document ).ready( function( $ ) {
 
 			var config = form.config.fields[field_id].config;
 
-			if ( config.auto && config.auto_type.indexOf( 'price_field_' ) !== -1 ) {
+			if ( config.auto && ( config.auto_type.indexOf( 'price_field_' ) !== -1 || config.auto_type.indexOf( 'custom_' ) !== -1 ) ) {
 
 				form.config.fields[field_id].config.option = {};
-
-				var price_field_id = config.auto_type.replace( 'cfc_', '' ),
-					options = preset_options[price_field_id].data;
+				// cfc_price_field_<id> or custom_<id>
+				var preset_name = config.auto_type.replace( 'cfc_', '' ),
+					options = preset_options[preset_name].data;
 
 				options.map( function( option ) {
 

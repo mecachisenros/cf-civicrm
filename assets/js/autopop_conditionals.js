@@ -29,9 +29,12 @@ jQuery( document ).ready( function( $ ) {
 
 		field_compare.show();
 
-		if ( config.auto && config.auto_type.indexOf( 'price_field_' ) !== -1 ) {
-			var price_field = config.auto_type.replace( 'cfc_', '' ),
-				options_rows = preset_options[price_field].data,
+		if ( config.auto && ( config.auto_type.indexOf( 'price_field_' ) !== -1 || config.auto_type.indexOf( 'custom_' ) !== -1 ) ) {
+			// cfc_price_field_<id> or custom_<id>
+			var preset_name = config.auto_type;
+			preset_name = config.auto_type.replace( 'cfc_', '' );
+			
+			var options_rows = preset_options[preset_name].data,
 				out = '<select name="' + name + '[value]" class="caldera-processor-value-bind caldera-conditional-value-field" data-field="' + field_id + '" style="max-width: 220px; width: 220px;">';
 				out += '<option value=""></option>';
 

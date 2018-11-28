@@ -81,7 +81,7 @@ class CiviCRM_Caldera_Forms_Price_Sets_Presets {
 					];
 				}
 			}
-			$presets = array_merge( $price_fields, $presets );
+			$presets = array_merge( $presets, $price_fields );
 		}
 
 		return $presets;
@@ -209,8 +209,8 @@ class CiviCRM_Caldera_Forms_Price_Sets_Presets {
 	public function is_price_field_active( $price_field ) {
 
 		$now = date( 'Y-m-d H:m:i' );
-		$active_on = array_key_exists( 'active_on', $price_field ) ? $price_field['active_on'] : $now;
-		$expire_on = array_key_exists( 'expire_on', $price_field ) ? $price_field['expire_on'] : $now;
+		$active_on = isset( $price_field['active_on'] ) && array_key_exists( 'active_on', $price_field ) ? $price_field['active_on'] : $now;
+		$expire_on = isset( $price_field['expire_on'] ) && array_key_exists( 'expire_on', $price_field ) ? $price_field['expire_on'] : $now;
 
 		return ( $now >= $active_on ) && ( $now <= $expire_on );
 
@@ -240,7 +240,7 @@ class CiviCRM_Caldera_Forms_Price_Sets_Presets {
 
 		if ( empty( $field['config']['auto'] ) ) return false;
 
-		if ( strpos( $field['config']['auto_type'], 'cfc_price_field_' === false ) ) return false;
+		if ( strpos( $field['config']['auto_type'], 'cfc_price_field_' ) === false ) return false;
 
 		if ( ! $this->price_sets ) return false;
 

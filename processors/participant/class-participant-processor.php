@@ -92,6 +92,8 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 		// filter form when it renders
 		add_filter( 'caldera_forms_render_get_form', [ $this, 'pre_render' ] );
 
+		add_filter( 'cfc_custom_fields_extends_entities', [ $this, 'custom_fields_extend_participant' ] );
+
 	}
 
 	/**
@@ -816,6 +818,18 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 			} ) );
 
 		}, $processors );
+	}
+
+	/**
+	 * Add Participant to extend custom fields autopopulation/presets.
+	 *
+	 * @since 1.0
+	 * @param array $extends The entites array
+	 * @return array $extends The filtered entities array
+	 */
+	public function custom_fields_extend_participant( $extends ) {
+		$extends[] = 'Participant';
+		return $extends;
 	}
 
 }
