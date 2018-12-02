@@ -122,7 +122,7 @@ class CiviCRM_Caldera_Forms_Price_Sets_Presets {
 							foreach ( $price_field['price_field_values'] as $value_id => $price_field_value) {
 								$field['config']['option'][$value_id] = [
 									'value' => $value_id,
-                                    'label' => $price_field_value['label'] . ' - ' . $field['config']['price_field_currency'] . ' ' . number_format($price_field_value['amount'], 2,  '.', '' ),
+									'label' => $price_field_value['label'] . ' - ' . $field['config']['price_field_currency'] . ' ' . number_format($price_field_value['amount'], 2,  '.', '' ),
 									'calc_value' => $price_field_value['amount']
 								];
 							}
