@@ -54,7 +54,7 @@
 		<?php _e( 'Calculation field', 'caldera-forms-civicrm' ); ?>
 	</label>
 	<div class="caldera-config-field">
-		{{{_field slug="calc" type="calculation"}}}
+		{{{_field slug="calc"}}}
 	</div>
 	<p class="description">
 		<?php _e( 'Calculation field to check for minimum contribution.', 'caldera-forms-civicrm' ); ?>

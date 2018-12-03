@@ -39,7 +39,6 @@
 					type="radio" 
 					id="<?php echo esc_attr( $field_id ); ?>_premium" 
 					data-label="<?php echo esc_attr( $field['config']['name'] );?>" 
-					data-field="<?php echo esc_attr( $field_base_id ); ?>" 
 					data-ref="<?php echo esc_attr( $field_id ); ?>_premium" 
 					class="cf-toggle-group-radio <?php echo $field_id; ?>" 
 					name="<?php echo esc_attr( $field_name ); ?>" 
@@ -51,22 +50,11 @@
 					type="radio" 
 					id="<?php echo esc_attr( $field_id ); ?>_no_thank_you" 
 					data-label="No thank you" 
-					data-field="<?php echo esc_attr( $field_base_id ); ?>" 
 					data-ref="<?php echo esc_attr( $field_id ); ?>_no_thank_you" 
 					class="cf-toggle-group-radio <?php echo $field_id; ?>" 
 					name="<?php echo esc_attr( $field_name ); ?>" 
 					value="0" 
 					data-radio-field="<?php echo esc_attr( $field_id ); ?>" 
-				>
-				<input 
-					type="hidden" 
-					id="<?php echo esc_attr( $field_id ); ?>_calc"
-					data-field-id="<?php echo esc_attr( $field_base_id ); ?>" 
-					data-min="<?php echo esc_attr( $field['config']['min_clean'] );?>" 
-					data-calc-field-id="<?php echo esc_attr( $field['config']['calc'] ); ?>" 
-					class="premium-calc" 
-					name="<?php echo esc_attr( $field_base_id ); ?>_min"
-					value="<?php echo esc_attr( $field['config']['min_clean'] );?>"  
 				>
 			</div>
 			<!-- Premium -->
@@ -114,3 +102,35 @@
 		</div>
 	<?php echo $field_after; ?>
 <?php echo $wrapper_after; ?>
+
+<?php ob_start(); ?>
+<script type="text/javascript">
+	jQuery( document ).ready( function( $ ) {
+
+		$( 'body' ).on( 'change', '[data-field^="<?php echo esc_attr( $field['config']['calc'] ) ?>"]', function( e ) {
+
+			var value = $( this ).val(),
+				min = '<?php echo esc_attr( $field['config']['min_clean'] );?>',
+				toggles = $( '[id^="<?php echo esc_attr( $field_base_id ); ?>"]' );
+
+			if ( parseFloat( value ) >= parseFloat( min ) ) {
+				toggles.map( function( index, element ) {
+					$( element ).attr( 'disabled', false );
+				} );
+			} else {
+				toggles.map( function( index, element ) {
+					$( element ).attr( 'disabled', true );
+				} );
+			}
+
+		} );
+
+	} );
+</script>
+<?php
+	$script_template = ob_get_clean();
+	if ( ! empty( $form[ 'grid_object' ] ) && is_object( $form[ 'grid_object' ] ) ) {
+		$form[ 'grid_object' ]->after( $script_template, $field[ 'grid_location' ] );
+	} else {
+		echo $script_template;
+	}

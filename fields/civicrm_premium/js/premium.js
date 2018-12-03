@@ -4,8 +4,7 @@ jQuery( function( $ ) {
 		var clicked = $( this ),
 		parent = clicked.closest( '.caldera-config-field' ),
 		input = parent.find( '[data-ref="' + clicked.attr( 'id' ) + '"]' ),
-		premium_wrapper = parent.find( '.premium-wrapper' ),
-		calc = parent.find( '.premium-calc' );
+		premium_wrapper = parent.find( '.premium-wrapper' );
 
 		parent.find( '.btn' ).removeClass( clicked.data( 'active' ) ).addClass( clicked.data( 'default' ) );
 		clicked.addClass( clicked.data( 'active' ) ).removeClass( clicked.data( 'default' ) );
@@ -19,21 +18,5 @@ jQuery( function( $ ) {
 			premium_wrapper.find( '.premium-full' ).hide();
 		}
 
-	} );
-
-	$( 'body' ).on( 'change', '[data-type="calculation"]', function( e ) {
-		var calc_field_id = $( this ).attr( 'data-calc-field' ),
-			min = $( '.premium' ).find( '[data-calc-field-id="' + calc_field_id + '"]' ),
-			toggles = $( '.cf-toggle-group-premium' ).find( '[data-field="' + min.attr( 'data-field-id' ) + '"]' );
-
-		if ( parseFloat( $( this ).val() ) >= parseFloat( min.val() ) ) {
-			toggles.map( function( index, element ) {
-				$( element ).attr( 'disabled', false );
-			} );
-		} else {
-			toggles.map( function( index, element ) {
-				$( element ).attr( 'disabled', true );
-			} );
-		}
 	} );
 } );
