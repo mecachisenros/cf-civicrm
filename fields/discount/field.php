@@ -16,6 +16,7 @@
 	<?php echo $field_after; ?>
 <?php echo $wrapper_after; ?>
 
+<?php ob_start(); ?>
 <script>
 	jQuery( function( $ ) {
 
@@ -71,3 +72,10 @@
 
 	} );
 </script>
+<?php
+	$script_template = ob_get_clean();
+	if ( ! empty( $form[ 'grid_object' ] ) && is_object( $form[ 'grid_object' ] ) ) {
+		$form[ 'grid_object' ]->after( $script_template, $field[ 'grid_location' ] );
+	} else {
+		echo $script_template;
+	}
