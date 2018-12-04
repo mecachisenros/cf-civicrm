@@ -796,6 +796,8 @@ class CiviCRM_Caldera_Forms_Helper {
 		if ( is_array( $id ) )
 			$id = array_pop( $id );
 
+		$id = str_replace( 'price_field_value_id_', '', $id );
+
 		$price_field_value = $this->get_price_set_column_by_id( $id, 'price_field_value' );
 		// filter price field value
 		$price_field_value = apply_filters( 'cfc_filter_price_field_value_get', $price_field_value, $id );

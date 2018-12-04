@@ -145,7 +145,7 @@ class CiviCRM_Caldera_Forms_Price_Sets_Presets {
 				$option['label'] = $this->plugin->helper->format_tax_label( $price_field_value['label'], $price_field_value['amount'], $price_field_value['tax_amount'] );
 			}
 
-			$options[$price_field_value['id']] = $option;
+			$options['price_field_value_id_' . $price_field_value['id']] = $option;
 			return $options;
 
 		}, [] );

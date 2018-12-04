@@ -70,6 +70,10 @@ class CiviCRM_Caldera_Forms_Forms {
 		// render notices template
 		add_action( 'caldera_forms_render_start', [ $this, 'render_notices_template' ] );
 
+		// rebuild calculation field formula
+		add_filter( 'caldera_forms_render_get_field', [ $this, 'rebuild_calculation_field_formula' ], 20, 2 );
+		add_filter( 'caldera_forms_render_setup_field', [ $this, 'rebuild_calculation_field_formula' ], 20, 2 );
+
 	}
 	
 	/**
@@ -275,5 +279,64 @@ class CiviCRM_Caldera_Forms_Forms {
 		$form['processors'] = array_merge( $contacts, array_diff_assoc( $form['processors'], $contacts ) );
 
 		return $form;
+	}
+
+	/**
+	 * Rebuild calculation field formular.
+	 *
+	 * When fields are removed/hidden through 'caldera_forms_render_get_field' and
+	 * 'caldera_forms_render_setup_field' filters, if the removed field is part of the 
+	 * Calculation field formula, it breaks. The formula becomes ( 10+fld_123456 ).
+	 *
+	 * This method filters the calculation field to check for
+	 * hidden/reomved fields and rebuild the formula.
+	 *
+	 * @since 1.0
+	 * @param array $field The field config
+	 * @param array $form The form config
+	 * @return array $field The filtered field
+	 */
+	public function rebuild_calculation_field_formula( $field, $form ) {
+
+		if ( $field['type'] != 'calculation' ) return $field;
+
+		if ( ! isset( $field['config']['formular'] ) ) return $field;
+
+		if ( ! isset( $field['config']['config']['group'] ) ) return $field;
+
+		$do_group_lines = function( $lines ) use ( $form ) {
+
+			$formula = '( ';
+
+			foreach ( $lines as $line_id => $line ) {
+				if ( ! empty( $form['fields'][$line['field']] ) )
+					$formula .= ! $line_id ? $line['field']
+						: ( is_numeric( substr( $formula, -1 ) ) ?
+							$line['operator'] . $line['field']
+							: $line['field']
+						);
+			}
+
+			return $formula . ' )';
+
+		};
+
+		$formula = '';
+		// rebuild formula
+		foreach ( $field['config']['config']['group'] as $gid => $group ) {
+
+			$formula .= ! $group_id ?
+				$do_group_lines( $group['lines'] )
+				: ( $group['operator'] ?
+					' ' . $group['operator'] . ' '
+					: $do_group_lines( $group['lines'] )
+				);
+
+		}
+
+		$field['config']['formular'] = $formula;
+
+		return $field;
+
 	}
 }
