@@ -127,6 +127,7 @@ jQuery( document ).ready( function( $ ) {
 				var preset_name = config.auto_type.replace( 'cfc_', '' ),
 					options = preset_options[preset_name].data;
 
+				if ( options.constructor !== Array ) return form;
 				options.map( function( option ) {
 
 					var parts = option.split( '|' );
