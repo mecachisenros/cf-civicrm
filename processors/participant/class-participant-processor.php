@@ -239,21 +239,27 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 		$line_items = $this->plugin->helper->get_processor_by_type( 'civicrm_line_item', $form );
 
 		if ( ! $line_items ) return false;
+		$refs = [];
+		foreach ( $line_items as $id => $line_item ) {
+			if ( $line_item['config']['entity_table'] != 'civicrm_participant' ) continue;
+			$price_field_field = Caldera_Forms_Field_Util::get_field_by_slug( str_replace( '%', '', $line_item['config']['price_field_value'] ), $form );
+			$participant_pid = $this->plugin->helper->get_processor_from_magic( $line_item['config']['entity_params'], $form );
+			$refs[$participant_pid] = $price_field_field['ID'];
+		}
+		return $refs;
+		// return array_reduce( $line_items, function( $refs, $line_item ) use ( $form ) {
 
-		return array_reduce( $line_items, function( $refs, $line_item ) use ( $form ) {
+		// 	if ( $line_item['config']['entity_table'] == 'civicrm_participant' ) {
+		// 		// price_field field config
+		// 		$price_field_field = Caldera_Forms_Field_Util::get_field_by_slug( str_replace( '%', '', $line_item['config']['price_field_value'] ), $form );
+		// 		// participant processor id
+		// 		$participant_pid = $this->plugin->helper->get_processor_from_magic( $line_item['config']['entity_params'], $form );
 
-			if ( $line_item['config']['entity_table'] == 'civicrm_participant' ) {
-				// price_field field config
-				$price_field_field = Caldera_Forms_Field_Util::get_field_by_slug( str_replace( '%', '', $line_item['config']['price_field_value'] ), $form );
-				// participant processor id
-				$participant_pid = $this->plugin->helper->get_processor_from_magic( $line_item['config']['entity_params'], $form );
+		// 		$refs[$participant_pid] = $price_field_field['ID'];
 
-				$refs[$participant_pid] = $price_field_field['ID'];
-
-				return $refs;
-			}
-
-		}, [] );
+		// 		return $refs;
+		// 	}
+		// }, [] );
 
 	}
 

@@ -95,37 +95,26 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 			$this->plugin->helper->get_price_field_value( $config['fixed_price_field_value'] ) :
 			$this->plugin->helper->get_price_field_value( Caldera_Forms::do_magic_tags( $config['price_field_value'] ) );
 
-		unset( 
-			$price_field_value['name'],
-			$price_field_value['weight'],
-			$price_field_value['is_default'],
-			$price_field_value['is_active'],
-			$price_field_value['visibility_id']
-		);
-
-		// add tax amount
-		if ( isset( $price_field_value['tax_amount'] ) && $this->plugin->helper->get_tax_settings()['invoicing'] )
-			$price_field_value['amount'] += $price_field_value['tax_amount'];
 
 		if ( ! empty( $config['entity_table'] ) && $price_field_value ) {
 			if ( $config['entity_table'] == 'civicrm_membership' ) {
-				$price_field_value['entity_table'] = $config['entity_table'];
+				$price_field_value = $this->build_price_field_values_array( $price_field_value, $config['entity_table'] );
 				$this->process_membership( $config, $form, $transient, $price_field_value );
 			}
 
 			if ( $config['entity_table'] == 'civicrm_participant' ) {
-				$price_field_value['entity_table'] = $config['entity_table'];
+				$price_field_value = $this->build_price_field_values_array( $price_field_value, $config['entity_table'] );
 				$this->process_participant( $config, $form, $transient, $price_field_value );
 			}
 
 			if ( $config['entity_table'] == 'civicrm_contribution' ) {
-				$price_field_value['entity_table'] = $config['entity_table'];
+				$price_field_value = $this->build_price_field_values_array( $price_field_value, $config['entity_table'] );
 				$this->process_contribution( $config, $form, $transient, $price_field_value );
 			}
 		} elseif ( $price_field_value ) {
-			$entity_table = $this->guess_entity_table( $price_field_value );
-			$price_field_value['entity_table'] = $entity_table;
-			$entity = str_replace( 'civicrm_', '', $entity_table );
+			$price_field_value = $this->build_price_field_values_array( $price_field_value );
+			// get first one?
+			$entity = str_replace( 'civicrm_', '', $price_field_value[0]['entity_table'] );
 			$this->{'process_' . $entity}( $config, $form, $transient, $price_field_value );
 		}
 
@@ -171,12 +160,6 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 	 * @param array $price_field_value The price field value
 	 */
 	public function process_membership( $config, $form, $transient, $price_field_value ) {
-
-		$price_field_value['price_field_value_id'] = $price_field_value['id'];
-		$price_field_value['field_title'] = $price_field_value['label'];
-		$price_field_value['unit_price'] = $price_field_value['amount'];
-		$price_field_value['qty'] = 1;
-		$price_field_value['line_total'] = $price_field_value['amount'] * $price_field_value['qty'];
 		
 		// membership params aka 'params'
 		$processor_id = Caldera_Forms::do_magic_tags( $config['entity_params'] );
@@ -191,15 +174,12 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 		}
 
 		unset(
-			$price_field_value['membership_num_terms'],
-			$price_field_value['contribution_type_id'],
-			$price_field_value['id'],
-			$price_field_value['amount'],
 			$entity_params['price_field_value'],
 			$entity_params['is_price_field_based']
 		);
+
 		$line_item = [ 
-			'line_item' => [ $price_field_value['price_field_value_id'] => $price_field_value ],
+			'line_item' => $price_field_value,
 			'params' => $entity_params
 		];
 
@@ -222,17 +202,10 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 	public function process_participant( $config, $form, $transient, $price_field_value ) {
 
 		// if price field is disabled by cfc we won't have a price_field_value
-		if ( ! $price_field_value['id'] ) return;
+		// if ( ! $price_field_value['id'] ) return;
 
 		// get price field
-		$price_field = $this->plugin->helper->get_price_set_column_by_id( $price_field_value['price_field_id'], 'price_field' );
-
-		$price_field_value['price_field_value_id'] = $price_field_value['id'];
-		$price_field_value['label'] = $price_field_value['label'];
-		$price_field_value['field_title'] = $price_field['label'];
-		$price_field_value['unit_price'] = $price_field_value['amount'];
-		$price_field_value['qty'] = 1;
-		$price_field_value['line_total'] = $price_field_value['amount'] * $price_field_value['qty'];
+		$price_field = $this->plugin->helper->get_price_set_column_by_id( $price_field_value[0]['price_field_id'], 'price_field' );
 
 		// participant params aka 'params'
 		$processor_id = Caldera_Forms::do_magic_tags( $config['entity_params'] );
@@ -247,23 +220,20 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 
 			// need to set price set id, otherwise Participant.create from Order.create
 			// will create a non-linked LineItem as the contribution has been created yet
+			// should only have one price_field_value
 			$entity_params['price_set_id'] = $price_field['price_set_id'];
-			$entity_params['fee_level'] = $price_field_value['label'];
-			$entity_params['fee_amount'] = $price_field_value['amount'];
+			$entity_params['fee_level'] = $price_field_value[0]['label'];
+			$entity_params['fee_amount'] = $price_field_value[0]['line_total'];
 
 		}
 
 		unset(
-			$price_field_value['id'],
-			$price_field_value['amount'],
-			$price_field_value['contribution_type_id'],
-			$price_field_value['non_deductible_amount'],
 			$entity_params['price_field_value'],
-			$entity_params['is_price_field_based']			
+			$entity_params['is_price_field_based']
 		);
 
 		$line_item = [ 
-			'line_item' => [ $price_field_value['price_field_value_id'] => $price_field_value ],
+			'line_item' => $price_field_value,
 			'params' => $entity_params
 		];
 
@@ -284,33 +254,68 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 	 * @param array $price_field_value The price field value
 	 */
 	public function process_contribution( $config, $form, $transient, $price_field_value ) {
-		
-		if ( ! isset( $price_field_value['price_field_value_id'] ) )
-			$price_field_value['price_field_value_id'] = $price_field_value['id'];
-		
-		if( ! isset( $price_field_value['unit_price'], $price_field_value['line_total'] ) )
-			$price_field_value['unit_price'] = $price_field_value['line_total'] = $price_field_value['amount'];
-		
-		if ( ! isset( $price_field_value['field_title'] ) )
-			$price_field_value['field_title'] = $price_field_value['label'];
-		// assume 1 unit as there's currently no way to change/map this in the processor
-		if ( ! isset( $price_field_value['qty'] ) )
-			$price_field_value['qty'] = 1;
 
+		// should only have one price_field_value
 		if ( isset( $config['is_other_amount'] ) ) {
 			$form_values = $this->plugin->helper->map_fields_to_processor( $config, $form, $form_values );
-			$price_field_value['line_total'] = $price_field_value['unit_price'] = $price_field_value['amount'] = $form_values['amount'];
+			$price_field_value[0]['line_total'] = $price_field_value[0]['unit_price'] = $price_field_value[0]['amount'] = $form_values['amount'];
 		}
 		
-		unset( $price_field_value['contribution_type_id'], $price_field_value['id'] );
-		
 		$line_item = [
-			'line_item' => [ $price_field_value ]
+			'line_item' => $price_field_value
 		];
 
 		$transient->line_items->{$config['processor_id']}->params = $line_item;
 
 		$this->plugin->transient->save( $transient->ID, $transient );
+	}
+
+	/**
+	 * Build price field values array.
+	 *
+	 * @since 1.0
+	 * @param int|array $price_field_value The price field value id, or array of price field values ids
+	 * @param string|bool $entity_table The entity table or false
+	 * @return array $price_field_value The formated price field value/values array
+	 */
+	public function build_price_field_values_array( $price_field_value, $entity_table = false ) {
+
+		if ( array_key_exists( 'id', $price_field_value ) ) $price_field_value = [ $price_field_value ];
+
+		$field_values = array_map( function( $field_value ) use ( $entity_table ) {
+
+			$price_field = $this->plugin->helper->get_price_set_column_by_id( $field_value['price_field_id'], 'price_field' );
+
+			$field_value['qty'] = 1;
+			$field_value['label'] = $field_value['label'];
+			$field_value['field_title'] = $price_field['label'];
+			$field_value['unit_price'] = $field_value['amount'];
+			$field_value['line_total'] = $field_value['amount'] * $field_value['qty'];
+			$field_value['price_field_value_id'] = $field_value['id'];
+
+			$field_value['entity_table'] = $entity_table ? $entity_table : $this->guess_entity_table( $price_field_value );
+
+			// add tax amount
+			if ( isset( $field_value['tax_amount'] ) && $this->plugin->helper->get_tax_settings()['invoicing'] )
+				$field_value['amount'] += $field_value['tax_amount'];
+
+			unset( 
+				$field_value['id'],
+				$field_value['name'],
+				$field_value['amount'],
+				$field_value['weight'],
+				$field_value['is_default'],
+				$field_value['is_active'],
+				$field_value['visibility_id'],
+				$field_value['membership_num_terms'],
+				$field_value['contribution_type_id']
+			);
+
+			return $field_value;
+
+		}, $price_field_value );
+
+		return array_values( $field_values );
 	}
 
 }

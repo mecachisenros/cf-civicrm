@@ -796,9 +796,23 @@ class CiviCRM_Caldera_Forms_Helper {
 		if ( is_array( $id ) )
 			$id = array_pop( $id );
 
-		$id = str_replace( 'price_field_value_id_', '', $id );
+		// $id = str_replace( 'price_field_value_id_', '', $id );
 
-		$price_field_value = $this->get_price_set_column_by_id( $id, 'price_field_value' );
+		// single option
+		if ( ! strpos( $id, ',' ) ) {
+			$price_field_value = $this->get_price_set_column_by_id( $id, 'price_field_value' );
+		} else {
+			// multiple options
+			$id = explode( ', ', $id );
+
+			$price_field_value = array_reduce( $id, function( $options, $option_id ) {
+				$option_id = ( int ) $option_id;
+				$options[$option_id] = $this->get_price_set_column_by_id( $option_id, 'price_field_value' );
+				return $options;
+			}, [] );
+
+		}
+
 		// filter price field value
 		$price_field_value = apply_filters( 'cfc_filter_price_field_value_get', $price_field_value, $id );
 
