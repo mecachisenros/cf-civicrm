@@ -15,6 +15,15 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 	public $plugin;
 
 	/**
+	 * CiviDiscounts.
+	 *
+	 * @since 1.0
+	 * @access public
+	 * @var array $cividiscounts
+	 */
+	public $cividiscounts;
+
+	/**
 	 * Event CiviDisounts by processor.
 	 *
 	 * @since 1.0
@@ -34,6 +43,16 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 	public $event_autodiscounts;
 
 	/**
+	 * CiviDiscount criteria/filters,
+	 * whether the criteria is met for a processor_id.
+	 *
+	 * @since 1.0
+	 * @access public
+	 * @var array $event_autodiscounts Reference to [ <processor_id> => true|false ]
+	 */
+	public $options_ids_refs;
+
+	/**
 	 * Initialises this object.
 	 *
 	 * @since 1.0
@@ -43,7 +62,48 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 	}
 
 	/**
-	 * Get CiviDiscounts for events.
+	 * Get CiviDiscounts.
+	 *
+	 * @since 1.0
+	 * @return array|bool $cividiscounts
+	 */
+	public function get_cividiscounts() {
+
+		if ( is_array( $this->cividiscounts ) ) return $this->cividiscounts;
+
+		$discounts = civicrm_api3( 'DiscountCode', 'get', [
+			// 'sequential' => 1,
+			'is_active' => 1,
+			'options' => [ 'limit' => 0 ]
+		] );
+
+		if ( $discounts['count'] && ! $discounts['is_error'] ) {
+			// filter discunts by date
+			$discounts = array_filter( $discounts['values'], [ $this, 'is_discount_active' ] );
+			$this->cividiscounts = $discounts;
+			return $this->cividiscounts;
+		}
+
+		return false;
+
+	}
+
+	/**
+	 * Get cividiscounts by entity.
+	 *
+	 * @since 1.0
+	 * @param string $entity_name The entity name, events, memberships, or pricesets
+	 * @return array $cividiscounts
+	 */
+	public function get_cividiscounts_by_entity( $entity_name ) {
+		$discounts = $this->get_cividiscounts();
+		return array_filter( $discounts, function( $discount ) use ( $entity_name ) {
+			return array_key_exists( $entity_name, $discount );
+		} );
+	}
+
+	/**
+	 * Get CiviDiscounts for price field options.
 	 *
 	 * @since 1.0
 	 * @param array $event_ids The event ids to get discounts for
@@ -51,27 +111,95 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 	 */
 	public function get_event_cividiscounts( $event_ids ) {
 
-		if ( is_array( $this->event_cividiscounts ) ) return $this->event_cividiscounts;
+		if ( is_array( $this->event_cividiscounts ) && ! empty( $this->event_cividiscounts ) ) return $this->event_cividiscounts;
 
-		$discount = civicrm_api3( 'DiscountCode', 'get', [
-			'events' => [ 'IN' => array_values( $event_ids ) ],
-			'is_active' => 1
-		] );
+		$event_cividiscounts = $this->get_cividiscounts_by_entity( 'events' ); 
 
-		$event_cividiscounts = array_reduce( $discount['values'], function( $discounts, $discount ) use ( $event_ids ) {
-			$processor_id = array_search( array_pop( $discount['events'] ), $event_ids );
-			$discount['autodiscount'] = json_decode( $discount['autodiscount'], true );
+		$event_discounts = array_reduce( $event_ids, function( $discounts, $event_id ) use ( $event_ids, $event_cividiscounts ) {
 
-			if ( $processor_id )
-				$discounts[$processor_id] = $discount;
+			$processor_id = array_search( $event_id, $event_ids );
+
+			foreach ( $event_cividiscounts as $discount_id => $discount ) {
+				if ( in_array( $event_id, $discount['events'] ) ) {
+					$discount['autodiscount'] = json_decode( $discount['autodiscount'], true );
+					$discounts[$processor_id] = $discount;
+				}
+			}
 
 			return $discounts;
 
 		}, [] );
 
-		$this->event_cividiscounts = $event_cividiscounts;
+		$this->event_cividiscounts = $event_discounts;
 
 		return $this->event_cividiscounts;
+
+	}
+
+	/**
+	 * Build options ids for price fields.
+	 * 
+	 * @since 1.0
+	 * @param array $form The form config
+	 * @return array|boolean $options_ids_refs References to [ <processor_id> => <event_id> ], or false
+	 */
+	public function build_options_ids_refs( $price_field_refs, $form = false ) {
+
+		$discounted_options = $this->get_cividiscounts_by_entity( 'pricesets' );
+
+		$options_ids_refs = array_reduce( $price_field_refs, function( $refs, $field_id ) use ( $price_field_refs, $discounted_options, $form ) {
+
+			$processor_id = array_search( $field_id, $price_field_refs );
+
+			$price_field_field = Caldera_Forms_Field_Util::get_field( $field_id, $form, $apply_filters = true );
+
+			foreach ( $discounted_options as $discount_id => $discount ) {
+				if ( ! empty( array_intersect( $discount['pricesets'], array_keys( $price_field_field['config']['option'] ) ) ) )
+					$refs[$field_id] = [
+						'field_id' => $field_id,
+						'processor_id' => $processor_id,
+						'field_options' => array_intersect( $discount['pricesets'], array_keys( $price_field_field['config']['option'] ) )
+					];
+			}
+
+			return $refs;
+
+		}, [] );
+
+		$this->options_ids_refs = $options_ids_refs;
+
+		return $options_ids_refs;
+
+	}
+
+	/**
+	 * Get option based CiviDiscounts.
+	 *
+	 * @since 1.0
+	 * @param array $options_ids_refs Field id with references to the discunted options (price_field_value ids)
+	 * @return array $options_cividiscounts The discounts
+	 */
+	public function get_options_cividiscounts( $options_ids_refs ) {
+
+		if ( is_array( $this->options_cividiscounts ) && ! empty( $this->options_cividiscounts ) ) return $this->options_cividiscounts;
+
+		$options_cividiscounts = $this->get_cividiscounts_by_entity( 'pricesets' );
+
+		$discounts = [];
+		array_map( function( $field_id, $options ) use ( &$discounts, $options_ids_refs, $options_cividiscounts ) {
+
+			foreach ( $options_cividiscounts as $discount_id => $discount ) {
+				if ( ! empty( array_intersect( $options['field_options'], $discount['pricesets'] ) ) ) {
+					$discount['autodiscount'] = json_decode( $discount['autodiscount'], true );
+					$discounts[$field_id] = $discount;
+				}
+			}
+
+		}, array_keys( $options_ids_refs ), $options_ids_refs );
+
+		$this->options_cividiscounts = $discounts;
+
+		return $this->options_cividiscounts;
 
 	}
 
@@ -109,6 +237,14 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 		return $is_autodiscount;
 	}
 
+
+	/**
+	 * Get discount by discount code.
+	 *
+	 * @since 1.0
+	 * @param string $code The discount code
+	 * @return array $discount The discount
+	 */
 	public function get_by_code( $code ) {
 
 		try {
@@ -127,19 +263,29 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 		return false;
 	}
 
-	public function do_discounted_option( $option, $field, $price_field_value, $event_discount ) {
+	/**
+	 * Do option discount.
+	 *
+	 * @since 1.0
+	 * @param array $option The option config
+	 * @param array $field The field config
+	 * @param array $price_field_value The price field value
+	 * @param array $event_discount The discount config
+	 * @return array $option The filtered option config
+	 */
+	public function do_discounted_option( $option, $field, $price_field_value, $discount ) {
 
 		$label = sprintf( __( '%1$s (Includes automatic discount of: ', 'caldera-forms-civicrm' ), $price_field_value['label'] );
 
 		// percentage discount
-		if ( $event_discount['amount_type'] == 1 ) {
-			$discounted_amount = $price_field_value['amount'] - $this->plugin->helper->calculate_percentage( $price_field_value['amount'], $event_discount['amount'] );
-			$label .= $event_discount['amount'] . __( '%)', 'caldera-forms-civicrm' );
+		if ( $discount['amount_type'] == 1 ) {
+			$discounted_amount = $price_field_value['amount'] - $this->plugin->helper->calculate_percentage( $price_field_value['amount'], $discount['amount'] );
+			$label .= $discount['amount'] . __( '%)', 'caldera-forms-civicrm' );
 		}
 		// fixed discount
-		if ( $event_discount['amount_type'] == 2 ) {
-			$discounted_amount = $price_field_value['amount'] - $event_discount['amount'];
-			$label .= $this->plugin->helper->format_money( $event_discount['amount'] ) . __( ')', 'caldera-forms-civicrm' );
+		if ( $discount['amount_type'] == 2 ) {
+			$discounted_amount = $price_field_value['amount'] - $discount['amount'];
+			$label .= $this->plugin->helper->format_money( $discount['amount'] ) . __( ')', 'caldera-forms-civicrm' );
 		}
 		// filtered option
 		$option = [
@@ -150,9 +296,14 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 		];
 
 		add_filter( 'cfc_filter_price_field_value_get', function( $field_value, $field_value_id ) use ( $price_field_value, $discounted_amount, $label ) {
-			if ( $field_value_id == $price_field_value['id'] ) {
+			if ( ! is_array( $field_value_id ) && $field_value_id == $price_field_value['id'] ) {
 				$field_value['amount'] = $discounted_amount;
 				$field_value['label'] = $label;
+			} elseif ( is_array( $field_value_id ) ) {
+				if ( in_array( $price_field_value['id'], $field_value_id ) ) {
+					$field_value[$price_field_value['id']]['amount'] = $discounted_amount;
+					$field_value[$price_field_value['id']]['label'] = $label;
+				}
 			}
 
 			return $field_value;
@@ -168,6 +319,14 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 		return $option;
 	}
 
+	/**
+	 * Do code discounts for event based CiviDiscounts.
+	 *
+	 * @since 1.0
+	 * @param array $discount The discount config
+	 * @param array $form The forms config
+	 * @return array $options The field options
+	 */
 	public function do_code_event_discount_options( $discount, $form ) {
 
 		if ( ! $discount ) return;
@@ -176,15 +335,21 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 		$participants = $this->plugin->helper->get_processor_by_type( 'civicrm_participant', $form );
 		// price field references
 		$price_field_refs = $this->plugin->processors->processors['participant']->build_price_field_refs( $form );
+		// options fields refs
+		$price_field_option_refs = $this->build_options_ids_refs( $price_field_refs, $form );
+		// filter out option based discounts
+		$discounted_fields = array_filter( $price_field_refs, function( $field_id ) use ( $price_field_option_refs ) {
+			return ! array_key_exists( $field_id, $price_field_option_refs );
+		} );
 		// field configs
-		$fields = array_reduce( $price_field_refs, function( $fields, $field_id ) use ( $form ) {
+		$fields = array_reduce( $discounted_fields, function( $fields, $field_id ) use ( $form ) {
 			$fields[$field_id] = Caldera_Forms_Field_Util::get_field( $field_id, $form, $apply_filters = true );
 			return $fields;
 		}, [] );
 
-		return array_reduce( $price_field_refs, function( $discounted_options, $field_id ) use ( $fields, $form, $participants, $discount, $price_field_refs ) {
+		return array_reduce( $discounted_fields, function( $discounted_options, $field_id ) use ( $fields, $form, $participants, $discount, $discounted_fields ) {
 
-			$processor_id = array_search( $field_id, $price_field_refs );
+			$processor_id = array_search( $field_id, $discounted_fields );
 
 			if ( ! in_array( $participants[$processor_id]['config']['id'], $discount['events'] ) ) return $discounted_options;
 
@@ -217,10 +382,89 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 		}, [] );
 	}
 
+	/**
+	 * Do code discounts for options based CiviDiscounts.
+	 *
+	 * @since 1.0
+	 * @param array $discount The discount config
+	 * @param array $form The forms config
+	 * @return array $options The field options
+	 */
+	public function do_code_options_discount_options( $discount, $form ) {
+
+		if ( ! $discount ) return;
+
+		// price field references
+		$price_field_refs = $this->plugin->processors->processors['participant']->build_price_field_refs( $form );
+		// options fields refs
+		$price_field_option_refs = $this->build_options_ids_refs( $price_field_refs, $form );
+		// field configs
+		$fields = array_reduce( $price_field_option_refs, function( $fields, $ref ) use ( $form ) {
+			$fields[$ref['field_id']] = Caldera_Forms_Field_Util::get_field( $ref['field_id'], $form, $apply_filters = true );
+			return $fields;
+		}, [] );
+
+		return array_reduce( $price_field_option_refs, function( $discounted_options, $ref ) use ( $fields, $form, $discount, $discounted_fields ) {
+
+			$field = $fields[$ref['field_id']];
+
+			if ( empty( array_intersect( $discount['pricesets'], array_keys( $field['config']['option'] ) ) ) ) return $discounted_options;
+
+			$price_field = $this->plugin->fields->presets_objects['civicrm_price_sets']->get_price_field_from_config( $field );
+
+			$field['config']['option'] = array_reduce( $price_field['price_field_values'], function( $options, $price_field_value ) use ( $field, $discount ) {
+
+				$option = $field['config']['option'][$price_field_value['id']];
+
+				// do discounted option
+				$options[$price_field_value['id']] = in_array( $price_field_value['id'], $discount['pricesets'] ) ?
+					$this->do_discounted_option( $option, $field, $price_field_value, $discount ) :
+					$option;
+
+				return $options;
+
+			}, [] );
+
+			$options = array_reduce( $field['config']['option'], function( $options, $option ) use ( $ref, $field, $form ) {
+				$field_option_id = $ref['field_id'] . '_' . $form['form_count'] . '_' . $option['value'];
+				$options[$field_option_id] = $field['config']['option'][$option['value']];
+				$options[$field_option_id]['field_id'] = $ref['field_id']; 
+				return $options;
+			}, [] );
+			return $discounted_options + $options;
+
+		}, [] );
+
+	}
+
+	/**
+	 * Get fields of type 'civicrm_discount'.
+	 *
+	 * @since 1.0
+	 * @param array $form The form config
+	 * @return array $discount_fields Array holding the discount fields configs
+	 */
 	public function get_discount_fields( $form ) {
 		return array_filter( $form['fields'], function( $field ) {
 			return $field['type'] === 'civicrm_discount';
 		} );
+	}
+
+	/**
+	 * Check if discount is active based on active_on/expire_on.
+	 *
+	 * @since 1.0
+	 * @param array $discount The discount
+	 * @return boolean $is_active Whether is active or not
+	 */
+	public function is_discount_active( $discount ) {
+
+		$now = date( 'Y-m-d H:m:i' );
+		$active_on = isset( $discount['active_on'] ) && array_key_exists( 'active_on', $discount ) ? $discount['active_on'] : $now;
+		$expire_on = isset( $discount['expire_on'] ) && array_key_exists( 'expire_on', $discount ) ? $discount['expire_on'] : $now;
+
+		return ( $now >= $active_on ) && ( $now <= $expire_on );
+
 	}
 
 }

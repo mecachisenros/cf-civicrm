@@ -49,16 +49,19 @@
 					var options = JSON.parse( response );
 					for ( var option_id in options ) {
 						// option
-						var option = options[option_id];
-
+						var option = options[option_id],
+						element = $( '#' + option_id );
 						// calc value
-						$( '#' + option_id ).attr( 'data-calc-value', option.calc_value );
-						$( '#' + option_id ).parent().attr( 'data-label', option.label );
+						element.attr( 'data-calc-value', option.calc_value );
 						// label text
-						$( '#' + option_id ).parent().contents().map( function( el ) {
+						element.parent().attr( 'data-label', option.label );
+						element.parent().contents().map( function( el ) {
 							// replace text node (type 3), the label
 							if ( this.nodeType == 3 ) {
-								this.textContent = ' ' + option.label;
+								// remove white spaces to avoid empty strings replacement
+								this.textContent = this.textContent.trim();
+								if ( this.textContent )
+									this.textContent = ' ' + option.label;
 							}
 						} );
 

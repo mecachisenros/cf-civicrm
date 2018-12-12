@@ -44,6 +44,8 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 
 	public $event_cividiscounts;
 
+	public $options_cividiscounts;
+
 	/**
 	 * Current registration for a contact (participant data).
 	 *
@@ -220,8 +222,11 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 		// get event registrations
 		$this->registrations = $this->get_participant_registrations( $this->event_ids, $form );
 		// get cividiscounts
-		if ( isset( $this->plugin->cividiscount ) )
+		if ( isset( $this->plugin->cividiscount ) ) {
 			$this->event_cividiscounts = $this->plugin->cividiscount->get_event_cividiscounts( $this->event_ids );
+			$this->price_field_option_refs = $this->plugin->cividiscount->build_options_ids_refs( $this->price_field_refs, $form );
+			$this->options_cividiscounts = $this->plugin->cividiscount->get_options_cividiscounts( $this->price_field_option_refs );
+		}
 
 		return $form;
 	}
@@ -239,27 +244,21 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 		$line_items = $this->plugin->helper->get_processor_by_type( 'civicrm_line_item', $form );
 
 		if ( ! $line_items ) return false;
-		$refs = [];
-		foreach ( $line_items as $id => $line_item ) {
-			if ( $line_item['config']['entity_table'] != 'civicrm_participant' ) continue;
-			$price_field_field = Caldera_Forms_Field_Util::get_field_by_slug( str_replace( '%', '', $line_item['config']['price_field_value'] ), $form );
-			$participant_pid = $this->plugin->helper->get_processor_from_magic( $line_item['config']['entity_params'], $form );
-			$refs[$participant_pid] = $price_field_field['ID'];
-		}
-		return $refs;
-		// return array_reduce( $line_items, function( $refs, $line_item ) use ( $form ) {
 
-		// 	if ( $line_item['config']['entity_table'] == 'civicrm_participant' ) {
-		// 		// price_field field config
-		// 		$price_field_field = Caldera_Forms_Field_Util::get_field_by_slug( str_replace( '%', '', $line_item['config']['price_field_value'] ), $form );
-		// 		// participant processor id
-		// 		$participant_pid = $this->plugin->helper->get_processor_from_magic( $line_item['config']['entity_params'], $form );
+		return array_reduce( $line_items, function( $refs, $line_item ) use ( $form ) {
 
-		// 		$refs[$participant_pid] = $price_field_field['ID'];
+			if ( $line_item['config']['entity_table'] == 'civicrm_participant' ) {
+				// price_field field config
+				$price_field_field = Caldera_Forms_Field_Util::get_field_by_slug( str_replace( '%', '', $line_item['config']['price_field_value'] ), $form );
+				// participant processor id
+				$participant_pid = $this->plugin->helper->get_processor_from_magic( $line_item['config']['entity_params'], $form );
 
-		// 		return $refs;
-		// 	}
-		// }, [] );
+				$refs[$participant_pid] = $price_field_field['ID'];
+
+				return $refs;
+			}
+
+		}, [] );
 
 	}
 
@@ -348,19 +347,23 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 				return $options;
 			}, [] );
 
-			
 			// check for discounted price field events
 			$field = $this->handle_discounted_events( $field, $form, $processor_id, $price_field );
+
 			// do event cividiscounts
 			if ( isset( $this->plugin->cividiscount ) )
 				$field = $this->do_event_autodiscounts( $field, $form, $processor_id, $price_field );
+
 			if ( $current_filter != 'caldera_forms_render_field_structure' )
 				$field = $this->do_event_code_discounts( $field, $form, $processor_id, $price_field );
 
-			$field = $this->handle_max_count_participants( $field, $form, $processor_id, $price_field );			
+			$field = $this->handle_max_count_participants( $field, $form, $processor_id, $price_field );
+
 			return $field;
 
 		}, array_keys( $this->price_field_refs ), $this->price_field_refs );
+
+		$field = $this->do_options_autodiscounts( $field, $form, $price_field, $current_filter );
 
 		return $field;
 	}
@@ -384,13 +387,15 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 
 		$event_id = $processor['config']['id'];
 
-
 		$discount_entity_id = CRM_Core_BAO_Discount::findSet( $event_id, 'civicrm_event' );
 
 		if ( ! $discount_entity_id ) return $field;
+
 		// get price set id for discounted price set
 		$price_set_id = CRM_Core_DAO::getFieldValue( 'CRM_Core_BAO_Discount', $discount_entity_id, 'price_set_id' );
+
 		$price_set = $this->plugin->helper->cached_price_sets()[$price_set_id];
+
 		// discounted price field
 		$price_field = array_pop( $price_set['price_fields'] );
 
@@ -470,6 +475,8 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 	 */
 	public function do_event_autodiscounts( $field, $form, $processor_id, $price_field ) {
 
+		if ( ! isset( $this->plugin->cividiscount ) ) return $field;
+
 		// processor config
 		$processor = $form['processors'][$processor_id];
 
@@ -482,11 +489,12 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 		$transient = $this->plugin->transient->get();
 
 		$contact_link = 'cid_' . $processor['config']['contact_link'];
-		$contact_id = property_exists( $transient->contacts, $contact_link ) && ! empty( $transient->contacts->$contact_link ) ? $transient->contacts->$contact_link : flase;
+		$contact_id = property_exists( $transient->contacts, $contact_link ) && ! empty( $transient->contacts->$contact_link ) ? $transient->contacts->$contact_link : false;
 
 		// does the contact meet the autodiscount criteria?
 		if ( $contact_id )
 			$is_autodiscount = $this->plugin->cividiscount->check_autodiscount( $event_discount['autodiscount'], $transient->contacts->$contact_link, $processor_id );
+
 		// bail if not
 		if ( ! $is_autodiscount ) return $field;
 
@@ -502,6 +510,71 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 		}, [] );
 
 		return $field;
+	}
+
+	/**
+	 * Filter price field options for discounted options (pricesets).
+	 * 
+	 * @since 1.0
+	 * @param array $field The field structure
+	 * @param array $form The form config
+	 * @param array $price_field Price field and it's price_field_values
+	 * @param string $current_filter The current filter 
+	 * @return array $field The field structure 
+	 */
+	public function do_options_autodiscounts( $field, $form, $price_field, $current_filter ) {
+
+		if ( ! isset( $this->plugin->cividiscount ) ) return $field;
+
+		if ( ! $this->price_field_option_refs ) return $field;
+
+		if ( ! array_key_exists( $field['ID'], $this->price_field_option_refs ) ) return $field;
+
+		array_map( function( $field_id, $options_refs ) use ( &$field, $form, $price_field, $current_filter ) {
+
+			if ( $field_id != $field['ID'] ) return;
+
+			$processor = $form['processors'][$options_refs['processor_id']];
+
+			if ( $processor['type'] != $this->key_name ) return $field;
+
+			$options_discount = $this->options_cividiscounts[$field['ID']];
+
+			if ( ! $options_discount ) return $field;
+
+			$transient = $this->plugin->transient->get();
+
+			$contact_link = 'cid_' . $processor['config']['contact_link'];
+			$contact_id = property_exists( $transient->contacts, $contact_link ) && ! empty( $transient->contacts->$contact_link ) ? $transient->contacts->$contact_link : false;
+			
+			if ( $contact_id )
+				$is_autodiscount = $this->plugin->cividiscount->check_autodiscount( $options_discount['autodiscount'], $transient->contacts->$contact_link, $processor_id );
+
+			// bail if not
+			if ( ! $is_autodiscount ) return $field;
+
+			// filter field options
+			$field['config']['option'] = array_reduce( $price_field['price_field_values'], function( $options, $price_field_value ) use ( $field, $options_discount ) {
+
+				$option = $field['config']['option'][$price_field_value['id']];
+
+				if ( in_array( $option['value'], $options_discount['pricesets'] ) ) {
+					// do discounted option
+					$options[$price_field_value['id']] = $this->plugin->cividiscount->do_discounted_option( $option, $field, $price_field_value, $options_discount );
+				} else {
+					$options[$price_field_value['id']] = $option;
+				}
+
+				return $options;
+
+			}, [] );
+
+			return $field;
+
+		}, array_keys( $this->price_field_option_refs ), $this->price_field_option_refs );
+
+		return $field;
+
 	}
 
 	/**
