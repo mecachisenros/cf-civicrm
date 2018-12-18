@@ -46,6 +46,12 @@ $campaigns = civicrm_api3( 'Campaign', 'get', [
 	</div>
 </div>
 
+<div class="caldera-config-group caldera-config-group-full">
+	<div class="caldera-config-field">
+		<label><input id="{{_id}}_is_email_receipt" type="checkbox" name="{{_name}}[is_email_receipt]" value="1" {{#if is_email_receipt}}checked="checked"{{/if}}><?php _e( 'Email receipt.', 'caldera-forms-civicrm' ); ?></label>
+	</div>
+</div>
+
 <h2><?php _e( 'Contact Link', 'caldera-forms-civicrm' ); ?></h2>
 <div id="contact_link" class="caldera-config-group">
 	<label><?php _e( 'Link to', 'caldera-forms-civicrm' ); ?></label>

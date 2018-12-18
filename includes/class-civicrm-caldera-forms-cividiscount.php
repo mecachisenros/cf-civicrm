@@ -72,14 +72,18 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 		if ( is_array( $this->cividiscounts ) ) return $this->cividiscounts;
 
 		$discounts = civicrm_api3( 'DiscountCode', 'get', [
-			// 'sequential' => 1,
 			'is_active' => 1,
 			'options' => [ 'limit' => 0 ]
 		] );
 
 		if ( $discounts['count'] && ! $discounts['is_error'] ) {
-			// filter discunts by date
-			$discounts = array_filter( $discounts['values'], [ $this, 'is_discount_active' ] );
+			$discounts = array_map( function( $discount ) {
+				$discount['autodiscount'] = json_decode( $discount['autodiscount'], true );
+				return $discount;
+			}, $discounts['values'] );
+
+			// filter discounts by date
+			$discounts = array_filter( $discounts, [ $this, 'is_discount_active' ] );
 			$this->cividiscounts = $discounts;
 			return $this->cividiscounts;
 		}
@@ -95,10 +99,16 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 	 * @param string $entity_name The entity name, events, memberships, or pricesets
 	 * @return array $cividiscounts
 	 */
-	public function get_cividiscounts_by_entity( $entity_name ) {
+	public function get_cividiscounts_by_entity( $entity_name, $is_autodiscount = null ) {
 		$discounts = $this->get_cividiscounts();
-		return array_filter( $discounts, function( $discount ) use ( $entity_name ) {
-			return array_key_exists( $entity_name, $discount );
+		return array_filter( $discounts, function( $discount ) use ( $entity_name, $is_autodiscount ) {
+			if ( $is_autodiscount === true ) {
+				return array_key_exists( $entity_name, $discount ) && ! empty( $discount['autodiscount'] );
+			} elseif ( $is_autodiscount === false ) {
+				return array_key_exists( $entity_name, $discount ) && empty( $discount['autodiscount'] );
+			} else {
+				return array_key_exists( $entity_name, $discount );
+			}
 		} );
 	}
 
@@ -121,7 +131,6 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 
 			foreach ( $event_cividiscounts as $discount_id => $discount ) {
 				if ( in_array( $event_id, $discount['events'] ) ) {
-					$discount['autodiscount'] = json_decode( $discount['autodiscount'], true );
 					$discounts[$processor_id] = $discount;
 				}
 			}
@@ -190,8 +199,8 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 
 			foreach ( $options_cividiscounts as $discount_id => $discount ) {
 				if ( ! empty( array_intersect( $options['field_options'], $discount['pricesets'] ) ) ) {
-					$discount['autodiscount'] = json_decode( $discount['autodiscount'], true );
 					$discounts[$field_id] = $discount;
+					break;
 				}
 			}
 
@@ -317,6 +326,24 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 		}
 
 		return $option;
+	}
+
+	/**
+	 * Do code discounts.
+	 *
+	 * @since 1.0
+	 * @param array $discount The discount config
+	 * @param array $form The form config
+	 * @return array $options The discounted field options
+	 */
+	public function do_code_discount( $discount, $form ) {
+
+		if ( ! $discount ) return;
+
+		$options = $this->do_code_event_discount_options( $discount, $form );
+		$options = $this->do_code_options_discount_options( $discount, $form );
+
+		return $options;
 	}
 
 	/**

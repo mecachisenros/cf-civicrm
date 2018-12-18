@@ -175,11 +175,9 @@ class CiviCRM_Caldera_Forms_AJAX {
 			// add count
 			$form['form_count'] = str_replace( $form['ID'].'_', '', $form_id_attr );
 
-			$discounted_options = array_key_exists( 'pricesets', $discount ) ?
-				$discounted_options = $this->plugin->cividiscount->do_code_options_discount_options( $discount, $form ) :
-				$discounted_options = $this->plugin->cividiscount->do_code_event_discount_options( $discount, $form );
+			$discounted_options = $this->plugin->cividiscount->do_code_discount( $discount, $form );
 
-		}
+  		}
 
 		echo json_encode( $discounted_options );
 		die;

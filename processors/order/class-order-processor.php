@@ -96,6 +96,7 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 			'pre_processor' =>  [ $this, 'pre_processor' ],
 			'processor' => [ $this, 'processor' ],
 			'post_processor' => [ $this, 'post_processor'],
+			'magic_tags' => [ 'order_id' ]
 		];
 
 		return $processors;
@@ -215,7 +216,8 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 
 		try {
 			$create_order = civicrm_api3( 'Order', 'create', $form_values );
-			$this->order = $create_order;
+
+			$this->order = ( $create_order['count'] && ! $create_order['is_error'] ) ? $create_order['values'][$create_order['id']] : false;
 
 			// create product
 			if ( isset( $form_values['product_id'] ) ) {
@@ -235,6 +237,10 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 			$transdata['error'] = true;
 			$transdata['note'] = $e->getMessage() . '<br><br><pre' . $e->getTraceAsString() . '</pre>';
 		}
+
+		// return order_id magic tag
+		if ( is_array( $create_order ) && ! $create_order['is_error'] )
+			return $create_order['id'];
 
 	}
 
@@ -288,6 +294,17 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 
 		// send confirmation/receipt 
 		$this->maybe_send_confirmation( $this->order, $config );
+
+		/**
+		 * Runs when Order processor is post_processed.
+		 *
+		 * @since 1.0
+		 * @param array $order The created order result
+		 * @param array $config The processor config
+		 * @param array $form The form config
+		 * @param string $processid The process id
+		 */
+		do_action( 'cfc_order_post_processor', $this->order, $config, $form, $processid );
 
 	}
 
@@ -482,9 +499,9 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 	 */
 	public function maybe_send_confirmation( $order, $config ) {
 		
-		if ( ! $order || ! isset( $order ) ) return;
+		if ( ! $order ) return;
 
-		if ( ! $order['is_error'] && isset( $order['id'] ) && $config['is_email_receipt'] ) {
+		if ( isset( $order['id'] ) && $config['is_email_receipt'] ) {
 			try {
 				civicrm_api3( 'Contribution', 'sendconfirmation', [ 'id' => $order['id'] ] );
 			} catch ( CiviCRM_API3_Exception $e ) {
