@@ -33,7 +33,7 @@ if ( isset( $field['config']['civicrm_country'] ) ) {
 	jQuery( document ).ready( function( $ ) {
 
 	<?php if( $country_field ): ?>
-		var countryField = $( '[data-field="<?php echo esc_attr( $country_field['ID'] ) ?>"]' ),
+		var countryField = $( 'select[data-field="<?php echo esc_attr( $country_field['ID'] ) ?>"]' ),
 		stateField = $( 'select[data-field="<?php echo esc_attr( $field_base_id ) ?>"]' );
 	<?php else: ?>
 		var countryField = $( 'select[id*="_cf_civicrm_country"]' ),
