@@ -14,6 +14,8 @@ jQuery( document ).ready( function( $ ) {
 		var field_id = this.value,
 			form = core_form.formJSON();
 
+		if ( field_id.indexOf( '{' ) >= 0 ) return;
+
 		if ( ! field_id || ! form || ( ! form.config && ! form.config[field_id] ) ) return;
 
 		var config = form.config.fields[field_id].config;
