@@ -287,8 +287,9 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 
 				$refs[$participant_pid] = $price_field_field['ID'];
 
-				return $refs;
 			}
+
+			return $refs;
 
 		}, [] );
 
