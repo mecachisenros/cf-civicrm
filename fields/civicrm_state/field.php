@@ -32,7 +32,7 @@ if ( isset( $field['config']['civicrm_country'] ) ) {
 <script type="text/javascript">
 	jQuery( document ).ready( function( $ ) {
 
-	<?php if( $country_field ): ?>
+	<?php if ( $country_field ): ?>
 		var countryField = $( 'select[data-field="<?php echo esc_attr( $country_field['ID'] ) ?>"]' ),
 		stateField = $( 'select[data-field="<?php echo esc_attr( $field_base_id ) ?>"]' );
 	<?php else: ?>
@@ -45,7 +45,6 @@ if ( isset( $field['config']['civicrm_country'] ) ) {
 		var init = function() {
 
 			if ( countryField == 'undefined' ) return;
-			
 
 			countryField.on( 'change', function() {
 
@@ -63,6 +62,11 @@ if ( isset( $field['config']['civicrm_country'] ) ) {
 		}
 
 		$( document ).on( 'cf.form.init cf.add', function( e, data ) {
+		<?php if ( $country_field ): ?>
+			var stateField = $( 'select[data-field="<?php echo esc_attr( $field_base_id ) ?>"]' );
+		<?php else: ?>
+			var stateField = $( 'select[id*="_cf_civicrm_state"]' );
+		<?php endif; ?>
 			// init event
 			if ( data && data.fieldIds && data.fieldIds.indexOf( '<?php echo esc_attr( $field_id ) ?>' ) != -1 ) {
 				init();
