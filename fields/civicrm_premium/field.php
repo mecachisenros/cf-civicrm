@@ -1,4 +1,7 @@
-<?php $disabled = $field['config']['min_clean'] > 0 ? 'disabled="true"' : 'disabled="false"'; ?>
+<?php
+	$disabled = $field['config']['min_clean'] > 0 ? 'disabled="true"' : 'disabled="false"';
+	$default = $field['config']['default'];
+?>
 <?php echo $wrapper_before; ?>
 	<?php echo $field_label; ?>
 	<?php echo $field_before; ?>
@@ -15,9 +18,11 @@
 					data-value="<?php echo esc_attr( $field['config']['premium_id'] ); ?>" 
 					<?php echo $disabled; ?> 
 					<?php echo $field_structure['aria']; ?> 
+					<?php if ( $default == 'premium' ) echo 'checked="checked"'; ?>
 					title="<?php echo esc_attr( $field['config']['name'] ); ?>">
 						<?php echo esc_html( $field['config']['name'] ); ?>
 				</a>
+			<?php if ( ! $field['config']['no_no_thanks'] ): ?>
 				<a 
 					style="width: 50%;" 
 					id="<?php echo esc_attr( $field_id ); ?>_no_thank_you" 
@@ -29,9 +34,11 @@
 					data-value="0"
 					<?php echo $disabled; ?> 
 					<?php echo $field_structure['aria']; ?> 
+					<?php if ( $default == 'no_thanks' ) echo 'checked="checked"'; ?>
 					title="<?php echo esc_attr( $field['config']['no_thanks'] ); ?>">
 						<?php echo esc_attr( $field['config']['no_thanks'] ); ?>
 				</a>
+			<?php endif; ?>
 			</div>
 			<div style="display: none;" aria-hidden="true">
 				<input 
@@ -45,6 +52,7 @@
 					value="<?php echo esc_attr( $field['config']['premium_id'] ); ?>" 
 					data-radio-field="<?php echo esc_attr( $field_id ); ?>" 
 				>
+			<?php if ( ! $field['config']['no_no_thanks'] ): ?>
 				<input 
 					<?php if ( ! empty( $field['required'] ) ) { ?>required="required"<?php } ?> 
 					type="radio" 
@@ -56,6 +64,7 @@
 					value="0" 
 					data-radio-field="<?php echo esc_attr( $field_id ); ?>" 
 				>
+			<?php endif; ?>
 			</div>
 			<!-- Premium -->
 			<div id="<?php echo esc_attr( $field_id ); ?>_premium" class="row premium-wrapper" style="margin-top: 20px;">
@@ -111,11 +120,14 @@
 
 			var value = $( this ).val(),
 				min = '<?php echo esc_attr( $field['config']['min_clean'] );?>',
-				toggles = $( '[id^="<?php echo esc_attr( $field_base_id ); ?>"]' );
+				toggles = $( 'a[id^="<?php echo esc_attr( $field_base_id ); ?>"]' );
 
 			if ( parseFloat( value ) >= parseFloat( min ) ) {
 				toggles.map( function( index, element ) {
 					$( element ).attr( 'disabled', false );
+					if ( $( element ).attr( 'checked' ) == 'checked' ) {
+						$( element ).trigger( 'click' );
+					} 
 				} );
 			} else {
 				toggles.map( function( index, element ) {
