@@ -32,25 +32,33 @@ if ( isset( $field['config']['civicrm_country'] ) ) {
 <script type="text/javascript">
 	jQuery( document ).ready( function( $ ) {
 
-	<?php if ( $country_field ): ?>
-		var countryField = $( 'select[data-field="<?php echo esc_attr( $country_field['ID'] ) ?>"]' ),
-		stateField = $( 'select[data-field="<?php echo esc_attr( $field_base_id ) ?>"]' );
-	<?php else: ?>
-		var countryField = $( 'select[id*="_cf_civicrm_country"]' ),
-		stateField = $( 'select[id*="_cf_civicrm_state"]' );
-	<?php endif; ?>
-
-		var allStates = $( 'option', stateField );
-
 		var init = function() {
+
+		<?php if ( $country_field ): ?>
+			var countryField = $( 'select[data-field="<?php echo esc_attr( $country_field['ID'] ) ?>"]' ),
+			stateField = $( 'select[data-field="<?php echo esc_attr( $field_base_id ) ?>"]' );
+		<?php else: ?>
+			var countryField = $( 'select[id*="_cf_civicrm_country"]' ),
+			stateField = $( 'select[id*="_cf_civicrm_state"]' );
+		<?php endif; ?>
+
+			var allStates = $( 'option', stateField );
 
 			if ( countryField == 'undefined' ) return;
 
 			countryField.on( 'change', function() {
+				
+				var states;
+				if ( ! stateField.data( 'states' ) ) {
+					stateField.data( 'states', allStates );
+					states = stateField.data( 'states' );
+				} else {
+					states = stateField.data( 'states' );
+				}
 
 				var countryId = $( this ).val();
 
-				var options = allStates.filter( function( index, option ) {
+				var options = states.filter( function( index, option ) {
 					return option.dataset.crmCountryId == countryId;
 				} );
 
@@ -62,11 +70,13 @@ if ( isset( $field['config']['civicrm_country'] ) ) {
 		}
 
 		$( document ).on( 'cf.form.init cf.add', function( e, data ) {
+
 		<?php if ( $country_field ): ?>
 			var stateField = $( 'select[data-field="<?php echo esc_attr( $field_base_id ) ?>"]' );
 		<?php else: ?>
 			var stateField = $( 'select[id*="_cf_civicrm_state"]' );
 		<?php endif; ?>
+
 			// init event
 			if ( data && data.fieldIds && data.fieldIds.indexOf( '<?php echo esc_attr( $field_id ) ?>' ) != -1 ) {
 				init();
@@ -77,7 +87,8 @@ if ( isset( $field['config']['civicrm_country'] ) ) {
 				init();
 				stateField.cfcSelect2();
 			}
-		} )
+		} );
+
 	} );
 </script>
 <?php
