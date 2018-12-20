@@ -162,6 +162,8 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 
 			$price_field_field = Caldera_Forms_Field_Util::get_field( $field_id, $form, $apply_filters = true );
 
+			if ( ! $price_field_field || ! isset( $price_field_field['ID'] ) ) return $refs;
+
 			foreach ( $discounted_options as $discount_id => $discount ) {
 				if ( ! empty( array_intersect( $discount['pricesets'], array_keys( $price_field_field['config']['option'] ) ) ) )
 					$refs[$field_id] = [

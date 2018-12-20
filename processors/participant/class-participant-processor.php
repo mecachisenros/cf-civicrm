@@ -46,6 +46,8 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 
 	public $options_cividiscounts;
 
+	public $discounts_used;
+
 	/**
 	 * Current registration for a contact (participant data).
 	 *
@@ -164,16 +166,12 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 					add_action( 'cfc_order_post_processor', function( $order, $order_config, $form, $processid ) use ( $event, $config ) {
 
 						if ( ! $order ) return;
-						
-						$line_items = civicrm_api3( 'LineItem', 'get', [
-							'contribution_id' => $order['id']
-						] );
 
-						$line_items = array_filter( $line_items['values'], function( $item ) {
+						$order['line_items'] = array_filter( $order['line_items'], function( $item ) {
 							return $item['entity_table'] == 'civicrm_participant';
 						} );
 
-						foreach ( $line_items as $key => $item ) {
+						foreach ( $order['line_items'] as $key => $item ) {
 
 							$participant = civicrm_api3( 'Participant', 'get', [ 'id' => $item['entity_id'] ] );
 
@@ -535,6 +533,8 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 		// bail if not
 		if ( ! $is_autodiscount ) return $field;
 
+		$this->discounts_used[$field['ID']] = $event_discount;
+
 		// filter field options
 		$field['config']['option'] = array_reduce( $price_field['price_field_values'], function( $options, $price_field_value ) use ( $field, $event_discount ) {
 
@@ -599,6 +599,9 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 				$option = $field['config']['option'][$price_field_value['id']];
 
 				if ( in_array( $option['value'], $options_discount['pricesets'] ) ) {
+
+					$this->discounts_used[$field['ID']] = $options_discount;
+
 					// do discounted option
 					$options[$price_field_value['id']] = $this->plugin->cividiscount->do_discounted_option( $option, $field, $price_field_value, $options_discount );
 				} else {
@@ -646,6 +649,8 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 			if ( ! $discount || ! isset( $discount['events'] ) ) return;
 
 			if ( ! in_array( $this->event_ids[$processor_id], $discount['events'] ) ) return;
+
+			$this->discounts_used[$field['ID']] = $discount;
 
 			$field['config']['option'] = array_reduce( $price_field['price_field_values'], function( $options, $price_field_value ) use ( &$field, $discount ) {
 
@@ -699,6 +704,9 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 				$option = $field['config']['option'][$price_field_value['id']];
 
 				if ( in_array( $option['value'], $discount['pricesets'] ) ) {
+
+					$this->discounts_used[$field['ID']] = $discount;
+
 					// do discounted option
 					$options[$price_field_value['id']] = $this->plugin->cividiscount->do_discounted_option( $option, $field, $price_field_value, $discount );
 				} else {
