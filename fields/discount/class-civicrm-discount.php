@@ -68,7 +68,8 @@ class CiviCRM_Caldera_Forms_Field_Discount {
 				'template' => CF_CIVICRM_INTEGRATION_PATH . 'fields/discount/config.php',
 				'preview' => CF_CIVICRM_INTEGRATION_PATH . 'fields/discount/preview.php',
 				'default' => [
-					'placeholder' => __( 'Insert code', 'caldera-forms-civicrm' ),
+					'placeholder' => __( 'Discount Code', 'caldera-forms-civicrm' ),
+					'button_text' => __( 'Apply Discount', 'caldera-forms-civicrm' ),
 				],
 			],
 			'scripts' => [

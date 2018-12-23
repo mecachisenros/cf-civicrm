@@ -184,6 +184,11 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 							$line_items[$count]['params']['status_id'] = 'Pending';
 							$line_items[$count]['params']['is_override'] = 1;
 					}
+					// participant is pay later
+					if ( isset( $line_items[$count]['params']['event_id'] ) && $this->is_pay_later ) {
+							// set participant as pending
+							$line_items[$count]['params']['status_id'] = 'Pending from pay later';
+					}
 					$count++;
 				}
 			} else {

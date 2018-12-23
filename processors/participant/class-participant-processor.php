@@ -177,7 +177,7 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 
 							if ( is_array( $participant ) && ! $participant['is_error'] && $participant['values'][$item['entity_id']]['event_id'] == $event['id'] ) {
 
-								$this->send_mail( $participant['values'][$participant['id']], $event );
+								$this->send_mail( $participant['values'][$participant['id']], $event, $order );
 								break;
 							}
 						}
@@ -275,11 +275,33 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 
 		if ( ! $line_items ) return false;
 
+		$rendered_fields = array_reduce( $form['fields'], function( $fields, $field ) use ( $form ) {
+			$config = Caldera_Forms_Field_Util::get_field( $field['ID'], $form, true );
+			$fields[] = $config['slug'];
+			return $fields;
+		}, [] );
+
 		return array_reduce( $line_items, function( $refs, $line_item ) use ( $form ) {
 
 			if ( $line_item['config']['entity_table'] == 'civicrm_participant' ) {
+
+				$price_field_slug = $line_item['config']['price_field_value'];
+
+				if ( strpos( $price_field_slug, '%' ) !== false && substr_count( $price_field_slug, '%' ) > 2 ) {
+
+					$price_field_slug = array_filter( explode( '%', $price_field_slug ) );
+
+					$slugs = array_intersect( $price_field_slug, $rendered_fields );
+
+					$price_field_slug = array_pop( array_reverse( $slugs ) );
+				} else {
+
+					$price_field_slug = str_replace( '%', '', $price_field_slug );
+
+				}
+
 				// price_field field config
-				$price_field_field = Caldera_Forms_Field_Util::get_field_by_slug( str_replace( '%', '', $line_item['config']['price_field_value'] ), $form );
+				$price_field_field = Caldera_Forms_Field_Util::get_field_by_slug( $price_field_slug, $form );
 				// participant processor id
 				$participant_pid = $this->plugin->helper->get_processor_from_magic( $line_item['config']['entity_params'], $form );
 
@@ -996,10 +1018,84 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 		}, $processors );
 	}
 
-	public function send_mail( $participant, $event ) {
+	public function send_mail( $participant, $event, $order = false ) {
 
+		if ( $order ) {
+
+			$price_set = '';
+			$line_items = array_reduce( $order['line_items'], function( $items, $item ) use ( &$price_set ) {
+
+				$price_field = $this->plugin->helper->get_price_set_column_by_id( $item['price_field_id'], 'price_field' );
+
+				$price_set = empty( $price_set ) ? $this->plugin->helper->get_price_set_column_by_id( $price_field['price_set_id'], 'price_set' ) : 	$price_set;
+
+				$line_item = array_merge( $price_field['price_field_values'][$item['price_field_value_id']], $item );
+				$line_item['field_title'] = $price_field['label'];
+
+				$items[$price_field['price_set_id']][$item['price_field_value_id']] = $line_item;
+
+				return $items;
+
+			}, [] );
+
+			$template = CRM_Core_Smarty::singleton();
+
+			$template->assign( 'amount', $order['total_amount'] );
+			$template->assign( 'totalAmount', $order['total_amount'] );
+			$template->assign( 'currency', $order['currency'] );
+			$template->assign( 'receive_date', $order['receive_date'] );
+			$template->assign( 'trxn_id', $order['trxn_id'] );
+
+			$address_fields = [ 'name', 'street_address', 'supplemental_address_1', 'supplemental_address_2', 'supplemental_address_3', 'city', 'state_province_id.abbreviation', 'postal_code', 'country_id.name' ];
+
+			try {
+				$billing_address = civicrm_api3( 'Address', 'get', [
+					'sequential' => 1,
+					'contact_id' => $participant['contact_id'],
+					'location_type_id' => 'Billing',
+					'return' => $address_fields
+				] );
+			} catch ( CiviCRM_API3_Exception $e ) {
+
+			}
+
+			if ( ! $billing_address['is_error'] && $billing_address['count'] ) {
+
+				$address = $billing_address['values'][0];
+
+				$billing_name = $address['name'] ? "{$address['name']}<br>" : '';
+				$billing_name .= $address['street_address'] ? "{$address['street_address']}<br>" : '';
+				$billing_name .= $address['supplemental_address_1'] ? "{$address['supplemental_address_1']}<br>" : '';
+				$billing_name .= $address['supplemental_address_2'] ? "{$address['supplemental_address_2']}<br>" : '';
+				$billing_name .= $address['supplemental_address_3'] ? "{$address['supplemental_address_3']}<br>" : '';
+				$billing_name .= $address['city'] ? "{$address['city']}, {$address['state_province_id.abbreviation']} {$address['postal_code']}<br>" : '';
+				$billing_name .= $address['country_id.name'] ? "{$address['country_id.name']}<br>" : '';
+
+				$template->assign( 'billingName', $billing_name );
+
+			}
+
+			if ( isset( $order['card_type_id'] ) ) {
+				$template->assign( 'contributeMode', 'direct' );
+				$template->assign( 'credit_card_type', $order['credit_card_type'] );
+				$template->assign( 'credit_card_number', $order['pan_truncation'] );
+				$template->assign( 'credit_card_exp_date', $order['credit_card_exp_date'] );
+			}
+
+			if ( isset( $order['is_pay_later'] ) ) {
+				$template->assign( 'is_pay_later', $order['is_pay_later'] );
+			}
+
+			$values['contributionId'] = $order['id'];
+			$values['lineItem'] = $line_items;
+			$values['fee'] = $price_set['price_fields'];
+		}
+
+		$values['isPrimary'] = 1;
 		$values['event'] = $event;
 		$values['participant'] = $participant;
+		$values['location'] = CRM_Core_BAO_Location::getValues( [ 'entity_id' => $event['id'], 'entity_table' => 'civicrm_event' ] );
+		$value['register_date'] = $participant['participant_register_date'];
 
 		$sent = CRM_Event_BAO_Event::sendMail( $participant['contact_id'], $values, $participant['participant_id'] );
 

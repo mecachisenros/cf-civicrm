@@ -831,8 +831,8 @@ class CiviCRM_Caldera_Forms_Helper {
 		
 		$price_sets = $this->cached_price_sets();
 
-		if ( $column_name == 'price_set' && array_key_exists( $id, $price_set ) ) {
-			$column = $price_set[$id];
+		if ( $column_name == 'price_set' && array_key_exists( $id, $price_sets ) ) {
+			$column = $price_sets[$id];
 		}
 
 		if ( $column_name == 'price_field' ) {

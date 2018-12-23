@@ -7,11 +7,10 @@
 			id="<?php echo esc_attr( $field_id ); ?>_cividiscount_button"
 			type="button"
 			class="btn btn-block"
-			data-post-id="<?php echo get_the_ID(); ?>"
 			data-nonce="<?php echo wp_create_nonce( 'civicrm_cividiscount_code' ); ?>"
 			>
-			Apply discount
-			</button>
+			<?php esc_html_e( $field['config']['button_text'] ); ?>
+		</button>
 		<?php echo $field_caption; ?>
 	<?php echo $field_after; ?>
 <?php echo $wrapper_after; ?>
@@ -25,7 +24,6 @@
 		$( discount_button ).on( 'click', function( e ) {
 			e.preventDefault();
 
-			// var field_id = '<?php echo esc_attr( $field_id ); ?>',
 			var code = $( '#<?php echo esc_attr( $field_id ); ?>' ).val(),
 			discount_button = $( '#<?php echo esc_attr( $field_id ); ?>_cividiscount_button' ),
 			form_id = '<?php echo esc_attr( $form['ID'] ); ?>',
@@ -39,7 +37,7 @@
 				data: {
 					cividiscount_code: code,
 					action: 'do_code_cividiscount',
-					post_id: discount_button.data( 'post-id' ),
+					// post_id: discount_button.data( 'post-id' ),
 					form_id: form_id,
 					form_id_attr: form_id_attr,
 					nonce: discount_button.data( 'nonce' )
