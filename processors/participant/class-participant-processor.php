@@ -167,19 +167,20 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 
 						if ( ! $order ) return;
 
-						$order['line_items'] = array_filter( $order['line_items'], function( $item ) {
-							return $item['entity_table'] == 'civicrm_participant';
-						} );
-
 						foreach ( $order['line_items'] as $key => $item ) {
 
-							$participant = civicrm_api3( 'Participant', 'get', [ 'id' => $item['entity_id'] ] );
+							if ( $item['entity_table'] == 'civicrm_participant' ) {
 
-							if ( is_array( $participant ) && ! $participant['is_error'] && $participant['values'][$item['entity_id']]['event_id'] == $event['id'] ) {
+								$participant = civicrm_api3( 'Participant', 'get', [ 'id' => $item['entity_id'] ] );
 
-								$this->send_mail( $participant['values'][$participant['id']], $event, $order );
-								break;
+								if ( is_array( $participant ) && ! $participant['is_error'] && $participant['values'][$item['entity_id']]['event_id'] == $event['id'] ) {
+
+									$this->send_mail( $participant['values'][$participant['id']], $event, $order );
+									break;
+								}
+
 							}
+
 						}
 
 					}, 10, 4 );
