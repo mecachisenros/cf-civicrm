@@ -9,7 +9,7 @@
 			class="btn btn-block"
 			data-nonce="<?php echo wp_create_nonce( 'civicrm_cividiscount_code' ); ?>"
 			>
-			<?php esc_html_e( $field['config']['button_text'] ); ?>
+			<?php empty( $field['config']['button_text'] ) ? esc_html_e( 'Apply Discount', 'caldera-forms-civicrm' ) : esc_html_e( $field['config']['button_text'], 'caldera-forms-civicrm' ); ?>
 		</button>
 		<?php echo $field_caption; ?>
 	<?php echo $field_after; ?>
