@@ -160,6 +160,8 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 
 			$processor_id = array_search( $field_id, $price_field_refs );
 
+			$processor_id = $this->plugin->processors->processors['participant']->parse_processor_id( $processor_id );
+
 			$price_field_field = Caldera_Forms_Field_Util::get_field( $field_id, $form, $apply_filters = true );
 
 			if ( ! $price_field_field || ! isset( $price_field_field['ID'] ) ) return $refs;

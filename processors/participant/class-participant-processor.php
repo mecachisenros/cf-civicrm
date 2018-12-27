@@ -292,21 +292,52 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 
 					$price_field_slug = array_filter( explode( '%', $price_field_slug ) );
 
-					$slugs = array_intersect( $price_field_slug, $rendered_fields );
+					$price_field_slug = array_intersect( $price_field_slug, $rendered_fields );
 
-					$price_field_slug = array_pop( array_reverse( $slugs ) );
 				} else {
 
 					$price_field_slug = str_replace( '%', '', $price_field_slug );
 
 				}
 
-				// price_field field config
-				$price_field_field = Caldera_Forms_Field_Util::get_field_by_slug( $price_field_slug, $form );
 				// participant processor id
 				$participant_pid = $this->plugin->helper->get_processor_from_magic( $line_item['config']['entity_params'], $form );
 
-				$refs[$participant_pid] = $price_field_field['ID'];
+				// price_field field config
+				if ( is_array( $price_field_slug ) ) {
+
+					if ( count( $price_field_slug ) > 1 ) {
+						foreach ( $price_field_slug as $key => $field_id ) {
+
+							if ( $key == 0 ) {
+
+								$price_field_field = Caldera_Forms_Field_Util::get_field_by_slug( $field_id, $form );
+
+								$refs[$participant_pid] = $price_field_field['ID'];
+							} else {
+
+								$price_field_field = Caldera_Forms_Field_Util::get_field_by_slug( $field_id, $form );
+
+								$refs[$participant_pid . '#' . $key ] = $price_field_field['ID'];
+							}
+
+						}
+					} else {
+
+						$price_field_slug = array_pop( $price_field_slug );
+
+						$price_field_field = Caldera_Forms_Field_Util::get_field_by_slug( $price_field_slug, $form );
+
+						$refs[$participant_pid] = $price_field_field['ID'];
+					}
+
+				} else {
+
+					$price_field_field = Caldera_Forms_Field_Util::get_field_by_slug( $price_field_slug, $form );
+
+					$refs[$participant_pid] = $price_field_field['ID'];
+
+				}
 
 			}
 
@@ -385,6 +416,8 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 
 			if ( $field_id != $field['ID'] ) return;
 
+			$processor_id = $this->parse_processor_id( $processor_id );
+
 			$notice = $this->get_notice( $processor_id, $form );
 
 			$field['config']['option'] = array_reduce( $price_field['price_field_values'], function( $options, $price_field_value ) use ( &$field, $notice ) {
@@ -434,6 +467,8 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 	 * @return array $field The filtered field
 	 */
 	public function handle_discounted_events( $field, $form, $processor_id, $price_field ) {
+
+		$processor_id = $this->parse_processor_id( $processor_id );
 
 		// processor config
 		$processor = $form['processors'][$processor_id];
@@ -488,6 +523,8 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 	 */
 	public function handle_max_count_participants( $field, $form, $processor_id, $price_field ) {
 
+		$processor_id = $this->parse_processor_id( $processor_id );
+
 		// processor config
 		$processor = $form['processors'][$processor_id];
 
@@ -534,6 +571,8 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 
 		// only for logged in/checksum users
 		if ( ! $this->plugin->helper->current_contact_data_get() ) return $field;
+
+		$processor_id = $this->parse_processor_id( $processor_id );
 
 		// processor config
 		$processor = $form['processors'][$processor_id];
@@ -661,6 +700,8 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 
 		if ( ! $discount_fields ) return $field;
 
+		$processor_id = $this->parse_processor_id( $processor_id );
+
 		array_map( function( $discount_field_id, $discount_field ) use ( &$field, $form, $processor_id, $price_field ) {
 
 			$code = Caldera_Forms::get_field_data( $discount_field_id, $form );
@@ -767,6 +808,8 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 		array_map( function( $processor_id, $field_id ) use ( &$field, $form, $processors ) {
 
 			if ( $field_id != $field['id'] ) return;
+
+			$processor_id = $this->parse_processor_id( $processor_id );
 
 			// only paid events will have a price set/price field
 			if ( ! $processors[$processor_id]['config']['is_monetary'] ) return;
@@ -1112,6 +1155,17 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 	public function custom_fields_extend_participant( $extends ) {
 		$extends[] = 'Participant';
 		return $extends;
+	}
+
+	/**
+	 * Parse processor id string containing '#'.
+	 *
+	 * @since 1.0
+	 * @param string $processor_id The processor id
+	 * @return string $processor_id The processor id
+	 */
+	public function parse_processor_id( $processor_id ) {
+		return strpos( $processor_id, '#' ) ? substr( $processor_id, 0, strpos( $processor_id, '#' ) ) : $processor_id;
 	}
 
 }
