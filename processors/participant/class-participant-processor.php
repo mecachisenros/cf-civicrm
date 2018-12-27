@@ -282,7 +282,7 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 			return $fields;
 		}, [] );
 
-		return array_reduce( $line_items, function( $refs, $line_item ) use ( $form ) {
+		return array_reduce( $line_items, function( $refs, $line_item ) use ( $form, $rendered_fields ) {
 
 			if ( $line_item['config']['entity_table'] == 'civicrm_participant' ) {
 
