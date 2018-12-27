@@ -34,6 +34,15 @@ class CiviCRM_Caldera_Forms_Membership_Processor {
 	protected $has_memberships;
 
 	/**
+	 * Membership statuses considered 'current'.
+	 *
+	 * @since 0.4.4
+	 * @access public
+	 * @var array The membership statuses considered 'current'
+	 */
+	public $membership_statuses_current;
+
+	/**
 	 * The processor key.
 	 *
 	 * @since 0.4.4
@@ -125,11 +134,8 @@ class CiviCRM_Caldera_Forms_Membership_Processor {
 			$form_values['contact_id'] = $transient->contacts->{$this->contact_link};
 
 			// renew/extend necessary params
-			if ( isset( $config['is_renewal'] ) && isset( $is_member['id'] ) ) {
+			if ( isset( $config['is_renewal'] ) && isset( $is_member['id'] ) )
 				$form_values['id'] = $is_member['id'];
-				// at least one term
-				$form_values['num_terms'] = $this->get_num_terms( $form_values, $price_field_value );
-			}
 
 			$form_values['source'] = isset( $form_values['source'] ) ? $form_values['source'] : $form['name'];
 
@@ -141,6 +147,9 @@ class CiviCRM_Caldera_Forms_Membership_Processor {
 				//remove join, start, and end dates otherwise
 				unset( $form_values['join_date'], $form_values['start_date'], $form_values['end_date'] );
 			}
+
+			// get num_terms
+			$form_values['num_terms'] = $this->get_num_terms( $form_values, $price_field_value );
 
 			$transient->memberships->{$config['processor_id']}->params = $form_values;
 
@@ -190,6 +199,8 @@ class CiviCRM_Caldera_Forms_Membership_Processor {
 
 		// cfc transient object
 		$transient = $this->plugin->transient->get();
+		// get membership current statuses
+		$membership_statuses = $this->get_membership_statuses_current();
 
 		foreach ( $form['processors'] as $processor => $pr_id ) {
 			if( $pr_id['type'] == $this->key_name && isset( $pr_id['runtimes'] ) ){
@@ -197,13 +208,15 @@ class CiviCRM_Caldera_Forms_Membership_Processor {
 				$contact_link = $pr_id['contact_link'] = 'cid_'.$pr_id['config']['contact_link'];
 
 				if ( isset( $transient->contacts->{$contact_link} ) ) {
+
 					try {
 
 						$is_member = civicrm_api3( 'Membership', 'get', [
 							'sequential' => 1,
 							'is_test' => 0,
-							'status_id' => [ 'IN' => [ 'New', 'Current', 'Grace' ] ],
+							'status_id' => [ 'IN' => $membership_statuses ? $membership_statuses : [ 'New', 'Current', 'Grace' ] ],
 							'contact_id' => $transient->contacts->{$contact_link},
+							'options' => [ 'limit' => 0 ]
 						] );
 
 					} catch ( CiviCRM_API3_Exception $e ) {
@@ -251,6 +264,33 @@ class CiviCRM_Caldera_Forms_Membership_Processor {
 
 		// fallback to at least 1 term, this will be the term setup in the Membership Type settings
 		return 1;
+	}
+
+	/**
+	 * Get membership statuses considered 'current'.
+	 *
+	 * @since 0.4.4
+	 * @return array $membership_statuses_current The membership statuses
+	 */
+	public function get_membership_statuses_current() {
+
+		if ( ! empty( $this->membership_statuses_current ) ) return $this->membership_statuses_current;
+
+		try {
+			$statuses = civicrm_api3( 'MembershipStatus', 'get', [
+				'sequential' => 1,
+				'return' => [ 'name' ],
+				'is_current_member' => 1,
+				'options' => [ 'limit' => 0 ]
+			] );
+		} catch ( CiviCRM_API3_Exception  $e ) {
+
+		}
+
+		if ( is_array( $statuses ) && $statuses['count'] && ! $statuses['is_error'] )
+			$this->membership_statuses_current = array_column( $statuses['values'], 'name' );
+
+		return $this->membership_statuses_current;
 	}
 
 	/**

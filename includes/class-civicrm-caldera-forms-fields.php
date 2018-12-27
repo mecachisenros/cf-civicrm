@@ -42,7 +42,18 @@ class CiviCRM_Caldera_Forms_Fields {
 		// initialise this object
 		$this->include_files();
 		$this->setup_objects();
+		// register hooks
+		$this->register_hooks();
+	}
 
+	/**
+	 * Register hooks.
+	 *
+	 * @since 0.4.4
+	 */
+	public function register_hooks() {
+		// add config template for hidden fields
+		add_action( 'caldera_forms_field_settings_template', [ $this, 'hidden_field_template' ], 20, 2 );
 	}
 
 	/**
@@ -95,5 +106,18 @@ class CiviCRM_Caldera_Forms_Fields {
 		}
 
 
+	}
+
+	/**
+	 * Adds a config template for hidden fields.
+	 *
+	 * @uses 'caldera_forms_field_settings_template' action
+	 *
+	 * @since 0.4.4
+	 * @param array $config The field config
+	 * @param string $field_slug The field type slug
+	 */
+	public function hidden_field_template( $config, $field_slug ) {
+		if ( $field_slug == 'hidden' ) include CF_CIVICRM_INTEGRATION_PATH . 'fields/hidden/config.php';
 	}
 }
