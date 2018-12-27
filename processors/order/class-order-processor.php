@@ -313,7 +313,8 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 			// although here's the only place where we know if we have participants or not
 			// 
 			// record/track cividiscounts
-			if ( isset( $this->plugin->cividiscount ) ) {
+			if ( isset( $this->plugin->cividiscount ) && ! empty( $this->plugin->processors->processors['participant']->discounts_used ) && ( ! empty( $this->plugin->processors->processors['participant']->price_field_refs  ) || ! empty( $this->plugin->processors->processors['participant']->price_field_option_refs ) ) ) {
+
 				$price_field_refs = $this->plugin->processors->processors['participant']->price_field_refs;
 				$price_field_option_refs = $this->plugin->processors->processors['participant']->price_field_option_refs;
 				$discounts_used = $this->plugin->processors->processors['participant']->discounts_used;
@@ -354,6 +355,8 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 					$discount = isset( $discounts_used[$field_id] ) ? $discounts_used[$field_id] : false;
 
 					if ( ! $discount ) return;
+
+					$processor_id = $this->plugin->processors->processors['participant']->parse_processor_id( $processor_id );
 
 					$event_id = $transient->events->$processor_id->event_id;
 
