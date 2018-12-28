@@ -284,7 +284,7 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 
 		return array_reduce( $line_items, function( $refs, $line_item ) use ( $form, $rendered_fields ) {
 
-			if ( $line_item['config']['entity_table'] == 'civicrm_participant' ) {
+			if ( ! empty( $line_item['config']['entity_table'] ) ) {
 
 				$price_field_slug = $line_item['config']['price_field_value'];
 
@@ -302,6 +302,10 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 
 				// participant processor id
 				$participant_pid = $this->plugin->helper->get_processor_from_magic( $line_item['config']['entity_params'], $form );
+
+				// there's no entity_params for civicrm_contribution line_items
+				if ( ! $participant_pid )
+					$participant_pid = $line_item['ID'];
 
 				// price_field field config
 				if ( is_array( $price_field_slug ) ) {
