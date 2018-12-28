@@ -24,6 +24,15 @@ class CiviCRM_Caldera_Forms_Price_Sets_Presets {
 	public $price_sets;
 
 	/**
+	 * Disable all fields flag.
+	 *
+	 * @since 1.0
+	 * @access public
+	 * @var boolean $disable_all_fields
+	 */
+	public $disable_all_fields = false;
+
+	/**
 	 * Initialises this object.
 	 *
 	 * @since 0.4.4
@@ -137,7 +146,8 @@ class CiviCRM_Caldera_Forms_Price_Sets_Presets {
 			$option = [ 
 				'value' => $price_field_value['id'],
 				'label' => sprintf( '%1$s - %2$s', $price_field_value['label'], $this->plugin->helper->format_money( $price_field_value['amount'] ) ),
-				'calc_value' => $price_field_value['amount']
+				'calc_value' => $price_field_value['amount'],
+				'disabled' => $this->disable_all_fields
 			];
 
 			if ( $price_field_value['tax_amount'] && $this->plugin->helper->get_tax_settings()['invoicing'] ) {

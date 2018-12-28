@@ -418,15 +418,21 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 
 			$processor_id = $this->parse_processor_id( $processor_id );
 
+			$processor = $form['processors'][$processor_id];
+
 			$notice = $this->get_notice( $processor_id, $form );
 
-			$field['config']['option'] = array_reduce( $price_field['price_field_values'], function( $options, $price_field_value ) use ( &$field, $notice ) {
+			$field['config']['option'] = array_reduce( $price_field['price_field_values'], function( $options, $price_field_value ) use ( &$field, $notice, $processor ) {
 
 				$option = $field['config']['option'][$price_field_value['id']];
 				// disable option and make sure field is not required
 				if ( $notice && $notice['disabled'] ) {
 					$option['disabled'] = true;
 					$field['required'] = 0;
+
+					// set disable all fields flag
+					if ( $processor['config']['disable_all_fields'] ) $this->plugin->fields->presets_objects['civicrm_price_sets']->disable_all_fields = true;
+
 				}
 
 				$options[$price_field_value['id']] = $option;

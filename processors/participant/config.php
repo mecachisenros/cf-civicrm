@@ -52,6 +52,17 @@ $campaigns = civicrm_api3( 'Campaign', 'get', [
 	</div>
 </div>
 
+<div class="caldera-config-group caldera-config-group-full {{_id}}_disable_all_fields">
+	<div class="caldera-config-field">
+		<label>
+			<input id="{{_id}}_disable_all_fields" type="checkbox" name="{{_name}}[disable_all_fields]" value="1" {{#if disable_all_fields}}checked="checked"{{/if}}><?php _e( 'Disable form\'s fields options if the contact is registered for this event.', 'caldera-forms-civicrm' ); ?>
+		</label>
+		<p class="description">
+			<?php sprintf( _e( 'When a participant is registered for this event, a notice will be displayed (informing the user that is already registered) and the price options will be disabled, checking this setting will disable any other radio, checkbox, dropdown, etc. fields options as well. This is particularlly useful when offering multiple events on a form and one is considered as <em>main event</em>.', 'caldera-forms-civicrm' ) ); ?>
+		</p>
+	</div>
+</div>
+
 <h2><?php _e( 'Contact Link', 'caldera-forms-civicrm' ); ?></h2>
 <div id="contact_link" class="caldera-config-group">
 	<label><?php _e( 'Link to', 'caldera-forms-civicrm' ); ?></label>
@@ -165,5 +176,11 @@ $campaigns = civicrm_api3( 'Campaign', 'get', [
 				}
 			}
 		} ).trigger( 'change' );
-	} )
+	} );
+
+
+	$( '#{{_id}}_is_monetary' ).on( 'change', function( e ) {
+		$( '.{{_id}}_disable_all_fields' ).toggle( $( this ).prop( 'checked' ) );
+	} ).trigger( 'change' );
+
 </script>
