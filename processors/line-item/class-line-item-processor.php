@@ -160,7 +160,12 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 	 * @param array $price_field_value The price field value
 	 */
 	public function process_membership( $config, $form, $transient, $price_field_value ) {
-		
+
+		if ( isset( $config['is_other_amount'] ) ) {
+			$form_values = $this->plugin->helper->map_fields_to_processor( $config, $form, $form_values );
+			$price_field_value[0]['line_total'] = $price_field_value[0]['unit_price'] = $price_field_value[0]['amount'] = $form_values['amount'];
+		}
+
 		// membership params aka 'params'
 		$processor_id = Caldera_Forms::do_magic_tags( $config['entity_params'] );
 		if ( isset( $transient->memberships->$processor_id->params ) && ! empty( $config['entity_params'] ) ) {
@@ -203,6 +208,11 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 
 		// if price field is disabled by cfc we won't have a price_field_value
 		// if ( ! $price_field_value['id'] ) return;
+
+		if ( isset( $config['is_other_amount'] ) ) {
+			$form_values = $this->plugin->helper->map_fields_to_processor( $config, $form, $form_values );
+			$price_field_value[0]['line_total'] = $price_field_value[0]['unit_price'] = $price_field_value[0]['amount'] = $form_values['amount'];
+		}
 
 		// get price field
 		$price_field = $this->plugin->helper->get_price_set_column_by_id( $price_field_value[0]['price_field_id'], 'price_field' );
