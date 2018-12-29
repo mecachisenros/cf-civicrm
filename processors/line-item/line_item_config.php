@@ -32,6 +32,14 @@ $price_sets = caldera_forms_civicrm()->helper->cached_price_sets();
 	</select>
 </div>
 
+<!-- Entity Data -->
+<div id="{{_id}}_entity_data" class="entity-data caldera-config-group">
+	<label><?php _e( 'Entity Data (Membership or Participant)', 'caldera-forms-civicrm' ); ?></label>
+	<div class="caldera-config-field">
+		<input type="text" class="block-input field-config magic-tag-enabled caldera-field-bind" name="{{_name}}[entity_params]" value="{{entity_params}}">
+	</div>
+</div>
+
 <!-- Price Field Value -->
 <div id="{{_id}}_price_field_value" class="caldera-config-group">
 	<label><?php _e( 'Price Field Value', 'caldera-forms-civicrm' );?></label>
@@ -60,14 +68,6 @@ $price_sets = caldera_forms_civicrm()->helper->cached_price_sets();
 		<?php else: ?>
 		<div class="field-config"><?php _e( 'No price sets.', 'caldera-forms-civicrm' ); ?></div>
 		<?php endif; ?>
-	</div>
-</div>
-
-<!-- Entity Data -->
-<div id="{{_id}}_entity_data" class="entity-data caldera-config-group">
-	<label><?php _e( 'Entity Data (Membership or Participant)', 'caldera-forms-civicrm' ); ?></label>
-	<div class="caldera-config-field">
-		<input type="text" class="block-input field-config magic-tag-enabled caldera-field-bind" name="{{_name}}[entity_params]" value="{{entity_params}}">
 	</div>
 </div>
 
@@ -103,6 +103,11 @@ $price_sets = caldera_forms_civicrm()->helper->cached_price_sets();
 			var is_fixed = $( this ).prop( 'checked' );
 			$( '.binded_price_field', $( price_field_value ) ).toggle( ! is_fixed );
 			$( '.fixed_price_field', $( price_field_value ) ).toggle( is_fixed );
+		} ).trigger( 'change' );
+
+		$( entity_table + ' select' ).on( 'change', function( i, el ) {
+			var entity = $( this ).val();
+			$( entity_data ).toggle( entity != 'civicrm_contribution' );
 		} ).trigger( 'change' );
 
 		$( is_other_amount + ' input' ).on( 'change', function( i, el ) {
