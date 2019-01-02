@@ -58,7 +58,7 @@ $campaigns = civicrm_api3( 'Campaign', 'get', [
 			<input id="{{_id}}_disable_all_fields" type="checkbox" name="{{_name}}[disable_all_fields]" value="1" {{#if disable_all_fields}}checked="checked"{{/if}}><?php _e( 'Disable form\'s fields options if the contact is registered for this event.', 'caldera-forms-civicrm' ); ?>
 		</label>
 		<p class="description">
-			<?php sprintf( _e( 'When a participant is registered for the event linked to this Participant processor, a notice will be displayed informing the user that they already registered. By checking this setting we will disable all other fields and field options as well. This is particularly useful when offering multiple events on a single form and if one is registered for the event linked to theis process you want to disable not only registering for this event but for any other events or options on the form.  This is typically done when one event is considered as <em>main event</em>.', 'caldera-forms-civicrm' ) ); ?>
+			<?php sprintf( _e( 'When a participant is registered for the event linked to this Participant processor, a notice will be displayed informing the user that they already registered. By checking this setting we will disable all other fields and field options as well. This is particularly useful when offering multiple events on a single form, and if one is registered for the event linked to this processor, you want to disable not only registering for this event but for any other events or options on the form.  This is typically done when one event is considered as <em>main event</em>.', 'caldera-forms-civicrm' ) ); ?>
 		</p>
 	</div>
 </div>
