@@ -129,6 +129,10 @@ class CiviCRM_Caldera_Forms_Price_Sets_Presets {
 		if ( current_filter() == 'caldera_forms_render_field_structure' )
 			$field = $this->filter_price_field_structure( $field, $form );
 
+		// disable field options
+		if ( $this->disable_all_fields )
+			$field = $this->disable_field_options( $field );
+
 		if ( ! $this->is_price_field_field( $field, $form ) ) return $field;
 
 		/**
@@ -255,6 +259,27 @@ class CiviCRM_Caldera_Forms_Price_Sets_Presets {
 		if ( ! $this->price_sets ) return false;
 
 		return true;
+	}
+
+	/**
+	 * Disable all field's options.
+	 *
+	 * @since 1.0
+	 * @param array $field The field config
+	 * @return array $field The field config
+	 */
+	public function disable_field_options( $field ) {
+
+		if ( ! isset( $field['config']['option'] ) ) return $field;
+
+		array_map( function( $option_id ) use ( &$field ) {
+
+			$field['config']['option'][$option_id]['disabled'] = $this->disable_all_fields;
+
+		}, array_keys( $field['config']['option'] ) );
+
+		return $field;
+
 	}
 
 }
