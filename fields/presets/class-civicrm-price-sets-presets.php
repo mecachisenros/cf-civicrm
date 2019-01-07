@@ -131,7 +131,7 @@ class CiviCRM_Caldera_Forms_Price_Sets_Presets {
 
 		// disable field options
 		if ( $this->disable_all_fields )
-			$field = $this->disable_field_options( $field );
+			$field = $this->disable_all_price_field_options( $field );
 
 		if ( ! $this->is_price_field_field( $field, $form ) ) return $field;
 
@@ -268,9 +268,11 @@ class CiviCRM_Caldera_Forms_Price_Sets_Presets {
 	 * @param array $field The field config
 	 * @return array $field The field config
 	 */
-	public function disable_field_options( $field ) {
+	public function disable_all_price_field_options( $field ) {
 
 		if ( ! isset( $field['config']['option'] ) ) return $field;
+
+		if ( ! in_array( $field['ID'], $this->plugin->processors->processors['participant']->price_field_refs ) ) return $field;
 
 		array_map( function( $option_id ) use ( &$field ) {
 
