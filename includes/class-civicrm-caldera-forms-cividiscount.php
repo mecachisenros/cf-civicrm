@@ -100,7 +100,11 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 	 * @return array $cividiscounts
 	 */
 	public function get_cividiscounts_by_entity( $entity_name, $is_autodiscount = null ) {
+
 		$discounts = $this->get_cividiscounts();
+
+		if ( ! $discounts ) return;
+
 		return array_filter( $discounts, function( $discount ) use ( $entity_name, $is_autodiscount ) {
 			if ( $is_autodiscount === true ) {
 				return array_key_exists( $entity_name, $discount ) && ! empty( $discount['autodiscount'] );
@@ -110,6 +114,7 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 				return array_key_exists( $entity_name, $discount );
 			}
 		} );
+
 	}
 
 	/**
@@ -124,6 +129,8 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 		if ( is_array( $this->event_cividiscounts ) && ! empty( $this->event_cividiscounts ) ) return $this->event_cividiscounts;
 
 		$event_cividiscounts = $this->get_cividiscounts_by_entity( 'events' ); 
+
+		if ( ! $event_discounts ) return;
 
 		$event_discounts = array_reduce( $event_ids, function( $discounts, $event_id ) use ( $event_ids, $event_cividiscounts ) {
 
@@ -155,6 +162,8 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 	public function build_options_ids_refs( $price_field_refs, $form = false ) {
 
 		$discounted_options = $this->get_cividiscounts_by_entity( 'pricesets' );
+
+		if ( ! $discounted_options ) return;
 
 		$options_ids_refs = array_reduce( $price_field_refs, function( $refs, $field_id ) use ( $price_field_refs, $discounted_options, $form ) {
 
@@ -193,6 +202,8 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 	 * @return array $options_cividiscounts The discounts
 	 */
 	public function get_options_cividiscounts( $options_ids_refs ) {
+
+		if ( ! $options_ids_refs ) return;
 
 		if ( is_array( $this->options_cividiscounts ) && ! empty( $this->options_cividiscounts ) ) return $this->options_cividiscounts;
 
