@@ -27,7 +27,8 @@
 			var code = $( '#<?php echo esc_attr( $field_id ); ?>' ).val(),
 			discount_button = $( '#<?php echo esc_attr( $field_id ); ?>_cividiscount_button' ),
 			form_id = '<?php echo esc_attr( $form['ID'] ); ?>',
-			form_id_attr = '<?php echo esc_attr( $form['ID'] . '_' . Caldera_Forms_Render_Util::get_current_form_count() ); ?>';
+			form_id_attr = '<?php echo esc_attr( $form['ID'] . '_' . Caldera_Forms_Render_Util::get_current_form_count() ); ?>',
+			form_instance = '<?php echo Caldera_Forms_Render_Util::get_current_form_count(); ?>';
 
 			if ( ! code ) return;
 			
@@ -51,6 +52,7 @@
 						element = $( '#' + option_id );
 						// calc value
 						element.attr( 'data-calc-value', option.calc_value );
+						element.data( 'calc-value', option.calc_value );
 						// label text
 						element.parent().attr( 'data-label', option.label );
 						element.parent().contents().map( function( el ) {
@@ -64,6 +66,8 @@
 						} );
 
 					}
+
+					$( 'body' ).trigger( 'cfc.discount.apply', { form_id: form_id_attr, instance: form_instance, options: options } );
 
 				}
 
