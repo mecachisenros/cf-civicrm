@@ -22,7 +22,7 @@
 					title="<?php echo esc_attr( $field['config']['name'] ); ?>">
 						<?php echo esc_html( $field['config']['name'] ); ?>
 				</a>
-			<?php if ( ! $field['config']['no_no_thanks'] ): ?>
+			<?php if ( ! isset( $field['config']['no_no_thanks'] ) ): ?>
 				<a 
 					style="width: 50%;" 
 					id="<?php echo esc_attr( $field_id ); ?>_no_thank_you" 
@@ -52,7 +52,7 @@
 					value="<?php echo esc_attr( $field['config']['premium_id'] ); ?>" 
 					data-radio-field="<?php echo esc_attr( $field_id ); ?>" 
 				>
-			<?php if ( ! $field['config']['no_no_thanks'] ): ?>
+			<?php if ( ! isset( $field['config']['no_no_thanks'] ) ): ?>
 				<input 
 					<?php if ( ! empty( $field['required'] ) ) { ?>required="required"<?php } ?> 
 					type="radio" 

@@ -158,7 +158,7 @@ class CiviCRM_Caldera_Forms_Custom_Fields_Presets {
 	 */
 	public function autopopulate_custom_fields_values( $field, $form ) {
 
-		if ( ! $field['config']['auto'] ) return $field;
+		if ( ! isset( $field['config']['auto'] ) ) return $field;
 
 		if ( strpos( $field['config']['auto_type'], 'custom_' ) === false ) return $field;
 

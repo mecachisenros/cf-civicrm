@@ -194,7 +194,7 @@ class CiviCRM_Caldera_Forms_Forms {
 		 */
 		$template_path = apply_filters( 'cfc_notices_template_path', CF_CIVICRM_INTEGRATION_PATH . 'templates/notices.php', $form );
 
-		$html = $this->plugin->html->generate( $form, $template_path );
+		$html = $this->plugin->html->generate( [ 'form' => $form ], $template_path );
 		// output template
 		echo $html;
 	}
@@ -325,9 +325,9 @@ class CiviCRM_Caldera_Forms_Forms {
 		// rebuild formula
 		foreach ( $field['config']['config']['group'] as $gid => $group ) {
 
-			$formula .= ! $group_id ?
+			$formula .= ! $gid ?
 				$do_group_lines( $group['lines'] )
-				: ( $group['operator'] ?
+				: ( isset( $group['operator'] ) ?
 					' ' . $group['operator'] . ' '
 					: $do_group_lines( $group['lines'] )
 				);

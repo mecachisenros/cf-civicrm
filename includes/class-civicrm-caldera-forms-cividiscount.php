@@ -130,7 +130,7 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 
 		$event_cividiscounts = $this->get_cividiscounts_by_entity( 'events' ); 
 
-		if ( ! $event_discounts ) return;
+		if ( ! isset( $event_discounts ) ) return;
 
 		$event_discounts = array_reduce( $event_ids, function( $discounts, $event_id ) use ( $event_ids, $event_cividiscounts ) {
 
@@ -163,7 +163,7 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 
 		$discounted_options = $this->get_cividiscounts_by_entity( 'pricesets' );
 
-		if ( ! $discounted_options ) return;
+		if ( ! isset( $discounted_options ) ) return;
 
 		$options_ids_refs = array_reduce( $price_field_refs, function( $refs, $field_id ) use ( $price_field_refs, $discounted_options, $form ) {
 
@@ -203,11 +203,13 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 	 */
 	public function get_options_cividiscounts( $options_ids_refs ) {
 
-		if ( ! $options_ids_refs ) return;
+		if ( ! isset( $options_ids_refs ) ) return;
 
 		if ( is_array( $this->options_cividiscounts ) && ! empty( $this->options_cividiscounts ) ) return $this->options_cividiscounts;
 
 		$options_cividiscounts = $this->get_cividiscounts_by_entity( 'pricesets' );
+
+		if ( ! isset( $options_cividiscounts ) ) return;
 
 		$discounts = [];
 		array_map( function( $field_id, $options ) use ( &$discounts, $options_ids_refs, $options_cividiscounts ) {
@@ -335,7 +337,7 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 		}, 10, 2 );
 
 		// has tax
-		if ( $price_field_value['tax_amount'] && $this->plugin->helper->get_tax_settings()['invoicing'] ) {
+		if ( isset( $price_field_value['tax_amount'] ) && $this->plugin->helper->get_tax_settings()['invoicing'] ) {
 			$option['calc_value'] += $price_field_value['tax_amount'];
 			$option['label'] = $this->plugin->helper->format_tax_label( $label, $discounted_amount, $price_field_value['tax_amount'] );
 		}
@@ -353,7 +355,7 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 	 */
 	public function do_code_discount( $discount, $form ) {
 
-		if ( ! $discount ) return;
+		if ( ! isset( $discount ) || empty( $discount ) ) return;
 
 		$options = $this->do_code_event_discount_options( $discount, $form );
 		$options = $this->do_code_options_discount_options( $discount, $form );

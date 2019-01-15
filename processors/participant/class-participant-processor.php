@@ -435,7 +435,7 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 					$field['required'] = 0;
 
 					// set disable all fields flag
-					if ( $processor['config']['disable_all_fields'] ) $this->plugin->fields->presets_objects['civicrm_price_sets']->disable_all_fields = true;
+					if ( isset( $processor['config']['disable_all_fields'] ) ) $this->plugin->fields->presets_objects['civicrm_price_sets']->disable_all_fields = true;
 
 				}
 
