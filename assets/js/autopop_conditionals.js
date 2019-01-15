@@ -40,6 +40,8 @@ jQuery( document ).ready( function( $ ) {
 				out = '<select name="' + name + '[value]" class="caldera-processor-value-bind caldera-conditional-value-field" data-field="' + field_id + '" style="max-width: 220px; width: 220px;">';
 				out += '<option value=""></option>';
 
+			if ( ! Array.isArray( options_rows ) ) return;
+
 			options_rows.map( function( option ) {
 
 				var parts = option.split('|'),
@@ -57,9 +59,9 @@ jQuery( document ).ready( function( $ ) {
 
 			out += '</select>';
 
-		}
+			target.html( out );
 
-		target.html( out );
+		}
 
 	} );
 } );
