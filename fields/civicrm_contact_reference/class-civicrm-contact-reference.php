@@ -101,7 +101,9 @@ class CiviCRM_Caldera_Forms_Contact_Reference {
 	 */
 	public function handle_current_employer_field( $mapped_field, $civi_field, $field, $config, $form ) {
 
-		if ( $civi_field != 'current_employer' && $field['type'] != 'civicrm_contact_reference' ) return $mapped_field;
+		if ( $field['type'] != 'civicrm_contact_reference' ) return $mapped_field;
+
+		if ( $civi_field != 'current_employer' ) return $mapped_field;
 
 		if ( ! is_numeric( $mapped_field ) && isset( $field['config']['new_organization'] ) ) {
 			$employer = civicrm_api3( 'Contact', 'create', [
