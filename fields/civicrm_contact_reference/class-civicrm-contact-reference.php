@@ -137,7 +137,9 @@ class CiviCRM_Caldera_Forms_Contact_Reference {
 	 */
 	public function pre_render_current_employer_value( $value, $civi_field, $field, $entity, $config ) {
 
-		if ( $civi_field != 'current_employer' && $field['type'] != 'civicrm_contact_reference' ) return $value;
+		if ( $field['type'] != 'civicrm_contact_reference' ) return $value;
+
+		if ( $civi_field != 'current_employer' ) return $value;
 
 		$employer = civicrm_api3( 'Contact', 'get', [
 			'contact_type' => 'Organization',
