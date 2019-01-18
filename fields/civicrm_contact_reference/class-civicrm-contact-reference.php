@@ -101,20 +101,25 @@ class CiviCRM_Caldera_Forms_Contact_Reference {
 	 */
 	public function handle_current_employer_field( $mapped_field, $civi_field, $field, $config, $form ) {
 
-		if ( $civi_field == 'current_employer' && $field['type'] == 'civicrm_contact_reference' ) {
-			if ( ! is_numeric( $mapped_field ) && isset( $field['config']['new_organization'] ) ) {
-				$employer = civicrm_api3( 'Contact', 'create', [
-					'contact_type' => 'Organization',
-					'organization_name' => $mapped_field,
-				] );	
-			} else {
-				$employer = civicrm_api3( 'Contact', 'get', [
-					'contact_id' => $mapped_field,
-					'return' => 'organization_name'
-				] );
-			}
-			return $employer['values'][$employer['id']]['organization_name'];
+		if ( $civi_field != 'current_employer' && $field['type'] != 'civicrm_contact_reference' ) return $mapped_field;
+
+		if ( ! is_numeric( $mapped_field ) && isset( $field['config']['new_organization'] ) ) {
+			$employer = civicrm_api3( 'Contact', 'create', [
+				'contact_type' => 'Organization',
+				'organization_name' => $mapped_field,
+			] );
+		} else {
+			$employer = civicrm_api3( 'Contact', 'get', [
+				'contact_id' => $mapped_field,
+				'return' => 'organization_name'
+			] );
 		}
+
+		if ( isset( $employer['count'] ) && $employer['count'] ) 
+			return [
+				'organization_name' => $employer['values'][$employer['id']]['organization_name'],
+				'employer_id' => $employer['id']
+			];
 
 		return $mapped_field;
 	}
@@ -131,10 +136,18 @@ class CiviCRM_Caldera_Forms_Contact_Reference {
 	 * @param array $config processor config
 	 */
 	public function pre_render_current_employer_value( $value, $civi_field, $field, $entity, $config ) {
-		if ( $civi_field == 'current_employer' && $field['type'] == 'civicrm_contact_reference' ) {
-			$employer = civicrm_api3( 'Contact', 'get', [ 'contact_type' => 'Organization', 'organization_name' => $entity[$civi_field] ] );
-			return $employer['id'];
-		}
+
+		if ( $civi_field != 'current_employer' && $field['type'] != 'civicrm_contact_reference' ) return $value;
+
+		$employer = civicrm_api3( 'Contact', 'get', [
+			'contact_type' => 'Organization',
+			'organization_name' => $entity[$civi_field],
+			'return' => 'organization_name',
+			'options' => [ 'limit' => 1 ]
+		] );
+
+		if ( isset( $employer['count'] ) && $employer['count'] ) return $employer['id'];
+
 		return $value;
 	}
 
