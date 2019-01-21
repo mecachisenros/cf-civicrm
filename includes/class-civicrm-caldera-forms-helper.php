@@ -165,7 +165,12 @@ class CiviCRM_Caldera_Forms_Helper {
 			'domain_id' => CRM_Core_BAO_Domain::getDomain()->id,
 		];
 
-		$wp_civicrm_contact = civicrm_api3( 'UFMatch', 'getsingle', $params );
+		try {
+			$wp_civicrm_contact = civicrm_api3( 'UFMatch', 'getsingle', $params );
+		} catch ( CiviCRM_API3_Exception $e ) {
+			Civi::log()->debug( 'Unable to match contact for user with id ' . $id );
+		}
+
 		return $wp_civicrm_contact['contact_id'];
 
 	}
