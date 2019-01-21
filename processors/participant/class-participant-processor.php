@@ -161,7 +161,7 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 				$transient->participants->{$config['processor_id']}->params = $form_values;
 				$this->plugin->transient->save( $transient->ID, $transient );
 
-				if ( $config['is_email_receipt'] ) {
+				if ( isset( $config['is_email_receipt'] ) ) {
 
 					add_action( 'cfc_order_post_processor', function( $order, $order_config, $form, $processid ) use ( $event, $config ) {
 

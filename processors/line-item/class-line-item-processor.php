@@ -17,15 +17,6 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 	public $plugin;
 
 	/**
-	 * Contact link.
-	 *
-	 * @since 0.4.4
-	 * @access protected
-	 * @var string $contact_link The contact link
-	 */
-	protected $contact_link;
-
-	/**
 	 * The processor key.
 	 *
 	 * @since 0.4.4
@@ -87,8 +78,6 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 	public function processor( $config, $form, $processid ) {
 
 		$transient = $this->plugin->transient->get();
-		
-		$this->contact_link = 'cid_' . $config['contact_link'];
 
 		// price field value params aka 'line_item'
 		$price_field_value = isset( $config['is_fixed_price_field'] ) ? 
