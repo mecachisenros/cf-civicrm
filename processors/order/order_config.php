@@ -32,6 +32,12 @@ $payment_processor = civicrm_api3( 'PaymentProcessor', 'get', [
 	'is_test' => 0,
 ] );
 
+$campaigns = civicrm_api3( 'Campaign', 'get', [
+	'sequential' => 1,
+	'is_active' => 1,
+	'options' => [ 'limit' => 0 ],
+] );
+
 ?>
 
 <p class="description"><?php sprintf( _e( '<strong>Note:</strong> This processor does not process payment transactions on it\'s own, it just creates a Contribution in CiviCRM with single or multiple line items. In order to process live payment transaction, a Caldera Forms <a href="https://calderaforms.com/caldera-forms-add-ons/#/payment" target="_blank">add-on</a> is needed. Currently this processor intergrates with Caldera Forms\' Stripe and Authorize.net add-ons for <strong>single/one-off</strong> payments.', 'caldera-forms-civicrm' ) ); ?></p>
@@ -97,6 +103,19 @@ $payment_processor = civicrm_api3( 'PaymentProcessor', 'get', [
 		<select class="block-input field-config" name="{{_name}}[financial_type_id]">
 		<?php foreach ( $financial_types['values'] as $key => $financial_type ) { ?>
 			<option value="<?php echo esc_attr( $financial_type['id'] ); ?>" {{#is financial_type_id value=<?php echo $financial_type['id']; ?>}}selected="selected"{{/is}}><?php echo esc_html( $financial_type['name'] ); ?></option>
+		<?php } ?>
+		</select>
+	</div>
+</div>
+
+<!-- Campaign -->
+<div id="campaign_id" class="caldera-config-group">
+	<label><?php _e( 'Campaign', 'caldera-forms-civicrm' ); ?></label>
+	<div class="caldera-config-field">
+		<select class="block-input field-config" name="{{_name}}[campaign_id]">
+		<option value="" {{#is campaign_id value=""}}selected="selected"{{/is}}></option>
+		<?php foreach ( $campaigns['values'] as $key => $value ) { ?>
+			<option value="<?php echo esc_attr( $value['id'] ); ?>" {{#is campaign_id value=<?php echo $value['id']; ?>}}selected="selected"{{/is}}><?php echo esc_html( $value['title'] ); ?></option>
 		<?php } ?>
 		</select>
 	</div>

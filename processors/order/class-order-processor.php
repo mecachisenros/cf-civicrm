@@ -152,6 +152,8 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 		
 		$form_values['currency'] = $config['currency'];
 
+		if ( ! empty( $config['campaign_id'] ) ) $form_values['campaign_id'] = $config['campaign_id'];
+
 		// contribution page for reciepts
 		if ( isset( $config['contribution_page_id'] ) )
 			$form_values['contribution_page_id'] = $config['contribution_page_id'];
