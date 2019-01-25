@@ -37,6 +37,7 @@ $price_sets = caldera_forms_civicrm()->helper->cached_price_sets();
 	<label><?php _e( 'Entity Data (Membership or Participant)', 'caldera-forms-civicrm' ); ?></label>
 	<div class="caldera-config-field">
 		<input type="text" class="block-input field-config magic-tag-enabled caldera-field-bind" name="{{_name}}[entity_params]" value="{{entity_params}}">
+		<p class="description"><?php sprintf( _e( 'Required when the \'Entity Table\' setting is set to CiviCRM Participant or CiviCRM Membership, optional for CiviCRM Contribution.<br>When \'Entity Table\' is set to CiviCRM Contribution, set the Participant processor magic tag if this is a Contribution Line Item associated to a particular Participant, like for example a Donation.', 'caldera-forms-civicrm') );?></p>
 	</div>
 </div>
 
