@@ -623,6 +623,7 @@ class CiviCRM_Caldera_Forms_Helper {
 				'financial_account_id.financial_account_type_id',
 				'financial_account_id.tax_rate'
 			],
+			'financial_account_id.is_active' => 1,
 			'financial_account_id.is_tax' => 1,
 			'options' => [ 'limit' => 0 ]
 		] );
@@ -739,7 +740,7 @@ class CiviCRM_Caldera_Forms_Helper {
 
 		$price_field_values = [];
 		foreach ( $all_price_field_values['values'] as $id => $price_field_value ) {
-			$price_field_value['amount'] = number_format( $price_field_value['amount'], 2, '.', '' );
+			$price_field_value['amount'] = $price_field_value['amount'];
 			$price_field_values[$id] = $price_field_value;
 		}
 

@@ -284,7 +284,7 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 
 		return array_reduce( $line_items, function( $refs, $line_item ) use ( $form, $rendered_fields ) {
 
-			if ( ! empty( $line_item['config']['entity_table'] ) ) {
+			if ( ! empty( $line_item['config']['entity_table'] ) && in_array( $line_item['config']['entity_table'], [ 'civicrm_participant', 'civicrm_membership' ] ) ) {
 
 				$price_field_slug = $line_item['config']['price_field_value'];
 

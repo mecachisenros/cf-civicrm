@@ -105,11 +105,6 @@ $price_sets = caldera_forms_civicrm()->helper->cached_price_sets();
 			$( '.fixed_price_field', $( price_field_value ) ).toggle( is_fixed );
 		} ).trigger( 'change' );
 
-		$( entity_table + ' select' ).on( 'change', function( i, el ) {
-			var entity = $( this ).val();
-			$( entity_data ).toggle( entity != 'civicrm_contribution' );
-		} ).trigger( 'change' );
-
 		$( is_other_amount + ' input' ).on( 'change', function( i, el ) {
 			var checked = $( this ).prop( 'checked' );
 			$( amount ).toggle( checked );

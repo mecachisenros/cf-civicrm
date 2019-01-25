@@ -172,7 +172,10 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 			$entity_params['is_price_field_based']
 		);
 
+		$transient->memberships->$processor_id->params = $entity_params;
+
 		$line_item = [ 
+			'processor_entity' => $processor_id,
 			'line_item' => $price_field_value,
 			'params' => $entity_params
 		];
@@ -231,7 +234,10 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 			$entity_params['is_price_field_based']
 		);
 
+		$transient->participants->$processor_id->params = $entity_params;
+
 		$line_item = [ 
+			'processor_entity' => $processor_id,
 			'line_item' => $price_field_value,
 			'params' => $entity_params
 		];
@@ -259,8 +265,12 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 			$form_values = $this->plugin->helper->map_fields_to_processor( $config, $form, $form_values );
 			$price_field_value[0]['line_total'] = $price_field_value[0]['unit_price'] = $price_field_value[0]['amount'] = $form_values['amount'];
 		}
-		
+
+		if ( isset( $config['entity_params'] ) && ! empty( $config['entity_params'] ) )
+			$processor_id = Caldera_Forms::do_magic_tags( $config['entity_params'] );
+
 		$line_item = [
+			'processor_entity' => isset( $processor_id ) ? $processor_id : false,
 			'line_item' => $price_field_value
 		];
 
@@ -293,10 +303,6 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 			$field_value['price_field_value_id'] = $field_value['id'];
 
 			$field_value['entity_table'] = $entity_table ? $entity_table : $this->guess_entity_table( $price_field_value );
-
-			// add tax amount
-			if ( isset( $field_value['tax_amount'] ) && $this->plugin->helper->get_tax_settings()['invoicing'] )
-				$field_value['amount'] += $field_value['tax_amount'];
 
 			unset( 
 				$field_value['id'],
