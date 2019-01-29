@@ -58,7 +58,7 @@ if ( isset( $field['config']['civicrm_country'] ) ) {
 					return option.dataset.crmCountryId == countryId;
 				} );
 
-				if ( ! options.length ) options = new Option( 'N/A', 1 );
+				if ( ! options.length ) options = new Option( 'N/A', 0 );
 
 				stateField.html( options );
 
