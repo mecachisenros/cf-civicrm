@@ -201,9 +201,16 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 		// if price field is disabled by cfc we won't have a price_field_value
 		// if ( ! $price_field_value['id'] ) return;
 
-		if ( isset( $config['is_other_amount'] ) ) {
-			$form_values = $this->plugin->helper->map_fields_to_processor( $config, $form, $form_values );
+		$form_values = $this->plugin->helper->map_fields_to_processor( $config, $form, $form_values );
+
+		if ( isset( $config['is_other_amount'] ) )
 			$price_field_value[0]['line_total'] = $price_field_value[0]['unit_price'] = $price_field_value[0]['amount'] = $form_values['amount'];
+
+		// handle qty and head count
+		if ( isset( $form_values['qty'] ) && isset( $config['is_fixed_price_field'] ) && ! isset( $config['is_other_amount'] ) ) {
+			$price_field_value[0]['qty'] = $form_values['qty'];
+			$price_field_value[0]['count'] = $form_values['qty'];
+			$price_field_value[0]['line_total'] = $price_field_value[0]['line_total'] * $form_values['qty'];
 		}
 
 		// get price field

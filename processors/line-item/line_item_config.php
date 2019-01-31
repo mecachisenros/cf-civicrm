@@ -72,6 +72,21 @@ $price_sets = caldera_forms_civicrm()->helper->cached_price_sets();
 	</div>
 </div>
 
+<!-- Quantity -->
+<div id="{{_id}}_qty" class="entity-data caldera-config-group">
+	<label><?php _e( 'Quantity', 'caldera-forms-civicrm' ); ?></label>
+	<div class="caldera-config-field">
+		<input type="text" class="block-input field-config magic-tag-enabled caldera-field-bind" name="{{_name}}[qty]" value="{{qty}}">
+	</div>
+</div>
+
+<!-- Use qty as count -->
+<div id="{{_id}}_use_qty_as_count" class="caldera-config-group caldera-config-group-full">
+	<div class="caldera-config-field">
+		<label><input type="checkbox" name="{{_name}}[use_qty_as_count]" value="1" {{#if use_qty_as_count}}checked="checked"{{/if}}><?php _e( 'Use quantity as participant head count', 'caldera-forms-civicrm' ); ?></label>
+	</div>
+</div>
+
 <div id="{{_id}}_other_amount_wrapper">
 	<!-- Is Other Amount -->
 	<div id="{{_id}}_is_other_amount" class="caldera-config-group caldera-config-group-full">
@@ -104,6 +119,10 @@ $price_sets = caldera_forms_civicrm()->helper->cached_price_sets();
 			var is_fixed = $( this ).prop( 'checked' );
 			$( '.binded_price_field', $( price_field_value ) ).toggle( ! is_fixed );
 			$( '.fixed_price_field', $( price_field_value ) ).toggle( is_fixed );
+			// qty section
+			var condition = $( entity_table + ' select' ).val() == 'civicrm_participant' && is_fixed;
+			$( '#' + prId + '_qty' ).toggle( condition );
+			$( '#' + prId + '_use_qty_as_count' ).toggle( condition );
 		} ).trigger( 'change' );
 
 		$( is_other_amount + ' input' ).on( 'change', function( i, el ) {
