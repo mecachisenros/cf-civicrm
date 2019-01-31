@@ -330,7 +330,8 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 
 			$line_item['processor_id'] = $item_processor_id;
 
-			$line_items[] = $line_item;
+			if ( isset( $line_item['line_item'] ) )
+				$line_items[] = $line_item;
 
 			return $line_items;
 
@@ -364,7 +365,7 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 
 		$formatted_items = [];
 
-		array_map( function( $item ) use ( &$formatted_items, $processors, $form ) {
+		array_map( function( $item ) use ( &$formatted_items, $processors ) {
 
 			if ( ! isset( $item['processor_entity'] ) || empty( $item['processor_entity'] ) ) {
 
@@ -380,8 +381,15 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 				if ( isset( $formatted_items[$item['processor_entity']]['line_item'] ) ) {
 
 					$formatted_items[$item['processor_entity']]['line_item'] = array_reduce( $item['line_item'], function( $lines, $line ) {
-						$lines[] = $line;
+
+						$price_field_values_ids = array_column( $lines, 'price_field_value_id' );
+
+						// there cannot be duplicated price field options for the same item 
+						if ( ! in_array( $line['price_field_value_id'], $price_field_values_ids ) )
+							$lines[] = $line;
+
 						return $lines;
+
 					}, $formatted_items[$item['processor_entity']]['line_item'] );
 
 				} else {
