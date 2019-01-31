@@ -355,6 +355,8 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 		$membership_pprocessors = $this->plugin->helper->get_processor_by_type( 'civicrm_membership', $form );
 		$processors = [];
 
+		$transient = $this->plugin->transient->get();
+
 		if ( is_array( $participant_processors ) )
 			 $processors = array_merge( $processors, $participant_processors );
 
@@ -365,7 +367,7 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 
 		$formatted_items = [];
 
-		array_map( function( $item ) use ( &$formatted_items, $processors ) {
+		array_map( function( $item ) use ( &$formatted_items, $processors, $transient ) {
 
 			if ( ! isset( $item['processor_entity'] ) || empty( $item['processor_entity'] ) ) {
 
@@ -373,9 +375,13 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 
 			} else {
 
-				$item['line_item'] = array_map( function( $line ) use ( $item, $processors ) {
-					$line['entity_table'] = $processors[$item['processor_entity']]['type'];
+				$item['line_item'] = array_map( function( $line ) use ( $item, $processors, $transient ) {
+					// only override entity_table for participants being processed
+					if ( ! empty( ( array ) $transient->participants->{$item['processor_entity']} ) )
+						$line['entity_table'] = $processors[$item['processor_entity']]['type'];
+
 					return $line;
+
 				}, $item['line_item'] );
 
 				if ( isset( $formatted_items[$item['processor_entity']]['line_item'] ) ) {
