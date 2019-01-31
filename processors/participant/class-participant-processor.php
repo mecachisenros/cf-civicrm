@@ -157,7 +157,7 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 			$is_registered = is_array( $this->registrations[$config['processor_id']] );
 
 			// store data in transient if is not registered
-			if ( ! $is_registered ) {
+			if ( ! $is_registered || $this->is_registered_and_same_email_allowed( $is_registered, $event ) ) {
 				$transient->participants->{$config['processor_id']}->params = $form_values;
 				$this->plugin->transient->save( $transient->ID, $transient );
 
@@ -188,7 +188,7 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 				}
 			}
 
-			if ( ! $config['is_monetary'] && ! $is_registered ) {
+			if ( ( ! $config['is_monetary'] && ! $is_registered ) || ( ! $config['is_monetary'] && $this->is_registered_and_same_email_allowed( $is_registered, $event ) ) ) {
 				try {
 					$create_participant = civicrm_api3( 'Participant', 'create', $form_values );
 					if ( ! $create_participant['is_error'] && $config['is_email_receipt'] ) {
@@ -879,6 +879,8 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 		$event = $this->events[$processor_id];
 		$participant = $this->registrations[$processor_id];
 
+		if ( isset( $event['allow_same_participant_emails'] ) && $event['allow_same_participant_emails'] ) return;
+
 		// notices filter
 		$filter = 'cfc_notices_to_render';
 		// cfc_notices_to_render filter callback
@@ -1176,6 +1178,18 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 	 */
 	public function parse_processor_id( $processor_id ) {
 		return strpos( $processor_id, '#' ) ? substr( $processor_id, 0, strpos( $processor_id, '#' ) ) : $processor_id;
+	}
+
+	/**
+	 * Checkes whether a participant is registered and same email address is allowed.
+	 *
+	 * @since 1.0
+	 * @param bool $is_registered Participant is registered
+	 * @param array $event The event settings
+	 * @return bool $is_allowed
+	 */
+	public function is_registered_and_same_email_allowed( $is_registered, $event ) {
+		return $is_registered && isset( $event['allow_same_participant_emails'] ) && $event['allow_same_participant_emails'];
 	}
 
 }
