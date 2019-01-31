@@ -285,7 +285,7 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 		 * @param array $form The form config
 		 * @param string $processid The process id
 		 */
-		do_action( 'cfc_order_post_processor', $order, $config, $form, $processid );
+		do_action( 'cfc_order_post_processor', $this->order, $config, $form, $processid );
 
 		// send confirmation/receipt 
 		$this->maybe_send_confirmation( $this->order, $config );
@@ -311,7 +311,7 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 
 			$item_processor_id = Caldera_Forms::do_magic_tags( $item_processor_tag );
 
-			if ( strpos( $item_processor_id, 'civicrm_line_item' ) && empty( ( array ) $transient->line_items->$item_processor_id ) ) return $line_items;
+			if ( strpos( $item_processor_id, 'civicrm_line_item' ) || empty( ( array ) $transient->line_items->$item_processor_id ) ) return $line_items;
 
 			$line_item = $transient->line_items->$item_processor_id->params;
 
@@ -758,7 +758,7 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 		
 		if ( ! $order ) return;
 
-		if ( isset( $order['id'] ) && $config['is_email_receipt'] ) {
+		if ( isset( $order['id'] ) && isset( $config['is_email_receipt'] ) ) {
 			try {
 				civicrm_api3( 'Contribution', 'sendconfirmation', [ 'id' => $order['id'] ] );
 			} catch ( CiviCRM_API3_Exception $e ) {

@@ -376,6 +376,8 @@ class CiviCRM_Caldera_Forms_Helper {
 		foreach ( ( $processor ? $config[$processor] : $config ) as $civi_field => $field_id ) {
 			if ( ! empty( $field_id ) ) {
 
+				if ( is_array( $field_id ) ) continue;
+
 				// do bracket magic tag
 				if ( strpos( $field_id, '{' ) !== false ) {
 					$mapped_field = Caldera_Forms_Magic_Doer::do_bracket_magic( $field_id, $form, NULL, NULL, NULL );
@@ -464,6 +466,8 @@ class CiviCRM_Caldera_Forms_Helper {
 				// don't prerender hidden field values unless pre_render enable
 				if ( $field['type'] == 'hidden' && ! isset( $field['config']['pre_render'] ) ) continue;
 
+				$value = ! empty( $entity[$civi_field] ) ? $entity[$civi_field] : '';
+
 				/**
 				 * Filter prerenderd value (default value), fires for every processor field.
 				 *
@@ -475,11 +479,11 @@ class CiviCRM_Caldera_Forms_Helper {
 				 * @param array $entity The current entity, i.e. Contact, Address, etc
 				 * @param array $config processor config
 				 */
-				$form['fields'][$field['ID']]['config']['default'] = apply_filters( 'cfc_filter_mapped_field_to_prerender', $entity[$civi_field], $civi_field, $field, $entity, $config );
+				$form['fields'][$field['ID']]['config']['default'] = apply_filters( 'cfc_filter_mapped_field_to_prerender', $value, $civi_field, $field, $entity, $config );
 
 				if ( $field['type'] == 'radio' ) {
 					$options = Caldera_Forms_Field_Util::find_option_values( $field );
-					$form['fields'][$field['ID']]['config']['default'] = array_search( $entity[$civi_field], $options );
+					$form['fields'][$field['ID']]['config']['default'] = array_search( $value, $options );
 				}
 			}
 		}
@@ -834,7 +838,7 @@ class CiviCRM_Caldera_Forms_Helper {
 	 * @return array $column The requested entity or false 
 	 */
 	public function get_price_set_column_by_id( $id, $column_name ) {
-		
+
 		$price_sets = $this->cached_price_sets();
 
 		if ( $column_name == 'price_set' && array_key_exists( $id, $price_sets ) ) {
@@ -861,7 +865,7 @@ class CiviCRM_Caldera_Forms_Helper {
 			}
 		}
 
-		if ( $column ) return $column;
+		if ( isset( $column ) ) return $column;
 
 		return false;
 
@@ -944,8 +948,9 @@ class CiviCRM_Caldera_Forms_Helper {
 
 		// Check dupes
 		$cids = CRM_Dedupe_Finder::dupesByParams( $dedupeParams, $contact_type, NULL, [], $dedupe_rule_id );
+		$cids = array_reverse( $cids );
 
-		return $cids ? array_pop( array_reverse( $cids ) ) : 0;
+		return $cids ? array_pop( $cids ) : 0;
 	}
 
 	/**

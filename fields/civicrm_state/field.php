@@ -32,7 +32,7 @@ if ( isset( $field['config']['civicrm_country'] ) ) {
 <script type="text/javascript">
 	jQuery( document ).ready( function( $ ) {
 		
-		var countryFieldId = '<?php echo esc_attr( $country_field['ID'] ); ?>',
+		var countryFieldId = '<?php isset( $country_field ) ? esc_attr_e( $country_field['ID'] ) : print( 'false' ); ?>',
 		placeholder = '<?php echo esc_attr( $field['config']['placeholder'] ); ?>';
 
 		var init = function( stateField ) {

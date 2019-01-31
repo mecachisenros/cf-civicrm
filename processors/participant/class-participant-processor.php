@@ -1067,9 +1067,11 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 
 			if ( ! $participant['count'] ) return;
 
-			return array_pop( array_filter( $participant['values'], function( $participant ) use ( $processor, $event_ids ) {
+			$registrations = array_filter( $participant['values'], function( $participant ) use ( $processor, $event_ids ) {
 				return $participant['event_id'] == $event_ids[$processor['ID']];
-			} ) );
+			} );
+
+			return array_pop( $registrations );
 
 		}, $processors );
 	}
