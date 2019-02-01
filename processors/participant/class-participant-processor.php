@@ -145,7 +145,7 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 		if ( ! empty( $transient->contacts->{$this->contact_link} ) ) {
 			// event
 			$event = $this->events[$config['processor_id']];
-			
+
 			$form_values['contact_id'] = $transient->contacts->{$this->contact_link};
 			$form_values['event_id'] = $config['id'];
 			$form_values['role_id'] = ( $config['role_id'] == 'default_role_id' ) ? $event['default_role_id'] : $config['role_id'];
@@ -382,18 +382,16 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 		if ( ! $event_ids ) return false;
 
 		try {
-			$events = civicrm_api3( 'Event', 'get', [
-				'sequential' => 1,
+			$events_result = civicrm_api3( 'Event', 'get', [
 				'id' => [ 'IN' => array_values( $event_ids ) ]
 			] );
 		} catch ( CiviCRM_API3_Exception $e ) {
 
 		}
 
-		if ( $events['count'] )
-			return array_reduce( $events['values'], function( $events, $event ) use ( $event_ids ) {
-				$event['participant_count'] = CRM_Event_BAO_Event::getParticipantCount( $event['id'] );
-				$events[array_search( $event['id'], $event_ids )] = $event;
+		if ( $events_result['count'] )
+			return array_reduce( array_keys( $event_ids ), function( $events, $processor_id ) use ( $event_ids, $events_result ) {
+				$events[$processor_id] = $events_result['values'][$event_ids[$processor_id]];
 				return $events;
 			}, [] );
 
