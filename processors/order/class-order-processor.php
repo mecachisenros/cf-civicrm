@@ -212,7 +212,7 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 
 		} catch ( CiviCRM_API3_Exception $e ) {
 			$transdata['error'] = true;
-			$transdata['note'] = $e->getMessage() . '<br><br><pre' . $e->getTraceAsString() . '</pre>';
+			$transdata['note'] = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
 		}
 
 		// return order_id magic tag
