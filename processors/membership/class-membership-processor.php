@@ -135,11 +135,11 @@ class CiviCRM_Caldera_Forms_Membership_Processor {
 
 			// renew/extend necessary params
 			if ( isset( $config['is_renewal'] ) && isset( $is_member['id'] ) ) {
-        $form_values['id'] = $is_member['id'];
+				$form_values['id'] = $is_member['id'];
 
-        // Ask the API to calculate the status for us.
-        $form_values['skipStatusCal'] = 0;
-      }
+				// Ask the API to calculate the status for us.
+				$form_values['skipStatusCal'] = 0;
+			}
 
 			$form_values['source'] = isset( $form_values['source'] ) ? $form_values['source'] : $form['name'];
 
