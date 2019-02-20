@@ -391,7 +391,9 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 
 		if ( $events_result['count'] )
 			return array_reduce( array_keys( $event_ids ), function( $events, $processor_id ) use ( $event_ids, $events_result ) {
-				$events[$processor_id] = $events_result['values'][$event_ids[$processor_id]];
+				$event = $events_result['values'][$event_ids[$processor_id]];
+				$event['participant_count'] = CRM_Event_BAO_Event::getParticipantCount( $event_ids[$processor_id] );
+				$events[$processor_id] = $event;
 				return $events;
 			}, [] );
 
