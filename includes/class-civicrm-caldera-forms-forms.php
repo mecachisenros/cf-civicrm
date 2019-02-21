@@ -67,15 +67,15 @@ class CiviCRM_Caldera_Forms_Forms {
 		add_filter( 'caldera_forms_magic_summary_should_use_label', [ $this, 'summary_use_label' ], 10, 3 );
 		// exclude hidden fields from summary
 		add_filter( 'caldera_forms_summary_magic_fields', [ $this, 'exclude_hidden_fields_in_summary' ], 10, 2 );
-		// render notices template
-		add_action( 'caldera_forms_render_start', [ $this, 'render_notices_template' ] );
+		// render notices field
+		add_action( 'caldera_forms_render_get_form', [ $this, 'render_notices_field' ], 30, 2 );
 
 		// rebuild calculation field formula
 		add_filter( 'caldera_forms_render_get_field', [ $this, 'rebuild_calculation_field_formula' ], 20, 2 );
 		add_filter( 'caldera_forms_render_setup_field', [ $this, 'rebuild_calculation_field_formula' ], 20, 2 );
 
 	}
-	
+
 	/**
 	 * Set form transient.
 	 * 
@@ -182,11 +182,11 @@ class CiviCRM_Caldera_Forms_Forms {
 	}
 
 	/**
-	 * Render notices template at the top of the form.
+	 * Render notices field at the top of the form.
 	 * @since 1.0
 	 * @param array $form Form config
 	 */
-	public function render_notices_template( $form ) {
+	public function render_notices_field( $form ) {
 		/**
 		 * Filter to replace the notices template.
 		 * @since 1.0
@@ -195,8 +195,43 @@ class CiviCRM_Caldera_Forms_Forms {
 		$template_path = apply_filters( 'cfc_notices_template_path', CF_CIVICRM_INTEGRATION_PATH . 'templates/notices.php', $form );
 
 		$html = $this->plugin->html->generate( [ 'form' => $form ], $template_path );
-		// output template
-		echo $html;
+
+		// mock html field
+		$field = [
+			'ID' => 'caldera_forms_civicrm_notices',
+			'type' => 'html',
+			'label' => 'caldera_forms_civicrm_notices',
+			'slug' => 'caldera_forms_civicrm_notices',
+			'conditions' => [
+				'type' => ''
+			],
+			'caption' => '',
+			'config' => [
+				'custom_calss' => '',
+				'default' => $html
+			]
+		];
+
+		// add row placeholder for our new field at the begining of the structure
+		$form['layout_grid']['structure'] = '12|' . $form['layout_grid']['structure'];
+
+		// new grid, adjust field rows number
+		$new_grid = array_map( function( $grid ) {
+
+			$parts = explode( ':', $grid );
+			$parts[0] = ++$parts[0];
+
+			return implode( ':', $parts );
+
+		}, $form['layout_grid']['fields'] );
+
+		// new grid with the html field
+		$form['layout_grid']['fields'] = array_merge( [ 'caldera_forms_civicrm_notices' => '1:1' ], $new_grid );
+		// add field
+		$form['fields']['caldera_forms_civicrm_notices'] = $field;
+
+		return $form;
+
 	}
 
 	/**
