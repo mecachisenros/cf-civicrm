@@ -328,6 +328,12 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 			if ( isset( $line_item['params']['event_id'] ) && $this->is_pay_later )
 				$line_item['params']['status_id'] = 'Pending from pay later';
 
+			// less line item total errors removing entities that are not being processed
+			if ( isset( $line_item['processor_entity'] ) && ! empty( $line_item['processor_entity'] ) ) {
+				$processor_entity = Caldera_Forms::do_magic_tags( $line_item['processor_entity'] );
+				if ( strpos( $processor_entity, 'civicrm' ) ) unset( $line_item['processor_entity'] );
+			}
+
 			$line_item['processor_id'] = $item_processor_id;
 
 			if ( isset( $line_item['line_item'] ) )
