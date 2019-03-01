@@ -151,6 +151,8 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 			$form_values['role_id'] = ( $config['role_id'] == 'default_role_id' ) ? $event['default_role_id'] : $config['role_id'];
 			$form_values['status_id'] = ( $config['status_id'] == 'default_status_id' ) ? 'Registered' : $config['status_id']; // default is registered
 
+			if ( ! empty( $config['campaign_id'] ) ) $form_values['campaign_id'] = $config['campaign_id'];
+
 			// if multiple participant processors, we need to update $this->registrations
 			$this->registrations = $this->get_participant_registrations( $this->event_ids, $form );
 
