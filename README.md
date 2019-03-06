@@ -13,9 +13,11 @@ The Caldera Forms CiviCRM plugin contains a set of form processors that interact
 * Add Relationships to each contact
 * Create Activities on form submission
 * Select Email Template for notification (requires [Email API Extension](https://civicrm.org/extensions/e-mail-api))
+* CiviDiscount integration for Participant Registration and special field (requires [CiviDiscount Extension](https://civicrm.org/extensions/cividiscount))
 * Open a Case on form submission
 * Checksum support to auto-populate form with URLs like **example.com/some-page?cid={contact.contact_id}&{contact.checksum}**
 * Add Memberships (CiviMember)
+* Add Participants (CiviEvent)
 * Add Contributions with Line Items (for live transactions a [Caldera Forms Payment add-on](https://calderaforms.com/caldera-forms-add-ons/#/payment) is needed)
 
 ### Requirements
@@ -24,7 +26,7 @@ To use this plugin, the following is needed:
 
 * WordPress
 * CiviCRM 4.7.x/5.x (4.6.x *should* work as well)
-* [Caldera Forms](https://wordpress.org/plugins/caldera-forms/ "Caldera Forms WordPress plugin") to be installed
+* [Caldera Forms](https://wordpress.org/plugins/caldera-forms/ "Caldera Forms WordPress plugin") v1.8.1 or greater to be installed
 
 *WARNING* This plugin is in active development (stable beta) and is currently being tested with CiviCRM version 5.x.
 

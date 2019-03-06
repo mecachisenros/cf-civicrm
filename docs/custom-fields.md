@@ -9,6 +9,8 @@ When adding new fields to your Caldera form there are two new options available 
 * CiviCRM Country
 * CiviCRM State/Provice
 * Contact Reference
+* CiviCRM Discount (with CiviDiscount installed)
+* CiviCRM Premium
 
 ![Caldera CiviCRM Special Fields Types](./images/caldera-civicrm-special-fields.jpg)
 
@@ -42,13 +44,6 @@ With the Auto Populate option it provides a quick way to add CiviCRM data fields
 
 ![Auto Populate Data Sources](./images/cfc-auto-pupulate-data-sources.png)
 
-**Admin side display**
-
-![Auto Populate admin side field](./images/cfc-auto-pupulate-admin.png)
-**Front-end form side display**
-
-![Auto Populate front-end form field](./images/cfc-auto-pupulate-fe-form.png)
-
 #### Bulk/Insert Presets
 
 With using the Bulk/Insert Preset options you can bring CiviCRM data into a from and then edit within Caldera to tweak. What all **needs** to remain the same is the *Value* in Caldera, which matches the database ID in CiviCRM.
@@ -59,7 +54,6 @@ Start by adding a new field to the form and giving it a name. Then scroll down t
 
 ![Bulk Insert/Preset](./images/caldera-select-bulk-insert.png)
 
-***Note:** The option you decide to use may be based on whether you need to use the field data values as conditions in a processor. For example if you have multiple member types and based on that selection provide specific options to each member type, it's best to use the Bulk/Insert Preset option, since those fields will be available for selection on conditions.*
 
 When using the Date Picker you must use the same settings that are in **Administer > Localization > Date Formats** in the **Date Input Fields** section. And adjusted by customized in **Administer > Customize Data and Screens > Date Preferences**
 
