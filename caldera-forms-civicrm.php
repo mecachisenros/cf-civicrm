@@ -16,7 +16,7 @@
  *
  * @since 0.1
  */
-define( 'CF_CIVICRM_INTEGRATION_VER', '1.0.1' );
+define( 'CF_CIVICRM_INTEGRATION_VER', '1.0.2' );
 define( 'CF_CIVICRM_INTEGRATION_URL', plugin_dir_url( __FILE__ ) );
 define( 'CF_CIVICRM_INTEGRATION_PATH', plugin_dir_path( __FILE__ ) );
 
@@ -192,7 +192,7 @@ class CiviCRM_Caldera_Forms {
 	private function check_dependencies() {
 
 		// Bail if Caldera Forms is not available
-		if ( ! defined( 'CFCORE_VER' ) || ! version_compare( CFCORE_VER, '1.7.3', '>=' ) ) {
+		if ( ! defined( 'CFCORE_VER' ) || ! version_compare( CFCORE_VER, '1.8.1', '>=' ) ) {
 			add_action( 'admin_notices', [$this, 'caldera_forms_version_notice'] );
 			return false;
 		}
@@ -297,7 +297,7 @@ class CiviCRM_Caldera_Forms {
 	public function caldera_forms_version_notice() {
 		?>
 			<div class="notice notice-error">
-				<p><?php _e( 'Caldera Forms CiviCRM requires Caldera Forms v1.7 or higher.', 'caldera-forms-civicrm' ); ?></p>
+				<p><?php _e( 'Caldera Forms CiviCRM requires Caldera Forms v1.8.1 or higher.', 'caldera-forms-civicrm' ); ?></p>
 			</div>
 		<?php
 	}
