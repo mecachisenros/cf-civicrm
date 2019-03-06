@@ -320,7 +320,7 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 
 			// set membership as pending
 			if ( isset( $line_item['params']['membership_type_id'] ) && $this->is_pay_later ) {
-				if (!$line_item['params']['id']) {
+				if ( ! $line_item['params']['id'] ) {
 					$line_item['params']['status_id'] = 'Pending';
 				} else {
 					$line_item['params']['num_terms'] = 0;
