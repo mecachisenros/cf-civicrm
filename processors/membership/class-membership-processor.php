@@ -63,7 +63,7 @@ class CiviCRM_Caldera_Forms_Membership_Processor {
 		// filter form before rendering
 		add_filter( 'caldera_forms_render_get_form', [ $this, 'pre_render' ] );
 		// render membership notices
-		add_action( 'caldera_forms_render_start', [ $this, 'current_membership_notices' ] );
+		add_action( 'cfc_notices_to_render', [ $this, 'render_notices' ] );
 
 	}
 
@@ -296,25 +296,24 @@ class CiviCRM_Caldera_Forms_Membership_Processor {
 	/**
 	 * Membership notices.
 	 *
-	 * @since 0.4.4
-	 * 
-	 * @param array $form Form config
+	 * @since 1.0
+	 * @param array $notices The array of notices to render
+	 * @return array $notices The filtered notices
 	 */
-	public function current_membership_notices( $form ) {
+	public function render_notices( $notices ) {
 		// output
 		if ( isset( $this->has_memberships ) ) {
-			$class = "cfc-notices-{$form['ID']}";
-			$out = "<div class=\"{$class}\">";
 			foreach ( $this->has_memberships as $key => $membership ) {
 				// FIXME
 				// use CiviCRM's date setting
 				$end_date = date_format( date_create( $membership['end_date'] ), 'F d, Y' );
-				$out .= '<div class="caldera-grid"><div class="alert alert-warning">';
-				$out .= sprintf( __( 'Your <strong>%1$s</strong> membership expires on %2$s.', 'caldera-forms-civicrm' ), $membership['membership_name'], $end_date );
-				$out .= '</div></div>';
+				$notices[] = [
+					'type' => 'warning',
+					'note' => sprintf( __( 'Your <strong>%1$s</strong> membership expires on %2$s.', 'caldera-forms-civicrm' ), $membership['membership_name'], $end_date )
+				];
 			}
-			$out .= '</div>';
-			echo $out;
 		}
+
+		return $notices;
 	}
 }

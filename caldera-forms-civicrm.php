@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Caldera Forms CiviCRM
  * Description: CiviCRM integration for Caldera Forms.
- * Version: 0.4.4
+ * Version: 1.0.2
  * Author: Andrei Mondoc
  * Author URI: https://github.com/mecachisenros
  * Plugin URI: https://github.com/mecachisenros/caldera-forms-civicrm
@@ -16,7 +16,7 @@
  *
  * @since 0.1
  */
-define( 'CF_CIVICRM_INTEGRATION_VER', '0.4.4' );
+define( 'CF_CIVICRM_INTEGRATION_VER', '1.0.2' );
 define( 'CF_CIVICRM_INTEGRATION_URL', plugin_dir_url( __FILE__ ) );
 define( 'CF_CIVICRM_INTEGRATION_PATH', plugin_dir_path( __FILE__ ) );
 
@@ -138,6 +138,15 @@ class CiviCRM_Caldera_Forms {
 	public $html;
 
 	/**
+	 * CiviDiscount helper object.
+	 *
+	 * @since 1.0
+	 * @access public
+	 * @var object $cividiscount The CiviDiscount helper object
+	 */
+	public $cividiscount;
+
+	/**
 	 * Returns a single instance of this object when called.
 	 *
 	 * @since 0.1.1
@@ -183,7 +192,7 @@ class CiviCRM_Caldera_Forms {
 	private function check_dependencies() {
 
 		// Bail if Caldera Forms is not available
-		if ( ! defined( 'CFCORE_VER' ) || ! version_compare( CFCORE_VER, '1.7', '>=' ) ) {
+		if ( ! defined( 'CFCORE_VER' ) || ! version_compare( CFCORE_VER, '1.8.1', '>=' ) ) {
 			add_action( 'admin_notices', [$this, 'caldera_forms_version_notice'] );
 			return false;
 		}
@@ -228,6 +237,8 @@ class CiviCRM_Caldera_Forms {
 		include CF_CIVICRM_INTEGRATION_PATH . 'includes/class-civicrm-caldera-forms-transient.php';
 		// Include html class
 		include CF_CIVICRM_INTEGRATION_PATH . 'includes/class-civicrm-caldera-forms-html.php';
+		// include CiviDiscount helper class
+		include CF_CIVICRM_INTEGRATION_PATH . 'includes/class-civicrm-caldera-forms-cividiscount.php';
 
 	}
 
@@ -260,6 +271,9 @@ class CiviCRM_Caldera_Forms {
 		$this->assets = new CiviCRM_Caldera_Forms_Assets( $this );
 		// init html class
 		$this->html = new CiviCRM_Caldera_Forms_HTML( $this );
+		// init cividiscount class
+		if ( $this->processors->enabled_extensions && in_array( 'org.civicrm.module.cividiscount', $this->processors->enabled_extensions ) )
+			$this->cividiscount = new CiviCRM_Caldera_Forms_CiviDiscount( $this );
 
 	}
 
@@ -283,7 +297,7 @@ class CiviCRM_Caldera_Forms {
 	public function caldera_forms_version_notice() {
 		?>
 			<div class="notice notice-error">
-				<p><?php _e( 'Caldera Forms CiviCRM requires Caldera Forms v1.7 or higher.', 'caldera-forms-civicrm' ); ?></p>
+				<p><?php _e( 'Caldera Forms CiviCRM requires Caldera Forms v1.8.1 or higher.', 'caldera-forms-civicrm' ); ?></p>
 			</div>
 		<?php
 	}

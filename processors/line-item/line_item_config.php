@@ -32,6 +32,15 @@ $price_sets = caldera_forms_civicrm()->helper->cached_price_sets();
 	</select>
 </div>
 
+<!-- Entity Data -->
+<div id="{{_id}}_entity_data" class="entity-data caldera-config-group">
+	<label><?php _e( 'Entity Data (Membership or Participant)', 'caldera-forms-civicrm' ); ?></label>
+	<div class="caldera-config-field">
+		<input type="text" class="block-input field-config magic-tag-enabled caldera-field-bind" name="{{_name}}[entity_params]" value="{{entity_params}}">
+		<p class="description"><?php sprintf( _e( 'Required when the \'Entity Table\' setting is set to CiviCRM Participant or CiviCRM Membership, optional for CiviCRM Contribution.<br>When \'Entity Table\' is set to CiviCRM Contribution, set the Participant processor magic tag if this is a Contribution Line Item associated to a particular Participant, like for example a Donation.', 'caldera-forms-civicrm') );?></p>
+	</div>
+</div>
+
 <!-- Price Field Value -->
 <div id="{{_id}}_price_field_value" class="caldera-config-group">
 	<label><?php _e( 'Price Field Value', 'caldera-forms-civicrm' );?></label>
@@ -63,11 +72,18 @@ $price_sets = caldera_forms_civicrm()->helper->cached_price_sets();
 	</div>
 </div>
 
-<!-- Entity Data -->
-<div id="{{_id}}_entity_data" class="entity-data caldera-config-group">
-	<label><?php _e( 'Entity Data (Membership or Participant)', 'caldera-forms-civicrm' ); ?></label>
+<!-- Quantity -->
+<div id="{{_id}}_qty" class="entity-data caldera-config-group">
+	<label><?php _e( 'Quantity', 'caldera-forms-civicrm' ); ?></label>
 	<div class="caldera-config-field">
-		<input type="text" class="block-input field-config magic-tag-enabled caldera-field-bind" name="{{_name}}[entity_params]" value="{{entity_params}}">
+		<input type="text" class="block-input field-config magic-tag-enabled caldera-field-bind" name="{{_name}}[qty]" value="{{qty}}">
+	</div>
+</div>
+
+<!-- Use qty as count -->
+<div id="{{_id}}_use_qty_as_count" class="caldera-config-group caldera-config-group-full">
+	<div class="caldera-config-field">
+		<label><input type="checkbox" name="{{_name}}[use_qty_as_count]" value="1" {{#if use_qty_as_count}}checked="checked"{{/if}}><?php _e( 'Use quantity as participant head count', 'caldera-forms-civicrm' ); ?></label>
 	</div>
 </div>
 
@@ -99,17 +115,14 @@ $price_sets = caldera_forms_civicrm()->helper->cached_price_sets();
 		is_other_amount = '#' + prId + '_is_other_amount',
 		amount = '#' + prId + '_amount';
 
-
 		$( price_field_value + ' .is_fixed input' ).on( 'change', function( i, el ) {
 			var is_fixed = $( this ).prop( 'checked' );
 			$( '.binded_price_field', $( price_field_value ) ).toggle( ! is_fixed );
 			$( '.fixed_price_field', $( price_field_value ) ).toggle( is_fixed );
-		} ).trigger( 'change' );
-
-		$( entity_table + ' select' ).on( 'change', function( i, el ) {
-			var entity = $( this ).val();
-			$( amount_wrapper ).toggle( entity == 'civicrm_contribution' );
-			$( entity_data ).toggle( entity != 'civicrm_contribution' );
+			// qty section
+			var condition = $( entity_table + ' select' ).val() == 'civicrm_participant' && is_fixed;
+			$( '#' + prId + '_qty' ).toggle( condition );
+			$( '#' + prId + '_use_qty_as_count' ).toggle( condition );
 		} ).trigger( 'change' );
 
 		$( is_other_amount + ' input' ).on( 'change', function( i, el ) {

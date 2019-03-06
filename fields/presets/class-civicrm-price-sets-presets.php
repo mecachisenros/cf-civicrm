@@ -24,6 +24,15 @@ class CiviCRM_Caldera_Forms_Price_Sets_Presets {
 	public $price_sets;
 
 	/**
+	 * Disable all fields flag.
+	 *
+	 * @since 1.0
+	 * @access public
+	 * @var boolean $disable_all_fields
+	 */
+	public $disable_all_fields = false;
+
+	/**
 	 * Initialises this object.
 	 *
 	 * @since 0.4.4
@@ -48,7 +57,10 @@ class CiviCRM_Caldera_Forms_Price_Sets_Presets {
 
 		// auto-populate Price Fields
 		add_action( 'caldera_forms_autopopulate_types', [ $this, 'autopopulate_price_field_types' ] );
-		add_filter( 'caldera_forms_render_get_field', [ $this, 'autopopulate_price_field_values' ], 20, 2 );
+		add_filter( 'caldera_forms_render_get_field', [ $this, 'autopopulate_price_field_values' ], 10, 2 );
+		add_filter( 'caldera_forms_render_setup_field', [ $this, 'autopopulate_price_field_values' ], 10, 2 );
+
+		add_filter( 'caldera_forms_render_field_structure', [ $this, 'autopopulate_price_field_values' ], 10, 2 );
 
 	}
 
@@ -78,7 +90,7 @@ class CiviCRM_Caldera_Forms_Price_Sets_Presets {
 					];
 				}
 			}
-			$presets = array_merge( $price_fields, $presets );
+			$presets = array_merge( $presets, $price_fields );
 		}
 
 		return $presets;
@@ -113,26 +125,163 @@ class CiviCRM_Caldera_Forms_Price_Sets_Presets {
 	 */
 	public function autopopulate_price_field_values( $field, $form ) {
 
-		if ( $this->price_sets ) {
-			if ( ! empty( $field['config']['auto'] ) ) {
-				foreach ( $this->price_sets as $price_set_id => $price_set ) {
-					foreach ( $price_set['price_fields'] as $price_field_id => $price_field ) {
-						if( $field['config']['auto_type'] == 'cfc_price_field_' . $price_field_id ) {
-							foreach ( $price_field['price_field_values'] as $value_id => $price_field_value) {
-								$field['config']['option'][$value_id] = [
-									'value' => $value_id,
-									'label' => $price_field_value['label'] . ' - ' . $field['config']['price_field_currency'] . ' ' . $price_field_value['amount'],
-									'calc_value' => $price_field_value['amount']
-								];
-							}
-						}
-					}
-				}
+		// filter field structure
+		if ( current_filter() == 'caldera_forms_render_field_structure' )
+			$field = $this->filter_price_field_structure( $field, $form );
+
+		// disable field options
+		if ( $this->disable_all_fields )
+			$field = $this->disable_all_price_field_options( $field );
+
+		if ( ! $this->is_price_field_field( $field, $form ) ) return $field;
+
+		/**
+		 * if we reach here, current $field is a 'price_field' field
+		 */
+		$price_field = $this->get_price_field_from_config( $field );
+
+		// remove field if not active
+		if ( ! $this->is_price_field_active( $price_field ) )
+			return false;
+
+		// populate field options
+		$field['config']['option'] = array_reduce( $price_field['price_field_values'], function( $options, $price_field_value ) use ( $field ) {
+
+			$option = [ 
+				'value' => $price_field_value['id'],
+				'label' => sprintf( '%1$s - %2$s', $price_field_value['label'], $this->plugin->helper->format_money( $price_field_value['amount'] ) ),
+				'calc_value' => $price_field_value['amount'],
+				'disabled' => $this->disable_all_fields
+			];
+
+			if ( isset( $price_field_value['tax_amount'] ) && $this->plugin->helper->get_tax_settings()['invoicing'] ) {
+				$option['calc_value'] += $price_field_value['tax_amount'];
+				$option['label'] = $this->plugin->helper->format_tax_label( $price_field_value['label'], $price_field_value['amount'], $price_field_value['tax_amount'] );
 			}
-		}
+
+			$options[$price_field_value['id']] = $option;
+			return $options;
+
+		}, [] );
+
+		/**
+		 * Filter autopopulated price fields.
+		 *
+		 * Triggers for each autopopualted price field at both config and setup stages,
+		 * uses both 'caldera_forms_render_get_field' and 'caldera_forms_render_setup_field' filters.
+		 *
+		 * @since 1.0
+		 * @param array $field The field config
+		 * @param array $form The form config
+		 * @param array $price_field The price field and it's price_field_values
+		 * @param string $current_filter The current filter
+		 */
+		$field = apply_filters( 'cfc_filter_price_field_config', $field, $form, $price_field, $current_filter = current_filter() );
 
 		return $field;
 	}
 
-}
+	/**
+	 * Filter autopopulated price field's field structure.
+	 *
+	 * @since 1.0
+	 * @param array $field The field structure
+	 * @param array $form The form config
+	 * @return array $field The filtered field
+	 */
+	public function filter_price_field_structure( $field, $form ) {
 
+		if ( empty( $field['field']['config']['auto'] ) ) return $field;
+
+		if ( strpos( $field['field']['config']['auto_type'], 'cfc_price_field_' === false ) ) return $field;
+
+		/**
+		 * if we reach here, current $field is a 'price_field' field
+		 */
+		$price_field = $this->get_price_field_from_config( $field['field'] );
+
+		/**
+		 * Chance to alter autopopulated price fields.
+		 *
+		 * @since 1.0
+		 * @param array $field The field config
+		 * @param array $form The form config
+		 * @param array $price_field The price field and it's price_field_values
+		 */
+		$field = apply_filters( 'cfc_filter_price_field_structure', $field, $form, $price_field );
+
+		return $field;
+	}
+
+	/**
+	 * Check if price field is active based on active_on/expire_on.
+	 *
+	 * @since 1.0
+	 * @param array $price_field The price field
+	 * @return boolean $is_active Whether is active or not
+	 */
+	public function is_price_field_active( $price_field ) {
+
+		$now = date( 'Y-m-d H:m:i' );
+		$active_on = isset( $price_field['active_on'] ) && array_key_exists( 'active_on', $price_field ) ? $price_field['active_on'] : $now;
+		$expire_on = isset( $price_field['expire_on'] ) && array_key_exists( 'expire_on', $price_field ) ? $price_field['expire_on'] : $now;
+
+		return ( $now >= $active_on ) && ( $now <= $expire_on );
+
+	}
+
+	/**
+	 * Get price field config from field config.
+	 *
+	 * @since 1.0
+	 * @param array $field Field config
+	 * @return array $price_field Price field config
+	 */
+	public function get_price_field_from_config( $field ) {
+		$price_field_id = ( int ) str_replace( 'cfc_price_field_', '', $field['config']['auto_type'] );
+		return $this->plugin->helper->get_price_set_column_by_id( $price_field_id, 'price_field' );
+	}
+
+	/**
+	 * Check if field is a price field.
+	 *
+	 * @since 1.0
+	 * @param array $field Field config
+	 * @param array $form Form config
+	 * @return boolean $is_price_field_field Whether the field is a price field or not
+	 */
+	public function is_price_field_field( $field, $form ) {
+
+		if ( empty( $field['config']['auto'] ) ) return false;
+
+		if ( strpos( $field['config']['auto_type'], 'cfc_price_field_' ) === false ) return false;
+
+		if ( ! $this->price_sets ) return false;
+
+		return true;
+	}
+
+	/**
+	 * Disable all field's options.
+	 *
+	 * @since 1.0
+	 * @param array $field The field config
+	 * @return array $field The field config
+	 */
+	public function disable_all_price_field_options( $field ) {
+
+		if ( ! isset( $field['config']['option'] ) ) return $field;
+
+		if ( ! in_array( $field['ID'], $this->plugin->processors->processors['participant']->price_field_refs ) ) return $field;
+
+		array_map( function( $option_id ) use ( &$field ) {
+
+			$field['config']['option'][$option_id]['disabled'] = $this->disable_all_fields;
+
+		}, array_keys( $field['config']['option'] ) );
+
+		return $field;
+
+	}
+
+}

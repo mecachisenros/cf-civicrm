@@ -53,7 +53,7 @@ class CiviCRM_Caldera_Forms_Forms {
 		
 		// form render transient
 		add_filter( 'caldera_forms_render_get_form', [ $this, 'set_form_transient' ], 1 );
-		add_action( 'caldera_forms_render_end', [ $this, 'delete_form_transient' ] );
+		add_action( 'caldera_forms_render_end', [ $this, 'delete_form_transient' ], 1 );
 
 		// form submission transient
 		add_filter( 'caldera_forms_submit_get_form', [ $this, 'set_form_transient' ] );
@@ -67,9 +67,15 @@ class CiviCRM_Caldera_Forms_Forms {
 		add_filter( 'caldera_forms_magic_summary_should_use_label', [ $this, 'summary_use_label' ], 10, 3 );
 		// exclude hidden fields from summary
 		add_filter( 'caldera_forms_summary_magic_fields', [ $this, 'exclude_hidden_fields_in_summary' ], 10, 2 );
+		// render notices field
+		add_action( 'caldera_forms_render_get_form', [ $this, 'render_notices_field' ], 30, 2 );
+
+		// rebuild calculation field formula
+		add_filter( 'caldera_forms_render_get_field', [ $this, 'rebuild_calculation_field_formula' ], 20, 2 );
+		add_filter( 'caldera_forms_render_setup_field', [ $this, 'rebuild_calculation_field_formula' ], 20, 2 );
 
 	}
-	
+
 	/**
 	 * Set form transient.
 	 * 
@@ -83,13 +89,9 @@ class CiviCRM_Caldera_Forms_Forms {
 		// bail if no processors
 		if ( empty( $form['processors'] ) ) return $form;
 
-		$has_contact_processor = false;
-
 		if ( Caldera_Forms::get_processor_by_type( 'civicrm_contact', $form ) )
-			$has_contact_processor = true;
-
-		// set transient structure
-		if ( $has_contact_processor ) $this->set_transient_structure( $form );
+			// set transient structure
+			$this->set_transient_structure( $form );
 		
 		return $form;
 	}
@@ -115,43 +117,61 @@ class CiviCRM_Caldera_Forms_Forms {
 	public function set_transient_structure( $form ) {
 
 		$structure = ( object ) [];
+		$structure->contacts = ( object ) [];
+		$structure->memberships = ( object ) [];
+		$structure->participants = ( object ) [];
+		$structure->events = ( object ) [];
+		$structure->line_items = ( object ) [];
+		$structure->orders = ( object ) [];
 
-		foreach ( $form['processors'] as $id => $processor ) {
-			if ( isset( $processor['runtimes'] ) ) {
-				if ( $processor['type'] == 'civicrm_contact' ) {
-					$structure->contacts = new stdClass();
-					$structure->contacts->$id = new stdClass();
+		array_map( function( $id, $processor ) use ( $structure, $form ) {
+
+			if ( ! isset( $processor['runtimes'] ) ) return;
+			// contacts
+			if ( $processor['type'] == 'civicrm_contact' ) {
+				$structure->contacts->$id = ( object ) [];
+				// get current logged in/checksum contact if any
+				$contact = $this->plugin->helper->current_contact_data_get();
+				if ( $contact ) {
+					// FIXME
+					// revise use of 'processor_id' or 'cid_x'
+					$structure->contacts->$id = $contact['contact_id'];
+					$structure->contacts->{'cid_'.$processor['config']['contact_link']} = $contact['contact_id'];
 				}
-
-				if ( $processor['type'] == 'civicrm_membership' ) {
-					$structure->memberships = new stdClass();
-					$structure->memberships->$id = new stdClass();
-				}
-
-				if ( $processor['type'] == 'civicrm_participant' ) {
-					$structure->participants = new stdClass();
-					$structure->participants->$id = new stdClass();
-				}
-
-				if ( $processor['type'] == 'civicrm_order' ) {
-					$structure->orders = new stdClass();
-					$structure->orders->$id = new stdClass();
-				}
-
-				if ( $processor['type'] == 'civicrm_line_item' ) {
-					$structure->line_items = new stdClass();
-					$structure->line_items->$id = new stdClass();
-				}
-
+				return;
 			}
-		}
+			// memberships
+			if ( $processor['type'] == 'civicrm_membership' ) {
+				$structure->memberships->$id = ( object ) [];
+				return;
+			}
+			// participants and events
+			if ( $processor['type'] == 'civicrm_participant' ) {
+				$structure->participants->$id = ( object ) [];
+				// add events and corresponding event_id
+				$structure->events->$id = ( object ) [];
+				$structure->events->$id->event_id = $form['processors'][$id]['config']['id'];
+				return;
+			}
+			// line items
+			if ( $processor['type'] == 'civicrm_line_item' ) {
+				$structure->line_items->$id = ( object ) [];
+				return;
+			}
+			// orders
+			if ( $processor['type'] == 'civicrm_order' ) {
+				$structure->orders->$id = ( object ) [];
+				return;
+			}
+
+		}, array_keys( $form['processors'] ), $form['processors'] );
 
 		/**
 		 * Transient structure, fires at form subsmission and at render time.
 		 *
 		 * @since 0.4.4
 		 *
-		 * @param object $transient The transient stricture
+		 * @param object $structure The transient structure
 		 * @param array $form Form config
 		 */
 		apply_filters( 'cfc_filter_transient_structure', $structure, $form );
@@ -159,6 +179,59 @@ class CiviCRM_Caldera_Forms_Forms {
 		$this->plugin->transient->save( null, $structure );
 
 		return $form;
+	}
+
+	/**
+	 * Render notices field at the top of the form.
+	 * @since 1.0
+	 * @param array $form Form config
+	 */
+	public function render_notices_field( $form ) {
+		/**
+		 * Filter to replace the notices template.
+		 * @since 1.0
+		 * @var string $template_path The notices template path
+		 */
+		$template_path = apply_filters( 'cfc_notices_template_path', CF_CIVICRM_INTEGRATION_PATH . 'templates/notices.php', $form );
+
+		$html = $this->plugin->html->generate( [ 'form' => $form ], $template_path );
+
+		// mock html field
+		$field = [
+			'ID' => 'caldera_forms_civicrm_notices',
+			'type' => 'html',
+			'label' => 'caldera_forms_civicrm_notices',
+			'slug' => 'caldera_forms_civicrm_notices',
+			'conditions' => [
+				'type' => ''
+			],
+			'caption' => '',
+			'config' => [
+				'custom_calss' => '',
+				'default' => $html
+			]
+		];
+
+		// add row placeholder for our new field at the begining of the structure
+		$form['layout_grid']['structure'] = '12|' . $form['layout_grid']['structure'];
+
+		// new grid, adjust field rows number
+		$new_grid = array_map( function( $grid ) {
+
+			$parts = explode( ':', $grid );
+			$parts[0] = ++$parts[0];
+
+			return implode( ':', $parts );
+
+		}, $form['layout_grid']['fields'] );
+
+		// new grid with the html field
+		$form['layout_grid']['fields'] = array_merge( [ 'caldera_forms_civicrm_notices' => '1:1' ], $new_grid );
+		// add field
+		$form['fields']['caldera_forms_civicrm_notices'] = $field;
+
+		return $form;
+
 	}
 
 	/**
@@ -192,7 +265,7 @@ class CiviCRM_Caldera_Forms_Forms {
 	 */
 	public function summary_use_label( $use, $field, $form ) {
 		
-		if( Caldera_Forms::get_processor_by_type( 'civicrm_contact', $form ) )
+		if ( Caldera_Forms::get_processor_by_type( 'civicrm_contact', $form ) )
 			return true;
 
 		return $use;
@@ -207,13 +280,12 @@ class CiviCRM_Caldera_Forms_Forms {
 	 * @param array $form Form config
 	 */
 	public function exclude_hidden_fields_in_summary( $fields, $form ) {
-		if( Caldera_Forms::get_processor_by_type( 'civicrm_contact', $form ) ) {
-			foreach ( $fields as $id => $field ) {
-				if ( $field['type'] == 'hidden' ) {
-					unset( $fields[$id] );
-				}
-			}
-		}
+		
+		if ( Caldera_Forms::get_processor_by_type( 'civicrm_contact', $form ) )
+			return array_filter( $fields, function( $field ) {
+				return $field['type'] !== 'hidden';
+			} );
+
 		return $fields;
 	}
 
@@ -230,23 +302,76 @@ class CiviCRM_Caldera_Forms_Forms {
 		// continue as normal if form has no processors
 		if ( empty( $form['processors'] ) ) return $form;
 
-		$contact_processors = $rest_processors = [];
-		foreach ( $form['processors'] as $pId => $processor ) {
-			if ( $processor['type'] == 'civicrm_contact' ) {
-				$contact_processors[$pId] = $processor;
-			}
-			if ( $processor['type'] != 'civicrm_contact' ) {
-				$rest_processors[$pId] = $processor;
-			}
-		}
-
-		// Sort Contact processors based on Contact Link
-		uasort( $contact_processors, function( $a, $b ) {
+		// contact processors
+		$contacts = array_filter( $form['processors'], function( $processor ) {
+			return $processor['type'] === 'civicrm_contact';
+		} );
+		// sort contact processors by contact_link
+		uasort( $contacts, function( $a, $b ) {
 			return $a['config']['contact_link'] - $b['config']['contact_link'];
 		} );
 
-		$form['processors'] = array_merge( $contact_processors, $rest_processors );
+		$form['processors'] = array_merge( $contacts, array_diff_assoc( $form['processors'], $contacts ) );
 
 		return $form;
+	}
+
+	/**
+	 * Rebuild calculation field formular.
+	 *
+	 * When fields are removed/hidden through 'caldera_forms_render_get_field' and
+	 * 'caldera_forms_render_setup_field' filters, if the removed field is part of the 
+	 * Calculation field formula, it breaks. The formula becomes ( 10+fld_123456 ).
+	 *
+	 * This method filters the calculation field to check for
+	 * hidden/reomved fields and rebuild the formula.
+	 *
+	 * @since 1.0
+	 * @param array $field The field config
+	 * @param array $form The form config
+	 * @return array $field The filtered field
+	 */
+	public function rebuild_calculation_field_formula( $field, $form ) {
+
+		if ( $field['type'] != 'calculation' ) return $field;
+
+		if ( ! isset( $field['config']['formular'] ) ) return $field;
+
+		if ( ! isset( $field['config']['config']['group'] ) ) return $field;
+
+		$do_group_lines = function( $lines ) use ( $form ) {
+
+			$formula = '( ';
+
+			foreach ( $lines as $line_id => $line ) {
+				if ( ! empty( $form['fields'][$line['field']] ) )
+					$formula .= ! $line_id ? $line['field']
+						: ( is_numeric( substr( $formula, -1 ) ) ?
+							$line['operator'] . $line['field']
+							: $line['field']
+						);
+			}
+
+			return $formula . ' )';
+
+		};
+
+		$formula = '';
+		// rebuild formula
+		foreach ( $field['config']['config']['group'] as $gid => $group ) {
+
+			$formula .= ! $gid ?
+				$do_group_lines( $group['lines'] )
+				: ( isset( $group['operator'] ) ?
+					' ' . $group['operator'] . ' '
+					: $do_group_lines( $group['lines'] )
+				);
+
+		}
+
+		$field['config']['formular'] = $formula;
+
+		return $field;
+
 	}
 }

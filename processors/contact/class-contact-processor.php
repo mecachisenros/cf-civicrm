@@ -197,6 +197,14 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 					$form_values['civicrm_contact']['image_URL'] = CRM_Utils_System::url( 'civicrm/contact/imagefile', ['photo' => $file['uri']], true );
 			}
 
+			// contact reference field for organization maps to an array [ 'organization_name' => <name>, 'employer_id' => <id> ] 
+			if ( ! empty( $form_values['civicrm_contact']['current_employer'] ) && is_array( $form_values['civicrm_contact']['current_employer'] ) ) {
+				$org = $form_values['civicrm_contact']['current_employer'];
+				$form_values['civicrm_contact']['current_employer'] = $org['organization_name'];
+				// need to be set in case of duplicate orgs with same name
+				$form_values['civicrm_contact']['employer_id'] = $org['employer_id'];
+			}
+
 			try {
 				$create_contact = civicrm_api3( 'Contact', 'create', $form_values['civicrm_contact'] );
 			} catch ( CiviCRM_API3_Exception $e ) {

@@ -71,9 +71,13 @@ class CiviCRM_Caldera_Forms_Fields {
 		// include civicrm field presets
 		include CF_CIVICRM_INTEGRATION_PATH . 'fields/presets/class-civicrm-core-fields-presets.php';
 		include CF_CIVICRM_INTEGRATION_PATH . 'fields/presets/class-civicrm-custom-fields-presets.php';
-		if ( in_array( 'CiviContribute', $this->plugin->processors->enabled_components ) )
+		if ( in_array( 'CiviContribute', $this->plugin->processors->enabled_components ) ) {
 			include CF_CIVICRM_INTEGRATION_PATH . 'fields/presets/class-civicrm-price-sets-presets.php';
-
+			if ( $this->plugin->processors->enabled_extensions && in_array( 'org.civicrm.module.cividiscount', $this->plugin->processors->enabled_extensions ) )
+				include CF_CIVICRM_INTEGRATION_PATH . 'fields/discount/class-civicrm-discount.php';
+			// premium field
+			include CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_premium/class-civicrm-premium.php';
+		}
 	}
 
 	/**
@@ -92,8 +96,15 @@ class CiviCRM_Caldera_Forms_Fields {
 		// autopopulate and bulk insert/presets
 		$this->presets_objects['civicrm_core_fields'] = new CiviCRM_Caldera_Forms_Core_Fields_Presets( $this->plugin );
 		$this->presets_objects['civicrm_custom_fields'] = new CiviCRM_Caldera_Forms_Custom_Fields_Presets( $this->plugin );
-		if ( in_array( 'CiviContribute', $this->plugin->processors->enabled_components ) )
+		if ( in_array( 'CiviContribute', $this->plugin->processors->enabled_components ) ) {
 			$this->presets_objects['civicrm_price_sets'] = new CiviCRM_Caldera_Forms_Price_Sets_Presets( $this->plugin );
+			// discount field for cividiscount integration
+			if ( $this->plugin->processors->enabled_extensions && in_array( 'org.civicrm.module.cividiscount', $this->plugin->processors->enabled_extensions ) )
+				$this->field_objects['civicrm_discount'] = new CiviCRM_Caldera_Forms_Field_Discount( $this->plugin );
+			// premium field
+			$this->field_objects['civicrm_premium'] = new CiviCRM_Caldera_Forms_Field_Premium( $this->plugin );
+		}
+
 
 	}
 

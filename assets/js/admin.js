@@ -46,7 +46,7 @@ function cfc_select2_defaults( selector, value ) {
 		}
 	}
 
-    jQuery( selector ).cfcSelect2({
+	jQuery( selector ).cfcSelect2({
 		ajax: {
 			url: ajaxurl,
 			dataType: 'json',
@@ -102,5 +102,46 @@ function cfc_select2_defaults( selector, value ) {
 					.append( new Option( e.params.data.text, e.params.data.id, false, false ) )
 					.trigger( 'select2:close' );
 			} )
-    });
+	});
 }
+
+// decorate formJSON to add price field options for autopopulate field conditionals
+jQuery( document ).ready( function( $ ) {
+
+	$.fn.originalFormJSON = $.fn.formJSON;
+	
+	$.fn.formJSON = function() {
+
+		var form = $( this ).originalFormJSON();
+
+		if ( ! form.config || ! form.config.fields ) return form;
+
+		for ( var field_id in form.config.fields ) {
+
+			var config = form.config.fields[field_id].config;
+
+			if ( config.auto && ( config.auto_type.indexOf( 'price_field_' ) !== -1 || config.auto_type.indexOf( 'custom_' ) !== -1 ) ) {
+
+				form.config.fields[field_id].config.option = {};
+				// cfc_price_field_<id> or custom_<id>
+				var preset_name = config.auto_type.replace( 'cfc_', '' ),
+					options = preset_options[preset_name].data;
+
+				if ( options.constructor !== Array ) return form;
+				options.map( function( option ) {
+
+					var parts = option.split( '|' );
+
+					form.config.fields[field_id].config.option[parts[0]] = {
+						value: parts[0],
+						label: parts[1],
+						calc_value: parts[2]
+					};
+
+				} );
+			}
+		}
+
+		return form;
+	}
+} );

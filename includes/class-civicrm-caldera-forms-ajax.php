@@ -36,7 +36,11 @@ class CiviCRM_Caldera_Forms_AJAX {
 		add_action( 'wp_ajax_flush_price_set_cache', [ $this, 'flush_price_set_cache' ] );
 		add_action( 'wp_ajax_civicrm_contact_reference_get', [ $this, 'civicrm_contact_reference_get' ] );
 		add_action( 'wp_ajax_nopriv_civicrm_contact_reference_get', [ $this, 'civicrm_contact_reference_get' ] );
-
+		// event code discount
+		add_action( 'wp_ajax_do_code_cividiscount', [ $this, 'do_code_cividiscount' ] );
+		add_action( 'wp_ajax_nopriv_do_code_cividiscount', [ $this, 'do_code_cividiscount' ] );
+		// premiums
+		add_action( 'wp_ajax_civicrm_get_premiums', [ $this, 'civicrm_get_premiums' ] );
 	}
 
 	/**
@@ -153,6 +157,49 @@ class CiviCRM_Caldera_Forms_AJAX {
 			ob_end_clean();
 			echo $result;
 		}
+		die;
+	}
+
+	public function do_code_cividiscount() {
+
+		if ( ! wp_verify_nonce( $_POST['nonce'], 'civicrm_cividiscount_code' ) ) return;
+		if ( isset( $_POST['cividiscount_code'] ) ) $code = $_POST['cividiscount_code'];
+		if ( isset( $_POST['form_id'] ) ) $form_id = $_POST['form_id'];
+		if ( isset( $_POST['form_id_attr'] ) ) $form_id_attr = $_POST['form_id_attr'];
+		
+		$discount = $this->plugin->cividiscount->get_by_code( $code );
+
+		if ( $discount ) {
+			// form config
+			$form = Caldera_Forms::get_form( $form_id );
+			// add count
+			$form['form_count'] = str_replace( $form['ID'].'_', '', $form_id_attr );
+
+			$discounted_options = $this->plugin->cividiscount->do_code_discount( $discount, $form );
+
+  		}
+
+		echo json_encode( $discounted_options );
+		die;
+	}
+
+	public function civicrm_get_premiums() {
+		if ( isset( $_POST['search'] ) ) $search_term = $_POST['search'];
+		if ( isset( $_POST['premium_id'] ) ) $premium_id = $_POST['premium_id'];
+
+		if ( ! wp_verify_nonce( $_POST['nonce'], 'admin_get_premiums' ) ) return;
+
+		$params = [
+			'sequential' => 1,
+			'is_active' => 1,
+		];
+
+		if ( isset( $premium_id ) ) $params['id'] = $premium_id;
+		if ( isset( $search_term ) && ! empty( $search_term ) ) $params['name'] = [ 'LIKE' => '%' . $search_term . '%' ];
+		
+		$premiums = civicrm_api3( 'Product', 'get', $params );
+		
+		echo json_encode( $premiums['values'] );
 		die;
 	}
 }

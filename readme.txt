@@ -2,8 +2,8 @@
 Contributors: mecachisenros, needle
 Tags: civicrm, caldera, forms, integration
 Requires at least: 4.5
-Tested up to: 4.9.4
-Stable tag: 0.4.3
+Tested up to: 5.1
+Stable tag: 1.0.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -16,7 +16,7 @@ The Caldera Forms CiviCRM plugin contains a set of form processors that interact
 
 ### Requirements
 
-This plugin requires a minimum of *CiviCRM 4.6* and *Caldera Forms 1.4.2*.
+This plugin requires a minimum of *CiviCRM 4.6* and *Caldera Forms 1.7.3*.
 
 ### Plugin Development
 
@@ -33,6 +33,19 @@ This plugin is in active development. For feature requests and bug reports (or i
 
 
 == Changelog ==
+
+= 1.0.2 =
+* Added Participant processor for free and paid events
+* Price sets improvements
+* Tax support
+* CiviDiscount integration for Participant registration and option based discounts (if extension is enabled)
+* Discount field for CiviDiscount integration (if extension is enabled)
+* Added support for Premium and a Premium field
+* Autopopulate options are now available to use a field or processor conditionals
+* Line Item processor now supports multiple choices options (ie checkbox type price field)
+* Support free entry amounts (ie Civi's Other Amount) for Memberships and Participants
+* Other minor improvements
+
 
 = 0.4.4 =
 * Bug fixes
