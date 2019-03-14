@@ -9,7 +9,7 @@ When adding new fields to your Caldera form there are two new options available 
 * CiviCRM Country
 * CiviCRM State/Provice
 * Contact Reference
-* CiviCRM Discount (with CiviDiscount installed)
+* CiviCRM Discount (Requires CiviDiscount Extension)
 * CiviCRM Premium
 
 ![Caldera CiviCRM Special Fields Types](./images/caldera-civicrm-special-fields.jpg)

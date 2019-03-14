@@ -105,13 +105,13 @@ The CiviCRM Membership processor provides the ability to register and renew memb
 
 ### Event Participants
 
-The CiviCRm Participant processor provides the ability to add event registration, both free and paid, to a form. If multiple registrations are provided, use one processor per event. For free events the processor can work on it's own, for paid events use alongside the Line Item and Order processors. 
+The CiviCRM Participant processor provides the ability to add event registration, both free and paid, to a form. If multiple registrations are provided, use one processor per event. For free events the processor can work on it's own, for paid events use alongside the Line Item and Order processors. 
 
 ![CFC Participant Processor](./images/cfc-participant-processor.png)
 
 ### Price Set Line Items
 
-The CiviCRM Line Item connects Caldera form fields to Line Items in a price set to record transaction details. When using the CiviCRM Membership Processor or the CiviCRM Event Participant processor you can connect the contributions details to the membership or participant record. Once the membership or participant processor is setup a unique variable ID is created and available for selection in the Line Item processor to connect these two entities. 
+The CiviCRM Line Item connects Caldera form fields to Line Items in a price set to record transaction details. When using the CiviCRM Membership Processor or the CiviCRM Event Participant processor you can connect the contributions details to the membership or participant record. Once the Membership or Participant processor is setup a unique variable ID is created and available for selection in the Line Item processor to connect these two entities. 
 
 ![CiviCRM Line Item with Memberhips Processor](./images/civicrm-line-item-with-membership-processor.jpg)
 
