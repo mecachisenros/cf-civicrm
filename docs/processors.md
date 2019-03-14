@@ -99,13 +99,13 @@ The CiviCRM Contribution provides a way to use a Caldera Forms calculation field
 
 ### Memberships
 
-The CiviCRM Membership processor provides the ability to register and renew memberships. By using this processor you can renew existing memberships as is done using a contribution page, or create new memberships at each renewal. If multiple memerships are provided, use one processor per membership. For free memberships the processor can work on it's own, for paid events use alongside the Line Item and Order processors. 
+The CiviCRM Membership processor provides the ability to register and renew memberships, both free and paid, to a form. By using this processor you can renew existing memberships as is done using a contribution page, or create new memberships at each renewal. If multiple memerships are provided, use one processor per membership. For free memberships the processor works on it's own, for paid events use alongside the Line Item and Order processors. 
 
 ![CFC Membership Processor](./images/cfc-membership-processor.png)
 
 ### Event Participants
 
-The CiviCRM Participant processor provides the ability to add event registration, both free and paid, to a form. If multiple registrations are provided, use one processor per event. For free events the processor can work on it's own, for paid events use alongside the Line Item and Order processors. 
+The CiviCRM Participant processor provides the ability to add event registration, both free and paid, to a form. If multiple registrations are provided, use one processor per event. For free events the processor works on it's own, for paid events use alongside the Line Item and Order processors. 
 
 ![CFC Participant Processor](./images/cfc-participant-processor.png)
 
@@ -121,7 +121,7 @@ The CiviCRM Line Item connects Caldera form fields to Line Items in a price set 
 
 ### Orders
 
-The CiviCRM Order processor is where you can connect everything into one contribution record, by mapping all line items into one order that will be recorded on in the Contribution entity.
+The CiviCRM Order processor is where you each Line Item Processor is connected into one order that then contribution record.
 
 ![CiviCRM Order Processor](./images/cfc-order-processor.png)
 
