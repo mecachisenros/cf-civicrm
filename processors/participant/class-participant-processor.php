@@ -141,10 +141,11 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 		// Get form values
 		$form_values = $this->plugin->helper->map_fields_to_processor( $config, $form, $form_values );
 
+		$config = apply_filters( 'cfc_participant_pre_processor_config', $config, $form, $form_values, $this->plugin );
 
 		if ( ! empty( $transient->contacts->{$this->contact_link} ) ) {
 			// event
-			$event = $this->events[$config['processor_id']];
+			$event = apply_filters( 'cfc_participant_pre_processor_event_config', $this->events[$config['processor_id']], $config, $form, $this->plugin );
 
 			$form_values['contact_id'] = $transient->contacts->{$this->contact_link};
 			$form_values['event_id'] = $config['id'];

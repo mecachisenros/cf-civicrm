@@ -72,6 +72,8 @@ $campaigns = civicrm_api3( 'Campaign', 'get', [
 	</div>
 </div>
 
+<?php do_action( 'cfc_participant_processor_config_template_before_link' ); ?>
+
 <!-- Event -->
 <div id="{{_id}}_event_id" class="caldera-config-group">
 	<label><?php _e( 'Event', 'caldera-forms-civicrm' ); ?></label>
