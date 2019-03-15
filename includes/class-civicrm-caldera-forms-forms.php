@@ -207,7 +207,7 @@ class CiviCRM_Caldera_Forms_Forms {
 			],
 			'caption' => '',
 			'config' => [
-				'custom_calss' => '',
+				'custom_class' => '',
 				'default' => $html
 			]
 		];
