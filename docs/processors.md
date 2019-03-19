@@ -111,7 +111,7 @@ The CiviCRM Participant processor provides the ability to add event registration
 
 ### Price Set Line Items
 
-The CiviCRM Line Item connects Caldera form fields to Line Items in a price set to record transaction details. When using the CiviCRM Membership Processor or the CiviCRM Event Participant processor you can connect the contributions details to the membership or participant record. Once the Membership or Participant processor is setup a unique variable ID is created and available for selection in the Line Item processor to connect these two entities. 
+The CiviCRM Line Item connects Caldera form fields to Line Items in a price set to record transaction details. When using the CiviCRM Membership Processor or the CiviCRM Event Participant processor you can connect the contributions details to the membership or participant record. Once the Membership or Participant processor is setup a unique variable ID is created and available for selection in the Line Item processor to connect these two entities.
 
 ![CiviCRM Line Item with Memberhips Processor](./images/civicrm-line-item-with-membership-processor.jpg)
 
@@ -121,7 +121,6 @@ The CiviCRM Line Item connects Caldera form fields to Line Items in a price set 
 
 ### Orders
 
-The CiviCRM Order processor is where you each Line Item Processor is connected into one order that then contribution record.
+The CiviCRM Order processor is where each Line Item Processor is connected into one order that then creates the contribution record.
 
 ![CiviCRM Order Processor](./images/cfc-order-processor.png)
-
