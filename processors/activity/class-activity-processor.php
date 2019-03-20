@@ -105,6 +105,14 @@ class CiviCRM_Caldera_Forms_Activity_Processor {
 			// Concatenate DATE + TIME
 			// $form_values['activity_date_time'] = $form_values['activity_date_time'];
 
+			// error message when case_id magic tag hasn't been evaluated
+			if ( isset( $form_values['case_id'] ) && ! is_numeric( $form_values['case_id'] ) ) {
+				$notice = __( 'Activity not created due to invalid case_id.', 'caldera-forms-civicrm' );
+				$transdata['error'] = TRUE;
+				$transdata['note'] = $notice;
+				return;
+			}
+
 			try {
 				$activity = civicrm_api3( 'Activity', 'create', $form_values );
 			} catch ( CiviCRM_API3_Exception $e ) {
