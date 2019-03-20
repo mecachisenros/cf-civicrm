@@ -198,7 +198,7 @@ class CiviCRM_Caldera_Forms_Custom_Fields_Presets {
 	 *
 	 * @return array|bool $custom_fields The custom fields, or false
 	 */
-	public function custom_fields_get(  ) {
+	public function custom_fields_get() {
 
 		// return data if it's already retrieved
 		if ( ! empty( $this->custom_fields ) ) return $this->custom_fields;
@@ -234,7 +234,8 @@ class CiviCRM_Caldera_Forms_Custom_Fields_Presets {
 
 		$option_values = civicrm_api3( 'OptionValue', 'get', [
 			'sequential' => 1,
-			'option_group_id' => $option_group_id
+			'option_group_id' => $option_group_id,
+			'options' => [ 'limit' => 0 ]
 		] );
 
 		if ( $option_values['count'] && ! $option_values['is_error'] ) return $option_values['values'];
