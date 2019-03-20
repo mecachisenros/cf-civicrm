@@ -9,6 +9,8 @@ jQuery( document ).on( 'cfc.discount.apply', function ( event, data ) {
 
 		state.mutateState( field_id, option.value );
 
+		// unbind and rebind field
+		state.unbind( field_id );
 		state.rebind( field_id );
 
 	}
