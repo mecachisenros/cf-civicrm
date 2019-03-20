@@ -159,6 +159,12 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 
 			$is_registered = is_array( $this->registrations[$config['processor_id']] );
 
+			// prevent re-registrations based on event's 'allow_same_participant_emails' setting
+			if ( $this->is_registered_and_same_email_allowed( $is_registered, $event ) ) {
+				$notice = $this->get_notice( $config['processor_id'], $form );
+				return $notice;
+			}
+
 			// store data in transient if is not registered
 			if ( ! $is_registered || $this->is_registered_and_same_email_allowed( $is_registered, $event ) ) {
 				$transient->participants->{$config['processor_id']}->params = $form_values;
@@ -882,8 +888,6 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 		$event = $this->events[$processor_id];
 		$participant = $this->registrations[$processor_id];
 
-		if ( isset( $event['allow_same_participant_emails'] ) && $event['allow_same_participant_emails'] ) return;
-
 		// notices filter
 		$filter = 'cfc_notices_to_render';
 		// cfc_notices_to_render filter callback
@@ -893,7 +897,7 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 		};
 
 		// is registered
-		if ( $participant && $participant['event_id'] == $event['id'] ) {
+		if ( $participant && $participant['event_id'] == $event['id'] && $event['allow_same_participant_emails'] != 1 ) {
 			$notice = [
 				'type' => 'warning',
 				'note' => sprintf( __( 'Oops. It looks like you are already registered for the event <strong>%1$s</strong>. If you want to change your registration, or you think that this is an error, please contact the site administrator.', 'caldera-forms-civicrm' ), $event['title'] ),
