@@ -88,7 +88,7 @@ class CiviCRM_Caldera_Forms_Case_Processor {
 		// Get form values
 		$form_values = $this->plugin->helper->map_fields_to_processor( $config, $form, $form_values );
 
-		if ( $config['dismiss_case'] ) {
+		if ( isset( $config['dismiss_case'] ) ) {
 			$existing_cases = civicrm_api3( 'Case', 'get', [
 				'sequential' => 1,
 				'contact_id' => $transient->contacts->{$this->contact_link},
@@ -114,7 +114,11 @@ class CiviCRM_Caldera_Forms_Case_Processor {
 				$create_case = civicrm_api3( 'Case', 'create', $form_values );
 				return [ 'case_id' => $create_case['id'] ];
 			} catch ( CiviCRM_API3_Exception $e ) {
-
+				global $transdata;
+				$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
+				$transdata['error'] = true;
+				$transdata['note'] = $error;
+				return;
 			}
 		}
 
