@@ -160,7 +160,7 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 			$is_registered = is_array( $this->registrations[$config['processor_id']] );
 
 			// prevent re-registrations based on event's 'allow_same_participant_emails' setting
-			if ( $this->is_registered_and_same_email_allowed( $is_registered, $event ) ) {
+			if ( $is_registered && $event['allow_same_participant_emails'] != 1 ) {
 				$notice = $this->get_notice( $config['processor_id'], $form );
 				return $notice;
 			}
