@@ -484,11 +484,41 @@ class CiviCRM_Caldera_Forms_Helper {
 				if ( $field['type'] == 'radio' ) {
 					$options = Caldera_Forms_Field_Util::find_option_values( $field );
 					$form['fields'][$field['ID']]['config']['default'] = array_search( $value, $options );
+				} elseif ( $field['type'] == 'date_picker' ) {
+					// If the date is still in the format returned by the CiviCRM API, convert it to the date picker's format.
+					$filtered_value = &$form['fields'][$field['ID']]['config']['default'];
+					if ( preg_match('/^\d{4}-\d{2}-\d{2}(?: \d{2}:\d{2}:\d{2})?$/', $filtered_value ) ) {
+						$format = self::translate_date_picker_format( $field['config']['format'] );
+						$filtered_value = date_create( $filtered_value )->format( $format );
+					}
 				}
 			}
 		}
 
 		return $form;
+	}
+
+	/**
+	 * Translate Caldera Forms date picker formats to PHP date formats.
+	 *
+	 * @since 1.0.2
+	 *
+	 * @param string $date_picker_format The Caldera Forms date picker format
+	 */
+	public static function translate_date_picker_format( $date_picker_format ){
+		// Translate each token used in the CF date picker format to the corresponding PHP format character.
+		static $token_map = [
+			'yyyy' => 'Y',
+			'yy'   => 'y',
+			'MM'   => 'F',
+			'M'    => 'M',
+			'mm'   => 'm',
+			'm'    => 'n',
+			'dd'   => 'd',
+			'd'    => 'j',
+		];
+
+		return strtr( $date_picker_format, $token_map );
 	}
 
 	/**
