@@ -468,6 +468,12 @@ class CiviCRM_Caldera_Forms_Helper {
 
 				$value = ! empty( $entity[$civi_field] ) ? $entity[$civi_field] : '';
 
+				// If the CF field is a date picker, convert the date value to the date picker's format.
+				if ( $field['type'] == 'date_picker' && ! empty( $value ) ) {
+					$format = self::translate_date_picker_format( $field['config']['format'] );
+					$value = date_create( $value )->format( $format );
+				}
+
 				/**
 				 * Filter prerenderd value (default value), fires for every processor field.
 				 *
@@ -484,13 +490,6 @@ class CiviCRM_Caldera_Forms_Helper {
 				if ( $field['type'] == 'radio' ) {
 					$options = Caldera_Forms_Field_Util::find_option_values( $field );
 					$form['fields'][$field['ID']]['config']['default'] = array_search( $value, $options );
-				} elseif ( $field['type'] == 'date_picker' ) {
-					// If the date is still in the format returned by the CiviCRM API, convert it to the date picker's format.
-					$filtered_value = &$form['fields'][$field['ID']]['config']['default'];
-					if ( preg_match('/^\d{4}-\d{2}-\d{2}(?: \d{2}:\d{2}:\d{2})?$/', $filtered_value ) ) {
-						$format = self::translate_date_picker_format( $field['config']['format'] );
-						$filtered_value = date_create( $filtered_value )->format( $format );
-					}
 				}
 			}
 		}
@@ -514,6 +513,8 @@ class CiviCRM_Caldera_Forms_Helper {
 			'M'    => 'M',
 			'mm'   => 'm',
 			'm'    => 'n',
+			'DD'   => 'l',
+			'D'    => 'D',
 			'dd'   => 'd',
 			'd'    => 'j',
 		];
