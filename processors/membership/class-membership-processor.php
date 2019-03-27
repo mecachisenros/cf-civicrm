@@ -15,10 +15,10 @@ class CiviCRM_Caldera_Forms_Membership_Processor {
 	 * @var object $plugin The plugin instance
 	 */
 	public $plugin;
-	
+
 	/**
 	 * Contact link.
-	 * 
+	 *
 	 * @since 0.4.4
 	 * @access protected
 	 * @var string $contact_link The contact link
@@ -28,7 +28,7 @@ class CiviCRM_Caldera_Forms_Membership_Processor {
 	/**
 	 * Current contact's memeberships.
 	 *
-	 * @since 0.4.4 
+	 * @since 0.4.4
 	 * @var array
 	 */
 	protected $has_memberships;
@@ -106,6 +106,16 @@ class CiviCRM_Caldera_Forms_Membership_Processor {
 
 		global $transdata;
 
+		/**
+		 * Filter processor config.
+		 *
+		 * @since 1.0.3
+		 * @param array $config The processor config
+		 * @param array $form The form config
+		 * @param string $processid The process id
+		 */
+		$config = apply_filters( 'cfc_membership_pre_processor_config', $config, $form, $processid );
+
 		// cfc transient object
 		$transient = $this->plugin->transient->get();
 		$this->contact_link = 'cid_' . $config['contact_link'];
@@ -114,11 +124,11 @@ class CiviCRM_Caldera_Forms_Membership_Processor {
 		$form_values = $this->plugin->helper->map_fields_to_processor( $config, $form, $form_values );
 
 		// price field value, if applicable
-		$price_field_value = isset( $config['is_price_field_based'] ) ? 
+		$price_field_value = isset( $config['is_price_field_based'] ) ?
 			$this->plugin->helper->get_price_field_value( $form_values['price_field_value'] ) : false;
 
 		$form_values['membership_type_id'] = $price_field_value ? $price_field_value['membership_type_id'] : $config['membership_type_id'];
-			
+
 		// is member?
 		try {
 			$is_member = civicrm_api3( 'Membership', 'getsingle', [
@@ -126,10 +136,28 @@ class CiviCRM_Caldera_Forms_Membership_Processor {
 				'membership_type_id' => $form_values['membership_type_id'],
 			] );
 		} catch ( CiviCRM_API3_Exception $e ) {
-			// ignore
+			$is_member = false;
 		}
-		
-		if ( ! empty( $transient->contacts->{$this->contact_link} ) ) {
+
+		/**
+		 * Filter to abort membership processing.
+		 *
+		 * To abort a membership from being processed return true or,
+		 * to abort the form from processing return an array like:
+		 * [ 'note' => 'Some message', 'type' => 'success|error|info|warning|danger' ]
+		 * The form processing will stop displaying 'Some message'
+		 *
+		 * @since 1.0.3
+		 * @param bool|array $return Whether to abort the processing of a memebership
+		 * @param bool|array $membership The current membership being processed or false
+		 * @param array $form_values The submitted form values for this membership
+		 * @param array $config The processor config
+		 * @param array $form The form config
+		 * @param string $processid The process id
+		 */
+		$return = apply_filters( 'cfc_membership_pre_processor_return', false, $is_member, $form_values, $config, $form, $processid );
+
+		if ( ! empty( $transient->contacts->{$this->contact_link} ) && ! $return ) {
 
 			$form_values['contact_id'] = $transient->contacts->{$this->contact_link};
 
@@ -155,6 +183,17 @@ class CiviCRM_Caldera_Forms_Membership_Processor {
 			// get num_terms
 			$form_values['num_terms'] = $this->get_num_terms( $form_values, $price_field_value );
 
+			/**
+			 * Filter form values/membership params before processing or storing in transient.
+			 *
+			 * @since 1.0.3
+			 * @param array $form_values The submitted form value/membership api params
+			 * @param array $config The processor config
+			 * @param array $form The form config
+			 * @param string $processid The process id
+			 */
+			$form_values = apply_filters( 'cfc_membership_pre_processor_form_values', $form_values, $config, $form, $processid );
+
 			$transient->memberships->{$config['processor_id']}->params = $form_values;
 
 			$this->plugin->transient->save( $transient->ID, $transient );
@@ -169,6 +208,8 @@ class CiviCRM_Caldera_Forms_Membership_Processor {
 					return [ 'note' => $error, 'type' => 'error' ];
 				}
 			}
+		} elseif ( isset( $return['type'] ) && isset( $return['note'] ) ) {
+			return $return;
 		}
 	}
 
@@ -176,8 +217,8 @@ class CiviCRM_Caldera_Forms_Membership_Processor {
 	 * Form processor callback.
 	 *
 	 * @since 0.4.4
-	 * 
-	 * @param array $config Processor configuration 
+	 *
+	 * @param array $config Processor configuration
 	 * @param array $form Form configuration
 	 * @param string $processid The process id (it may not be set)
 	 */

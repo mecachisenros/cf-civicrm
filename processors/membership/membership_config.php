@@ -7,7 +7,7 @@ $fields = civicrm_api3( 'Membership', 'getfields', [
 
 $membership_fields = [];
 foreach ( $fields['values'] as $key => $value ) {
-	$membership_fields[$value['name']] = $value['title'];	
+	$membership_fields[$value['name']] = $value['title'];
 }
 
 $ignore = [ 'membership_type_id', 'contact_id', 'is_test', 'status_id', 'is_override', 'status_override_end_date', 'owner_membership_id', 'max_related', 'contribution_recur_id', 'id', 'is_pay_later', 'skipStatusCal' ];
@@ -51,6 +51,8 @@ $membership_types = civicrm_api3( 'MembershipType', 'get', [
 	</div>
 </div>
 
+<?php do_action( 'cfc_membership_processor_config_template_before_link', $element ); ?>
+
 <hr style="clear: both;" />
 
 <h2><?php _e( 'Contact Link', 'caldera-forms-civicrm' ); ?></h2>
@@ -88,7 +90,7 @@ $membership_types = civicrm_api3( 'MembershipType', 'get', [
 
 <!-- Membership fields -->
 <h2><?php _e( 'Membership Fields', 'caldera-forms-civicrm' ); ?></h2>
-<?php foreach ( $membership_fields as $key => $value ) { 
+<?php foreach ( $membership_fields as $key => $value ) {
 		if( ! in_array( $key, $ignore ) ) { ?>
 	<div id="{{_id}}_<?php echo esc_attr( $key ); ?>" class="caldera-config-group">
 		<label><?php echo esc_html( $value ); ?> </label>
