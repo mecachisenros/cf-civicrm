@@ -504,9 +504,9 @@ class CiviCRM_Caldera_Forms_Helper {
 	 *
 	 * @param string $date_picker_format The Caldera Forms date picker format
 	 */
-	public static function translate_date_picker_format( $date_picker_format ){
+	public function translate_date_picker_format( $date_picker_format ){
 		// Translate each token used in the CF date picker format to the corresponding PHP format character.
-		static $token_map = [
+		$token_map = [
 			'yyyy' => 'Y',
 			'yy'   => 'y',
 			'MM'   => 'F',
