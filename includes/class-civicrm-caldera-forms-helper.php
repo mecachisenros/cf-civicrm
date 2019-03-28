@@ -468,6 +468,12 @@ class CiviCRM_Caldera_Forms_Helper {
 
 				$value = ! empty( $entity[$civi_field] ) ? $entity[$civi_field] : '';
 
+				// If the CF field is a date picker, convert the date value to the date picker's format.
+				if ( $field['type'] == 'date_picker' && ! empty( $value ) ) {
+					$format = $this->translate_date_picker_format( $field['config']['format'] );
+					$value = date_create( $value )->format( $format );
+				}
+
 				/**
 				 * Filter prerenderd value (default value), fires for every processor field.
 				 *
@@ -489,6 +495,31 @@ class CiviCRM_Caldera_Forms_Helper {
 		}
 
 		return $form;
+	}
+
+	/**
+	 * Translate Caldera Forms date picker formats to PHP date formats.
+	 *
+	 * @since 1.0.2
+	 *
+	 * @param string $date_picker_format The Caldera Forms date picker format
+	 */
+	public function translate_date_picker_format( $date_picker_format ){
+		// Translate each token used in the CF date picker format to the corresponding PHP format character.
+		$token_map = [
+			'yyyy' => 'Y',
+			'yy'   => 'y',
+			'MM'   => 'F',
+			'M'    => 'M',
+			'mm'   => 'm',
+			'm'    => 'n',
+			'DD'   => 'l',
+			'D'    => 'D',
+			'dd'   => 'd',
+			'd'    => 'j',
+		];
+
+		return strtr( $date_picker_format, $token_map );
 	}
 
 	/**
