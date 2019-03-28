@@ -470,7 +470,7 @@ class CiviCRM_Caldera_Forms_Helper {
 
 				// If the CF field is a date picker, convert the date value to the date picker's format.
 				if ( $field['type'] == 'date_picker' && ! empty( $value ) ) {
-					$format = self::translate_date_picker_format( $field['config']['format'] );
+					$format = $this->translate_date_picker_format( $field['config']['format'] );
 					$value = date_create( $value )->format( $format );
 				}
 
