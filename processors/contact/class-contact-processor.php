@@ -15,10 +15,10 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 	 * @var object $plugin The plugin instance
 	 */
 	public $plugin;
-	
+
 	/**
 	 * Contact link.
-	 * 
+	 *
 	 * @since 0.4.4
 	 * @access protected
 	 * @var string $contact_link The contact link
@@ -152,7 +152,7 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 			$first_contact_processor = array_reverse( $form['processors'] );
 			$first_contact_processor = array_pop( $first_contact_processor );
 
-			if ( is_array( $first_contact_processor ) && $first_contact_processor['ID'] == $config['processor_id'] ) {
+			if ( is_array( $first_contact_processor ) && $first_contact_processor['ID'] == $config['processor_id'] && isset( $config['auto_pop'] ) ) {
 				// logged in contact
 				$contact = $this->plugin->helper->get_current_contact();
 				// if not logged in, do dedupe
@@ -190,14 +190,14 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 				try {
 					$file = civicrm_api3( 'File', 'getsingle', [ 'id' => $form_values['civicrm_contact']['image_URL'] ] );
 				} catch ( CiviCRM_API3_Exception $e ) {
-					
+
 				}
 
 				if ( is_array( $file ) && ! $file['is_error'] )
 					$form_values['civicrm_contact']['image_URL'] = CRM_Utils_System::url( 'civicrm/contact/imagefile', ['photo' => $file['uri']], true );
 			}
 
-			// contact reference field for organization maps to an array [ 'organization_name' => <name>, 'employer_id' => <id> ] 
+			// contact reference field for organization maps to an array [ 'organization_name' => <name>, 'employer_id' => <id> ]
 			if ( ! empty( $form_values['civicrm_contact']['current_employer'] ) && is_array( $form_values['civicrm_contact']['current_employer'] ) ) {
 				$org = $form_values['civicrm_contact']['current_employer'];
 				$form_values['civicrm_contact']['current_employer'] = $org['organization_name'];
@@ -273,10 +273,10 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 
 						if ( $field_type['data_type'] == 'File' ) {
 							foreach ( $file_fields[$cf_field['ID']]['files'] as $file_id => $file ) {
-								$this->plugin->helper->create_civicrm_entity_file( 
-									$field_type['custom_group_id.table_name'], 
-									$transient->contacts->{$this->contact_link}, 
-									$file_id 
+								$this->plugin->helper->create_civicrm_entity_file(
+									$field_type['custom_group_id.table_name'],
+									$transient->contacts->{$this->contact_link},
+									$file_id
 								);
 							}
 						}
@@ -310,7 +310,7 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 	 * @param array $form_values The field values beeing submitted
 	 */
 	public function process_address( $config, $form, $transient, &$form_values ){
-		
+
 		if ( ! empty( $transient->contacts->{$this->contact_link} ) ) {
 
 			try {
@@ -384,7 +384,7 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 
 			// Get form values
 			$form_values = $this->plugin->helper->map_fields_to_processor( $config, $form, $form_values, 'civicrm_phone' );
-			
+
 			if( ! empty( $form_values['civicrm_phone'] ) ) {
 				$form_values['civicrm_phone']['contact_id'] = $transient->contacts->{$this->contact_link}; // Contact ID set in Contact Processor
 				$form_values['civicrm_phone']['location_type_id'] = $config['civicrm_phone']['location_type_id'];
@@ -684,7 +684,7 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 				if ( isset( $pr_id['config']['auto_pop'] ) && $pr_id['config']['auto_pop'] == 1 && $civicrm_contact_pr[0]['ID'] == $pr_id['ID'] )
 					// get contact data
 					$contact = $this->plugin->helper->current_contact_data_get();
-					
+
 				// Map CiviCRM contact data to form defaults
 				if ( isset( $contact ) && is_array( $contact ) ) {
 					// contact link reference
