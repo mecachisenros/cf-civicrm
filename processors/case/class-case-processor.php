@@ -15,10 +15,10 @@ class CiviCRM_Caldera_Forms_Case_Processor {
 	 * @var object $plugin The plugin instance
 	 */
 	public $plugin;
-	
+
 	/**
 	 * Contact link.
-	 * 
+	 *
 	 * @since 0.4.4
 	 * @access protected
 	 * @var string $contact_link The contact link
@@ -43,6 +43,8 @@ class CiviCRM_Caldera_Forms_Case_Processor {
 		$this->plugin = $plugin;
 		// register this processor
 		add_filter( 'caldera_forms_get_form_processors', [ $this, 'register_processor' ] );
+		// register case custom fields for autopopulate/presets
+		add_filter( 'cfc_custom_fields_extends_entities', [ $this, 'custom_fields_extend_case' ] );
 
 	}
 
@@ -100,7 +102,7 @@ class CiviCRM_Caldera_Forms_Case_Processor {
 		$form_values['contact_id'] = $transient->contacts->{$this->contact_link}; // Contact ID set in Contact Processor
 		$form_values['case_type_id'] = $config['case_type_id']; // Case Type ID
 		$form_values['case_status_id'] = $config['case_status_id']; // Case Status ID
-		
+
 		if ( ! empty( $config['creator_id'] ) )
 			$form_values['creator_id'] = strpos( $config['creator_id'], 'contact_' ) !== false ? $transient->contacts->{'cid_' . str_replace( 'contact_', '', $config['creator_id'] )} : $config['creator_id']; // Case Manager
 
@@ -122,5 +124,17 @@ class CiviCRM_Caldera_Forms_Case_Processor {
 			}
 		}
 
+	}
+
+	/**
+	 * Add Case to extend custom fields autopopulation/presets.
+	 *
+	 * @since 1.0.3
+	 * @param array $extends The entites array
+	 * @return array $extends The filtered entities array
+	 */
+	public function custom_fields_extend_case( $extends ) {
+		$extends[] = 'Case';
+		return $extends;
 	}
 }

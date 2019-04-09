@@ -17,7 +17,7 @@ $caseFieldsResult = civicrm_api3( 'Case', 'getfields', [
 
 $caseFields = [];
 foreach ( $caseFieldsResult['values'] as $key => $value ) {
-	if ( ! in_array( $value['name'], [ 'case_type_id', 'id', 'is_deleted', 'status_id', 'activity_id', 'contact_id' ] ) ) {
+	if ( in_array( $value['name'], [ 'details', 'subject', 'start_date', 'end_date', 'created_date', 'modified_date' ] ) ) {
 		$caseFields[$value['name']] = $value['title'];
 	}
 }
@@ -91,8 +91,40 @@ foreach ( $caseFieldsResult['values'] as $key => $value ) {
 	</div>
 </div>
 
+<!-- Custom fields -->
+<h2><?php _e( 'Custom Fields', 'caldera-forms-civicrm' ); ?></h2>
+<?php foreach ( caldera_forms_civicrm()->helper->get_case_custom_fields() as $key => $custom_field ) { ?>
+	<div
+		id="{{_id}}_<?php esc_attr_e( $key ); ?>"
+		class="caldera-config-group"
+		data-entity-column-id="<?php esc_attr_e( $custom_field['extends_entity_column_id'] ); ?>"
+		data-entity-column-value="<?php esc_attr_e( json_encode( $custom_field['extends_entity_column_value'] ) ); ?>"
+		>
+		<label><?php esc_html_e( $custom_field['label'] ); ?> </label>
+		<div class="caldera-config-field">
+			<?php echo '{{{_field slug="' . $key . '"}}}'; ?>
+		</div>
+	</div>
+<?php } ?>
+
 <script>
-jQuery( document ).ready( function( $ ){
+jQuery( document ).ready( function( $ ) {
+
+	$( '#{{_id}}_case_type select' ).on( 'change', function() {
+		var case_type_id = $( this ).val();
+
+		$( '[id^={{_id}}_custom]' ).map( function( i, el ) {
+			if ( $( this ).data( 'entity-column-value' ) != undefined ) {
+
+				var column_value = $( el ).data( 'entity-column-value' ).toString(),
+				column_id = $( el ).data( 'entity-column-id' );
+
+				column_value.indexOf( case_type_id ) !== -1 ? $( el ).show() : $( el ).hide();
+			}
+		} );
+
+	} ).trigger( 'change' );
+
 	cfc_select2_defaults( '#{{_id}}_creator_id', '{{creator_id}}' );
 } );
 </script>
