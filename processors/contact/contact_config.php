@@ -4,6 +4,11 @@
 			<label><input id="auto_pop" type="checkbox" name="{{_name}}[auto_pop]" value="1" {{#if auto_pop}}checked="checked"{{/if}}><?php _e( 'Auto populate contact data with CiviCRM data if user is logged in. (Only for the first contact processor)', 'caldera-forms-civicrm' ); ?></label>
 		</div>
 	</div>
+    <div class="caldera-config-group caldera-config-group-full">
+        <div class="caldera-config-field">
+            <label><input id="auto_pop_by_relationship" data-entity-accordion="civicrm-auto-populate-relationship-entity" type="checkbox" name="{{_name}}[auto_pop_by_relationship]" value="1" {{#if auto_pop_by_relationship}}checked="checked"{{/if}}><?php _e( 'Auto populate contact data with CiviCRM data, Based on selected relationship with logged in user. (Doesn\'t work for the first contact processor)', 'caldera-forms-civicrm' ); ?></label>
+        </div>
+    </div>
 	<div class="caldera-config-group caldera-config-group-full">
 		<div class="caldera-config-field">
 			<label><input id="address_enabled" data-entity-accordion="civicrm-address-entity" type="checkbox" name="{{_name}}[enabled_entities][process_address]" value="1" {{#if enabled_entities/process_address}}checked="checked"{{/if}}><?php _e( 'Process address for this contact.', 'caldera-forms-civicrm' ); ?></label>
@@ -68,7 +73,28 @@ $contactSubTypeResult = civicrm_api3( 'ContactType', 'get', [
 $orgStandardFields = [ 'organization_name', 'sic_code', 'legal_name' ];
 $indStandardFields = [ 'first_name', 'last_name', 'middle_name', 'prefix_id', 'suffix_id', 'current_employer', 'birth_date', 'gender_id', 'job_title' ];
 
+$relationships = civicrm_api3( 'RelationshipType', 'get', [
+  'sequential' => 1,
+  'is_active' => 1,
+  'options' => [ 'limit' => 0 ],
+] );
+
 ?>
+
+<div class="civicrm-auto-populate-relationship-entity">
+    <h2><?php _e( 'Select Relationship', 'caldera-forms-civicrm' ); ?></h2>
+    <div id="civicrm-auto-populate-relationship-entity" class="caldera-config-group">
+        <label><?php _e( 'Relationship Type', 'caldera-forms-civicrm' ); ?></label>
+        <div class="caldera-config-field">
+            <select class="block-input field-config" name="{{_name}}[auto_populate_relationship_type]">
+              <?php foreach( $relationships['values'] as $key => $value ) { ?>
+                  <option value="<?php echo esc_attr( $value['id'] ); ?>" {{#is auto_populate_relationship_type value=<?php echo $value['id']; ?>}}selected="selected"{{/is}}><?php echo esc_html( '[' . $value['contact_type_a'] . ']' . $value['label_a_b'] . ' - ['. $value['contact_type_b'] . ']' . $value['label_b_a'] ); ?></option>
+              <?php } ?>
+            </select>
+        </div>
+    </div>
+    <hr style="clear: both;" />
+</div>
 
 <!-- Contact Link -->
 <h2><?php _e( 'Contact Link', 'caldera-forms-civicrm' ); ?></h2>

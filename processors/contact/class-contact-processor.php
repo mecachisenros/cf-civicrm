@@ -170,6 +170,14 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 				);
 			}
 
+      if ( is_array( $first_contact_processor ) && $first_contact_processor['ID'] != $config['processor_id'] && isset( $config['auto_pop_by_relationship']) && $config['auto_pop_by_relationship'] == 1 && isset( $config['auto_populate_relationship_type']) && $config['auto_populate_relationship_type'] != '' ) {
+        // get related contact data
+        $contact = $this->getRelatedContactOfLoggedInUser($config['auto_populate_relationship_type']);
+        if ($contact != NULL) {
+          $contact_id = $contact['id'];
+        }
+      }
+
 			// pass first contact or deduped contact
 			$form_values['civicrm_contact']['contact_id'] = $contact_id;
 
@@ -685,6 +693,11 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 					// get contact data
 					$contact = $this->plugin->helper->current_contact_data_get();
 
+				if ( isset( $pr_id['config']['auto_pop_by_relationship'] ) && $pr_id['config']['auto_pop_by_relationship'] == 1 && isset( $pr_id['config']['auto_populate_relationship_type'] ) && $pr_id['config']['auto_populate_relationship_type'] != '' && $civicrm_contact_pr[0]['ID'] != $pr_id['ID'] ) {
+				  // get related contact data
+          $contact = $this->getRelatedContactOfLoggedInUser($pr_id['config']['auto_populate_relationship_type']);
+        }
+
 				// Map CiviCRM contact data to form defaults
 				if ( isset( $contact ) && is_array( $contact ) ) {
 					// contact link reference
@@ -731,6 +744,35 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 
 		return $form;
 	}
+
+  /**
+   * Find related contact of logged in user by given relationship type id.
+   * @param $relationshipTypeId
+   * @return |null
+   * @throws CiviCRM_API3_Exception
+   */
+	private function getRelatedContactOfLoggedInUser($relationshipTypeId) {
+    $contact = $this->plugin->helper->current_contact_data_get();
+    if ( isset( $contact ) && is_array( $contact ) ) {
+      $contactId = $contact['contact_id'];
+
+      $relationship = civicrm_api3('Relationship', 'get', [
+        'sequential'           => 1,
+        'contact_id_a'         => $contactId,
+        'contact_id_b'         => $contactId,
+        'relationship_type_id' => $relationshipTypeId,
+        'options'              => ['or' => [["contact_id_a", "contact_id_b"]]],
+      ]);
+
+      if (count($relationship) > 0) {
+        $relationship = $relationship['values'][0];
+        $otherContactId = ($relationship['contact_id_a'] == $contactId) ? $relationship['contact_id_b'] : $relationship['contact_id_a'];
+        $contact = $this->plugin->helper->get_civi_contact( $otherContactId );
+        return $contact;
+      }
+    }
+    return NULL;
+  }
 
 	/**
 	 * Pre-render Address data.
