@@ -88,6 +88,8 @@ class CiviCRM_Caldera_Forms_Relationship_Processor {
 					'contact_id_a' => $transient->contacts->{'cid_'.$config['contact_a']},
 					'contact_id_b' => $transient->contacts->{'cid_'.$config['contact_b']},
 					'relationship_type_id' => $config['relationship_type'],
+          'is_permission_a_b' => $config['permission_a_b'],
+          'is_permission_b_a' => $config['permission_b_a'],
 				] );
 			} catch ( CiviCRM_API3_Exception $e ) {
 				$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';

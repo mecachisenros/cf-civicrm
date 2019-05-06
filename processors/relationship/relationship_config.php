@@ -6,6 +6,12 @@ $relationships = civicrm_api3( 'RelationshipType', 'get', [
 	'options' => [ 'limit' => 0 ],
 ] );
 
+$relationshipPermissions = array(
+  '0' => 'None',
+  '2' => 'View only',
+  '1' => 'View and update',
+);
+
 ?>
 
 <div id="{{_id}}_relationship_type" class="caldera-config-group">
@@ -53,4 +59,26 @@ $relationships = civicrm_api3( 'RelationshipType', 'get', [
 			<option value="10" {{#is contact_b value=10}}selected="selected"{{/is}}><?php _e( 'Contact 10', 'caldera-forms-civicrm' ); ?></option>
 		</select>
 	</div>
+</div>
+
+<div id="{{_id}}_permission_a_b" class="caldera-config-group">
+    <label><?php _e( 'Contact A has Permission Over Contact B', 'caldera-forms-civicrm' ); ?></label>
+    <div class="caldera-config-field">
+        <select class="block-input field-config" name="{{_name}}[permission_a_b]">
+          <?php foreach( $relationshipPermissions as $key => $value ) { ?>
+              <option value="<?php echo esc_attr( $key ); ?>" {{#is permission_a_b value=<?php echo $key; ?>}}selected="selected"{{/is}}><?php echo esc_html( $value ); ?></option>
+          <?php } ?>
+        </select>
+    </div>
+</div>
+
+<div id="{{_id}}_permission_b_a" class="caldera-config-group">
+    <label><?php _e( 'Contact A has Permission Over Contact B', 'caldera-forms-civicrm' ); ?></label>
+    <div class="caldera-config-field">
+        <select class="block-input field-config" name="{{_name}}[permission_b_a]">
+          <?php foreach( $relationshipPermissions as $key => $value ) { ?>
+              <option value="<?php echo esc_attr( $key ); ?>" {{#is permission_b_a value=<?php echo $key; ?>}}selected="selected"{{/is}}><?php echo esc_html( $value ); ?></option>
+          <?php } ?>
+        </select>
+    </div>
 </div>
