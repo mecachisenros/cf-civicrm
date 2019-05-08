@@ -1,14 +1,14 @@
 <?php
 /**
- * Plugin Name: Caldera Forms CiviCRM
+ * Plugin Name: Caldera Forms CiviCRM - Agileware
  * Description: CiviCRM integration for Caldera Forms.
- * Version: 1.0.2
- * Author: Andrei Mondoc
- * Author URI: https://github.com/mecachisenros
- * Plugin URI: https://github.com/mecachisenros/caldera-forms-civicrm
- * GitHub Plugin URI: mecachisenros/caldera-forms-civicrm
+ * Version: 1.0.2-agileware-1
+ * Author: Agileware
+ * Author URI: https://github.com/agileware
+ * Plugin URI: https://github.com/agileware/caldera-forms-civicrm
  * Text Domain: caldera-forms-civicrm
  * Domain Path: /languages
+ * GitHub Plugin URI: https://github.com/agileware/caldera-forms-civicrm
  */
 
 /**
