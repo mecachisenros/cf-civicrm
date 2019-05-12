@@ -92,7 +92,7 @@ class CiviCRM_Caldera_Forms_Contact_Reference {
 	 * Filter current_employer mapped field value.
 	 *
 	 * @since  0.4.4
-	 * 
+	 *
 	 * @param string|int $mapped_field The mapped value
 	 * @param string $civi_field The field for an entity i.e. 'contact_id', 'current_employer', etc.
 	 * @param array $field The field config
@@ -103,34 +103,28 @@ class CiviCRM_Caldera_Forms_Contact_Reference {
 
 		if ( $field['type'] != 'civicrm_contact_reference' ) return $mapped_field;
 
-		if ( $civi_field != 'current_employer' ) return $mapped_field;
-
-		if ( ! is_numeric( $mapped_field ) && isset( $field['config']['new_organization'] ) ) {
-			$employer = civicrm_api3( 'Contact', 'create', [
-				'contact_type' => 'Organization',
-				'organization_name' => $mapped_field,
-			] );
-		} else {
-			$employer = civicrm_api3( 'Contact', 'get', [
-				'contact_id' => $mapped_field,
-				'return' => 'organization_name'
-			] );
+		switch ( $civi_field ) {
+			case 'current_employer':
+				$org = $this->get_organisation( $mapped_field, $field );
+				if ( $org ) return $org;
+				return '';
+				break;
+			case 'organization_name':
+				$org = $this->get_organisation( $mapped_field, $field );
+				if ( $org ) return $org['organization_name'];
+				return '';
+				break;
 		}
 
-		if ( isset( $employer['count'] ) && $employer['count'] ) 
-			return [
-				'organization_name' => $employer['values'][$employer['id']]['organization_name'],
-				'employer_id' => $employer['id']
-			];
-
 		return $mapped_field;
+
 	}
 
 	/**
 	 * Prerenderd default current_employer.
 	 *
 	 * @since  0.4.4
-	 * 
+	 *
 	 * @param string|int $value The default value
 	 * @param string $civi_field The field for an entity i.e. 'contact_id', 'current_employer', etc.
 	 * @param array $field The field config
@@ -159,13 +153,13 @@ class CiviCRM_Caldera_Forms_Contact_Reference {
 	 * Enqueue scripts
 	 *
 	 * @since 0.4.4
-	 * 
+	 *
 	 * @param array $form Form config
 	 * @return array $form Form config
 	 */
 	public function enqueue_scripts( $form ) {
 		$reference = false;
-		
+
 		foreach ( $form['fields'] as $field_id => $field ) {
 			if ( $field['type'] == 'civicrm_contact_reference' ) {
 				$reference = true;
@@ -224,6 +218,38 @@ class CiviCRM_Caldera_Forms_Contact_Reference {
 		}
 
 		return $field_value;
+	}
+
+	/**
+	 * Gets or creates (if it does not exist) an organisations.
+	 *
+	 * @since 1.0.3
+	 * @param int|strin $value Contact id o r organisation name
+	 * @param array $field The field config
+	 * @return array|bool The organisation name and contact id or false
+	 */
+	public function get_organisation( $value, $field ) {
+
+		if ( ! is_numeric( $value ) && isset( $field['config']['new_organization'] ) ) {
+			$employer = civicrm_api3( 'Contact', 'create', [
+				'contact_type' => 'Organization',
+				'organization_name' => $value,
+			] );
+		} else {
+			$employer = civicrm_api3( 'Contact', 'get', [
+				'contact_id' => $value,
+				'return' => 'organization_name'
+			] );
+		}
+
+		if ( isset( $employer['count'] ) && $employer['count'] )
+			return [
+				'organization_name' => $employer['values'][$employer['id']]['organization_name'],
+				'employer_id' => $employer['id']
+			];
+
+		return false;
+
 	}
 
 }
