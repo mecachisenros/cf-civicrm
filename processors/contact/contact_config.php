@@ -11,6 +11,11 @@
     </div>
 	<div class="caldera-config-group caldera-config-group-full">
 		<div class="caldera-config-field">
+			<label><input id="prevent_update" type="checkbox" name="{{_name}}[prevent_update]" value="1" {{#if prevent_update}}checked="checked"{{/if}}><?php _e( 'Prevent contact gets update when the dedupe rule find an existing contact.', 'caldera-forms-civicrm' ); ?></label>
+		</div>
+	</div>
+	<div class="caldera-config-group caldera-config-group-full">
+		<div class="caldera-config-field">
 			<label><input id="address_enabled" data-entity-accordion="civicrm-address-entity" type="checkbox" name="{{_name}}[enabled_entities][process_address]" value="1" {{#if enabled_entities/process_address}}checked="checked"{{/if}}><?php _e( 'Process address for this contact.', 'caldera-forms-civicrm' ); ?></label>
 		</div>
 	</div>
