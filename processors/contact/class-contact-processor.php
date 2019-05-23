@@ -170,13 +170,18 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 				);
 			}
 
-      if ( is_array( $first_contact_processor ) && $first_contact_processor['ID'] != $config['processor_id'] && isset( $config['auto_pop_by_relationship']) && $config['auto_pop_by_relationship'] == 1 && isset( $config['auto_populate_relationship_type']) && $config['auto_populate_relationship_type'] != '' ) {
-        // get related contact data
-        $contact = $this->getRelatedContactOfLoggedInUser($config['auto_populate_relationship_type']);
-        if ($contact != NULL) {
-          $contact_id = $contact['id'];
-        }
-      }
+			// Notify user if the contact exists in the database
+			if (isset( $config['prevent_update'] ) && $contact_id != 0) {
+				return [ 'note' => "This record is already exist. If you want to update your information, please go to the update page or contact our team for help.", 'type' => 'error' ];
+			}
+
+			if ( is_array( $first_contact_processor ) && $first_contact_processor['ID'] != $config['processor_id'] && isset( $config['auto_pop_by_relationship'] ) && $config['auto_pop_by_relationship'] == 1 && isset( $config['auto_populate_relationship_type'] ) && $config['auto_populate_relationship_type'] != '' ) {
+				// get related contact data
+				$contact = $this->getRelatedContactOfLoggedInUser( $config['auto_populate_relationship_type'] );
+				if ( $contact != NULL ) {
+					$contact_id = $contact['id'];
+				}
+			}
 
 			// pass first contact or deduped contact
 			$form_values['civicrm_contact']['contact_id'] = $contact_id;
@@ -186,7 +191,7 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 			if( $form_values['civicrm_contact']['contact_id'] ){
 				$existing_contact = $this->plugin->helper->get_civi_contact( $form_values['civicrm_contact']['contact_id'] );
 				if ( is_array( $existing_contact['contact_sub_type'] ) ) {
-					if ( ! empty( $config['civicrm_contact']['contact_sub_type'] ) ) {
+					if ( ! empty( $config['civicrm_contact']['contact_sub_type'] ) && !in_array( $config['civicrm_contact']['contact_sub_type'], $existing_contact['contact_sub_type'])) {
 						array_push( $existing_contact['contact_sub_type'], $config['civicrm_contact']['contact_sub_type'] );
 					}
 					$form_values['civicrm_contact']['contact_sub_type'] = $existing_contact['contact_sub_type'];
