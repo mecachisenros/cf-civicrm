@@ -11,7 +11,7 @@
     </div>
 	<div class="caldera-config-group caldera-config-group-full">
 		<div class="caldera-config-field">
-			<label><input id="prevent_update" type="checkbox" name="{{_name}}[prevent_update]" value="1" {{#if prevent_update}}checked="checked"{{/if}}><?php _e( 'Prevent contact gets update or overwrite for existing contact. Work with custom dedupe rules.', 'caldera-forms-civicrm' ); ?></label>
+			<label><input id="prevent_update" type="checkbox" name="{{_name}}[prevent_update]" value="1" {{#if prevent_update}}checked="checked"{{/if}}><?php _e( 'Do not process the form if the contact already exists. Work with custom dedupe rules.', 'caldera-forms-civicrm' ); ?></label>
 		</div>
 	</div>
 	<div class="caldera-config-group caldera-config-group-full">
