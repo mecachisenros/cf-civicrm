@@ -170,9 +170,9 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 				);
 			}
 
-			// Stop the processor if user want not to update the existing contact
+			// Notify user if the contact exists in the database
 			if (isset( $config['prevent_update'] ) && $contact_id != 0) {
-				return [ 'note' => "This contact information is duplicated.", 'type' => 'error' ];
+				return [ 'note' => "This record is already exist. If you want to update your information, please go to the update page or contact our team for help.", 'type' => 'error' ];
 			}
 
 			if ( is_array( $first_contact_processor ) && $first_contact_processor['ID'] != $config['processor_id'] && isset( $config['auto_pop_by_relationship'] ) && $config['auto_pop_by_relationship'] == 1 && isset( $config['auto_populate_relationship_type'] ) && $config['auto_populate_relationship_type'] != '' ) {
