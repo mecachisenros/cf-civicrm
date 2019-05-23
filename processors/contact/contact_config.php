@@ -11,7 +11,8 @@
     </div>
 	<div class="caldera-config-group caldera-config-group-full">
 		<div class="caldera-config-field">
-			<label><input id="prevent_update" type="checkbox" name="{{_name}}[prevent_update]" value="1" {{#if prevent_update}}checked="checked"{{/if}}><?php _e( 'Do not process the form if the contact already exists. Work with custom dedupe rules.', 'caldera-forms-civicrm' ); ?></label>
+			<label><input id="prevent_update" type="checkbox" name="{{_name}}[prevent_update]" value="1" {{#if prevent_update}}checked="checked"{{/if}}><?php _e( 'Skip the processor if the contact exists.', 'caldera-forms-civicrm' ); ?></label>
+            <p>The form will stop processing and user will get an error message.</p>
 		</div>
 	</div>
 	<div class="caldera-config-group caldera-config-group-full">
