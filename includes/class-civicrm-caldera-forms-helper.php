@@ -427,7 +427,7 @@ class CiviCRM_Caldera_Forms_Helper {
 				 */
 				$mapped_field = apply_filters( 'cfc_filter_mapped_field_to_processor', $mapped_field, $civi_field, $field, $config, $form );
 
-				if( ! empty( $mapped_field ) ){
+				if( ! empty( $mapped_field ) || $mapped_field === '0'){
 
 					if ( $processor ) {
 						$form_values[$processor][$civi_field] = $mapped_field;
