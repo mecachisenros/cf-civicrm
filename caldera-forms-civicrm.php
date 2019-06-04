@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: Caldera Forms CiviCRM
+ * Plugin Name: CF CiviCRM
  * Description: CiviCRM integration for Caldera Forms.
  * Version: 1.0.2
  * Author: Andrei Mondoc
