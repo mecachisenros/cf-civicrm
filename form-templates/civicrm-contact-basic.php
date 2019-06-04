@@ -6,13 +6,13 @@
  */
 
 return array(
-	'name' => __( 'CiviCRM Contact Form', 'caldera-forms-civicrm' ),
-	'description' => __( 'Basic CiviCRM contact form.', 'caldera-forms-civicrm' ),
+	'name' => __( 'CiviCRM Contact Form', 'cf-civicrm' ),
+	'description' => __( 'Basic CiviCRM contact form.', 'cf-civicrm' ),
 	'db_support' => 1,
 	'pinned' => 0,
 	'hide_form' => 1,
 	'check_honey' => 0,
-	'success' => __( 'Form has been successfully submitted. Thank you.', 'caldera-forms-civicrm' ),
+	'success' => __( 'Form has been successfully submitted. Thank you.', 'cf-civicrm' ),
 	'avatar_field' => '',
 	'form_ajax' => 1,
 	'custom_callback' => '',
@@ -34,7 +34,7 @@ return array(
 		array(
 			'ID' => 'prefix',
 			'type' => 'dropdown',
-			'label' => __( 'Prefix', 'caldera-forms-civicrm' ),
+			'label' => __( 'Prefix', 'cf-civicrm' ),
 			'slug' => 'prefix',
 			'conditions' =>
 			array(
@@ -60,7 +60,7 @@ return array(
 		array(
 			'ID' => 'first_name',
 			'type' => 'text',
-			'label' => __( 'First Name', 'caldera-forms-civicrm' ),
+			'label' => __( 'First Name', 'cf-civicrm' ),
 			'slug' => 'first_name',
 			'conditions' =>
 			array(
@@ -81,7 +81,7 @@ return array(
 		array(
 			'ID' => 'last_name',
 			'type' => 'text',
-			'label' => __( 'Last Name', 'caldera-forms-civicrm' ),
+			'label' => __( 'Last Name', 'cf-civicrm' ),
 			'slug' => 'last_name',
 			'conditions' =>
 			array(
@@ -102,7 +102,7 @@ return array(
 		array(
 			'ID' => 'contact_email',
 			'type' => 'email',
-			'label' => __( 'Email', 'caldera-forms-civicrm' ),
+			'label' => __( 'Email', 'cf-civicrm' ),
 			'slug' => 'contact_email',
 			'conditions' =>
 			array(
@@ -121,7 +121,7 @@ return array(
 		array(
 			'ID' => 'submit',
 			'type' => 'button',
-			'label' => __( 'Submit', 'caldera-forms-civicrm' ),
+			'label' => __( 'Submit', 'cf-civicrm' ),
 			'slug' => 'submit',
 			'conditions' =>
 			array(
@@ -144,13 +144,13 @@ return array(
 	'mailer' =>
 	array(
 		'on_insert' => 1,
-		'sender_name' => __( 'CiviCRM Caldera Forms', 'caldera-forms-civicrm' ),
+		'sender_name' => __( 'CiviCRM Caldera Forms', 'cf-civicrm' ),
 		'sender_email' => get_option( 'admin_email' ),
 		'reply_to' => '',
 		'email_type' => 'html',
 		'recipients' => '',
 		'bcc_to' => '',
-		'email_subject' => __( 'CiviCRM Caldera Forms Submission', 'caldera-forms-civicrm' ),
+		'email_subject' => __( 'CiviCRM Caldera Forms Submission', 'cf-civicrm' ),
 		'email_message' => '{summary}',
 	),
 	'processors' =>

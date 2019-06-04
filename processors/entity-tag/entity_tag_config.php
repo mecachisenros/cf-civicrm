@@ -8,18 +8,18 @@ $tagResult = $result = civicrm_api3( 'Tag', 'get', [
 
 ?>
 
-<h2><?php _e( 'Contact Link', 'caldera-forms-civicrm' ); ?></h2>
+<h2><?php _e( 'Contact Link', 'cf-civicrm' ); ?></h2>
 <div id="{{_id}}_contact_link" class="caldera-config-group">
-	<label><?php _e( 'Link to', 'caldera-forms-civicrm' ); ?></label>
+	<label><?php _e( 'Link to', 'cf-civicrm' ); ?></label>
 	<div class="caldera-config-field">
 		<?php caldera_forms_civicrm()->helper->contact_link_field() ?>
-		<p><?php _e( 'Select which contact you want to link this processor to.', 'caldera-forms-civicrm' ); ?></p>
+		<p><?php _e( 'Select which contact you want to link this processor to.', 'cf-civicrm' ); ?></p>
 	</div>
 </div>
 
 <hr style="clear: both;" />
 
-<h2><?php _e( 'Tag(s)', 'caldera-forms-civicrm' ); ?></h2>
+<h2><?php _e( 'Tag(s)', 'cf-civicrm' ); ?></h2>
 <div class="caldera-config-group caldera-config-group-full">
 	<div class="caldera-config-field">
 		<?php foreach ( $tagResult['values'] as $key => $value ) { ?>

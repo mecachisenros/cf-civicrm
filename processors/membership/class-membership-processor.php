@@ -80,8 +80,8 @@ class CiviCRM_Caldera_Forms_Membership_Processor {
 	public function register_processor( $processors ) {
 
 		$processors[$this->key_name] = [
-			'name' =>  __( 'CiviCRM Membership', 'caldera-forms-civicrm' ),
-			'description' =>  __( 'Create/Renew CiviCRM Memberhips.', 'caldera-forms-civicrm' ),
+			'name' =>  __( 'CiviCRM Membership', 'cf-civicrm' ),
+			'description' =>  __( 'Create/Renew CiviCRM Memberhips.', 'cf-civicrm' ),
 			'author' =>  'Andrei Mondoc',
 			'template' =>  CF_CIVICRM_INTEGRATION_PATH . 'processors/membership/membership_config.php',
 			'pre_processor' =>  [ $this, 'pre_processor' ],
@@ -354,7 +354,7 @@ class CiviCRM_Caldera_Forms_Membership_Processor {
 				$end_date = date_format( date_create( $membership['end_date'] ), 'F d, Y' );
 				$notices[] = [
 					'type' => 'warning',
-					'note' => sprintf( __( 'Your <strong>%1$s</strong> membership expires on %2$s.', 'caldera-forms-civicrm' ), $membership['membership_name'], $end_date )
+					'note' => sprintf( __( 'Your <strong>%1$s</strong> membership expires on %2$s.', 'cf-civicrm' ), $membership['membership_name'], $end_date )
 				];
 			}
 		}

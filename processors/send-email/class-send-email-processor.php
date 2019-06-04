@@ -17,7 +17,7 @@ class CiviCRM_Caldera_Forms_Send_Email_Processor {
 
 	/**
 	 * Contact link.
-	 * 
+	 *
 	 * @since 0.4.4
 	 * @access protected
 	 * @var string $contact_link The contact link
@@ -58,8 +58,8 @@ class CiviCRM_Caldera_Forms_Send_Email_Processor {
 	public function register_processor( $processors ) {
 
 		$processors[$this->key_name] = [
-			'name' => __( 'CiviCRM Send Email', 'caldera-forms-civicrm' ),
-			'description' => __( 'Send Email from CiviCRM (CiviCRM message templates, requires Email API)', 'caldera-forms-civicrm' ),
+			'name' => __( 'CiviCRM Send Email', 'cf-civicrm' ),
+			'description' => __( 'Send Email from CiviCRM (CiviCRM message templates, requires Email API)', 'cf-civicrm' ),
 			'author' => 'Andrei Mondoc',
 			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/send-email/send_email_config.php',
 			'pre_processor' =>  [ $this, 'pre_processor' ],

@@ -65,15 +65,15 @@ class CiviCRM_Caldera_Forms_Contact_Reference {
 	public function register_field_type( $field_types ) {
 
 		$field_types[$this->key_name] = [
-			'field' => __( 'CiviCRM Contact Reference', 'caldera-forms-civicrm' ),
+			'field' => __( 'CiviCRM Contact Reference', 'cf-civicrm' ),
 			'file' => CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_contact_reference/field.php',
-			'category' => __( 'CiviCRM', 'caldera-forms-civicrm' ),
-			'description' => __( 'CiviCRM Contact Reference field', 'caldera-forms-civicrm' ),
+			'category' => __( 'CiviCRM', 'cf-civicrm' ),
+			'description' => __( 'CiviCRM Contact Reference field', 'cf-civicrm' ),
 			'setup' => [
 				'template' => CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_contact_reference/config.php',
 				'preview' => CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_contact_reference/preview.php',
 				'default' => [
-					'placeholder' => __( 'Search Contacts', 'caldera-forms-civicrm' )
+					'placeholder' => __( 'Search Contacts', 'cf-civicrm' )
 				],
 			],
 			// 'scripts' => [

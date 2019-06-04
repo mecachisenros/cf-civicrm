@@ -15,7 +15,7 @@ class CiviCRM_Caldera_Forms_Forms {
 	 * @var object $plugin The plugin instance
 	 */
 	public $plugin;
-	
+
 	/**
 	 * Transient Id reference.
 	 *
@@ -46,11 +46,11 @@ class CiviCRM_Caldera_Forms_Forms {
 		add_filter( 'caldera_forms_presave_form', [ $this, 'reorder_contact_processors' ], 20 );
 
 		/**
-		 * The transients are set and destroyed twice, 
-		 * one for the rendering of the form (autopopulation), 
+		 * The transients are set and destroyed twice,
+		 * one for the rendering of the form (autopopulation),
 		 * and another one for the form submission.
 		 */
-		
+
 		// form render transient
 		add_filter( 'caldera_forms_render_get_form', [ $this, 'set_form_transient' ], 1 );
 		add_action( 'caldera_forms_render_end', [ $this, 'delete_form_transient' ], 1 );
@@ -58,11 +58,11 @@ class CiviCRM_Caldera_Forms_Forms {
 		// form submission transient
 		add_filter( 'caldera_forms_submit_get_form', [ $this, 'set_form_transient' ] );
 		add_action( 'caldera_forms_submit_complete', [ $this, 'delete_form_transient' ] );
-		
+
 		// add CiviCRM panel
-		if ( in_array( 'CiviContribute', $this->plugin->processors->enabled_components ) )  
+		if ( in_array( 'CiviContribute', $this->plugin->processors->enabled_components ) )
 			add_filter( 'caldera_forms_get_panel_extensions', [ $this, 'add_civicrm_tab' ], 10 );
-		
+
 		// use label in summary
 		add_filter( 'caldera_forms_magic_summary_should_use_label', [ $this, 'summary_use_label' ], 10, 3 );
 		// exclude hidden fields from summary
@@ -78,7 +78,7 @@ class CiviCRM_Caldera_Forms_Forms {
 
 	/**
 	 * Set form transient.
-	 * 
+	 *
 	 * @since 0.4.4
 	 * @access public
 	 * @param array $form The form config
@@ -92,13 +92,13 @@ class CiviCRM_Caldera_Forms_Forms {
 		if ( Caldera_Forms::get_processor_by_type( 'civicrm_contact', $form ) )
 			// set transient structure
 			$this->set_transient_structure( $form );
-		
+
 		return $form;
 	}
 
 	/**
 	 * Delete form transient.
-	 * 
+	 *
 	 * @access public
 	 * @since 0.4.4
 	 */
@@ -110,7 +110,7 @@ class CiviCRM_Caldera_Forms_Forms {
 	 * Transient structure.
 	 *
 	 * @since 0.4.4
-	 * 
+	 *
 	 * @param array $form Form config
 	 * @return array $form Form config
 	 */
@@ -238,14 +238,14 @@ class CiviCRM_Caldera_Forms_Forms {
 	 * Add CiviCRM panel.
 	 *
 	 * @since 0.4.4
-	 * 
+	 *
 	 * @param array $panels Panels
 	 * @return array $panels Panels
 	 */
 	public function add_civicrm_tab( $panels ) {
 		$panels['form_layout']['tabs'][ 'civicrm' ] = [
-			'name' => __( 'CiviCRM', 'caldera-forms-civicrm' ),
-			'label' => __( 'Caldera Forms CiviCRM', 'caldera-forms-civicrm' ),
+			'name' => __( 'CiviCRM', 'cf-civicrm' ),
+			'label' => __( 'Caldera Forms CiviCRM', 'cf-civicrm' ),
 			'location' => 'lower',
 			'actions' => [],
 			'side_panel' => null,
@@ -264,7 +264,7 @@ class CiviCRM_Caldera_Forms_Forms {
 	 * @return boolean $use
 	 */
 	public function summary_use_label( $use, $field, $form ) {
-		
+
 		if ( Caldera_Forms::get_processor_by_type( 'civicrm_contact', $form ) )
 			return true;
 
@@ -280,7 +280,7 @@ class CiviCRM_Caldera_Forms_Forms {
 	 * @param array $form Form config
 	 */
 	public function exclude_hidden_fields_in_summary( $fields, $form ) {
-		
+
 		if ( Caldera_Forms::get_processor_by_type( 'civicrm_contact', $form ) )
 			return array_filter( $fields, function( $field ) {
 				return $field['type'] !== 'hidden';
@@ -320,7 +320,7 @@ class CiviCRM_Caldera_Forms_Forms {
 	 * Rebuild calculation field formular.
 	 *
 	 * When fields are removed/hidden through 'caldera_forms_render_get_field' and
-	 * 'caldera_forms_render_setup_field' filters, if the removed field is part of the 
+	 * 'caldera_forms_render_setup_field' filters, if the removed field is part of the
 	 * Calculation field formula, it breaks. The formula becomes ( 10+fld_123456 ).
 	 *
 	 * This method filters the calculation field to check for

@@ -20,7 +20,7 @@ This plugin requires a minimum of *CiviCRM 4.6* and *Caldera Forms 1.7.3*.
 
 ### Plugin Development
 
-This plugin is in active development. For feature requests and bug reports (or if you're a plugin author and want to contribute) please visit the plugin's [GitHub repository](https://github.com/mecachisenros/caldera-forms-civicrm).
+This plugin is in active development. For feature requests and bug reports (or if you're a plugin author and want to contribute) please visit the plugin's [GitHub repository](https://github.com/mecachisenros/cf-civicrm).
 
 
 
@@ -52,8 +52,8 @@ This plugin is in active development. For feature requests and bug reports (or i
 * Added option to submit empty/blank values for Address entity
 * Moved scripts and styles to it's own Assets class
 * Added $helper property as a replacement for CiviCRM_Caldera_Forms_Helper static methods and properties
-* Moved Bulk insert/presets and Autopopulate options to their own classes 
-* Fixed usability issue in #61 https://github.com/mecachisenros/caldera-forms-civicrm/issues/61
+* Moved Bulk insert/presets and Autopopulate options to their own classes
+* Fixed usability issue in #61 https://github.com/mecachisenros/cf-civicrm/issues/61
 * Contact Reference custom field (with option to add new Organization)
 * Membership processor (for paid and free Memberships)
 * Order processor to process Contributions for Donations and Memberships (to process live transactions a payment add-on is needed see https://calderaforms.com/caldera-forms-add-ons/#/payment it currently integrates with the Stripe and Authorize.net add-ons)
@@ -62,7 +62,7 @@ This plugin is in active development. For feature requests and bug reports (or i
 
 = 0.4.3 =
 * Fix to prevent select2 conflicts if different vesions are present
-* Added Activity Target, Source, and Assignee fields as select2 widgets (entityRef-like field)  
+* Added Activity Target, Source, and Assignee fields as select2 widgets (entityRef-like field)
 * Show CiviCRM API errors in form
 * Added Contribution processor (code contributed by Agileware) needs documentation
 * Added Case Id magic tag (code contributed by Agileware)

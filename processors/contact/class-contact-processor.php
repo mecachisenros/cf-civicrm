@@ -79,8 +79,8 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 	public function register_processor( $processors ) {
 
 		$processors[$this->key_name] = [
-			'name' =>  __( 'CiviCRM Contact', 'caldera-forms-civicrm' ),
-			'description' =>  __( 'Create CiviCRM contact', 'caldera-forms-civicrm' ),
+			'name' =>  __( 'CiviCRM Contact', 'cf-civicrm' ),
+			'description' =>  __( 'Create CiviCRM contact', 'cf-civicrm' ),
 			'author' =>  'Andrei Mondoc',
 			'template' =>  CF_CIVICRM_INTEGRATION_PATH . 'processors/contact/contact_config.php',
 			'pre_processor' =>  [ $this, 'pre_processor' ],

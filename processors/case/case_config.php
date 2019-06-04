@@ -26,27 +26,27 @@ foreach ( $caseFieldsResult['values'] as $key => $value ) {
 
 <div class="caldera-config-group caldera-config-group-full">
 	<div class="caldera-config-field">
-		<label><input id="{{_id}}_dismiss_case" type="checkbox" name="{{_name}}[dismiss_case]" value="1" {{#if dismiss_case}}checked="checked"{{/if}}><?php _e( 'Do not create Case if the contact already has a Case of same type.', 'caldera-forms-civicrm' ); ?></label>
+		<label><input id="{{_id}}_dismiss_case" type="checkbox" name="{{_name}}[dismiss_case]" value="1" {{#if dismiss_case}}checked="checked"{{/if}}><?php _e( 'Do not create Case if the contact already has a Case of same type.', 'cf-civicrm' ); ?></label>
 	</div>
 </div>
 
 <hr style="clear: both;" />
 
-<h2><?php _e( 'Contact Link', 'caldera-forms-civicrm' ); ?></h2>
+<h2><?php _e( 'Contact Link', 'cf-civicrm' ); ?></h2>
 <div id="{{_id}}_contact_link" class="caldera-config-group">
-	<label><?php _e( 'Link to', 'caldera-forms-civicrm' ); ?></label>
+	<label><?php _e( 'Link to', 'cf-civicrm' ); ?></label>
 	<div class="caldera-config-field">
 		<?php caldera_forms_civicrm()->helper->contact_link_field(); ?>
-		<p><?php _e( 'Select which contact you want to link this processor to.', 'caldera-forms-civicrm' ); ?></p>
+		<p><?php _e( 'Select which contact you want to link this processor to.', 'cf-civicrm' ); ?></p>
 	</div>
 </div>
 
 <hr style="clear: both;" />
 
 <!-- Case Type -->
-<h2><?php _e( 'Case', 'caldera-forms-civicrm' ); ?></h2>
+<h2><?php _e( 'Case', 'cf-civicrm' ); ?></h2>
 <div id="{{_id}}_case_type" class="caldera-config-group">
-	<label><?php _e( 'Case Type', 'caldera-forms-civicrm' ); ?></label>
+	<label><?php _e( 'Case Type', 'cf-civicrm' ); ?></label>
 	<div class="caldera-config-field">
 		<select class="block-input field-config required" name="{{_name}}[case_type_id]">
 		<?php foreach ( $caseTypes['values'] as $key => $value ) { ?>
@@ -58,7 +58,7 @@ foreach ( $caseFieldsResult['values'] as $key => $value ) {
 
 <!-- Case status -->
 <div id="{{_id}}_case_status_id" class="caldera-config-group">
-	<label><?php _e( 'Case Status', 'caldera-forms-civicrm' ); ?></label>
+	<label><?php _e( 'Case Status', 'cf-civicrm' ); ?></label>
 	<div class="caldera-config-field">
 		<select class="block-input field-config required" name="{{_name}}[case_status_id]">
 		<?php foreach ( $case_status['values'] as $key => $value ) { ?>
@@ -70,12 +70,12 @@ foreach ( $caseFieldsResult['values'] as $key => $value ) {
 
 <hr style="clear: both;" />
 
-<h2><?php _e( 'Case fields', 'caldera-forms-civicrm' ); ?></h2>
+<h2><?php _e( 'Case fields', 'cf-civicrm' ); ?></h2>
 <?php
 	foreach ( $caseFields as $key => $value ) {
 		if( $key != 'creator_id' ){ ?>
 		<div id="{{_id}}_<?php echo esc_attr( $key ); ?>" class="caldera-config-group">
-			<label><?php _e( $value, 'caldera-forms-civicrm' ); ?></label>
+			<label><?php _e( $value, 'cf-civicrm' ); ?></label>
 			<div class="caldera-config-field">
 				<input type="text" class="block-input field-config magic-tag-enabled caldera-field-bind <?php if( $key == 'subject') echo 'required'; ?>" name="{{_name}}[<?php echo $key; ?>]" value="{{<?php echo $key; ?>}}">
 			</div>
@@ -84,7 +84,7 @@ foreach ( $caseFieldsResult['values'] as $key => $value ) {
 
 <!-- Case Manager -->
 <div class="caldera-config-group">
-	<label><?php _e( 'Case Created By', 'caldera-forms-civicrm' ); ?></label>
+	<label><?php _e( 'Case Created By', 'cf-civicrm' ); ?></label>
 	<div class="caldera-config-field">
 		<select id="{{_id}}_creator_id" class="block-input field-config" style="width: 100%;" nonce="<?php echo wp_create_nonce('admin_get_civi_contact'); ?>" name="{{_name}}[creator_id]">
 		</select>
@@ -92,7 +92,7 @@ foreach ( $caseFieldsResult['values'] as $key => $value ) {
 </div>
 
 <!-- Custom fields -->
-<h2><?php _e( 'Custom Fields', 'caldera-forms-civicrm' ); ?></h2>
+<h2><?php _e( 'Custom Fields', 'cf-civicrm' ); ?></h2>
 <?php foreach ( caldera_forms_civicrm()->helper->get_case_custom_fields() as $key => $custom_field ) { ?>
 	<div
 		id="{{_id}}_<?php esc_attr_e( $key ); ?>"

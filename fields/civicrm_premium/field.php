@@ -7,33 +7,33 @@
 	<?php echo $field_before; ?>
 		<div class="caldera-config-field init_field_type premium" data-type="toggle_button">
 			<div class="cf-toggle-group-premium btn-group" style="width: 100%; clear: both;">
-				<a 
-					style="width: 50%;" 
-					id="<?php echo esc_attr( $field_id ); ?>_premium" 
-					data-label="<?php echo esc_attr( $field['config']['name'] );?>" 
-					data-field="<?php echo esc_attr( $field_base_id ); ?>" 
-					data-active="<?php echo esc_attr( $field['config']['active_class'] ); ?>" 
-					data-default="<?php echo esc_attr( $field['config']['default_class'] ); ?>" 
-					class="btn <?php echo esc_attr( $field['config']['default_class'] ); ?>" 
-					data-value="<?php echo esc_attr( $field['config']['premium_id'] ); ?>" 
-					<?php echo $disabled; ?> 
-					<?php echo $field_structure['aria']; ?> 
+				<a
+					style="width: 50%;"
+					id="<?php echo esc_attr( $field_id ); ?>_premium"
+					data-label="<?php echo esc_attr( $field['config']['name'] );?>"
+					data-field="<?php echo esc_attr( $field_base_id ); ?>"
+					data-active="<?php echo esc_attr( $field['config']['active_class'] ); ?>"
+					data-default="<?php echo esc_attr( $field['config']['default_class'] ); ?>"
+					class="btn <?php echo esc_attr( $field['config']['default_class'] ); ?>"
+					data-value="<?php echo esc_attr( $field['config']['premium_id'] ); ?>"
+					<?php echo $disabled; ?>
+					<?php echo $field_structure['aria']; ?>
 					<?php if ( $default == 'premium' ) echo 'checked="checked"'; ?>
 					title="<?php echo esc_attr( $field['config']['name'] ); ?>">
 						<?php echo esc_html( $field['config']['name'] ); ?>
 				</a>
 			<?php if ( ! isset( $field['config']['no_no_thanks'] ) ): ?>
-				<a 
-					style="width: 50%;" 
-					id="<?php echo esc_attr( $field_id ); ?>_no_thank_you" 
-					data-label="No thank you" 
-					data-field="<?php echo esc_attr( $field_base_id ); ?>" 
-					data-active="<?php echo esc_attr( $field['config']['active_class'] ); ?>" 
-					data-default="<?php echo esc_attr( $field['config']['default_class'] ); ?>" 
-					class="btn <?php echo esc_attr( $field['config']['default_class'] ); ?>" 
+				<a
+					style="width: 50%;"
+					id="<?php echo esc_attr( $field_id ); ?>_no_thank_you"
+					data-label="No thank you"
+					data-field="<?php echo esc_attr( $field_base_id ); ?>"
+					data-active="<?php echo esc_attr( $field['config']['active_class'] ); ?>"
+					data-default="<?php echo esc_attr( $field['config']['default_class'] ); ?>"
+					class="btn <?php echo esc_attr( $field['config']['default_class'] ); ?>"
 					data-value="0"
-					<?php echo $disabled; ?> 
-					<?php echo $field_structure['aria']; ?> 
+					<?php echo $disabled; ?>
+					<?php echo $field_structure['aria']; ?>
 					<?php if ( $default == 'no_thanks' ) echo 'checked="checked"'; ?>
 					title="<?php echo esc_attr( $field['config']['no_thanks'] ); ?>">
 						<?php echo esc_attr( $field['config']['no_thanks'] ); ?>
@@ -41,28 +41,28 @@
 			<?php endif; ?>
 			</div>
 			<div style="display: none;" aria-hidden="true">
-				<input 
-					<?php if ( ! empty( $field['required'] ) ) { ?>required="required"<?php } ?> 
-					type="radio" 
-					id="<?php echo esc_attr( $field_id ); ?>_premium" 
-					data-label="<?php echo esc_attr( $field['config']['name'] );?>" 
-					data-ref="<?php echo esc_attr( $field_id ); ?>_premium" 
-					class="cf-toggle-group-radio <?php echo $field_id; ?>" 
-					name="<?php echo esc_attr( $field_name ); ?>" 
-					value="<?php echo esc_attr( $field['config']['premium_id'] ); ?>" 
-					data-radio-field="<?php echo esc_attr( $field_id ); ?>" 
+				<input
+					<?php if ( ! empty( $field['required'] ) ) { ?>required="required"<?php } ?>
+					type="radio"
+					id="<?php echo esc_attr( $field_id ); ?>_premium"
+					data-label="<?php echo esc_attr( $field['config']['name'] );?>"
+					data-ref="<?php echo esc_attr( $field_id ); ?>_premium"
+					class="cf-toggle-group-radio <?php echo $field_id; ?>"
+					name="<?php echo esc_attr( $field_name ); ?>"
+					value="<?php echo esc_attr( $field['config']['premium_id'] ); ?>"
+					data-radio-field="<?php echo esc_attr( $field_id ); ?>"
 				>
 			<?php if ( ! isset( $field['config']['no_no_thanks'] ) ): ?>
-				<input 
-					<?php if ( ! empty( $field['required'] ) ) { ?>required="required"<?php } ?> 
-					type="radio" 
-					id="<?php echo esc_attr( $field_id ); ?>_no_thank_you" 
-					data-label="No thank you" 
-					data-ref="<?php echo esc_attr( $field_id ); ?>_no_thank_you" 
-					class="cf-toggle-group-radio <?php echo $field_id; ?>" 
-					name="<?php echo esc_attr( $field_name ); ?>" 
-					value="0" 
-					data-radio-field="<?php echo esc_attr( $field_id ); ?>" 
+				<input
+					<?php if ( ! empty( $field['required'] ) ) { ?>required="required"<?php } ?>
+					type="radio"
+					id="<?php echo esc_attr( $field_id ); ?>_no_thank_you"
+					data-label="No thank you"
+					data-ref="<?php echo esc_attr( $field_id ); ?>_no_thank_you"
+					class="cf-toggle-group-radio <?php echo $field_id; ?>"
+					name="<?php echo esc_attr( $field_name ); ?>"
+					value="0"
+					data-radio-field="<?php echo esc_attr( $field_id ); ?>"
 				>
 			<?php endif; ?>
 			</div>
@@ -93,7 +93,7 @@
 						<div class="premium-details">
 							<p>
 								<span class="premium-name" style="display: block; font-weight: 700;"><?php echo esc_html( $field['config']['name'] ); ?></span>
-								<span class="premium-description"><?php esc_html_e( $field['config']['desc'], 'caldera-forms-civicrm' ); ?></span>
+								<span class="premium-description"><?php esc_html_e( $field['config']['desc'], 'cf-civicrm' ); ?></span>
 							</p>
 							<?php if ( $field['config']['options'] ): ?>
 								<select class="form-control" name="<?php echo esc_attr( $field_base_id ); ?>_option" id="<?php echo esc_attr( $field_id ); ?>_option">
@@ -127,7 +127,7 @@
 					$( element ).attr( 'disabled', false );
 					if ( $( element ).attr( 'checked' ) == 'checked' ) {
 						$( element ).trigger( 'click' );
-					} 
+					}
 				} );
 			} else {
 				toggles.map( function( index, element ) {
