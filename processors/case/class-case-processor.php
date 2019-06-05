@@ -115,7 +115,20 @@ class CiviCRM_Caldera_Forms_Case_Processor {
 		} else {
 			try {
 				$create_case = civicrm_api3( 'Case', 'create', $form_values );
+
+				/**
+				 * Broadcast case cretion
+				 *
+				 * @since 1.0.3
+				 * @param array $result The api result
+				 * @param array $params The api parameters
+				 * @param array $config The processor config
+				 * @param array $form The form config
+				 */
+				do_action( 'cfc_case_processor_case_create', $create_case, $form_values, $config, $form );
+
 				return [ 'case_id' => $create_case['id'] ];
+
 			} catch ( CiviCRM_API3_Exception $e ) {
 				global $transdata;
 				$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';

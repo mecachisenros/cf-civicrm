@@ -30,6 +30,8 @@ foreach ( $caseFieldsResult['values'] as $key => $value ) {
 	</div>
 </div>
 
+<?php do_action( 'cfc_case_processor_config_template_before_link' ); ?>
+
 <hr style="clear: both;" />
 
 <h2><?php _e( 'Contact Link', 'caldera-forms-civicrm' ); ?></h2>
