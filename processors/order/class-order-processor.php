@@ -207,8 +207,13 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 			$this->order = ( $create_order['count'] && ! $create_order['is_error'] ) ? $create_order['values'][$create_order['id']] : false;
 
 			// create product
-			if ( $this->order )
+			if ( $this->order ) {
 				$this->create_premium( $this->order, $form_values, $config );
+
+				// save orde data in transient
+				$transient->orders->{$config['processor_id']}->params = $this->order;
+				$this->plugin->transient->save( $transient->ID, $transient );
+			}
 
 		} catch ( CiviCRM_API3_Exception $e ) {
 			$transdata['error'] = true;
@@ -216,8 +221,12 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 		}
 
 		// return order_id magic tag
-		if ( is_array( $create_order ) && ! $create_order['is_error'] )
-			return $create_order['id'];
+		if ( is_array( $create_order ) && ! $create_order['is_error'] ){
+			return [
+				'order_id' => $create_order['id'],
+				'processor_id' => $config['processor_id']
+			];
+		}
 
 	}
 
