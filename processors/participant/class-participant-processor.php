@@ -220,9 +220,17 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 				if ( ( ! $config['is_monetary'] && ! $is_registered ) || ( ! $config['is_monetary'] && $this->is_registered_and_same_email_allowed( $is_registered, $event ) ) ) {
 					try {
 						$create_participant = civicrm_api3( 'Participant', 'create', $form_values );
+
+						$participant = $create_participant['values'][$create_participant['id']];
+
 						if ( ! $create_participant['is_error'] && $config['is_email_receipt'] ) {
-							$this->send_mail( $create_participant['values'][$create_participant['id']], $event );
+							$this->send_mail( $participant, $event );
 						}
+
+						// save participant data in transient
+						$transient->participants->{$config['processor_id']}->params = $participant;
+						$this->plugin->transient->save( $transient->ID, $transient );
+
 					} catch ( CiviCRM_API3_Exception $e ) {
 						$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
 						return [ 'note' => $error, 'type' => 'error' ];
