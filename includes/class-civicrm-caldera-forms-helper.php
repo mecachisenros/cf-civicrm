@@ -1116,6 +1116,10 @@ class CiviCRM_Caldera_Forms_Helper {
 
 		if( ! $form ) global $form;
 
+		// handle cf select field ({{{_field}}}) magic tags
+		// values which render as fp_123456:processor_id
+		if ( false !== strpos( $parts[0], 'fp_' ) ) return $form['processors'][$parts[0]];
+
 		// if form has more than one processor of same type
 		// the magic tag has the format of processor_type:processor_id:<id>
 		// otherwise the format is processor_type:processor_id
