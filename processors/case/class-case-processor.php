@@ -95,6 +95,7 @@ class CiviCRM_Caldera_Forms_Case_Processor {
 				'sequential' => 1,
 				'contact_id' => $transient->contacts->{$this->contact_link},
 				'case_type_id' => $config['case_type_id'],
+				'is_deleted' => 0,
 				'options' => [ 'limit' => 0 ],
 			] );
 		}
