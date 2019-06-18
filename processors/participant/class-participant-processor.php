@@ -134,8 +134,6 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 	 */
 	public function pre_processor( $config, $form, $processid ) {
 
-		// cfc transient object
-		$transient = $this->plugin->transient->get();
 		$this->contact_link = 'cid_' . $config['contact_link'];
 
 		// Get form values
@@ -143,21 +141,57 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 
 		$config = apply_filters( 'cfc_participant_pre_processor_config', $config, $form, $form_values, $this->plugin );
 
+		// event
+		$event = apply_filters( 'cfc_participant_pre_processor_event_config', $this->events[$config['processor_id']], $config, $form, $this->plugin );
+
+		// prpcess one or multiple participants
+		if ( is_array( $config['id'] ) && count( $event ) > 1 ) {
+			foreach ( $config['id'] as $event_id ) {
+				$this->process_participant( $event[$event_id], $form_values, $config, $form, $processid );
+			}
+		} else {
+			$this->process_participant( $event, $form_values, $config, $form, $processid );
+		}
+
+	}
+
+	/**
+	 * Process participant.
+	 *
+	 * @since 1.0.3
+	 * @param array $event The event config or and array with events indexed by event_id
+	 * @param array $form_values The submitted form values
+	 * @param array $config The processor config
+	 * @param array $form The form config
+	 * @param string $processid The process id
+	 */
+	function process_participant( $event, $form_values, $config, $form, $processid ) {
+
+		$transient = $this->plugin->transient->get();
+
 		if ( ! empty( $transient->contacts->{$this->contact_link} ) ) {
-			// event
-			$event = apply_filters( 'cfc_participant_pre_processor_event_config', $this->events[$config['processor_id']], $config, $form, $this->plugin );
 
 			$form_values['contact_id'] = $transient->contacts->{$this->contact_link};
-			$form_values['event_id'] = $config['id'];
+			$form_values['event_id'] = $event['id'];
 			$form_values['role_id'] = ( $config['role_id'] == 'default_role_id' ) ? $event['default_role_id'] : $config['role_id'];
-			$form_values['status_id'] = ( $config['status_id'] == 'default_status_id' ) ? 'Registered' : $config['status_id']; // default is registered
+			$form_values['status_id'] = ( $config['status_id'] == 'default_status_id' ) ? $this->default_status( $event, $config ) : $config['status_id']; // default is registered
 
 			if ( ! empty( $config['campaign_id'] ) ) $form_values['campaign_id'] = $config['campaign_id'];
 
-			// if multiple participant processors, we need to update $this->registrations
-			$this->registrations = $this->get_participant_registrations( $this->event_ids, $form );
+			if ( is_array( $config['id'] ) ) {
+				$is_registered = civicrm_api3( 'Participant', 'get', [
+					'event_id' => $event['id'],
+					'contact_id' => $transient->contacts->{$this->contact_link}
+				] );
 
-			$is_registered = is_array( $this->registrations[$config['processor_id']] );
+				$is_registered = $is_registered['count'];
+			} else {
+
+				// if multiple participant processors, we need to update $this->registrations
+				$this->registrations = $this->get_participant_registrations( $this->event_ids, $form );
+				$is_registered = is_array( $this->registrations[$config['processor_id']] );
+
+			}
 
 			// prevent re-registrations based on event's 'allow_same_participant_emails' setting
 			if ( $is_registered && $event['allow_same_participant_emails'] != 1 ) {
