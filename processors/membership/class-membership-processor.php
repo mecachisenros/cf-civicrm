@@ -161,6 +161,8 @@ class CiviCRM_Caldera_Forms_Membership_Processor {
 
 			$form_values['contact_id'] = $transient->contacts->{$this->contact_link};
 
+			if ( ! empty( $config['campaign_id'] ) ) $form_values['campaign_id'] = $config['campaign_id'];
+
 			// renew/extend necessary params
 			if ( isset( $config['is_renewal'] ) && isset( $is_member['id'] ) ) {
 				$form_values['id'] = $is_member['id'];

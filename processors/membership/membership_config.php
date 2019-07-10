@@ -10,7 +10,7 @@ foreach ( $fields['values'] as $key => $value ) {
 	$membership_fields[$value['name']] = $value['title'];
 }
 
-$ignore = [ 'membership_type_id', 'contact_id', 'is_test', 'status_id', 'is_override', 'status_override_end_date', 'owner_membership_id', 'max_related', 'contribution_recur_id', 'id', 'is_pay_later', 'skipStatusCal' ];
+$ignore = [ 'membership_type_id', 'contact_id', 'is_test', 'status_id', 'is_override', 'status_override_end_date', 'owner_membership_id', 'max_related', 'contribution_recur_id', 'id', 'is_pay_later', 'skipStatusCal', 'campaign_id' ];
 
 $current_fields = [ 'source' ];
 
@@ -18,6 +18,12 @@ $membership_types = civicrm_api3( 'MembershipType', 'get', [
 	'sequential' => 1,
 	'is_active' => 1,
 	'visibility' => 'Public',
+	'options' => [ 'limit' => 0 ],
+] );
+
+$campaigns = civicrm_api3( 'Campaign', 'get', [
+	'sequential' => 1,
+	'is_active' => 1,
 	'options' => [ 'limit' => 0 ],
 ] );
 
@@ -83,6 +89,19 @@ $membership_types = civicrm_api3( 'MembershipType', 'get', [
 		<div class="price_field_value caldera-config-field">
 			<input type="text" class="block-input field-config magic-tag-enabled caldera-field-bind" name="{{_name}}[price_field_value]" value="{{price_field_value}}">
 		</div>
+	</div>
+</div>
+
+<!-- Campaign -->
+<div id="campaign_id" class="caldera-config-group">
+	<label><?php _e( 'Campaign', 'caldera-forms-civicrm' ); ?></label>
+	<div class="caldera-config-field">
+		<select class="block-input field-config" name="{{_name}}[campaign_id]">
+		<option value="" {{#is campaign_id value=""}}selected="selected"{{/is}}></option>
+		<?php foreach ( $campaigns['values'] as $key => $value ) { ?>
+			<option value="<?php echo esc_attr( $value['id'] ); ?>" {{#is campaign_id value=<?php echo $value['id']; ?>}}selected="selected"{{/is}}><?php echo esc_html( $value['title'] ); ?></option>
+		<?php } ?>
+		</select>
 	</div>
 </div>
 
