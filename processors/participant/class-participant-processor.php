@@ -144,8 +144,8 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 		// event
 		$event = apply_filters( 'cfc_participant_pre_processor_event_config', $this->events[$config['processor_id']], $config, $form, $this->plugin );
 
-		// prpcess one or multiple participants
-		if ( is_array( $config['id'] ) && count( $event ) > 1 ) {
+		// process one or multiple participants
+		if ( is_array( $config['id'] ) ) {
 			foreach ( $config['id'] as $event_id ) {
 				$this->process_participant( $event[$event_id], $form_values, $config, $form, $processid );
 			}
