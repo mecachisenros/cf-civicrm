@@ -120,7 +120,7 @@ $campaigns = civicrm_api3( 'Campaign', 'get', [
 <?php } } ?>
 
 <script>
-	( function() {
+	jQuery( document ).ready( function( $ ) {
 		var prId = '{{_id}}',
 		membership_type = '#' + prId + '_membership_type_id',
 		preserve_join_date = '#' + prId + '_preserve_join_date';
@@ -140,5 +140,5 @@ $campaigns = civicrm_api3( 'Campaign', 'get', [
 
 		cfc_select2_defaults( '#{{_id}}_member_of_contact_id', '{{member_of_contact_id}}' );
 
-	} )();
+	} );
 </script>
