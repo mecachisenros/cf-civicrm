@@ -2,7 +2,7 @@
 /**
  * Plugin Name: CF CiviCRM
  * Description: CiviCRM integration for Caldera Forms.
- * Version: 1.0.2
+ * Version: 1.0.3
  * Author: Andrei Mondoc
  * Author URI: https://github.com/mecachisenros
  * Plugin URI: https://github.com/mecachisenros/cf-civicrm
@@ -16,7 +16,7 @@
  *
  * @since 0.1
  */
-define( 'CF_CIVICRM_INTEGRATION_VER', '1.0.2' );
+define( 'CF_CIVICRM_INTEGRATION_VER', '1.0.3' );
 define( 'CF_CIVICRM_INTEGRATION_URL', plugin_dir_url( __FILE__ ) );
 define( 'CF_CIVICRM_INTEGRATION_PATH', plugin_dir_path( __FILE__ ) );
 

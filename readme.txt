@@ -1,9 +1,9 @@
 === Caldera Forms CiviCRM ===
 Contributors: mecachisenros, needle
 Tags: civicrm, caldera, forms, integration
-Requires at least: 4.5
-Tested up to: 5.1
-Stable tag: 1.0.2
+Requires at least: 4.7
+Tested up to: 5.2.2
+Stable tag: 1.0.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -33,6 +33,27 @@ This plugin is in active development. For feature requests and bug reports (or i
 
 
 == Changelog ==
+
+= 1.0.3 =
+* Published to WP plugin directory, text domain has changed from 'caldera-forms-civicrm' to 'cf-civicrm'
+* Added 'cfc_participant_pre_processor_config' filter
+* Added 'cfc_participant_pre_processor_event_config' filter
+* Added 'cfc_participant_processor_config_template_before_link' action
+* Added 'cfc_participant_pre_processor_return' filter
+* Participant processor can handle multiple registrations for the same contact through the added hooks
+* Fix - Re-registration based on 'Allow same participant email'
+* Date pickers auto-population respects the date format, thanks @kirk-circle
+* Added 'cfc_membership_pre_processor_config' filter
+* Added 'cfc_membership_pre_processor_return' filter
+* Added 'cfc_membership_processor_config_template_before_link' action
+* Added Campaign field for Membership processor
+* Fix - Auto-population checkbox ignored, the form would always be autopopulated with the current user data
+* Case processor now supports custom fields, and custom fields autopopulation/presets
+* Contact Reference can be mapped for Organization Name
+* FIX - jQuery could not be defined breaking processor templates
+* Added 'cfc_case_processor_case_create' action
+* Added 'cfc_case_pre_processor_return' filter
+* Added 'cfc_case_processor_config_template_before_link' action
 
 = 1.0.2 =
 * Added Participant processor for free and paid events
