@@ -17,7 +17,7 @@ $participant_statuses = civicrm_api3( 'Participant', 'getoptions', [
 
 $participant_fields = [];
 foreach ( $fields['values'] as $key => $value ) {
-	$participant_fields[$value['name']] = $value['title'];	
+	$participant_fields[$value['name']] = $value['title'];
 }
 
 $ignore = [ 'event_id', 'contact_id', 'is_test', 'discount_amount', 'cart_id', 'must_wait', 'transferred_to_contact_id', 'id', 'status_id', 'role_id', 'register_date', 'fee_level', 'is_pay_later', 'fee_amount', 'register_by_id', 'discount_id', 'fee_currency', 'campaign_id' ];
@@ -129,7 +129,7 @@ $campaigns = civicrm_api3( 'Campaign', 'get', [
 
 <!-- Participant fields -->
 <h2><?php _e( 'Participant Fields', 'caldera-forms-civicrm' ); ?></h2>
-<?php foreach ( $participant_fields as $key => $value ) { 
+<?php foreach ( $participant_fields as $key => $value ) {
 	if( in_array( $key, $current_fields ) ) {
 	?>
 	<div id="<?php echo esc_attr( $key ); ?>" class="caldera-config-group">
@@ -142,9 +142,9 @@ $campaigns = civicrm_api3( 'Campaign', 'get', [
 
 <h2><?php _e( 'Custom Fields', 'caldera-forms-civicrm' ); ?></h2>
 <?php foreach ( caldera_forms_civicrm()->helper->get_participant_custom_fields() as $key => $custom_field ) { ?>
-	<div 
-		id="{{_id}}_<?php echo esc_attr( $key ); ?>" 
-		class="caldera-config-group" 
+	<div
+		id="{{_id}}_<?php echo esc_attr( $key ); ?>"
+		class="caldera-config-group"
 		data-entity-column-id="<?php echo esc_attr( $custom_field['extends_entity_column_id'] ); ?>"
 		data-entity-column-value="<?php echo esc_attr( json_encode( $custom_field['extends_entity_column_value'] ) ); ?>"
 		>
@@ -156,33 +156,37 @@ $campaigns = civicrm_api3( 'Campaign', 'get', [
 <?php } ?>
 
 <script>
-	$('#{{_id}}_event_id select').on( 'change', function() {
-		var event_id = $( this ).val(),
-		event_type_id = $( 'option:selected', this ).data( 'event-type-id' ),
-		role_id = $( 'option:selected', this ).data( 'default-role-id' );
+	jQuery( document ).ready( function( $ ) {
 
-		$( '[id^={{_id}}_custom]' ).map( function( i, el ) {
-			if ( $( this ).data( 'entity-column-value' ) != undefined ) {
+		$('#{{_id}}_event_id select').on( 'change', function() {
+			var event_id = $( this ).val(),
+			event_type_id = $( 'option:selected', this ).data( 'event-type-id' ),
+			role_id = $( 'option:selected', this ).data( 'default-role-id' );
 
-				var column_value = $( el ).data( 'entity-column-value' ).toString(),
-				column_id = $( el ).data( 'entity-column-id' );
+			$( '[id^={{_id}}_custom]' ).map( function( i, el ) {
+				if ( $( this ).data( 'entity-column-value' ) != undefined ) {
 
-				if ( column_id == 3 || column_id == 2 ) {
-					if( column_value.indexOf( event_id ) !== -1 
-						|| column_value.indexOf( event_type_id ) !== -1 
-						|| column_value.indexOf( role_id ) !== -1 ) {
-						$( el ).show()
-					} else {
-						$( el ).hide();
+					var column_value = $( el ).data( 'entity-column-value' ).toString(),
+					column_id = $( el ).data( 'entity-column-id' );
+
+					if ( column_id == 3 || column_id == 2 ) {
+						if( column_value.indexOf( event_id ) !== -1
+							|| column_value.indexOf( event_type_id ) !== -1
+							|| column_value.indexOf( role_id ) !== -1 ) {
+							$( el ).show()
+						} else {
+							$( el ).hide();
+						}
 					}
 				}
-			}
+			} ).trigger( 'change' );
+		} );
+
+
+		$( '#{{_id}}_is_monetary' ).on( 'change', function( e ) {
+			$( '.{{_id}}_disable_all_fields' ).toggle( $( this ).prop( 'checked' ) );
 		} ).trigger( 'change' );
+
 	} );
-
-
-	$( '#{{_id}}_is_monetary' ).on( 'change', function( e ) {
-		$( '.{{_id}}_disable_all_fields' ).toggle( $( this ).prop( 'checked' ) );
-	} ).trigger( 'change' );
 
 </script>

@@ -226,15 +226,15 @@ $campaigns = civicrm_api3( 'Campaign', 'get', [
 
 <div class="caldera-config-group">
 	<div class="caldera-config-field">
-		<button 
-			id="{{_id}}_line_item_add" 
-			type="button" 
-			data-id="{{_id}}" 
-			data-complete="cfc_line_item_built" 
-			class="pull-right button ajax-trigger" 
-			data-template="#line-item-tmpl" 
-			data-target-insert="append" 
-			data-request="cfc_add_line_item" 
+		<button
+			id="{{_id}}_line_item_add"
+			type="button"
+			data-id="{{_id}}"
+			data-complete="cfc_line_item_built"
+			class="pull-right button ajax-trigger"
+			data-template="#line-item-tmpl"
+			data-target-insert="append"
+			data-request="cfc_add_line_item"
 			data-target="#{{_id}}_line_items_wrapper"><?php esc_html_e( 'Add Line Item', 'caldera-forms-civicrm' ); ?></button>
 	</div>
 </div>
@@ -261,13 +261,13 @@ $campaigns = civicrm_api3( 'Campaign', 'get', [
 </div>
 
 <script>
-	( function() {
+	jQuery( document ).ready( function( $ ) {
 		$( '.cfc-select2' ).cfcSelect2({width: '100%'});
 
 		setTimeout( function(){
 			$( '.line-item .field-config' ).closest( 'span' ).css( 'width', '80%' );
 		}, 3000 )
-		
+
 		$( '.caldera-editor-body' ).on( 'click', '.remove-line-item', function( e ) {
 			e.preventDefault();
 			$(this).closest( '.line-item' ).remove();
@@ -288,10 +288,10 @@ $campaigns = civicrm_api3( 'Campaign', 'get', [
 			$( '.is_email_receipt_options', $( is_email_receipt ) ).toggle( is_checked );
 		} ).trigger( 'change' );
 
-	} )();
+	} );
 
 	function cfc_add_line_item( obj ) {
-		
+
 		var id = obj.trigger.data( 'id' ),
 		config = JSON.parse( $( '#' + id + ' .processor_config_string' ).val() ),
 		item_id = 'line_item_' + ( $( '#' + id + ' .line-item' ).length + 1 ),
@@ -303,7 +303,7 @@ $campaigns = civicrm_api3( 'Campaign', 'get', [
 			config['line_items'] = {}
 			config.line_items['line_item_1'] = '';
 		}
-		
+
 		var processor = { id: id, config: config };
 
 		var line_item = { item_id: item_id, _name: _name };
