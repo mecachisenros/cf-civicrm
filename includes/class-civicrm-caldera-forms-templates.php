@@ -43,25 +43,25 @@ class CiviCRM_Caldera_Forms_Templates {
 
 		// add basic contact template
 		$templates['civicrm_contact_basic'] = [
-			'name' => esc_html__( 'CiviCRM Contact Form', 'caldera-forms-civicrm' ),
+			'name' => esc_html__( 'CiviCRM Contact Form', 'cf-civicrm' ),
 			'template' => include CF_CIVICRM_INTEGRATION_PATH . 'form-templates/civicrm-contact-basic.php'
 		];
 
 		// add contact with address template
 		$templates['civicrm_contact_address'] = [
-			'name' => esc_html__( 'CiviCRM Contact and Address', 'caldera-forms-civicrm' ),
+			'name' => esc_html__( 'CiviCRM Contact and Address', 'cf-civicrm' ),
 			'template' => include CF_CIVICRM_INTEGRATION_PATH . 'form-templates/civicrm-contact-address.php'
 		];
 
 		// add organisation template
 		$templates['civicrm_org_basic'] = [
-			'name' => esc_html__( 'CiviCRM Organisation', 'caldera-forms-civicrm' ),
+			'name' => esc_html__( 'CiviCRM Organisation', 'cf-civicrm' ),
 			'template' => include CF_CIVICRM_INTEGRATION_PATH . 'form-templates/civicrm-organisation-basic.php'
 		];
 
 		// add organisation with primary contact template
 		$templates['civicrm_org_contact'] = [
-			'name' => esc_html__( 'CiviCRM Organisation and Contact', 'caldera-forms-civicrm' ),
+			'name' => esc_html__( 'CiviCRM Organisation and Contact', 'cf-civicrm' ),
 			'template' => include CF_CIVICRM_INTEGRATION_PATH . 'form-templates/civicrm-organisation-contact.php'
 		];
 

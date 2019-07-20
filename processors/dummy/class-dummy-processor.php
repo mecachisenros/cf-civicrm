@@ -48,10 +48,10 @@ class CiviCRM_Caldera_Forms_Dummy_Processor {
 		$processors[$this->key_name] = [
 
 			// Required: Processor name
-			'name' => __( 'Processor Name', 'caldera-forms-civicrm' ),
+			'name' => __( 'Processor Name', 'cf-civicrm' ),
 
 			// Required: Processor description
-			'description' => __( 'Processor Description', 'caldera-forms-civicrm' ),
+			'description' => __( 'Processor Description', 'cf-civicrm' ),
 
 			// Optional: Icon / Logo displayed in processors picker modal
 			'icon' => CF_CIVICRM_INTEGRATION_URL . 'assets/dummy_icon.png',

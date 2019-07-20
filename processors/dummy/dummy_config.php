@@ -33,33 +33,33 @@
 
 ?>
 <div class="caldera-config-group">
-	<label for="{{_id}}_first_option"><?php _e( 'My Config Input', 'caldera-forms-civicrm' ); ?></label>
+	<label for="{{_id}}_first_option"><?php _e( 'My Config Input', 'cf-civicrm' ); ?></label>
 	<div class="caldera-config-field">
 		<input type="text" id="{{_id}}_first_option" class="block-input field-config magic-tag-enabled required" name="{{_name}}[first_option]" value="{{first_option}}">
-		<p><?php _e( 'This field is magic tag enabled and required', 'caldera-forms-civicrm' ); ?></p>
+		<p><?php _e( 'This field is magic tag enabled and required', 'cf-civicrm' ); ?></p>
 	</div>
 </div>
 
 <div class="caldera-config-group">
-	<label for="{{_id}}_second_option"><?php _e( 'My Bound Input', 'caldera-forms-civicrm' ); ?></label>
+	<label for="{{_id}}_second_option"><?php _e( 'My Bound Input', 'cf-civicrm' ); ?></label>
 	<div class="caldera-config-field">
 		{{{_field slug="second_option" type="text" required="true"}}}
-		<p><?php _e( 'This field is a field bound input and is set as required', 'caldera-forms-civicrm' ); ?></p>
+		<p><?php _e( 'This field is a field bound input and is set as required', 'cf-civicrm' ); ?></p>
 	</div>
 </div>
 
 <div class="caldera-config-group">
-	<label for="{{_id}}_third_option"><?php _e( 'My Optional Input', 'caldera-forms-civicrm' ); ?></label>
+	<label for="{{_id}}_third_option"><?php _e( 'My Optional Input', 'cf-civicrm' ); ?></label>
 	<div class="caldera-config-field">
 		<input type="text" id="{{_id}}_third_option" class="block-input field-config" name="{{_name}}[third_option]" value="{{third_option}}">
-		<p><?php _e( 'This field is a field not required', 'caldera-forms-civicrm' ); ?></p>
+		<p><?php _e( 'This field is a field not required', 'cf-civicrm' ); ?></p>
 	</div>
 </div>
 
 <div class="caldera-config-group">
-	<label for="{{_id}}_third_option"><?php _e( 'My Optional Email', 'caldera-forms-civicrm' ); ?></label>
+	<label for="{{_id}}_third_option"><?php _e( 'My Optional Email', 'cf-civicrm' ); ?></label>
 	<div class="caldera-config-field">
 		{{{_field slug="third_option" type="email"}}}
-		<p><?php _e( 'This is a bound field and is not required and bound to "email" field types only', 'caldera-forms-civicrm' ); ?></p>
+		<p><?php _e( 'This is a bound field and is not required and bound to "email" field types only', 'cf-civicrm' ); ?></p>
 	</div>
 </div>

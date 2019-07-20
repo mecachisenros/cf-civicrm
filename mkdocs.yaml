@@ -1,5 +1,5 @@
 site_name: Caldera Forms CiviCRM
-repo_url: https://github.com/mecachisenros/caldera-forms-civicrm
+repo_url: https://github.com/mecachisenros/cf-civicrm
 theme: material
 markdown_extensions:
 pages:

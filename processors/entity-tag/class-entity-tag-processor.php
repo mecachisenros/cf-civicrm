@@ -15,10 +15,10 @@ class CiviCRM_Caldera_Forms_Entity_Tag_Processor {
 	 * @var object $plugin The plugin instance
 	 */
 	public $plugin;
-	
+
 	/**
 	 * Contact link.
-	 * 
+	 *
 	 * @since 0.4.4
 	 * @access protected
 	 * @var string $contact_link The contact link
@@ -59,8 +59,8 @@ class CiviCRM_Caldera_Forms_Entity_Tag_Processor {
 	public function register_processor( $processors ) {
 
 		$processors[$this->key_name] = [
-			'name' => __( 'CiviCRM Tag', 'caldera-forms-civicrm' ),
-			'description' => __( 'Add CiviCRM tags to contacts', 'caldera-forms-civicrm' ),
+			'name' => __( 'CiviCRM Tag', 'cf-civicrm' ),
+			'description' => __( 'Add CiviCRM tags to contacts', 'cf-civicrm' ),
 			'author' => 'Andrei Mondoc',
 			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/entity-tag/entity_tag_config.php',
 			'pre_processor' => [ $this, 'pre_processor' ],

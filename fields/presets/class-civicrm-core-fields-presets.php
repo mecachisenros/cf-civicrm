@@ -81,14 +81,14 @@ class CiviCRM_Caldera_Forms_Core_Fields_Presets {
 		$result = civicrm_api3( 'Contribution', 'getoptions', [
 			'field' => 'payment_instrument_id',
 		] );
-		
+
 		$options = [];
 		foreach ( $result['values'] as $id => $method ) {
 			$options[] = $id.'|'.$method;
 		}
 
 		$presets['payment_instrument_id'] = [
-			'name' => __( 'CiviCRM Payment Methods', 'caldera-forms-civicrm' ),
+			'name' => __( 'CiviCRM Payment Methods', 'cf-civicrm' ),
 			'data' => $options,
 		];
 
@@ -105,43 +105,43 @@ class CiviCRM_Caldera_Forms_Core_Fields_Presets {
 	public function autopulate_core_fields_types() {
 
 		// Individual Prefix
-		echo "<option value=\"prefix_id\"{{#is auto_type value=\"prefix_id\"}} selected=\"selected\"{{/is}}>" . __( 'CiviCRM - Individual Prefix', 'caldera-forms-civicrm' ) . "</option>";
+		echo "<option value=\"prefix_id\"{{#is auto_type value=\"prefix_id\"}} selected=\"selected\"{{/is}}>" . __( 'CiviCRM - Individual Prefix', 'cf-civicrm' ) . "</option>";
 		// Individual Suffix
-		echo "<option value=\"suffix_id\"{{#is auto_type value=\"suffix_id\"}} selected=\"selected\"{{/is}}>" . __( 'CiviCRM - Individual Suffix', 'caldera-forms-civicrm' ) . "</option>";
+		echo "<option value=\"suffix_id\"{{#is auto_type value=\"suffix_id\"}} selected=\"selected\"{{/is}}>" . __( 'CiviCRM - Individual Suffix', 'cf-civicrm' ) . "</option>";
 		// Individual Gender
-		echo "<option value=\"gender_id\"{{#is auto_type value=\"gender_id\"}} selected=\"selected\"{{/is}}>" . __( 'CiviCRM - Individual Gender', 'caldera-forms-civicrm' ) . "</option>";
+		echo "<option value=\"gender_id\"{{#is auto_type value=\"gender_id\"}} selected=\"selected\"{{/is}}>" . __( 'CiviCRM - Individual Gender', 'cf-civicrm' ) . "</option>";
 		// Communication Style
-		echo "<option value=\"communication_style_id\"{{#is auto_type value=\"communication_style_id\"}} selected=\"selected\"{{/is}}>" . __( 'CiviCRM - Communication Style', 'caldera-forms-civicrm' ) . "</option>";
+		echo "<option value=\"communication_style_id\"{{#is auto_type value=\"communication_style_id\"}} selected=\"selected\"{{/is}}>" . __( 'CiviCRM - Communication Style', 'cf-civicrm' ) . "</option>";
 		// Do not Email
-		echo "<option value=\"do_not_email\"{{#is auto_type value=\"do_not_email\"}} selected=\"selected\"{{/is}}>" . __( 'CiviCRM - Do Not Email', 'caldera-forms-civicrm' ) . "</option>";
+		echo "<option value=\"do_not_email\"{{#is auto_type value=\"do_not_email\"}} selected=\"selected\"{{/is}}>" . __( 'CiviCRM - Do Not Email', 'cf-civicrm' ) . "</option>";
 		// Do not Phone
-		echo "<option value=\"do_not_phone\"{{#is auto_type value=\"do_not_phone\"}} selected=\"selected\"{{/is}}>" . __( 'CiviCRM - Do Not Phone', 'caldera-forms-civicrm' ) . "</option>";
+		echo "<option value=\"do_not_phone\"{{#is auto_type value=\"do_not_phone\"}} selected=\"selected\"{{/is}}>" . __( 'CiviCRM - Do Not Phone', 'cf-civicrm' ) . "</option>";
 		// Do not Mail
-		echo "<option value=\"do_not_mail\"{{#is auto_type value=\"do_not_mail\"}} selected=\"selected\"{{/is}}>" . __( 'CiviCRM - Do Not Mail', 'caldera-forms-civicrm' ) . "</option>";
+		echo "<option value=\"do_not_mail\"{{#is auto_type value=\"do_not_mail\"}} selected=\"selected\"{{/is}}>" . __( 'CiviCRM - Do Not Mail', 'cf-civicrm' ) . "</option>";
 		// Do not SMS
-		echo "<option value=\"do_not_sms\"{{#is auto_type value=\"do_not_sms\"}} selected=\"selected\"{{/is}}>" . __( 'CiviCRM - Do Not SMS', 'caldera-forms-civicrm' ) . "</option>";
+		echo "<option value=\"do_not_sms\"{{#is auto_type value=\"do_not_sms\"}} selected=\"selected\"{{/is}}>" . __( 'CiviCRM - Do Not SMS', 'cf-civicrm' ) . "</option>";
 		// Do not Trade
-		echo "<option value=\"do_not_trade\"{{#is auto_type value=\"do_not_trade\"}} selected=\"selected\"{{/is}}>" . __( 'CiviCRM - Do Not Trade', 'caldera-forms-civicrm' ) . "</option>";
+		echo "<option value=\"do_not_trade\"{{#is auto_type value=\"do_not_trade\"}} selected=\"selected\"{{/is}}>" . __( 'CiviCRM - Do Not Trade', 'cf-civicrm' ) . "</option>";
 		// Is Opt Out
-		echo "<option value=\"is_opt_out\"{{#is auto_type value=\"is_opt_out\"}} selected=\"selected\"{{/is}}>" . __( 'CiviCRM - No Bulk Emails (User Opt Out)', 'caldera-forms-civicrm' ) . "</option>";
+		echo "<option value=\"is_opt_out\"{{#is auto_type value=\"is_opt_out\"}} selected=\"selected\"{{/is}}>" . __( 'CiviCRM - No Bulk Emails (User Opt Out)', 'cf-civicrm' ) . "</option>";
 		// Country
-		echo "<option value=\"country_id\"{{#is auto_type value=\"country_id\"}} selected=\"selected\"{{/is}}>" . __( 'CiviCRM - Country', 'caldera-forms-civicrm' ) . "</option>";
+		echo "<option value=\"country_id\"{{#is auto_type value=\"country_id\"}} selected=\"selected\"{{/is}}>" . __( 'CiviCRM - Country', 'cf-civicrm' ) . "</option>";
 		// State/Provine
-		echo "<option value=\"state_province_id\"{{#is auto_type value=\"state_province_id\"}} selected=\"selected\"{{/is}}>" . __( 'CiviCRM - State/Province', 'caldera-forms-civicrm' ) . "</option>";
+		echo "<option value=\"state_province_id\"{{#is auto_type value=\"state_province_id\"}} selected=\"selected\"{{/is}}>" . __( 'CiviCRM - State/Province', 'cf-civicrm' ) . "</option>";
 		// Address Location Type
-		echo "<option value=\"location_type_id\"{{#is auto_type value=\"location_type_id\"}} selected=\"selected\"{{/is}}>" . __( 'CiviCRM - Address Location Type', 'caldera-forms-civicrm' ) . "</option>";
+		echo "<option value=\"location_type_id\"{{#is auto_type value=\"location_type_id\"}} selected=\"selected\"{{/is}}>" . __( 'CiviCRM - Address Location Type', 'cf-civicrm' ) . "</option>";
 		// Email Location Type
-		echo "<option value=\"e_location_type_id\"{{#is auto_type value=\"e_location_type_id\"}} selected=\"selected\"{{/is}}>" . __( 'CiviCRM - Email Location Type', 'caldera-forms-civicrm' ) . "</option>";
+		echo "<option value=\"e_location_type_id\"{{#is auto_type value=\"e_location_type_id\"}} selected=\"selected\"{{/is}}>" . __( 'CiviCRM - Email Location Type', 'cf-civicrm' ) . "</option>";
 		// Phone Location Type
-		echo "<option value=\"p_location_type_id\"{{#is auto_type value=\"p_location_type_id\"}} selected=\"selected\"{{/is}}>" . __( 'CiviCRM - Phone Location Type', 'caldera-forms-civicrm' ) . "</option>";
+		echo "<option value=\"p_location_type_id\"{{#is auto_type value=\"p_location_type_id\"}} selected=\"selected\"{{/is}}>" . __( 'CiviCRM - Phone Location Type', 'cf-civicrm' ) . "</option>";
 		// Phone Type
-		echo "<option value=\"phone_type_id\"{{#is auto_type value=\"phone_type_id\"}} selected=\"selected\"{{/is}}>" . __( 'CiviCRM - Phone Type', 'caldera-forms-civicrm' ) . "</option>";
+		echo "<option value=\"phone_type_id\"{{#is auto_type value=\"phone_type_id\"}} selected=\"selected\"{{/is}}>" . __( 'CiviCRM - Phone Type', 'cf-civicrm' ) . "</option>";
 		// Website Type
-		echo "<option value=\"website_type_id\"{{#is auto_type value=\"website_type_id\"}} selected=\"selected\"{{/is}}>" . __( 'CiviCRM - Website Type', 'caldera-forms-civicrm' ) . "</option>";
+		echo "<option value=\"website_type_id\"{{#is auto_type value=\"website_type_id\"}} selected=\"selected\"{{/is}}>" . __( 'CiviCRM - Website Type', 'cf-civicrm' ) . "</option>";
 		// IM Type
-		echo "<option value=\"provider_id\"{{#is auto_type value=\"provider_id\"}} selected=\"selected\"{{/is}}>" . __( 'CiviCRM - Im Type', 'caldera-forms-civicrm' ) . "</option>";
+		echo "<option value=\"provider_id\"{{#is auto_type value=\"provider_id\"}} selected=\"selected\"{{/is}}>" . __( 'CiviCRM - Im Type', 'cf-civicrm' ) . "</option>";
 		// Preferred Language
-		echo "<option value=\"preferred_language\"{{#is auto_type value=\"preferred_language\"}} selected=\"selected\"{{/is}}>" . __( 'CiviCRM - Preferred Language', 'caldera-forms-civicrm' ) . "</option>";
+		echo "<option value=\"preferred_language\"{{#is auto_type value=\"preferred_language\"}} selected=\"selected\"{{/is}}>" . __( 'CiviCRM - Preferred Language', 'cf-civicrm' ) . "</option>";
 
 	}
 

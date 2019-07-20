@@ -60,16 +60,16 @@ class CiviCRM_Caldera_Forms_Field_Discount {
 	public function register_field_type( $field_types ) {
 
 		$field_types[$this->key_name] = [
-			'field' => __( 'CiviCRM Discount', 'caldera-forms-civicrm' ),
+			'field' => __( 'CiviCRM Discount', 'cf-civicrm' ),
 			'file' => CF_CIVICRM_INTEGRATION_PATH . 'fields/discount/field.php',
-			'category' => __( 'CiviCRM', 'caldera-forms-civicrm' ),
-			'description' => __( 'CiviCRM Discount field (CiviDiscount integration)', 'caldera-forms-civicrm' ),
+			'category' => __( 'CiviCRM', 'cf-civicrm' ),
+			'description' => __( 'CiviCRM Discount field (CiviDiscount integration)', 'cf-civicrm' ),
 			'setup' => [
 				'template' => CF_CIVICRM_INTEGRATION_PATH . 'fields/discount/config.php',
 				'preview' => CF_CIVICRM_INTEGRATION_PATH . 'fields/discount/preview.php',
 				'default' => [
-					'placeholder' => __( 'Discount Code', 'caldera-forms-civicrm' ),
-					'button_text' => __( 'Apply Discount', 'caldera-forms-civicrm' ),
+					'placeholder' => __( 'Discount Code', 'cf-civicrm' ),
+					'button_text' => __( 'Apply Discount', 'cf-civicrm' ),
 				],
 			],
 			'scripts' => [

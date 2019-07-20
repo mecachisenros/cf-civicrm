@@ -97,8 +97,8 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 	public function register_processor( $processors ) {
 
 		$processors[$this->key_name] = [
-			'name' => __( 'CiviCRM Order', 'caldera-forms-civicrm' ),
-			'description' => __( 'Add CiviCRM Order (Contribution with multiple Line Items, ie Events registrations, Donations, Memberships, etc.)', 'caldera-forms-civicrm' ),
+			'name' => __( 'CiviCRM Order', 'cf-civicrm' ),
+			'description' => __( 'Add CiviCRM Order (Contribution with multiple Line Items, ie Events registrations, Donations, Memberships, etc.)', 'cf-civicrm' ),
 			'author' => 'Andrei Mondoc',
 			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/order/order_config.php',
 			'single' => true,

@@ -18,7 +18,7 @@ class CiviCRM_Caldera_Forms_Website_Processor {
 
 	/**
 	 * Contact link.
-	 * 
+	 *
 	 * @since 0.4.4
 	 * @access protected
 	 * @var string $contact_link The contact link
@@ -70,8 +70,8 @@ class CiviCRM_Caldera_Forms_Website_Processor {
 	public function register_processor( $processors ) {
 
 		$processors[$this->key_name] = [
-			'name' => __( 'CiviCRM Website', 'caldera-forms-civicrm' ),
-			'description' => __( 'Add CiviCRM website to contacts', 'caldera-forms-civicrm' ),
+			'name' => __( 'CiviCRM Website', 'cf-civicrm' ),
+			'description' => __( 'Add CiviCRM website to contacts', 'cf-civicrm' ),
 			'author' => 'Andrei Mondoc',
 			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/website/website_config.php',
 			'pre_processor' => [ $this, 'pre_processor' ],
@@ -143,7 +143,7 @@ class CiviCRM_Caldera_Forms_Website_Processor {
 	 * @return array $form The modified form
 	 */
 	public function pre_render( $form ){
-		
+
 		// continue as normal if form has no processors
 		if ( empty( $form['processors'] ) ) return $form;
 

@@ -85,7 +85,7 @@ class CiviCRM_Caldera_Forms_Price_Sets_Presets {
 						$options[] = $value_id.'|'.$price_field_value['label'].' - '.$price_field_value['amount'].'|'.$price_field_value['amount'];
 					}
 					$price_fields['price_field_'.$price_field_id] = [
-						'name' => sprintf( __( 'CiviCRM Price Set: %1$s - Price Field: %2$s', 'caldera-forms-civicrm' ), $price_set['title'], $price_field['label'] ),
+						'name' => sprintf( __( 'CiviCRM Price Set: %1$s - Price Field: %2$s', 'cf-civicrm' ), $price_set['title'], $price_field['label'] ),
 						'data' => $options,
 					];
 				}
@@ -106,9 +106,9 @@ class CiviCRM_Caldera_Forms_Price_Sets_Presets {
 
 		if ( $this->price_sets ) {
 			foreach ( $this->price_sets as $price_set_id => $price_set ) {
-				echo '<optgroup label="' . __( 'CiviCRM Price Set - ' . $price_set['title'], 'caldera-forms-civicrm' ) . '">';
+				echo '<optgroup label="' . __( 'CiviCRM Price Set - ' . $price_set['title'], 'cf-civicrm' ) . '">';
 				foreach ( $price_set['price_fields'] as $price_field_id => $price_field ) {
-					echo "<option value=\"cfc_price_field_$price_field_id\"{{#is auto_type value=\"cfc_price_field_$price_field_id\"}} selected=\"selected\"{{/is}}>" . __( 'Price Field - ' . $price_field['label'] , 'caldera-forms-civicrm' ) . "</option>";
+					echo "<option value=\"cfc_price_field_$price_field_id\"{{#is auto_type value=\"cfc_price_field_$price_field_id\"}} selected=\"selected\"{{/is}}>" . __( 'Price Field - ' . $price_field['label'] , 'cf-civicrm' ) . "</option>";
 				}
 				echo '</optgroup>';
 			}
@@ -147,7 +147,7 @@ class CiviCRM_Caldera_Forms_Price_Sets_Presets {
 		// populate field options
 		$field['config']['option'] = array_reduce( $price_field['price_field_values'], function( $options, $price_field_value ) use ( $field ) {
 
-			$option = [ 
+			$option = [
 				'value' => $price_field_value['id'],
 				'label' => sprintf( '%1$s - %2$s', $price_field_value['label'], $this->plugin->helper->format_money( $price_field_value['amount'] ) ),
 				'calc_value' => $price_field_value['amount'],

@@ -50,34 +50,40 @@ class CiviCRM_Caldera_Forms_AJAX {
 	* @since 0.4.2
 	*/
 	public function get_civicrm_contacts() {
-		if ( isset( $_POST['search'] ) ) $search_term = $_POST['search'];
-			if ( isset( $_POST['contact_id'] ) ) $contact_id = $_POST['contact_id'];
+		$_POST = Caldera_Forms_Sanitize::sanitize( $_POST );
+		if ( isset( $_POST['search'] ) ) $search_term = sanitize_text_field( $_POST['search'] );
+		if ( isset( $_POST['contact_id'] ) ) $contact_id = intval( $_POST['contact_id'] );
 
-			if ( ! wp_verify_nonce( $_POST['nonce'], 'admin_get_civi_contact' ) ) return;
+		if ( ! wp_verify_nonce( $_POST['nonce'], 'admin_get_civi_contact' ) ) return;
 
-			if ( isset( $contact_id ) )
-				$params['contact_id'] = $contact_id;
-			// sort name
-			if ( isset( $search_term ) )
-				$params['sort_name'] = $search_term;
+		$params = [];
 
-			$result = $this->get_contacts( $params, $with_email = true );
+		if ( isset( $contact_id ) )
+			$params['contact_id'] = $contact_id;
+		// sort name
+		if ( isset( $search_term ) )
+			$params['sort_name'] = $search_term;
+
+		$result = $this->get_contacts( $params, $with_email = true );
 
 		echo json_encode( $result );
 		die;
 	}
 
 	public function civicrm_contact_reference_get() {
-		if ( isset( $_POST['search'] ) ) $search_term = $_POST['search'];
-		if ( isset( $_POST['contact_id'] ) ) $contact_id = $_POST['contact_id'];
-		if ( isset( $_POST['field_id'] ) ) $field_id = $_POST['field_id'];
-		if ( isset( $_POST['form_id'] ) ) $form_id = $_POST['form_id'];
+		$_POST = Caldera_Forms_Sanitize::sanitize( $_POST );
+		if ( isset( $_POST['search'] ) ) $search_term = sanitize_text_field( $_POST['search'] );
+		if ( isset( $_POST['contact_id'] ) ) $contact_id = intval( $_POST['contact_id'] );
+		if ( isset( $_POST['field_id'] ) ) $field_id = sanitize_text_field( $_POST['field_id'] );
+		if ( isset( $_POST['form_id'] ) ) $form_id = sanitize_text_field( $_POST['form_id'] );
 		if ( ! wp_verify_nonce( $_POST['nonce'], 'civicrm_contact_reference_get' ) ) return;
 
 		// form config
 		$form = Caldera_Forms::get_form( $form_id );
 		// field config
 		$field = Caldera_Forms_Field_Util::get_field( $field_id, $form );
+
+		$params = [];
 
 		// contact_type
 		if ( isset( $field['config']['contact_type'] ) )
@@ -103,7 +109,7 @@ class CiviCRM_Caldera_Forms_AJAX {
 	}
 
 	public function get_contacts( $search, $with_email = false ) {
-		
+
 		$params = [
 			'sequential' => 1,
 			'return' => [ 'sort_name', 'email' ],
@@ -112,7 +118,7 @@ class CiviCRM_Caldera_Forms_AJAX {
 		];
 
 		$params = array_merge( $params, $search );
-		
+
 		$contacts = civicrm_api3( 'Contact', 'get', $params );
 
 		foreach ( $contacts['values'] as $key => $contact ) {
@@ -124,8 +130,9 @@ class CiviCRM_Caldera_Forms_AJAX {
 	}
 
 	public function civicrm_get_groups() {
-		if ( isset( $_POST['search'] ) ) $search_term = $_POST['search'];
-		if ( isset( $_POST['group_id'] ) ) $group_id = $_POST['group_id'];
+		$_POST = Caldera_Forms_Sanitize::sanitize( $_POST );
+		if ( isset( $_POST['search'] ) ) $search_term = sanitize_text_field( $_POST['search'] );
+		if ( isset( $_POST['group_id'] ) ) $group_id = intval( $_POST['group_id'] );
 
 		if ( ! wp_verify_nonce( $_POST['nonce'], 'admin_get_groups' ) ) return;
 
@@ -137,9 +144,9 @@ class CiviCRM_Caldera_Forms_AJAX {
 
 		if ( isset( $group_id ) ) $params['id'] = $group_id;
 		if ( isset( $search_term ) && ! empty( $search_term ) ) $params['title'] = [ 'LIKE' => '%' . $search_term . '%' ];
-		
+
 		$groups = civicrm_api3( 'Group', 'get', $params );
-		
+
 		echo json_encode( $groups['values'] );
 		die;
 	}
@@ -150,7 +157,7 @@ class CiviCRM_Caldera_Forms_AJAX {
 			ob_start();
 			?>
 				<div style="margin-top: 20px;">
-					<?php _e( 'Price Sets have been rebuilt, please refresh the page to see the changes.', 'caldera-forms-civicrm' ); ?>
+					<?php _e( 'Price Sets have been rebuilt, please refresh the page to see the changes.', 'cf-civicrm' ); ?>
 				</div>
 			<?php
 			$result = ob_get_contents();
@@ -161,12 +168,12 @@ class CiviCRM_Caldera_Forms_AJAX {
 	}
 
 	public function do_code_cividiscount() {
-
+		$_POST = Caldera_Forms_Sanitize::sanitize( $_POST );
 		if ( ! wp_verify_nonce( $_POST['nonce'], 'civicrm_cividiscount_code' ) ) return;
-		if ( isset( $_POST['cividiscount_code'] ) ) $code = $_POST['cividiscount_code'];
-		if ( isset( $_POST['form_id'] ) ) $form_id = $_POST['form_id'];
-		if ( isset( $_POST['form_id_attr'] ) ) $form_id_attr = $_POST['form_id_attr'];
-		
+		if ( isset( $_POST['cividiscount_code'] ) ) $code = sanitize_text_field( $_POST['cividiscount_code'] );
+		if ( isset( $_POST['form_id'] ) ) $form_id = sanitize_text_field( $_POST['form_id'] );
+		if ( isset( $_POST['form_id_attr'] ) ) $form_id_attr = sanitize_text_field( $_POST['form_id_attr'] );
+
 		$discount = $this->plugin->cividiscount->get_by_code( $code );
 
 		if ( $discount ) {
@@ -184,8 +191,9 @@ class CiviCRM_Caldera_Forms_AJAX {
 	}
 
 	public function civicrm_get_premiums() {
-		if ( isset( $_POST['search'] ) ) $search_term = $_POST['search'];
-		if ( isset( $_POST['premium_id'] ) ) $premium_id = $_POST['premium_id'];
+		$_POST = Caldera_Forms_Sanitize::sanitize( $_POST );
+		if ( isset( $_POST['search'] ) ) $search_term = sanitize_text_field( $_POST['search'] );
+		if ( isset( $_POST['premium_id'] ) ) $premium_id = intval( $_POST['premium_id'] );
 
 		if ( ! wp_verify_nonce( $_POST['nonce'], 'admin_get_premiums' ) ) return;
 
@@ -196,10 +204,11 @@ class CiviCRM_Caldera_Forms_AJAX {
 
 		if ( isset( $premium_id ) ) $params['id'] = $premium_id;
 		if ( isset( $search_term ) && ! empty( $search_term ) ) $params['name'] = [ 'LIKE' => '%' . $search_term . '%' ];
-		
+
 		$premiums = civicrm_api3( 'Product', 'get', $params );
-		
+
 		echo json_encode( $premiums['values'] );
 		die;
 	}
+
 }

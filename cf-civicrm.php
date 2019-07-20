@@ -1,13 +1,13 @@
 <?php
 /**
- * Plugin Name: Caldera Forms CiviCRM
+ * Plugin Name: CF CiviCRM
  * Description: CiviCRM integration for Caldera Forms.
  * Version: 1.0.2
  * Author: Andrei Mondoc
  * Author URI: https://github.com/mecachisenros
- * Plugin URI: https://github.com/mecachisenros/caldera-forms-civicrm
- * GitHub Plugin URI: mecachisenros/caldera-forms-civicrm
- * Text Domain: caldera-forms-civicrm
+ * Plugin URI: https://github.com/mecachisenros/cf-civicrm
+ * GitHub Plugin URI: mecachisenros/cf-civicrm
+ * Text Domain: cf-civicrm
  * Domain Path: /languages
  */
 
@@ -291,13 +291,13 @@ class CiviCRM_Caldera_Forms {
 
 	/**
 	 * Cladera Forms version notice.
-	 * 
+	 *
 	 * @since 0.4.4
 	 */
 	public function caldera_forms_version_notice() {
 		?>
 			<div class="notice notice-error">
-				<p><?php _e( 'Caldera Forms CiviCRM requires Caldera Forms v1.8.1 or higher.', 'caldera-forms-civicrm' ); ?></p>
+				<p><?php _e( 'Caldera Forms CiviCRM requires Caldera Forms v1.8.1 or higher.', 'cf-civicrm' ); ?></p>
 			</div>
 		<?php
 	}
@@ -314,7 +314,7 @@ class CiviCRM_Caldera_Forms {
 
 		// load translations if present
 		load_plugin_textdomain(
-			'caldera-forms-civicrm', // unique name
+			'cf-civicrm', // unique name
 			false, // deprecated argument
 			dirname( plugin_basename( __FILE__ ) ) . '/languages/' // relative path to translation files
 		);

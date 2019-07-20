@@ -1,47 +1,47 @@
 <div class="civicrm-entity-fields">
 	<div class="caldera-config-group caldera-config-group-full">
 		<div class="caldera-config-field">
-			<label><input id="auto_pop" type="checkbox" name="{{_name}}[auto_pop]" value="1" {{#if auto_pop}}checked="checked"{{/if}}><?php _e( 'Auto populate contact data with CiviCRM data if user is logged in. (Only for the first contact processor)', 'caldera-forms-civicrm' ); ?></label>
+			<label><input id="auto_pop" type="checkbox" name="{{_name}}[auto_pop]" value="1" {{#if auto_pop}}checked="checked"{{/if}}><?php _e( 'Auto populate contact data with CiviCRM data if user is logged in. (Only for the first contact processor)', 'cf-civicrm' ); ?></label>
 		</div>
 	</div>
 	<div class="caldera-config-group caldera-config-group-full">
 		<div class="caldera-config-field">
-			<label><input id="address_enabled" data-entity-accordion="civicrm-address-entity" type="checkbox" name="{{_name}}[enabled_entities][process_address]" value="1" {{#if enabled_entities/process_address}}checked="checked"{{/if}}><?php _e( 'Process address for this contact.', 'caldera-forms-civicrm' ); ?></label>
+			<label><input id="address_enabled" data-entity-accordion="civicrm-address-entity" type="checkbox" name="{{_name}}[enabled_entities][process_address]" value="1" {{#if enabled_entities/process_address}}checked="checked"{{/if}}><?php _e( 'Process address for this contact.', 'cf-civicrm' ); ?></label>
 		</div>
 	</div>
 	<div class="caldera-config-group caldera-config-group-full">
 		<div class="caldera-config-field">
-			<label><input id="phone_enabled" data-entity-accordion="civicrm-phone-entity" type="checkbox" name="{{_name}}[enabled_entities][process_phone]" value="1" {{#if enabled_entities/process_phone}}checked="checked"{{/if}}><?php _e( 'Process phone for this contact.', 'caldera-forms-civicrm' ); ?></label>
+			<label><input id="phone_enabled" data-entity-accordion="civicrm-phone-entity" type="checkbox" name="{{_name}}[enabled_entities][process_phone]" value="1" {{#if enabled_entities/process_phone}}checked="checked"{{/if}}><?php _e( 'Process phone for this contact.', 'cf-civicrm' ); ?></label>
 		</div>
 	</div>
 	<div class="caldera-config-group caldera-config-group-full">
 		<div class="caldera-config-field">
-			<label><input id="note_enabled" data-entity-accordion="civicrm-note-entity" type="checkbox" name="{{_name}}[enabled_entities][process_note]" value="1" {{#if enabled_entities/process_note}}checked="checked"{{/if}}><?php _e( 'Process note for this contact.', 'caldera-forms-civicrm' ); ?></label>
+			<label><input id="note_enabled" data-entity-accordion="civicrm-note-entity" type="checkbox" name="{{_name}}[enabled_entities][process_note]" value="1" {{#if enabled_entities/process_note}}checked="checked"{{/if}}><?php _e( 'Process note for this contact.', 'cf-civicrm' ); ?></label>
 		</div>
 	</div>
 	<div class="caldera-config-group caldera-config-group-full">
 		<div class="caldera-config-field">
-			<label><input id="email_enabled" data-entity-accordion="civicrm-email-entity" type="checkbox" name="{{_name}}[enabled_entities][process_email]" value="1" {{#if enabled_entities/process_email}}checked="checked"{{/if}}><?php _e( 'Process email for this contact.', 'caldera-forms-civicrm' ); ?></label>
+			<label><input id="email_enabled" data-entity-accordion="civicrm-email-entity" type="checkbox" name="{{_name}}[enabled_entities][process_email]" value="1" {{#if enabled_entities/process_email}}checked="checked"{{/if}}><?php _e( 'Process email for this contact.', 'cf-civicrm' ); ?></label>
 		</div>
 	</div>
 	<div class="caldera-config-group caldera-config-group-full">
 		<div class="caldera-config-field">
-			<label><input id="website_enabled" data-entity-accordion="civicrm-website-entity" type="checkbox" name="{{_name}}[enabled_entities][process_website]" value="1" {{#if enabled_entities/process_website}}checked="checked"{{/if}}><?php _e( 'Process website for this contact.', 'caldera-forms-civicrm' ); ?></label>
+			<label><input id="website_enabled" data-entity-accordion="civicrm-website-entity" type="checkbox" name="{{_name}}[enabled_entities][process_website]" value="1" {{#if enabled_entities/process_website}}checked="checked"{{/if}}><?php _e( 'Process website for this contact.', 'cf-civicrm' ); ?></label>
 		</div>
 	</div>
 	<div class="caldera-config-group caldera-config-group-full">
 		<div class="caldera-config-field">
-			<label><input id="im_enabled" data-entity-accordion="civicrm-im-entity" type="checkbox" name="{{_name}}[enabled_entities][process_im]" value="1" {{#if enabled_entities/process_im}}checked="checked"{{/if}}><?php _e( 'Process Im for this contact.', 'caldera-forms-civicrm' ); ?></label>
+			<label><input id="im_enabled" data-entity-accordion="civicrm-im-entity" type="checkbox" name="{{_name}}[enabled_entities][process_im]" value="1" {{#if enabled_entities/process_im}}checked="checked"{{/if}}><?php _e( 'Process Im for this contact.', 'cf-civicrm' ); ?></label>
 		</div>
 	</div>
 	<div class="caldera-config-group caldera-config-group-full">
 		<div class="caldera-config-field">
-			<label><input id="group_enabled" data-entity-accordion="civicrm-group-entity" type="checkbox" name="{{_name}}[enabled_entities][process_group]" value="1" {{#if enabled_entities/process_group}}checked="checked"{{/if}}><?php _e( 'Process group for this contact.', 'caldera-forms-civicrm' ); ?></label>
+			<label><input id="group_enabled" data-entity-accordion="civicrm-group-entity" type="checkbox" name="{{_name}}[enabled_entities][process_group]" value="1" {{#if enabled_entities/process_group}}checked="checked"{{/if}}><?php _e( 'Process group for this contact.', 'cf-civicrm' ); ?></label>
 		</div>
 	</div>
 	<div class="caldera-config-group caldera-config-group-full">
 		<div class="caldera-config-field">
-			<label><input id="tag_enabled" data-entity-accordion="civicrm-tag-entity" type="checkbox" name="{{_name}}[enabled_entities][process_tag]" value="1" {{#if enabled_entities/process_tag}}checked="checked"{{/if}}><?php _e( 'Process tag for this contact.', 'caldera-forms-civicrm' ); ?></label>
+			<label><input id="tag_enabled" data-entity-accordion="civicrm-tag-entity" type="checkbox" name="{{_name}}[enabled_entities][process_tag]" value="1" {{#if enabled_entities/process_tag}}checked="checked"{{/if}}><?php _e( 'Process tag for this contact.', 'cf-civicrm' ); ?></label>
 		</div>
 	</div>
 </div>
@@ -71,20 +71,20 @@ $indStandardFields = [ 'first_name', 'last_name', 'middle_name', 'prefix_id', 's
 ?>
 
 <!-- Contact Link -->
-<h2><?php _e( 'Contact Link', 'caldera-forms-civicrm' ); ?></h2>
+<h2><?php _e( 'Contact Link', 'cf-civicrm' ); ?></h2>
 <div id="contact_link" class="caldera-config-group">
-	<label><?php _e( 'Link to', 'caldera-forms-civicrm' ); ?></label>
+	<label><?php _e( 'Link to', 'cf-civicrm' ); ?></label>
 	<div class="caldera-config-field">
 		<?php caldera_forms_civicrm()->helper->contact_link_field() ?>
-		<p><?php _e( 'Select which contact you want to link this processor to.', 'caldera-forms-civicrm' ); ?></p>
+		<p><?php _e( 'Select which contact you want to link this processor to.', 'cf-civicrm' ); ?></p>
 	</div>
 </div>
 <hr style="clear: both;" />
 
 <!-- Contact Type -->
-<h2><?php _e( 'Contact Type', 'caldera-forms-civicrm' ); ?></h2>
+<h2><?php _e( 'Contact Type', 'cf-civicrm' ); ?></h2>
 <div id="contact_type" class="caldera-config-group">
-	<label><?php _e( 'Contact Type', 'caldera-forms-civicrm' ); ?></label>
+	<label><?php _e( 'Contact Type', 'cf-civicrm' ); ?></label>
 	<div class="caldera-config-field">
 		<select class="block-input field-config required" name="{{_name}}[civicrm_contact][contact_type]">
 		<option value="" {{#is contact_type value=""}}selected="selected"{{/is}}></option>
@@ -97,7 +97,7 @@ $indStandardFields = [ 'first_name', 'last_name', 'middle_name', 'prefix_id', 's
 
 <!-- Contact Sub-Type -->
 <div id="contact_sub_type" class="caldera-config-group">
-	<label><?php _e( 'Contact Sub-Type', 'caldera-forms-civicrm' ); ?></label>
+	<label><?php _e( 'Contact Sub-Type', 'cf-civicrm' ); ?></label>
 	<div class="caldera-config-field">
 		<select class="block-input field-config" name="{{_name}}[civicrm_contact][contact_sub_type]">
 		<option value="" {{#is contact_sub_type value=""}}selected="selected"{{/is}}></option>
@@ -110,7 +110,7 @@ $indStandardFields = [ 'first_name', 'last_name', 'middle_name', 'prefix_id', 's
 
 <!-- Dedupe Rules -->
 <div id="dedupe_rule" class="caldera-config-group">
-	<label><?php _e( 'Dedupe Rule', 'caldera-forms-civicrm' ); ?></label>
+	<label><?php _e( 'Dedupe Rule', 'cf-civicrm' ); ?></label>
 	<div class="caldera-config-field">
 		<select class="block-input field-config required" name="{{_name}}[civicrm_contact][dedupe_rule]">
 		<option value="" {{#is dedupe_rule value=""}}selected="selected"{{/is}}></option>
@@ -124,9 +124,9 @@ $indStandardFields = [ 'first_name', 'last_name', 'middle_name', 'prefix_id', 's
 <hr/>
 
 <!-- Contact Standard Fields -->
-<a id="civicrm-standard-fields-button" class="button civicrm-accordion" style="width: 100%; margin-bottom: 5px;"><?php _e( 'Contact Standard Fields', 'caldera-forms-civicrm' ); ?></a>
+<a id="civicrm-standard-fields-button" class="button civicrm-accordion" style="width: 100%; margin-bottom: 5px;"><?php _e( 'Contact Standard Fields', 'cf-civicrm' ); ?></a>
 <div class="civicrm-standard-fields" style="display:none">
-	<h2 style="display: inline-block;"><?php _e( 'Standard Fields', 'caldera-forms-civicrm' ); ?></h2>
+	<h2 style="display: inline-block;"><?php _e( 'Standard Fields', 'cf-civicrm' ); ?></h2>
 	<?php
 
 	$contactFieldsResult = civicrm_api3( 'Contact', 'getfields', [
@@ -160,9 +160,9 @@ $indStandardFields = [ 'first_name', 'last_name', 'middle_name', 'prefix_id', 's
 </div>
 
 <!-- Contact Custom Fields -->
-<a id="civicrm-custom-fields-button" class="button civicrm-accordion" style="width: 100%; margin-bottom: 5px;"><?php _e( 'Contact Custom Fields', 'caldera-forms-civicrm' ); ?></a>
+<a id="civicrm-custom-fields-button" class="button civicrm-accordion" style="width: 100%; margin-bottom: 5px;"><?php _e( 'Contact Custom Fields', 'cf-civicrm' ); ?></a>
 <div class="civicrm-custom-fields" style="display: none;">
-	<h2 style="display: inline-block;"><?php _e( 'Custom Fields', 'caldera-forms-civicrm' ); ?></h2>
+	<h2 style="display: inline-block;"><?php _e( 'Custom Fields', 'cf-civicrm' ); ?></h2>
 	<?php
 
 	$contactCustomFields = caldera_forms_civicrm()->helper->get_contact_custom_fields();
@@ -193,18 +193,18 @@ $indStandardFields = [ 'first_name', 'last_name', 'middle_name', 'prefix_id', 's
 ?>
 
 <div class="civicrm-address-entity">
-	<a id="civicrm-address-fields-button" class="button civicrm-accordion" style="width: 100%; margin-bottom: 5px;"><?php _e( 'Contact Address', 'caldera-forms-civicrm' ); ?></a>
+	<a id="civicrm-address-fields-button" class="button civicrm-accordion" style="width: 100%; margin-bottom: 5px;"><?php _e( 'Contact Address', 'cf-civicrm' ); ?></a>
 	<div class="civicrm-address-fields" style="display: none;">
 		<div class="caldera-config-group caldera-config-group-full">
 			<div class="caldera-config-field">
-				<label><input id="{{_id}}_is_override" type="checkbox" name="{{_name}}[civicrm_address][is_override]" value="1" {{#if civicrm_address/is_override}}checked="checked"{{/if}}><?php _e( 'Write empty/blank fields values.', 'caldera-forms-civicrm' ); ?></label>
+				<label><input id="{{_id}}_is_override" type="checkbox" name="{{_name}}[civicrm_address][is_override]" value="1" {{#if civicrm_address/is_override}}checked="checked"{{/if}}><?php _e( 'Write empty/blank fields values.', 'cf-civicrm' ); ?></label>
 				<p class="description"><?php _e( 'If a mapped field\'s value is empty/blank it will still be sent to CiviCRM when this setting is enabled.' ) ?></p>
 			</div>
 		</div>
 
-		<h3><?php _e( 'Address Location Type', 'caldera-forms-civicrm' ); ?></h3>
+		<h3><?php _e( 'Address Location Type', 'cf-civicrm' ); ?></h3>
 		<div id="location_type_id" class="caldera-config-group">
-			<label><?php echo __( 'Address Location Type', 'caldera-forms-civicrm' ); ?></label>
+			<label><?php echo __( 'Address Location Type', 'cf-civicrm' ); ?></label>
 			<div class="caldera-config-field">
 				<select class="block-input field-config" name="{{_name}}[civicrm_address][location_type_id]">
 				<option value="" {{#is civicrm_address/location_type_id value=""}}selected="selected"{{/is}}></option>
@@ -217,7 +217,7 @@ $indStandardFields = [ 'first_name', 'last_name', 'middle_name', 'prefix_id', 's
 
 		<hr style="clear: both;" />
 
-		<h2 style="display: inline-block;"><?php _e( 'Address Fields', 'caldera-forms-civicrm' ); ?></h2>
+		<h2 style="display: inline-block;"><?php _e( 'Address Fields', 'cf-civicrm' ); ?></h2>
 		<?php foreach( $address_fields['values'] as $key => $value ) {
 			if ( in_array( $value['name'], $fields ) ) { ?>
 			<div id="<?php echo esc_attr( $value['name'] ); ?>" class="caldera-config-group">
@@ -250,11 +250,11 @@ $indStandardFields = [ 'first_name', 'last_name', 'middle_name', 'prefix_id', 's
 ?>
 
 <div class="civicrm-phone-entity">
-	<a id="civicrm-phone-fields-button" class="button civicrm-accordion" style="width: 100%; margin-bottom: 5px;"><?php _e( 'Contact Phone', 'caldera-forms-civicrm' ); ?></a>
+	<a id="civicrm-phone-fields-button" class="button civicrm-accordion" style="width: 100%; margin-bottom: 5px;"><?php _e( 'Contact Phone', 'cf-civicrm' ); ?></a>
 	<div class="civicrm-phone-fields" style="display: none;">
 
 		<div id="location_type_id" class="caldera-config-group">
-			<label><?php _e( 'Phone Location Type', 'caldera-forms-civicrm' ); ?></label>
+			<label><?php _e( 'Phone Location Type', 'cf-civicrm' ); ?></label>
 			<div class="caldera-config-field">
 				<select class="block-input field-config" name="{{_name}}[civicrm_phone][location_type_id]">
 				<option value="" {{#is civicrm_phone/location_type_id value=""}}selected="selected"{{/is}}></option>
@@ -266,7 +266,7 @@ $indStandardFields = [ 'first_name', 'last_name', 'middle_name', 'prefix_id', 's
 		</div>
 
 		<div id="phone_type_id" class="caldera-config-group">
-			<label><?php _e( 'Phone Type', 'caldera-forms-civicrm' ); ?></label>
+			<label><?php _e( 'Phone Type', 'cf-civicrm' ); ?></label>
 			<div class="caldera-config-field">
 				<select class="block-input field-config" name="{{_name}}[civicrm_phone][phone_type_id]">
 					<option value="" {{#is civicrm_phone/location_type_id value=""}}selected="selected"{{/is}}></option>
@@ -278,7 +278,7 @@ $indStandardFields = [ 'first_name', 'last_name', 'middle_name', 'prefix_id', 's
 		</div>
 		<hr style="clear: both;" />
 
-		<h2 style="display: inline-block;"><?php _e( 'Phone Fields', 'caldera-forms-civicrm' ); ?></h2>
+		<h2 style="display: inline-block;"><?php _e( 'Phone Fields', 'cf-civicrm' ); ?></h2>
 		<?php foreach( $phone_fields['values'] as $key => $value ) {
 			if ( in_array( $value['name'], $pFields ) ) { ?>
 			<div id="<?php echo esc_attr( $value['name'] ); ?>" class="caldera-config-group">
@@ -302,9 +302,9 @@ $indStandardFields = [ 'first_name', 'last_name', 'middle_name', 'prefix_id', 's
 ?>
 
 <div class="civicrm-note-entity">
-	<a id="civicrm-note-fields-button" class="button civicrm-accordion" style="width: 100%; margin-bottom: 5px;"><?php _e( 'Contact Note', 'caldera-forms-civicrm' ); ?></a>
+	<a id="civicrm-note-fields-button" class="button civicrm-accordion" style="width: 100%; margin-bottom: 5px;"><?php _e( 'Contact Note', 'cf-civicrm' ); ?></a>
 	<div class="civicrm-note-fields" style="display: none;">
-		<h2 style="display: inline-block;"><?php _e( 'Note Fields', 'caldera-forms-civicrm' ); ?></h2>
+		<h2 style="display: inline-block;"><?php _e( 'Note Fields', 'cf-civicrm' ); ?></h2>
 		<?php foreach( $noteFields['values'] as $key => $value ) {
 			if( in_array($value['name'], $nFields ) ){ ?>
 			<div id="<?php echo esc_attr( $value['name'] ); ?>" class="caldera-config-group">
@@ -333,9 +333,9 @@ $indStandardFields = [ 'first_name', 'last_name', 'middle_name', 'prefix_id', 's
 	$eFields = [ 'is_primary', 'is_billing', 'email', 'on_hold', 'is_bulkmail' ];
 ?>
 <div class="civicrm-email-entity">
-	<a id="civicrm-email-fields-button" class="button civicrm-accordion" style="width: 100%; margin-bottom: 5px;"><?php _e( 'Contact Email', 'caldera-forms-civicrm' ); ?></a>
+	<a id="civicrm-email-fields-button" class="button civicrm-accordion" style="width: 100%; margin-bottom: 5px;"><?php _e( 'Contact Email', 'cf-civicrm' ); ?></a>
 	<div class="civicrm-email-fields" style="display: none;">
-		<h2><?php _e( 'Email Location Type', 'caldera-forms-civicrm' ); ?></h2>
+		<h2><?php _e( 'Email Location Type', 'cf-civicrm' ); ?></h2>
 		<div id="location_type_id" class="caldera-config-group">
 			<label><?php echo __('Email Location Type'); ?></label>
 			<div class="caldera-config-field">
@@ -349,7 +349,7 @@ $indStandardFields = [ 'first_name', 'last_name', 'middle_name', 'prefix_id', 's
 		</div>
 		<hr style="clear: both;" />
 
-		<h2 style="display: inline-block;"><?php _e( 'Email Fields', 'caldera-forms-civicrm' ); ?></h2>
+		<h2 style="display: inline-block;"><?php _e( 'Email Fields', 'cf-civicrm' ); ?></h2>
 		<?php
 			foreach( $emailFields['values'] as $key => $value ) {
 				if( in_array($value['name'], $eFields ) ){ ?>
@@ -379,9 +379,9 @@ $indStandardFields = [ 'first_name', 'last_name', 'middle_name', 'prefix_id', 's
 ?>
 
 <div class="civicrm-website-entity">
-	<a id="civicrm-website-fields-button" class="button civicrm-accordion" style="width: 100%; margin-bottom: 5px;"><?php _e( 'Contact Website', 'caldera-forms-civicrm' ); ?></a>
+	<a id="civicrm-website-fields-button" class="button civicrm-accordion" style="width: 100%; margin-bottom: 5px;"><?php _e( 'Contact Website', 'cf-civicrm' ); ?></a>
 	<div class="civicrm-website-fields" style="display: none;">
-		<h2><?php _e( 'Website Type', 'caldera-forms-civicrm' ); ?></h2>
+		<h2><?php _e( 'Website Type', 'cf-civicrm' ); ?></h2>
 		<div id="website_type_id" class="caldera-config-group">
 			<label><?php echo __('Website Type'); ?></label>
 			<div class="caldera-config-field">
@@ -395,7 +395,7 @@ $indStandardFields = [ 'first_name', 'last_name', 'middle_name', 'prefix_id', 's
 		</div>
 		<hr style="clear: both;" />
 
-		<h2><?php _e( 'Website Fields', 'caldera-forms-civicrm' ); ?></h2>
+		<h2><?php _e( 'Website Fields', 'cf-civicrm' ); ?></h2>
 		<?php
 			foreach( $websiteFields['values'] as $key => $value ) {
 				if( in_array($value['name'], $wFields ) ){ ?>
@@ -426,9 +426,9 @@ $indStandardFields = [ 'first_name', 'last_name', 'middle_name', 'prefix_id', 's
 ?>
 
 <div class="civicrm-im-entity">
-	<a id="civicrm-im-fields-button" class="button civicrm-accordion" style="width: 100%; margin-bottom: 5px;"><?php _e( 'Contact Im', 'caldera-forms-civicrm' ); ?></a>
+	<a id="civicrm-im-fields-button" class="button civicrm-accordion" style="width: 100%; margin-bottom: 5px;"><?php _e( 'Contact Im', 'cf-civicrm' ); ?></a>
 	<div class="civicrm-im-fields" style="display: none;">
-		<h2><?php _e( 'Im Location Type', 'caldera-forms-civicrm' ); ?></h2>
+		<h2><?php _e( 'Im Location Type', 'cf-civicrm' ); ?></h2>
 		<div id="location_type_id" class="caldera-config-group">
 			<label><?php echo __('Im Location Type'); ?></label>
 			<div class="caldera-config-field">
@@ -442,7 +442,7 @@ $indStandardFields = [ 'first_name', 'last_name', 'middle_name', 'prefix_id', 's
 		</div>
 		<hr style="clear: both;" />
 
-		<h2><?php _e( 'Im Fields', 'caldera-forms-civicrm' ); ?></h2>
+		<h2><?php _e( 'Im Fields', 'cf-civicrm' ); ?></h2>
 		<?php
 			foreach( $imFields['values'] as $key => $value ) {
 				if( in_array($value['name'], $iFields ) ){ ?>
@@ -469,11 +469,11 @@ $indStandardFields = [ 'first_name', 'last_name', 'middle_name', 'prefix_id', 's
 ?>
 
 <div class="civicrm-group-entity">
-	<a id="civicrm-group-fields-button" class="button civicrm-accordion" style="width: 100%; margin-bottom: 5px;"><?php _e( 'Contact Group', 'caldera-forms-civicrm' ); ?></a>
+	<a id="civicrm-group-fields-button" class="button civicrm-accordion" style="width: 100%; margin-bottom: 5px;"><?php _e( 'Contact Group', 'cf-civicrm' ); ?></a>
 	<div class="civicrm-group-fields" style="display: none;">
-		<h2><?php _e( 'Group Fields', 'caldera-forms-civicrm' ); ?></h2>
+		<h2><?php _e( 'Group Fields', 'cf-civicrm' ); ?></h2>
 		<div class="caldera-config-group">
-			<label><?php _e('Group', 'caldera-forms-civicrm' ); ?></label>
+			<label><?php _e('Group', 'cf-civicrm' ); ?></label>
 			<div class="caldera-config-field">
 				<select class="block-input field-config" name="{{_name}}[civicrm_group][contact_group]">
 				<option value="" {{#is civicrm_group/contact_group value=""}}selected="selected"{{/is}}></option>
@@ -492,14 +492,14 @@ $indStandardFields = [ 'first_name', 'last_name', 'middle_name', 'prefix_id', 's
 	$tagResult = $result = civicrm_api3( 'Tag', 'get', [
 		'sequential' => 1,
 		'used_for' => 'civicrm_contact',
-		'options' => [ 'limit' => 0 ], 
+		'options' => [ 'limit' => 0 ],
 	] );
 ?>
 
 <div class="civicrm-tag-entity">
-	<a id="civicrm-tag-fields-button" class="button civicrm-accordion" style="width: 100%; margin-bottom: 5px;"><?php _e( 'Contact Tag', 'caldera-forms-civicrm' ); ?></a>
+	<a id="civicrm-tag-fields-button" class="button civicrm-accordion" style="width: 100%; margin-bottom: 5px;"><?php _e( 'Contact Tag', 'cf-civicrm' ); ?></a>
 	<div class="civicrm-tag-fields" style="display: none;">
-		<h2><?php _e( 'Tag(s)', 'caldera-forms-civicrm' ); ?></h2>
+		<h2><?php _e( 'Tag(s)', 'cf-civicrm' ); ?></h2>
 		<div class="caldera-config-group caldera-config-group-full">
 			<div class="caldera-config-field">
 				<?php foreach ( $tagResult['values'] as $key => $value ) { ?>

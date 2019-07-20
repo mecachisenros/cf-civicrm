@@ -111,8 +111,8 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 	public function register_processor( $processors ) {
 
 		$processors[$this->key_name] = [
-			'name' => __( 'CiviCRM Participant', 'caldera-forms-civicrm' ),
-			'description' => __( 'Add CiviCRM Participant to event (for Event registration).', 'caldera-forms-civicrm' ),
+			'name' => __( 'CiviCRM Participant', 'cf-civicrm' ),
+			'description' => __( 'Add CiviCRM Participant to event (for Event registration).', 'cf-civicrm' ),
 			'author' => 'Andrei Mondoc',
 			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/participant/config.php',
 			'pre_processor' => [ $this, 'pre_processor' ],
@@ -632,7 +632,7 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 			// disable option based on max value count
 			if ( array_key_exists( 'max_value', $price_field_value ) && $current_count[$price_field_value['id']] >= $price_field_value['max_value'] ) {
 				$option['disabled'] = true;
-				$option['label'] .= ' ' . __( '(Sold out!)', 'caldera-forms-civicrm' );
+				$option['label'] .= ' ' . __( '(Sold out!)', 'cf-civicrm' );
 			}
 
 			$options[$price_field_value['id']] = $option;
@@ -969,7 +969,7 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 		if ( $participant && $participant['event_id'] == $event['id'] && $event['allow_same_participant_emails'] != 1 ) {
 			$notice = [
 				'type' => 'warning',
-				'note' => sprintf( __( 'Oops. It looks like you are already registered for the event <strong>%1$s</strong>. If you want to change your registration, or you think that this is an error, please contact the site administrator.', 'caldera-forms-civicrm' ), $event['title'] ),
+				'note' => sprintf( __( 'Oops. It looks like you are already registered for the event <strong>%1$s</strong>. If you want to change your registration, or you think that this is an error, please contact the site administrator.', 'cf-civicrm' ), $event['title'] ),
 				'disabled' => true
 			];
 
@@ -983,7 +983,7 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 		if ( isset( $event['registration_start_date'] ) && date( 'Y-m-d H:i:s' ) <= $event['registration_start_date'] ) {
 			$notice = [
 				'type' => 'warning',
-				'note' => sprintf( __( 'Registration for the event <strong>%s</strong> is not yet opened.', 'caldera-forms-civicrm' ), $event['title'] ),
+				'note' => sprintf( __( 'Registration for the event <strong>%s</strong> is not yet opened.', 'cf-civicrm' ), $event['title'] ),
 				'disabled' => true
 			];
 
@@ -997,7 +997,7 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 		if ( isset( $event['registration_end_date'] ) && date( 'Y-m-d H:i:s' ) >= $event['registration_end_date']  ) {
 			$notice = [
 				'type' => 'warning',
-				'note' => sprintf( __( 'Registration for the event <strong>%1$s</strong> was closed on %2$s.', 'caldera-forms-civicrm' ), $event['title'], date_format( date_create( $event['registration_end_date'] ), 'F d, Y H:i' ) ),
+				'note' => sprintf( __( 'Registration for the event <strong>%1$s</strong> was closed on %2$s.', 'cf-civicrm' ), $event['title'], date_format( date_create( $event['registration_end_date'] ), 'F d, Y H:i' ) ),
 				'disabled' => true
 			];
 
@@ -1011,7 +1011,7 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 		if ( $event['requires_approval'] ) {
 			$notice = [
 				'type' => 'warning',
-				'note' => sprintf( __( '%s', 'caldera-forms-civicrm' ), $event['approval_req_text'] ),
+				'note' => sprintf( __( '%s', 'cf-civicrm' ), $event['approval_req_text'] ),
 				'disabled' => false
 			];
 
@@ -1025,7 +1025,7 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 		if ( $this->is_full( $event ) && $event['has_waitlist'] ) {
 			$notice = [
 				'type' => 'warning',
-				'note' => sprintf( __( '%s', 'caldera-forms-civicrm' ), $event['waitlist_text'] ),
+				'note' => sprintf( __( '%s', 'cf-civicrm' ), $event['waitlist_text'] ),
 				'disabled' => false
 			];
 
@@ -1039,7 +1039,7 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 		if ( $this->is_full( $event ) && ! $event['has_waitlist'] ) {
 			$notice = [
 				'type' => 'warning',
-				'note' => sprintf( __( '%s', 'caldera-forms-civicrm' ), $event['event_full_text'] ),
+				'note' => sprintf( __( '%s', 'cf-civicrm' ), $event['event_full_text'] ),
 				'disabled' => true
 			];
 

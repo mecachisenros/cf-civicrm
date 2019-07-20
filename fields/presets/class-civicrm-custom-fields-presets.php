@@ -101,7 +101,7 @@ class CiviCRM_Caldera_Forms_Custom_Fields_Presets {
 			if ( ! $custom_options ) return;
 
 			$presets['custom_' . $field['id']] = [
-				'name' => sprintf( __( 'CiviCRM - %1$s - %2$s', 'caldera-forms-civicrm' ), $field['custom_group_id.title'], $field['label'] ),
+				'name' => sprintf( __( 'CiviCRM - %1$s - %2$s', 'cf-civicrm' ), $field['custom_group_id.title'], $field['label'] ),
 				'data' => array_reduce( $custom_options, function( $options, $option ) {
 					$options[] = $option['value'] . '|' . $option['label'];
 					return $options;
@@ -139,7 +139,7 @@ class CiviCRM_Caldera_Forms_Custom_Fields_Presets {
 
 			if ( ! $field['option_group_id'] ) return;
 
-			echo "<option value=\"custom_{$field['id']}\"{{#is auto_type value=\"custom_{$field['id']}\"}} selected=\"selected\"{{/is}}>" . sprintf( __( 'CiviCRM - %1$s - %2$s', 'caldera-forms-civicrm' ), $field['custom_group_id.title'], $field['label'] ) . "</option>";
+			echo "<option value=\"custom_{$field['id']}\"{{#is auto_type value=\"custom_{$field['id']}\"}} selected=\"selected\"{{/is}}>" . sprintf( __( 'CiviCRM - %1$s - %2$s', 'cf-civicrm' ), $field['custom_group_id.title'], $field['label'] ) . "</option>";
 
 		}, $custom_fields );
 

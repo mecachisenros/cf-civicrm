@@ -15,10 +15,10 @@ class CiviCRM_Caldera_Forms_Im_Processor {
 	 * @var object $plugin The plugin instance
 	 */
 	public $plugin;
-	
+
 	/**
 	 * Contact link.
-	 * 
+	 *
 	 * @since 0.4.4
 	 * @access protected
 	 * @var string $contact_link The contact link
@@ -70,8 +70,8 @@ class CiviCRM_Caldera_Forms_Im_Processor {
 	public function register_processor( $processors ) {
 
 		$processors[$this->key_name] = [
-			'name' => __( 'CiviCRM Im (Instant Messenger)', 'caldera-forms-civicrm' ),
-			'description' => __( 'Add CiviCRM Im to contacts', 'caldera-forms-civicrm' ),
+			'name' => __( 'CiviCRM Im (Instant Messenger)', 'cf-civicrm' ),
+			'description' => __( 'Add CiviCRM Im to contacts', 'cf-civicrm' ),
 			'author' => 'Andrei Mondoc',
 			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/im/im_config.php',
 			'pre_processor' => [ $this, 'pre_processor' ],
@@ -123,7 +123,7 @@ class CiviCRM_Caldera_Forms_Im_Processor {
 				}
 
 				try {
-					$create_im = civicrm_api3( 'Im', 'create', $form_values );	            	
+					$create_im = civicrm_api3( 'Im', 'create', $form_values );
 				} catch ( CiviCRM_API3_Exception $e ) {
 					$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
 					return [ 'note' => $error, 'type' => 'error' ];
@@ -143,7 +143,7 @@ class CiviCRM_Caldera_Forms_Im_Processor {
 	 * @return array $form The modified form
 	 */
 	public function pre_render( $form ){
-		
+
 		// continue as normal if form has no processors
 		if( empty( $form['processors'] ) ) return $form;
 

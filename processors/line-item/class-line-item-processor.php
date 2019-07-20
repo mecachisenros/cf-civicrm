@@ -50,8 +50,8 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 	public function register_processor( $processors ) {
 
 		$processors[$this->key_name] = [
-			'name' => __( 'CiviCRM Line Item', 'caldera-forms-civicrm' ),
-			'description' => __( 'Add Line Item for the Order Processor', 'caldera-forms-civicrm' ),
+			'name' => __( 'CiviCRM Line Item', 'cf-civicrm' ),
+			'description' => __( 'Add Line Item for the Order Processor', 'cf-civicrm' ),
 			'author' => 'Andrei Mondoc',
 			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/line-item/line_item_config.php',
 			'pre_processor' => [ $this, 'pre_processor' ],
@@ -80,7 +80,7 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 		$transient = $this->plugin->transient->get();
 
 		// price field value params aka 'line_item'
-		$price_field_value = isset( $config['is_fixed_price_field'] ) ? 
+		$price_field_value = isset( $config['is_fixed_price_field'] ) ?
 			$this->plugin->helper->get_price_field_value( $config['fixed_price_field_value'] ) :
 			$this->plugin->helper->get_price_field_value( Caldera_Forms::do_magic_tags( $config['price_field_value'] ) );
 
@@ -142,7 +142,7 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 	 * Process Membership Line Item.
 	 *
 	 * @since 0.4.4
-	 * 
+	 *
 	 * @param array $config Processor config
 	 * @param array $form Form config
 	 * @param object $transient Transient object
@@ -161,8 +161,8 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 
 			$entity_params = $transient->memberships->$processor_id->params;
 
-			$entity_params['source'] = ! empty( $entity_params['source'] ) ? 
-				$entity_params['source'] : 
+			$entity_params['source'] = ! empty( $entity_params['source'] ) ?
+				$entity_params['source'] :
 				$form['name'];
 
 		}
@@ -174,7 +174,7 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 
 		$transient->memberships->$processor_id->params = $entity_params;
 
-		$line_item = [ 
+		$line_item = [
 			'processor_entity' => $processor_id,
 			'line_item' => $price_field_value,
 			'params' => $entity_params
@@ -188,9 +188,9 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 
 	/**
 	 * Process Participant Line Item.
-	 * 
+	 *
 	 * @since 1.0
-	 * 
+	 *
 	 * @param array $config Processor config
 	 * @param array $form Form config
 	 * @param object $transient Transient object
@@ -223,8 +223,8 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 
 			$entity_params = $transient->participants->$processor_id->params;
 
-			$entity_params['source'] = ! empty( $entity_params['source'] ) ? 
-				$entity_params['source'] : 
+			$entity_params['source'] = ! empty( $entity_params['source'] ) ?
+				$entity_params['source'] :
 				$form['name'];
 
 			// need to set price set id, otherwise Participant.create from Order.create
@@ -243,7 +243,7 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 
 		$transient->participants->$processor_id->params = $entity_params;
 
-		$line_item = [ 
+		$line_item = [
 			'processor_entity' => $processor_id,
 			'line_item' => $price_field_value,
 			'params' => $entity_params
@@ -257,9 +257,9 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 
 	/**
 	 * Process Contribution Line Item.
-	 * 
+	 *
 	 * @since 0.4.4
-	 * 
+	 *
 	 * @param array $config Processor config
 	 * @param array $form Form config
 	 * @param object $transient Transient object
@@ -311,7 +311,7 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 
 			$field_value['entity_table'] = $entity_table ? $entity_table : $this->guess_entity_table( $price_field_value );
 
-			unset( 
+			unset(
 				$field_value['id'],
 				$field_value['name'],
 				$field_value['amount'],

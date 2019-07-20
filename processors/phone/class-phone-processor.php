@@ -15,10 +15,10 @@ class CiviCRM_Caldera_Forms_Phone_Processor {
 	 * @var object $plugin The plugin instance
 	 */
 	public $plugin;
-	
+
 	/**
 	 * Contact link.
-	 * 
+	 *
 	 * @since 0.4.4
 	 * @access protected
 	 * @var string $contact_link The contact link
@@ -70,8 +70,8 @@ class CiviCRM_Caldera_Forms_Phone_Processor {
 	public function register_processor( $processors ) {
 
 		$processors[$this->key_name] = [
-			'name' => __( 'CiviCRM Phone', 'caldera-forms-civicrm' ),
-			'description' => __( 'Add CiviCRM phone to contacts', 'caldera-forms-civicrm' ),
+			'name' => __( 'CiviCRM Phone', 'cf-civicrm' ),
+			'description' => __( 'Add CiviCRM phone to contacts', 'cf-civicrm' ),
 			'author' => 'Andrei Mondoc',
 			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/phone/phone_config.php',
 			'pre_processor' => [ $this, 'pre_processor' ],
@@ -96,7 +96,7 @@ class CiviCRM_Caldera_Forms_Phone_Processor {
 		$this->contact_link = 'cid_' . $config['contact_link'];
 
 		if ( ! empty( $transient->contacts->{$this->contact_link} ) ) {
-			
+
 			try {
 
 				$phone = civicrm_api3( 'Phone', 'getsingle', [
@@ -143,7 +143,7 @@ class CiviCRM_Caldera_Forms_Phone_Processor {
 	 * @return array $form The modified form
 	 */
 	public function pre_render( $form ){
-		
+
 		// continue as normal if form has no processors
 		if ( empty( $form['processors'] ) ) return $form;
 

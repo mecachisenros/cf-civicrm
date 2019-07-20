@@ -61,8 +61,8 @@ class CiviCRM_Caldera_Forms_Case_Processor {
 	public function register_processor( $processors ) {
 
 		$processors[$this->key_name] = [
-			'name' => __( 'CiviCRM Case', 'caldera-forms-civicrm' ),
-			'description' => __( 'Add/Open CiviCRM Case (CiviCase) to contact', 'caldera-forms-civicrm' ),
+			'name' => __( 'CiviCRM Case', 'cf-civicrm' ),
+			'description' => __( 'Add/Open CiviCRM Case (CiviCase) to contact', 'cf-civicrm' ),
 			'author' => 'Andrei Mondoc',
 			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/case/case_config.php',
 			'processor' =>  [ $this, 'processor' ],
