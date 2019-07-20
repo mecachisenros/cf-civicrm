@@ -15,10 +15,10 @@ class CiviCRM_Caldera_Forms_Group_Processor {
 	 * @var object $plugin The plugin instance
 	 */
 	public $plugin;
-	
+
 	/**
 	 * Contact link.
-	 * 
+	 *
 	 * @since 0.4.4
 	 * @access protected
 	 * @var string $contact_link The contact link
@@ -59,8 +59,8 @@ class CiviCRM_Caldera_Forms_Group_Processor {
 	public function register_processor( $processors ) {
 
 		$processors[$this->key_name] = [
-			'name' => __( 'CiviCRM Group', 'caldera-forms-civicrm' ),
-			'description' => __( 'Add CiviCRM contact to group', 'caldera-forms-civicrm' ),
+			'name' => __( 'CiviCRM Group', 'cf-civicrm' ),
+			'description' => __( 'Add CiviCRM contact to group', 'cf-civicrm' ),
 			'author' => 'Andrei Mondoc',
 			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/group/group_config.php',
 			'pre_processor' => [ $this, 'pre_processor' ],

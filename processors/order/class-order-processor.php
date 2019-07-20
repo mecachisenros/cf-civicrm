@@ -18,7 +18,7 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 
 	/**
 	 * Contact link.
-	 * 
+	 *
 	 * @since 0.4.4
 	 * @access protected
 	 * @var string $contact_link The contact link
@@ -27,7 +27,7 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 
 	/**
 	 * Payment processor fee.
-	 * 
+	 *
 	 * @since 0.4.4
 	 * @access protected
 	 * @var string $fee The fee
@@ -97,15 +97,15 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 	public function register_processor( $processors ) {
 
 		$processors[$this->key_name] = [
-			'name' => __( 'CiviCRM Order', 'caldera-forms-civicrm' ),
-			'description' => __( 'Add CiviCRM Order (Contribution with multiple Line Items, ie Events registrations, Donations, Memberships, etc.)', 'caldera-forms-civicrm' ),
+			'name' => __( 'CiviCRM Order', 'cf-civicrm' ),
+			'description' => __( 'Add CiviCRM Order (Contribution with multiple Line Items, ie Events registrations, Donations, Memberships, etc.)', 'cf-civicrm' ),
 			'author' => 'Andrei Mondoc',
 			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/order/order_config.php',
 			'single' => true,
 			'pre_processor' =>  [ $this, 'pre_processor' ],
 			'processor' => [ $this, 'processor' ],
 			'post_processor' => [ $this, 'post_processor'],
-			'magic_tags' => [ 'order_id' ]
+			'magic_tags' => [ 'order_id', 'processor_id' ]
 		];
 
 		return $processors;
@@ -122,7 +122,7 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 	 * @param string $processid The process id
 	 */
 	public function pre_processor( $config, $form, $processid ) {
-		
+
 	}
 
 	/**
@@ -135,7 +135,7 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 	 * @param string $processid The process id
 	 */
 	public function processor( $config, $form, $processid ) {
-		
+
 		global $transdata;
 
 		$transient = $this->plugin->transient->get();
@@ -149,7 +149,7 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 		$form_values['payment_instrument_id'] = ! isset( $config['is_mapped_field'] ) ?
 			$config['payment_instrument_id'] :
 			$form_values['mapped_payment_instrument_id'];
-		
+
 		$form_values['currency'] = $config['currency'];
 
 		if ( ! empty( $config['campaign_id'] ) ) $form_values['campaign_id'] = $config['campaign_id'];
@@ -165,13 +165,13 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 			$form_values['is_pay_later'] = 1; // has to be set, if not we get a (Incomplete transaction)
 			unset( $form_values['trxn_id'] );
 		}
-		
+
 		// source
 		if( ! isset( $form_values['source'] ) )
 			$form_values['source'] = $form['name'];
-		
+
 		$form_values['contact_id'] = $transient->contacts->{$this->contact_link};
-		
+
 		// line items
 		$line_items = $this->build_line_items_params( $transient, $config, $form );
 
@@ -187,7 +187,7 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 
 		// FIXME
 		// move this into its own finction
-		// 
+		//
 		// authorize metadata
 		if( isset( $transdata[$transdata['transient']]['transaction_data']->transaction_id ) ) {
 			$metadata = [
@@ -207,8 +207,13 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 			$this->order = ( $create_order['count'] && ! $create_order['is_error'] ) ? $create_order['values'][$create_order['id']] : false;
 
 			// create product
-			if ( $this->order )
+			if ( $this->order ) {
 				$this->create_premium( $this->order, $form_values, $config );
+
+				// save orde data in transient
+				$transient->orders->{$config['processor_id']}->params = $this->order;
+				$this->plugin->transient->save( $transient->ID, $transient );
+			}
 
 		} catch ( CiviCRM_API3_Exception $e ) {
 			$transdata['error'] = true;
@@ -216,8 +221,12 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 		}
 
 		// return order_id magic tag
-		if ( is_array( $create_order ) && ! $create_order['is_error'] )
-			return $create_order['id'];
+		if ( is_array( $create_order ) && ! $create_order['is_error'] ){
+			return [
+				'order_id' => $create_order['id'],
+				'processor_id' => $config['processor_id']
+			];
+		}
 
 	}
 
@@ -235,7 +244,7 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 		global $transdata;
 		$transient = $this->plugin->transient->get();
 
-		// preserve join dates 
+		// preserve join dates
 		$this->preserve_membership_join_date( $form );
 
 		$line_items = civicrm_api3( 'LineItem', 'get', [
@@ -251,7 +260,7 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 				 * Filter thank you template path.
 				 *
 				 * @since 0.4.4
-				 * 
+				 *
 				 * @param string $template_path The template path
 				 * @param array $form Form config
 				 */
@@ -287,7 +296,7 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 		 */
 		do_action( 'cfc_order_post_processor', $this->order, $config, $form, $processid );
 
-		// send confirmation/receipt 
+		// send confirmation/receipt
 		$this->maybe_send_confirmation( $this->order, $config );
 
 	}
@@ -315,13 +324,18 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 
 			$line_item = $transient->line_items->$item_processor_id->params;
 
-			if ( isset( $line_item['line_item'][0]['tax_amount'] ) && $this->plugin->helper->get_tax_settings()['invoicing'] ) 
+			if ( isset( $line_item['line_item'][0]['tax_amount'] ) && $this->plugin->helper->get_tax_settings()['invoicing'] )
 				$this->total_tax_amount += $line_item['line_item'][0]['tax_amount'];
 
 			// set membership as pending
 			if ( isset( $line_item['params']['membership_type_id'] ) && $this->is_pay_later ) {
-				$line_item['params']['status_id'] = 'Pending';
-				$line_item['params']['is_override'] = 1;
+				if ( ! $line_item['params']['id'] ) {
+					$line_item['params']['status_id'] = 'Pending';
+				} else {
+					$line_item['params']['num_terms'] = 0;
+				}
+				$line_item['params']['is_pay_later'] = 1;
+				$line_item['params']['skipStatusCal'] = 1;
 			}
 
 			// set participant as pending
@@ -349,7 +363,7 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 	 * Reformats the line items to correctly add otpions like donations
 	 * assigned to the right enity, participant in this case.
 	 *
-	 * @since 1.0.1 
+	 * @since 1.0.1
 	 * @param array $line_items The formated line items
 	 * @param array $config The processor config
 	 * @param array $form The form config
@@ -367,7 +381,7 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 			 $processors = array_merge( $processors, $participant_processors );
 
 		if ( is_array( $membership_pprocessors ) )
-			 $processors = array_merge( $processors, $membership_pprocessors );		
+			 $processors = array_merge( $processors, $membership_pprocessors );
 
 		if ( empty( $processors ) ) return $line_items;
 
@@ -396,7 +410,7 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 
 						$price_field_values_ids = array_column( $lines, 'price_field_value_id' );
 
-						// there cannot be duplicated price field options for the same item 
+						// there cannot be duplicated price field options for the same item
 						if ( ! in_array( $line['price_field_value_id'], $price_field_values_ids ) )
 							$lines[] = $line;
 
@@ -444,9 +458,9 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 	 * @param array $form Form configuration
 	 */
 	function preserve_membership_join_date( $form ) {
-		
+
 		$transient = $this->plugin->transient->get();
-		
+
 		if ( Caldera_Forms::get_processor_by_type( 'civicrm_membership', $form ) ) {
 			foreach ( $form['processors'] as $id => $processor ) {
 				if ( $processor['type'] == 'civicrm_membership' && isset( $processor['config']['preserve_join_date'] ) ) {
@@ -457,13 +471,13 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 					add_filter( 'cfc_current_membership_get_status', [ $this, 'add_expired_status' ], 10 );
 					if ( isset( $processor['config']['is_membership_type'] ) ) {
 						// get oldest membersip
-						$oldest_membership = $this->plugin->helper->get_membership( 
+						$oldest_membership = $this->plugin->helper->get_membership(
 							$transient->contacts->{$this->contact_link},
 							$transient->memberships->$id->params['membership_type_id'],
 							'ASC'
 						);
 					} else {
-						$oldest_membership = $this->plugin->helper->get_membership( 
+						$oldest_membership = $this->plugin->helper->get_membership(
 							$transient->contacts->{$this->contact_link},
 							$membership_type = false,
 							$sort = 'ASC'
@@ -473,11 +487,11 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 					remove_filter( 'cfc_current_membership_get_status', [ $this, 'add_expired_status' ], 10 );
 
 					if ( $this->is_pay_later ) {
-						// is pay later, filter membership status to pending 
+						// is pay later, filter membership status to pending
 						add_filter( 'cfc_current_membership_get_status', [ $this, 'set_pending_status' ], 10 );
 						// get latest membership
 						if ( $oldest_membership )
-							$latest_membership = $this->plugin->helper->get_membership( 
+							$latest_membership = $this->plugin->helper->get_membership(
 								$transient->contacts->{$this->contact_link},
 								$transient->memberships->$id->params['membership_type_id']
 							);
@@ -485,14 +499,14 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 						remove_filter( 'cfc_current_membership_get_status', [ $this, 'set_pending_status' ], 10 );
 					} else {
 						if ( $oldest_membership )
-							$latest_membership = $this->plugin->helper->get_membership( 
+							$latest_membership = $this->plugin->helper->get_membership(
 								$transient->contacts->{$this->contact_link},
 								$transient->memberships->$id->params['membership_type_id'],
 								$sort = 'DESC',
 								$skip_status = true
 							);
 					}
-					
+
 					if ( $latest_membership && date( 'Y-m-d', strtotime( $oldest_membership['join_date'] ) ) < date( 'Y-m-d', strtotime( $latest_membership['join_date'] ) ) ) {
 						// is latest/current membership one of associated?
 						if ( $associated_memberships && in_array( $latest_membership['membership_type_id'], $associated_memberships ) ) {
@@ -536,7 +550,7 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 	 * Add payment processor hooks before pre process starts.
 	 *
 	 * @since 0.4.4
-	 * 
+	 *
 	 * @param array $form Form config
 	 * @param array $referrer URL referrer
 	 * @param string $process_id The process id
@@ -550,7 +564,7 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 			 * Filter Authorize single payment customer data.
 			 *
 			 * @since 0.4.4
-			 * 
+			 *
 			 * @param object $customer Customer data
 			 * @param string $prefix processor slug prefix
 			 * @param object $data_object Processor data object
@@ -563,7 +577,7 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 						if ( ! empty( $field['config_field'] ) ) {
 							// get field config
 							$field_config = Caldera_Forms_Field_Util::get_field( $field['config_field'], $form );
-							
+
 							// replace country id with label
 							if ( $field_config['type'] == 'civicrm_country' )
 								$customer->country = $this->plugin->fields->field_objects['civicrm_country']->field_render_view( $customer->country, $field_config, $form );
@@ -583,7 +597,7 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 			 * Process the Stripe balance transaction to get the fee and card detials.
 			 *
 			 * @since  0.4.4
-			 * 
+			 *
 			 * @param array $return_charge Data about the successful charge
 			 * @param array $transdata Data used to create transaction
 			 * @param array $config The proessor config
@@ -592,10 +606,10 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 			add_action( 'cf_stripe_post_successful_charge', function( $return_charge, $transdata, $config, $stripe_form ) {
 				// stripe charge object from the successful payment
 				$balance_transaction_id = $transdata['stripe']->balance_transaction;
-				
+
 				\Stripe\Stripe::setApiKey( $config['secret'] );
 				$balance_transaction_object = \Stripe\BalanceTransaction::retrieve( $balance_transaction_id );
-				
+
 				$charge_metadata = [
 					'fee_amount' => $balance_transaction_object->fee / 100,
 					'card_type_id' => $this->get_option_by_label( $transdata['stripe']->source->brand ),
@@ -756,12 +770,12 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 	 * Send email confirmation/receipt.
 	 *
 	 * @since 0.4.4
-	 * 
+	 *
 	 * @param array $order The Order api result
 	 * @param array $config Processor config
 	 */
 	public function maybe_send_confirmation( $order, $config ) {
-		
+
 		if ( ! $order ) return;
 
 		if ( isset( $order['id'] ) && isset( $config['is_email_receipt'] ) ) {
@@ -777,7 +791,7 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 	 * Get OptionValue by label.
 	 *
 	 * @since 0.4.4
-	 * 
+	 *
 	 * @param string $label
 	 * @return mixed $value
 	 */
@@ -786,9 +800,9 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 			$option_value = civicrm_api3( 'OptionValue', 'getsingle', [
 				'label' => $label,
 			] );
-			
+
 		} catch ( CiviCRM_API3_Exception $e ) {
-			// ignore	
+			// ignore
 		}
 
 		if ( isset( $option_value ) && is_array( $option_value ) )

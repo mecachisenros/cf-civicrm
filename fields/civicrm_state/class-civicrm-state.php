@@ -66,15 +66,15 @@ class CiviCRM_Caldera_Forms_Field_State {
 	public function register_field_type( $field_types ) {
 
 		$field_types[$this->key_name] = [
-			'field' => __( 'CiviCRM State/Province', 'caldera-forms-civicrm' ),
+			'field' => __( 'CiviCRM State/Province', 'cf-civicrm' ),
 			'file' => CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_state/field.php',
-			'category' => __( 'CiviCRM', 'caldera-forms-civicrm' ),
-			'description' => __( 'CiviCRM State/Province dropdown', 'caldera-forms-civicrm' ),
+			'category' => __( 'CiviCRM', 'cf-civicrm' ),
+			'description' => __( 'CiviCRM State/Province dropdown', 'cf-civicrm' ),
 			'setup' => [
 				'template' => CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_state/config.php',
 				'preview' => CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_state/preview.php',
 				'default' => [
-					'placeholder' => __( 'Select a State/Province', 'caldera-forms-civicrm' ),
+					'placeholder' => __( 'Select a State/Province', 'cf-civicrm' ),
 					'default' => $this->plugin->helper->get_civicrm_settings( 'defaultContactStateProvince' )
 				],
 			],
@@ -132,12 +132,12 @@ class CiviCRM_Caldera_Forms_Field_State {
 	 * Enqueue scripts
 	 *
 	 * @since 0.4.4
-	 * 
+	 *
 	 * @param array $form Form config
 	 * @return array $form Form config
 	 */
 	public function enqueue_scripts( $form ) {
-		
+
 		foreach ( $form['fields'] as $field_id => $field ) {
 			if ( $field['type'] == $this->key_name ) {
 				wp_enqueue_style( 'cfc-select2' );

@@ -2,14 +2,14 @@
 	<?php echo $field_label; ?>
 	<?php echo $field_before; ?>
 		<?php echo Caldera_Forms_Field_Input::html( $field, $field_structure, $form ); ?>
-		<button 
+		<button
 			style="margin-top: 10px;"
 			id="<?php echo esc_attr( $field_id ); ?>_cividiscount_button"
 			type="button"
 			class="btn btn-block"
 			data-nonce="<?php echo wp_create_nonce( 'civicrm_cividiscount_code' ); ?>"
 			>
-			<?php empty( $field['config']['button_text'] ) ? esc_html_e( 'Apply Discount', 'caldera-forms-civicrm' ) : esc_html_e( $field['config']['button_text'], 'caldera-forms-civicrm' ); ?>
+			<?php empty( $field['config']['button_text'] ) ? esc_html_e( 'Apply Discount', 'cf-civicrm' ) : esc_html_e( $field['config']['button_text'], 'cf-civicrm' ); ?>
 		</button>
 		<?php echo $field_caption; ?>
 	<?php echo $field_after; ?>
@@ -31,7 +31,7 @@
 			form_instance = '<?php echo Caldera_Forms_Render_Util::get_current_form_count(); ?>';
 
 			if ( ! code ) return;
-			
+
 			$.ajax( {
 				url: cfc.url,
 				type: 'post',

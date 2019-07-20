@@ -40,6 +40,6 @@ To use this plugin, the following is needed:
 
 ### Contribute
 
-Please help improve this plugin by using the extension issue queue to report any troubles and to make requests for feature improvements. The issue queue is here: https://github.com/mecachisenros/caldera-forms-civicrm/issues
+Please help improve this plugin by using the extension issue queue to report any troubles and to make requests for feature improvements. The issue queue is here: https://github.com/mecachisenros/cf-civicrm/issues
 
 Issues submitted to the issue queue will be addressed based on time and interest. If you are a developer contributions are welcome.

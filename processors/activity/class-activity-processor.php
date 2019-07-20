@@ -15,10 +15,10 @@ class CiviCRM_Caldera_Forms_Activity_Processor {
 	 * @var object $plugin The plugin instance
 	 */
 	public $plugin;
-	
+
 	/**
 	 * Contact link.
-	 * 
+	 *
 	 * @since 0.4.4
 	 * @access protected
 	 * @var string $contact_link The contact link
@@ -59,8 +59,8 @@ class CiviCRM_Caldera_Forms_Activity_Processor {
 	public function register_processor( $processors ) {
 
 		$processors[$this->key_name] = [
-			'name' => __( 'CiviCRM Activity', 'caldera-forms-civicrm' ),
-			'description' => __( 'Add CiviCRM activity to contact', 'caldera-forms-civicrm' ),
+			'name' => __( 'CiviCRM Activity', 'cf-civicrm' ),
+			'description' => __( 'Add CiviCRM activity to contact', 'cf-civicrm' ),
 			'author' => 'Andrei Mondoc',
 			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/activity/activity_config.php',
 			'processor' =>  [ $this, 'processor' ],
@@ -86,7 +86,7 @@ class CiviCRM_Caldera_Forms_Activity_Processor {
 		// cfc transient object
 		$transient = $this->plugin->transient->get();
 		$this->contact_link = 'cid_' . $config['contact_link'];
-		
+
 		// Get form values
 		$form_values = $this->plugin->helper->map_fields_to_processor( $config, $form, $form_values );
 
@@ -105,6 +105,14 @@ class CiviCRM_Caldera_Forms_Activity_Processor {
 			// Concatenate DATE + TIME
 			// $form_values['activity_date_time'] = $form_values['activity_date_time'];
 
+			// error message when case_id magic tag hasn't been evaluated
+			if ( isset( $form_values['case_id'] ) && ! is_numeric( $form_values['case_id'] ) ) {
+				$notice = __( 'Activity not created due to invalid case_id.', 'cf-civicrm' );
+				$transdata['error'] = TRUE;
+				$transdata['note'] = $notice;
+				return;
+			}
+
 			try {
 				$activity = civicrm_api3( 'Activity', 'create', $form_values );
 			} catch ( CiviCRM_API3_Exception $e ) {
@@ -119,7 +127,7 @@ class CiviCRM_Caldera_Forms_Activity_Processor {
 			 * @since 0.4.2
 			 */
 			if ( ! empty( $config['file_id'] ) )
-				$this->plugin->helper->handle_file_attachments_core( 
+				$this->plugin->helper->handle_file_attachments_core(
 					'civicrm_activity',
 					$activity['id'],
 					$config['file_id'],

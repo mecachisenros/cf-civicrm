@@ -1,47 +1,47 @@
 <!-- Active class -->
 <div class="caldera-config-group">
 	<label for="{{_id}}_active">
-		<?php esc_html_e( 'Toggle active class', 'caldera-forms-civicrm' ); ?>
+		<?php esc_html_e( 'Toggle active class', 'cf-civicrm' ); ?>
 	</label>
 	<div class="caldera-config-field">
 		<input id="{{_id}}_active"type="text" value="{{#if active_class}}{{active_class}}{{else}}btn-success{{/if}}" name="{{_name}}[active_class]" class="block-input field-config">
 	</div>
 	<p class="description">
-		<?php _e( 'The selected class of the toggle button.', 'caldera-forms-civicrm' ); ?>
+		<?php _e( 'The selected class of the toggle button.', 'cf-civicrm' ); ?>
 	</p>
 </div>
 
 <!-- Inactive class -->
 <div class="caldera-config-group">
 	<label for="{{_id}}_inactive">
-		<?php esc_html_e( 'Toggle inactive class', 'caldera-forms-civicrm' ); ?>
+		<?php esc_html_e( 'Toggle inactive class', 'cf-civicrm' ); ?>
 	</label>
 	<div class="caldera-config-field">
 		<input id="{{_id}}_inactive"type="text" value="{{#if default_class}}{{default_class}}{{else}}btn-default{{/if}}" name="{{_name}}[default_class]" class="block-input field-config">
 	</div>
 	<p class="description">
-		<?php _e( 'The default class of the toggle button, ie. not clicked/selected.', 'caldera-forms-civicrm' ); ?>
+		<?php _e( 'The default class of the toggle button, ie. not clicked/selected.', 'cf-civicrm' ); ?>
 	</p>
 </div>
 
 <!-- Premiums -->
 <div class="caldera-config-group">
 	<label for="{{_id}}_premium_id">
-		<?php esc_html_e( 'Premium', 'caldera-forms-civicrm' ); ?>
+		<?php esc_html_e( 'Premium', 'cf-civicrm' ); ?>
 	</label>
 	<div class="caldera-config-field">
 		<select id="{{_id}}_premium_id" class="block-input field-config" name="{{_name}}[premium_id]" nonce="<?php echo wp_create_nonce( 'admin_get_premiums' ); ?>">
 		</select>
 	</div>
 	<p class="description">
-		<?php _e( 'Select a premium (this field is required).', 'caldera-forms-civicrm' ); ?>
+		<?php _e( 'Select a premium (this field is required).', 'cf-civicrm' ); ?>
 	</p>
 </div>
 
 <!-- Default -->
 <div class="caldera-config-group">
 	<label for="{{_id}}_default">
-		<?php esc_html_e( 'Default option', 'caldera-forms-civicrm' ); ?>
+		<?php esc_html_e( 'Default option', 'cf-civicrm' ); ?>
 	</label>
 	<div class="caldera-config-field">
 		<select id="{{_id}}_default" class="block-input field-config" name="{{_name}}[default]">
@@ -51,14 +51,14 @@
 		</select>
 	</div>
 	<p class="description">
-		<?php _e( 'Select a premium (this field is required).', 'caldera-forms-civicrm' ); ?>
+		<?php _e( 'Select a premium (this field is required).', 'cf-civicrm' ); ?>
 	</p>
 </div>
 
 <!-- No thanks -->
 <div class="caldera-config-group">
 	<label for="{{_id}}_no_thanks">
-		<?php esc_html_e( 'No thank you label', 'caldera-forms-civicrm' ); ?>
+		<?php esc_html_e( 'No thank you label', 'cf-civicrm' ); ?>
 	</label>
 	<div class="caldera-config-field">
 		<input id="{{_id}}_no_thanks"type="text" value="{{#if no_thanks}}{{no_thanks}}{{else}}No thank you{{/if}}" name="{{_name}}[no_thanks]" class="block-input field-config">
@@ -67,7 +67,7 @@
 
 <div class="caldera-config-group">
 	<label for="{{_id}}_disable_thank_you">
-		<?php esc_html_e( 'Don\'t show \'No thank you\'', 'caldera-forms-civicrm' ); ?>
+		<?php esc_html_e( 'Don\'t show \'No thank you\'', 'cf-civicrm' ); ?>
 	</label>
 	<div class="caldera-config-field">
 		<input id="{{_id}}_disable_thank_you" type="checkbox" class="field-config" name="{{_name}}[no_no_thanks]" value="1" {{#if no_no_thanks}}checked="checked"{{/if}}>
@@ -77,13 +77,13 @@
 <!-- Calculation field -->
 <div class="caldera-config-group">
 	<label for="{{_id}}_calc"">
-		<?php _e( 'Calculation field', 'caldera-forms-civicrm' ); ?>
+		<?php _e( 'Calculation field', 'cf-civicrm' ); ?>
 	</label>
 	<div class="caldera-config-field">
 		{{{_field slug="calc"}}}
 	</div>
 	<p class="description">
-		<?php _e( 'Calculation field to check for minimum contribution.', 'caldera-forms-civicrm' ); ?>
+		<?php _e( 'Calculation field to check for minimum contribution.', 'cf-civicrm' ); ?>
 	</p>
 </div>
 

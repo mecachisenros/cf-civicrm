@@ -35,7 +35,7 @@ class CiviCRM_Caldera_Forms_Custom_Fields_Presets {
 	/**
 	 * The entites the custom fields extend.
 	 *
-	 * @since 1.0 
+	 * @since 1.0
 	 * @access public
 	 * @var array The entities
 	 */
@@ -93,15 +93,15 @@ class CiviCRM_Caldera_Forms_Custom_Fields_Presets {
 			if ( ! in_array( $field['html_type'], $this->allowed_html_types ) ) return;
 
 			if ( ! in_array( $field['custom_group_id.extends'], $extends ) ) return;
-			
+
 			if ( ! $field['option_group_id'] ) return;
-			
+
 			$custom_options = $this->option_values_get( $field['option_group_id'] );
 
 			if ( ! $custom_options ) return;
 
 			$presets['custom_' . $field['id']] = [
-				'name' => sprintf( __( 'CiviCRM - %1$s - %2$s', 'caldera-forms-civicrm' ), $field['custom_group_id.title'], $field['label'] ),
+				'name' => sprintf( __( 'CiviCRM - %1$s - %2$s', 'cf-civicrm' ), $field['custom_group_id.title'], $field['label'] ),
 				'data' => array_reduce( $custom_options, function( $options, $option ) {
 					$options[] = $option['value'] . '|' . $option['label'];
 					return $options;
@@ -130,16 +130,16 @@ class CiviCRM_Caldera_Forms_Custom_Fields_Presets {
 		if ( ! $custom_fields ) return;
 
 		$extends = $this->entities_extend_get();
-		
+
 		array_map( function( $field ) use ( $extends ) {
 
 			if ( ! in_array( $field['html_type'], $this->allowed_html_types ) ) return;
 
 			if ( ! in_array( $field['custom_group_id.extends'], $extends ) ) return;
-			
+
 			if ( ! $field['option_group_id'] ) return;
 
-			echo "<option value=\"custom_{$field['id']}\"{{#is auto_type value=\"custom_{$field['id']}\"}} selected=\"selected\"{{/is}}>" . sprintf( __( 'CiviCRM - %1$s - %2$s', 'caldera-forms-civicrm' ), $field['custom_group_id.title'], $field['label'] ) . "</option>";
+			echo "<option value=\"custom_{$field['id']}\"{{#is auto_type value=\"custom_{$field['id']}\"}} selected=\"selected\"{{/is}}>" . sprintf( __( 'CiviCRM - %1$s - %2$s', 'cf-civicrm' ), $field['custom_group_id.title'], $field['label'] ) . "</option>";
 
 		}, $custom_fields );
 
@@ -198,7 +198,7 @@ class CiviCRM_Caldera_Forms_Custom_Fields_Presets {
 	 *
 	 * @return array|bool $custom_fields The custom fields, or false
 	 */
-	public function custom_fields_get(  ) {
+	public function custom_fields_get() {
 
 		// return data if it's already retrieved
 		if ( ! empty( $this->custom_fields ) ) return $this->custom_fields;
@@ -213,12 +213,12 @@ class CiviCRM_Caldera_Forms_Custom_Fields_Presets {
 
 
 		if ( ! is_array( $custom_fields ) && ! $custom_fields['count'] ) return false;
-		
+
 		// get option values
 		// $option_group_ids = array_column( $custom_fields['values'], 'option_group_id' );
 
 		$this->custom_fields = $custom_fields['values'];
-		
+
 		return $this->custom_fields;
 
 	}
@@ -234,7 +234,8 @@ class CiviCRM_Caldera_Forms_Custom_Fields_Presets {
 
 		$option_values = civicrm_api3( 'OptionValue', 'get', [
 			'sequential' => 1,
-			'option_group_id' => $option_group_id
+			'option_group_id' => $option_group_id,
+      'options' => ['limit' => 0, 'sort' => "weight ASC"],
 		] );
 
 		if ( $option_values['count'] && ! $option_values['is_error'] ) return $option_values['values'];

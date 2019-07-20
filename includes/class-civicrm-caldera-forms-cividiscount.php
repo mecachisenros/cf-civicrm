@@ -128,7 +128,7 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 
 		if ( is_array( $this->event_cividiscounts ) && ! empty( $this->event_cividiscounts ) ) return $this->event_cividiscounts;
 
-		$event_cividiscounts = $this->get_cividiscounts_by_entity( 'events' ); 
+		$event_cividiscounts = $this->get_cividiscounts_by_entity( 'events' );
 
 		if ( ! isset( $event_discounts ) ) return;
 
@@ -154,7 +154,7 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 
 	/**
 	 * Build options ids for price fields.
-	 * 
+	 *
 	 * @since 1.0
 	 * @param array $form The form config
 	 * @return array|boolean $options_ids_refs References to [ <processor_id> => <event_id> ], or false
@@ -254,7 +254,7 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 						break;
 					}
 				} catch ( CiviCRM_API3_Exception $e ) {
-					
+
 				}
 			}
 		}
@@ -301,17 +301,17 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 	 */
 	public function do_discounted_option( $option, $field, $price_field_value, $discount ) {
 
-		$label = sprintf( __( '%1$s (Includes automatic discount of: ', 'caldera-forms-civicrm' ), $price_field_value['label'] );
+		$label = sprintf( __( '%1$s (Includes automatic discount of: ', 'cf-civicrm' ), $price_field_value['label'] );
 
 		// percentage discount
 		if ( $discount['amount_type'] == 1 ) {
 			$discounted_amount = $price_field_value['amount'] - $this->plugin->helper->calculate_percentage( $price_field_value['amount'], $discount['amount'] );
-			$label .= $discount['amount'] . __( '%)', 'caldera-forms-civicrm' );
+			$label .= $discount['amount'] . __( '%)', 'cf-civicrm' );
 		}
 		// fixed discount
 		if ( $discount['amount_type'] == 2 ) {
 			$discounted_amount = $price_field_value['amount'] - $discount['amount'];
-			$label .= $this->plugin->helper->format_money( $discount['amount'] ) . __( ')', 'caldera-forms-civicrm' );
+			$label .= $this->plugin->helper->format_money( $discount['amount'] ) . __( ')', 'cf-civicrm' );
 		}
 		// filtered option
 		$option = [
@@ -417,7 +417,7 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 			$options = array_reduce( $field['config']['option'], function( $options, $option ) use ( $field_id, $field, $form ) {
 				$field_option_id = $field_id . '_' . $form['form_count'] . '_' . $option['value'];
 				$options[$field_option_id] = $field['config']['option'][$option['value']];
-				$options[$field_option_id]['field_id'] = $field_id; 
+				$options[$field_option_id]['field_id'] = $field_id;
 				return $options;
 			}, [] );
 
@@ -472,7 +472,7 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 			$options = array_reduce( $field['config']['option'], function( $options, $option ) use ( $ref, $field, $form ) {
 				$field_option_id = $ref['field_id'] . '_' . $form['form_count'] . '_' . $option['value'];
 				$options[$field_option_id] = $field['config']['option'][$option['value']];
-				$options[$field_option_id]['field_id'] = $ref['field_id']; 
+				$options[$field_option_id]['field_id'] = $ref['field_id'];
 				return $options;
 			}, [] );
 			return $discounted_options + $options;

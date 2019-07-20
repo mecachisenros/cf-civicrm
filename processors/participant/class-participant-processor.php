@@ -17,7 +17,7 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 
 	/**
 	 * Contact link.
-	 * 
+	 *
 	 * @since 1.0
 	 * @access protected
 	 * @var string $contact_link The contact link
@@ -111,8 +111,8 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 	public function register_processor( $processors ) {
 
 		$processors[$this->key_name] = [
-			'name' => __( 'CiviCRM Participant', 'caldera-forms-civicrm' ),
-			'description' => __( 'Add CiviCRM Participant to event (for Event registration).', 'caldera-forms-civicrm' ),
+			'name' => __( 'CiviCRM Participant', 'cf-civicrm' ),
+			'description' => __( 'Add CiviCRM Participant to event (for Event registration).', 'cf-civicrm' ),
 			'author' => 'Andrei Mondoc',
 			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/participant/config.php',
 			'pre_processor' => [ $this, 'pre_processor' ],
@@ -134,73 +134,149 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 	 */
 	public function pre_processor( $config, $form, $processid ) {
 
-		// cfc transient object
-		$transient = $this->plugin->transient->get();
 		$this->contact_link = 'cid_' . $config['contact_link'];
 
 		// Get form values
 		$form_values = $this->plugin->helper->map_fields_to_processor( $config, $form, $form_values );
 
+		$config = apply_filters( 'cfc_participant_pre_processor_config', $config, $form, $form_values, $this->plugin );
+
+		// event
+		$event = apply_filters( 'cfc_participant_pre_processor_event_config', $this->events[$config['processor_id']], $config, $form, $this->plugin );
+
+		// process one or multiple participants
+		if ( is_array( $config['id'] ) ) {
+			foreach ( $config['id'] as $event_id ) {
+				$this->process_participant( $event[$event_id], $form_values, $config, $form, $processid );
+			}
+		} else {
+			$this->process_participant( $event, $form_values, $config, $form, $processid );
+		}
+
+	}
+
+	/**
+	 * Process participant.
+	 *
+	 * @since 1.0.3
+	 * @param array $event The event config or and array with events indexed by event_id
+	 * @param array $form_values The submitted form values
+	 * @param array $config The processor config
+	 * @param array $form The form config
+	 * @param string $processid The process id
+	 */
+	function process_participant( $event, $form_values, $config, $form, $processid ) {
+
+		$transient = $this->plugin->transient->get();
 
 		if ( ! empty( $transient->contacts->{$this->contact_link} ) ) {
-			// event
-			$event = $this->events[$config['processor_id']];
 
 			$form_values['contact_id'] = $transient->contacts->{$this->contact_link};
-			$form_values['event_id'] = $config['id'];
+			$form_values['event_id'] = $event['id'];
 			$form_values['role_id'] = ( $config['role_id'] == 'default_role_id' ) ? $event['default_role_id'] : $config['role_id'];
-			$form_values['status_id'] = ( $config['status_id'] == 'default_status_id' ) ? 'Registered' : $config['status_id']; // default is registered
+			$form_values['status_id'] = ( $config['status_id'] == 'default_status_id' ) ? $this->default_status( $event, $config ) : $config['status_id']; // default is registered
 
 			if ( ! empty( $config['campaign_id'] ) ) $form_values['campaign_id'] = $config['campaign_id'];
 
-			// if multiple participant processors, we need to update $this->registrations
-			$this->registrations = $this->get_participant_registrations( $this->event_ids, $form );
+			if ( is_array( $config['id'] ) ) {
+				$is_registered = civicrm_api3( 'Participant', 'get', [
+					'event_id' => $event['id'],
+					'contact_id' => $transient->contacts->{$this->contact_link}
+				] );
 
-			$is_registered = is_array( $this->registrations[$config['processor_id']] );
+				$is_registered = $is_registered['count'];
+			} else {
 
-			// store data in transient if is not registered
-			if ( ! $is_registered || $this->is_registered_and_same_email_allowed( $is_registered, $event ) ) {
-				$transient->participants->{$config['processor_id']}->params = $form_values;
-				$this->plugin->transient->save( $transient->ID, $transient );
+				// if multiple participant processors, we need to update $this->registrations
+				$this->registrations = $this->get_participant_registrations( $this->event_ids, $form );
+				$is_registered = is_array( $this->registrations[$config['processor_id']] );
 
-				if ( isset( $config['is_email_receipt'] ) ) {
+			}
 
-					add_action( 'cfc_order_post_processor', function( $order, $order_config, $form, $processid ) use ( $event, $config ) {
+			// prevent re-registrations based on event's 'allow_same_participant_emails' setting
+			if ( $is_registered && $event['allow_same_participant_emails'] != 1 ) {
+				$notice = $this->get_notice( $config['processor_id'], $form );
+				return $notice;
+			}
 
-						if ( ! $order ) return;
+			/**
+			 * Filter to abort participant processing.
+			 *
+			 * To abort a participant from being processed return true or,
+			 * to abort the form from processing return an array like:
+			 * [ 'note' => 'Some message', 'type' => 'success|error|info|warning|danger' ]
+			 * The form processing will stop displaying 'Some message'
+			 *
+			 * @since 1.0.3
+			 * @param bool|array $return Whether to abort the processing of a participant
+			 * @param bool|array $event The current event
+			 * @param array $form_values The submitted form values
+			 * @param array $config The processor config
+			 * @param array $form The form config
+			 * @param string $processid The process id
+			 */
+			$return = apply_filters( 'cfc_participant_pre_processor_return', false, $event, $form_values, $config, $form, $processid );
 
-						foreach ( $order['line_items'] as $key => $item ) {
+			if ( ! $return ) {
 
-							if ( $item['entity_table'] == 'civicrm_participant' ) {
+				// store data in transient if is not registered
+				if ( ! $is_registered || $this->is_registered_and_same_email_allowed( $is_registered, $event ) ) {
+					$transient->participants->{$config['processor_id']}->params = $form_values;
+					$this->plugin->transient->save( $transient->ID, $transient );
 
-								$participant = civicrm_api3( 'Participant', 'get', [ 'id' => $item['entity_id'] ] );
+					if ( isset( $config['is_email_receipt'] ) ) {
 
-								if ( is_array( $participant ) && ! $participant['is_error'] && $participant['values'][$item['entity_id']]['event_id'] == $event['id'] ) {
+						add_action( 'cfc_order_post_processor', function( $order, $order_config, $form, $processid ) use ( $event, $config ) {
 
-									$this->send_mail( $participant['values'][$participant['id']], $event, $order );
-									break;
+							if ( ! $order ) return;
+
+							foreach ( $order['line_items'] as $key => $item ) {
+
+								if ( $item['entity_table'] == 'civicrm_participant' ) {
+
+									$participant = civicrm_api3( 'Participant', 'get', [ 'id' => $item['entity_id'] ] );
+
+									if ( is_array( $participant ) && ! $participant['is_error'] && $participant['values'][$item['entity_id']]['event_id'] == $event['id'] ) {
+
+										$this->send_mail( $participant['values'][$participant['id']], $event, $order );
+										break;
+									}
+
 								}
 
 							}
 
+						}, 10, 4 );
+
+					}
+				}
+
+				if ( ( ! $config['is_monetary'] && ! $is_registered ) || ( ! $config['is_monetary'] && $this->is_registered_and_same_email_allowed( $is_registered, $event ) ) ) {
+					try {
+						$create_participant = civicrm_api3( 'Participant', 'create', $form_values );
+
+						$participant = $create_participant['values'][$create_participant['id']];
+
+						if ( ! $create_participant['is_error'] && $config['is_email_receipt'] ) {
+							$this->send_mail( $participant, $event );
 						}
 
-					}, 10, 4 );
+						// save participant data in transient
+						$transient->participants->{$config['processor_id']}->params = $participant;
+						$this->plugin->transient->save( $transient->ID, $transient );
 
-				}
-			}
-
-			if ( ( ! $config['is_monetary'] && ! $is_registered ) || ( ! $config['is_monetary'] && $this->is_registered_and_same_email_allowed( $is_registered, $event ) ) ) {
-				try {
-					$create_participant = civicrm_api3( 'Participant', 'create', $form_values );
-					if ( ! $create_participant['is_error'] && $config['is_email_receipt'] ) {
-						$this->send_mail( $create_participant['values'][$create_participant['id']], $event );
+					} catch ( CiviCRM_API3_Exception $e ) {
+						$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
+						return [ 'note' => $error, 'type' => 'error' ];
 					}
-				} catch ( CiviCRM_API3_Exception $e ) {
-					$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
-					return [ 'note' => $error, 'type' => 'error' ];
 				}
+
+			} else {
+
+				return $return;
+
 			}
+
 		}
 
 	}
@@ -355,7 +431,7 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 
 	/**
 	 * Get events ids.
-	 * 
+	 *
 	 * @since 1.0
 	 * @param array $participant_processors Array holding participant processor config
 	 * @return array|boolean $event_ids References to [ <processor_id> => <event_id> ], or false
@@ -409,8 +485,8 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 	 * @param array $field The field structure
 	 * @param array $form The form config
 	 * @param array $price_field Price field and it's price_field_values
-	 * @param string $current_filter The current filter 
-	 * @return array $field The field structure 
+	 * @param string $current_filter The current filter
+	 * @return array $field The field structure
 	 */
 	public function filter_price_field_config( $field, $form, $price_field, $current_filter ) {
 
@@ -556,7 +632,7 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 			// disable option based on max value count
 			if ( array_key_exists( 'max_value', $price_field_value ) && $current_count[$price_field_value['id']] >= $price_field_value['max_value'] ) {
 				$option['disabled'] = true;
-				$option['label'] .= ' ' . __( '(Sold out!)', 'caldera-forms-civicrm' );
+				$option['label'] .= ' ' . __( '(Sold out!)', 'cf-civicrm' );
 			}
 
 			$options[$price_field_value['id']] = $option;
@@ -625,13 +701,13 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 
 	/**
 	 * Filter price field options for discounted options (pricesets).
-	 * 
+	 *
 	 * @since 1.0
 	 * @param array $field The field structure
 	 * @param array $form The form config
 	 * @param array $price_field Price field and it's price_field_values
-	 * @param string $current_filter The current filter 
-	 * @return array $field The field structure 
+	 * @param string $current_filter The current filter
+	 * @return array $field The field structure
 	 */
 	public function do_options_autodiscounts( $field, $form, $price_field, $current_filter ) {
 
@@ -660,7 +736,7 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 
 			$contact_link = 'cid_' . $processor['config']['contact_link'];
 			$contact_id = property_exists( $transient->contacts, $contact_link ) && ! empty( $transient->contacts->$contact_link ) ? $transient->contacts->$contact_link : false;
-			
+
 			if ( $contact_id )
 				$is_autodiscount = $this->plugin->cividiscount->check_autodiscount( $options_discount['autodiscount'], $transient->contacts->$contact_link, $options_refs['processor_id'] );
 
@@ -749,13 +825,13 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 
 	/**
 	 * Do code discounts for options based cividiscounts.
-	 * 
+	 *
 	 * @since 1.0
 	 * @param array $field The field structure
 	 * @param array $form The form config
 	 * @param array $price_field Price field and it's price_field_values
-	 * @param string $current_filter The current filter 
-	 * @return array $field The field structure 
+	 * @param string $current_filter The current filter
+	 * @return array $field The field structure
 	 */
 	public function do_options_code_discounts( $field, $form, $price_field, $current_filter ) {
 
@@ -806,8 +882,8 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 	 * @param array $field The field structure
 	 * @param array $form The form config
 	 * @param array $price_field Price field and it's price_field_values
-	 * @param string $current_filter The current filter 
-	 * @return array $field The field structure 
+	 * @param string $current_filter The current filter
+	 * @return array $field The field structure
 	 */
 	public function render_notices_for_paid_events( $field, $form, $price_field ) {
 
@@ -881,8 +957,6 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 		$event = $this->events[$processor_id];
 		$participant = $this->registrations[$processor_id];
 
-		if ( isset( $event['allow_same_participant_emails'] ) && $event['allow_same_participant_emails'] ) return;
-
 		// notices filter
 		$filter = 'cfc_notices_to_render';
 		// cfc_notices_to_render filter callback
@@ -892,10 +966,10 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 		};
 
 		// is registered
-		if ( $participant && $participant['event_id'] == $event['id'] ) {
+		if ( $participant && $participant['event_id'] == $event['id'] && $event['allow_same_participant_emails'] != 1 ) {
 			$notice = [
 				'type' => 'warning',
-				'note' => sprintf( __( 'Oops. It looks like you are already registered for the event <strong>%1$s</strong>. If you want to change your registration, or you think that this is an error, please contact the site administrator.', 'caldera-forms-civicrm' ), $event['title'] ),
+				'note' => sprintf( __( 'Oops. It looks like you are already registered for the event <strong>%1$s</strong>. If you want to change your registration, or you think that this is an error, please contact the site administrator.', 'cf-civicrm' ), $event['title'] ),
 				'disabled' => true
 			];
 
@@ -909,7 +983,7 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 		if ( isset( $event['registration_start_date'] ) && date( 'Y-m-d H:i:s' ) <= $event['registration_start_date'] ) {
 			$notice = [
 				'type' => 'warning',
-				'note' => sprintf( __( 'Registration for the event <strong>%s</strong> is not yet opened.', 'caldera-forms-civicrm' ), $event['title'] ),
+				'note' => sprintf( __( 'Registration for the event <strong>%s</strong> is not yet opened.', 'cf-civicrm' ), $event['title'] ),
 				'disabled' => true
 			];
 
@@ -923,7 +997,7 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 		if ( isset( $event['registration_end_date'] ) && date( 'Y-m-d H:i:s' ) >= $event['registration_end_date']  ) {
 			$notice = [
 				'type' => 'warning',
-				'note' => sprintf( __( 'Registration for the event <strong>%1$s</strong> was closed on %2$s.', 'caldera-forms-civicrm' ), $event['title'], date_format( date_create( $event['registration_end_date'] ), 'F d, Y H:i' ) ),
+				'note' => sprintf( __( 'Registration for the event <strong>%1$s</strong> was closed on %2$s.', 'cf-civicrm' ), $event['title'], date_format( date_create( $event['registration_end_date'] ), 'F d, Y H:i' ) ),
 				'disabled' => true
 			];
 
@@ -937,7 +1011,7 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 		if ( $event['requires_approval'] ) {
 			$notice = [
 				'type' => 'warning',
-				'note' => sprintf( __( '%s', 'caldera-forms-civicrm' ), $event['approval_req_text'] ),
+				'note' => sprintf( __( '%s', 'cf-civicrm' ), $event['approval_req_text'] ),
 				'disabled' => false
 			];
 
@@ -951,7 +1025,7 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 		if ( $this->is_full( $event ) && $event['has_waitlist'] ) {
 			$notice = [
 				'type' => 'warning',
-				'note' => sprintf( __( '%s', 'caldera-forms-civicrm' ), $event['waitlist_text'] ),
+				'note' => sprintf( __( '%s', 'cf-civicrm' ), $event['waitlist_text'] ),
 				'disabled' => false
 			];
 
@@ -965,7 +1039,7 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 		if ( $this->is_full( $event ) && ! $event['has_waitlist'] ) {
 			$notice = [
 				'type' => 'warning',
-				'note' => sprintf( __( '%s', 'caldera-forms-civicrm' ), $event['event_full_text'] ),
+				'note' => sprintf( __( '%s', 'cf-civicrm' ), $event['event_full_text'] ),
 				'disabled' => true
 			];
 
