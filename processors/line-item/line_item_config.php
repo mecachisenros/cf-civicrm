@@ -92,7 +92,7 @@ $price_sets = caldera_forms_civicrm()->helper->cached_price_sets();
 	<div id="{{_id}}_is_other_amount" class="caldera-config-group caldera-config-group-full">
 		<div class="is_other_amount caldera-config-field">
 			<label><input type="checkbox" name="{{_name}}[is_other_amount]" value="1" {{#if is_other_amount}}checked="checked"{{/if}}><?php _e( 'Is Other Amount. (check this field to enable Other Amount)', 'caldera-forms-civicrm' ); ?></label>
-		</div>        
+		</div>
 	</div>
 
 	<!-- Amount -->
@@ -106,7 +106,7 @@ $price_sets = caldera_forms_civicrm()->helper->cached_price_sets();
 </div>
 
 <script>
-	( function() {
+	jQuery( document ).ready( function( $ ) {
 		var prId = '{{_id}}',
 		price_field_value = '#' + prId + '_price_field_value',
 		entity_table = '#' + prId + '_entity_table',
@@ -130,5 +130,5 @@ $price_sets = caldera_forms_civicrm()->helper->cached_price_sets();
 			$( amount ).toggle( checked );
 		} ).trigger( 'change' );
 
-	} )();
+	} );
 </script>
