@@ -65,11 +65,51 @@ class CiviCRM_Caldera_Forms_Case_Processor {
 			'description' => __( 'Add/Open CiviCRM Case (CiviCase) to contact', 'cf-civicrm' ),
 			'author' => 'Andrei Mondoc',
 			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/case/case_config.php',
+			'pre_processor' =>  [ $this, 'pre_processor' ],
 			'processor' =>  [ $this, 'processor' ],
 			'magic_tags' => [ 'case_id' ],
 		];
 
 		return $processors;
+
+	}
+
+	/**
+	 * Form pre processor callback.
+	 *
+	 * @since 1.0.3
+	 *
+	 * @param array $config Processor configuration
+	 * @param array $form Form configuration
+	 * @param string $processid The process id
+	 */
+	public function pre_processor( $config, $form, $processid ) {
+
+		// Get form values
+		$form_values = $this->plugin->helper->map_fields_to_processor( $config, $form, $form_values );
+
+		/**
+		 * Filter to abort case processing.
+		 *
+		 * To abort a case from being processed return true or,
+		 * to abort the form from processing return an array like:
+		 * [ 'note' => 'Some message', 'type' => 'success|error|info|warning|danger' ]
+		 * The form processing will stop displaying 'Some message'
+		 *
+		 * @since 1.0.3
+		 * @param bool|array $return Whether to abort the processing of a participant
+		 * @param array $form_values The submitted form values
+		 * @param array $config The processor config
+		 * @param array $form The form config
+		 * @param string $processid The process id
+		 */
+		$return = apply_filters( 'cfc_case_pre_processor_return', false, $form_values, $config, $form, $processid );
+
+		if ( ! $return ) {
+			// continue, processing happens in 'processor' callback
+		} else {
+			return $return;
+		}
 
 	}
 
