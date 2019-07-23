@@ -150,8 +150,11 @@ class CiviCRM_Caldera_Forms_Case_Processor {
 		if( empty( $config['start_date'] ) )
 			$form_values['start_date'] = date( 'YmdHis', strtotime( 'now' ) ); // Date format YYYYMMDDhhmmss
 
-		if( isset( $existing_cases ) && $existing_cases['count'] > 0 ) {
-			// don't create case
+		if( ! empty( $config['dismiss_case'] ) && ! empty( $existing_cases['id'] ) ) {
+
+			// return exisiting case id magic tag
+			return [ 'case_id' => $existing_cases['id'] ];
+
 		} else {
 			try {
 				$create_case = civicrm_api3( 'Case', 'create', $form_values );
