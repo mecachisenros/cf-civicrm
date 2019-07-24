@@ -28,8 +28,28 @@ To use this plugin, the following is needed:
 * CiviCRM 5.x
 * [Caldera Forms](https://wordpress.org/plugins/caldera-forms/ "Caldera Forms WordPress plugin") v1.8.1 or greater to be installed
 
-
 *WARNING* This plugin is in active development (stable beta) and is currently being tested with CiviCRM version 5.x.
+
+### How to install it
+
+When you meet the requirements, CiviCRM and Caldera Forms are up and running in your WordPress, simply clone this repo inside __wp-content/plugins__
+
+````
+cd ./wp-content/plugins/
+git clone https://github.com/mecachisenros/cf-civicrm.git
+````
+
+Normally you will found in this directory, be aware of your __user:group__` on __cf-civicrm__ dir
+
+````
+ls -lah
+
+caldera-forms
+cf-civicrm
+civicrm
+````
+
+After thoses steps CFC (Caldera Forms CiviCRM) could be enable like any others plugins through your WordPress (https://YOURDOMAIN.TLD/__wp-admin/plugins.php__)
 
 ### Using Caldera Forms CiviCRM
 
