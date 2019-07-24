@@ -16,7 +16,7 @@ The Caldera Forms CiviCRM plugin contains a set of form processors that interact
 
 ### Requirements
 
-This plugin requires a minimum of *CiviCRM 4.6* and *Caldera Forms 1.7.3*.
+This plugin requires a minimum of *CiviCRM 4.6* although the latest version is recommended, and *Caldera Forms 1.8.1*.
 
 ### Plugin Development
 
