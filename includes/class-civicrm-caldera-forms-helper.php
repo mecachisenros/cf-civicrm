@@ -1166,4 +1166,65 @@ class CiviCRM_Caldera_Forms_Helper {
 
 	}
 
+	/**
+	 * Retrieves the related contacts for a given contact.
+	 *
+	 * @since 1.0.4
+	 * @param array|int $contact The contact data array or the contact_id
+	 * @param array $form The form config
+	 * @return array|bool $related_contacts The related contacts or false
+	 */
+	public function get_contact_related_contacts( $contact, $form ) {
+
+		// get relationship processors
+		$relationship_configs = $this->get_processor_by_type( 'civicrm_relationship', $form );
+
+		if ( empty( $relationship_configs ) ) return false;
+
+		$contact_configs = $this->get_processor_by_type( 'civicrm_contact', $form );
+
+		// processor id and its contact link
+		$contact_link_relations = array_reduce( $contact_configs, function( $relations, $processor ) {
+			$relations[$processor['ID']] = $processor['config']['contact_link'];
+			return $relations;
+		}, [] );
+
+		$contact_id = is_array( $contact ) ? $contact['id'] : $contact;
+
+		return array_reduce( $relationship_configs, function( $contacts, $processor ) use ( $contact_id, $contact_link_relations ) {
+
+			if ( empty( $processor['runtimes'] ) ) return $contacts;
+
+			$relationship = civicrm_api3( 'Relationship', 'get', [
+				'contact_id_a' => $contact_id,
+				'contact_id_b' => $contact_id,
+				'relationship_type_id' => $processor['config']['relationship_type'],
+				'is_active' => 1,
+				'options' => ['or' => [['contact_id_a', 'contact_id_b']]]
+			] );
+
+			// bail if no relationship or we have more than one relationship
+			if ( ! $relationship['count'] || $relationship['count'] > 1 ) return $contacts;
+
+			$result = $relationship = $relationship['values'][$relationship['id']];
+			// unset relationship possible collisioning ids
+			unset( $result['id'], $result['relationship_type_id'], $result['case_id'] );
+			// get 'opposite' realtion, contact_id_a <=> contact_id_b
+			$relation = array_search( $contact_id , $result ) == 'contact_id_a'
+				? 'contact_id_b'
+				: 'contact_id_a';
+
+			$contact_processor_id = array_search(
+				$processor['config'][ str_replace( '_id', '', $relation ) ], // relation is stored as contact_a|b in the processor, stupid me
+				$contact_link_relations
+			);
+
+			$contacts[$contact_processor_id] = $this->get_civi_contact( $relationship[$relation] );
+
+			return $contacts;
+
+		}, [] );
+
+	}
+
 }

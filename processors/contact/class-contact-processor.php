@@ -719,6 +719,9 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 					$transient->contacts->{$contact_link} = $contact['contact_id'];
 					$this->plugin->transient->save( $transient->ID, $transient );
 
+					// get related contacts
+					$related_contacts = $this->plugin->helper->get_contact_related_contacts( $contact, $form );
+
 					$form = $this->plugin->helper->map_fields_to_prerender(
 						$pr_id['config'],
 						$form,
@@ -737,6 +740,24 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 							$form['fields'][$preferred_language['ID']]['config']['default'] = CRM_Core_Config::singleton()->lcMessages;
 						}
 					}
+
+				} elseif ( ! empty( $related_contacts ) && ! empty( $pr_id['config']['auto_pop'] ) ) {
+
+					$contact = $related_contacts[$pr_id['ID']];
+
+					$contact_link = $pr_id['contact_link'] = 'cid_'.$pr_id['config']['contact_link'];
+					// set contact link in transient
+					$transient->contacts->{$contact_link} = $contact['contact_id'];
+					$this->plugin->transient->save( $transient->ID, $transient );
+
+					$form = $this->plugin->helper->map_fields_to_prerender(
+						$pr_id['config'],
+						$form,
+						$this->fields_to_ignore,
+						$contact,
+						'civicrm_contact'
+					);
+
 				}
 
 				// Clear Contact data

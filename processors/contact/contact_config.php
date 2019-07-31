@@ -1,8 +1,9 @@
 <div class="civicrm-entity-fields">
 	<div class="caldera-config-group caldera-config-group-full">
 		<div class="caldera-config-field">
-			<label><input id="auto_pop" type="checkbox" name="{{_name}}[auto_pop]" value="1" {{#if auto_pop}}checked="checked"{{/if}}><?php _e( 'Auto populate contact data with CiviCRM data if user is logged in. (Only for the first contact processor)', 'cf-civicrm' ); ?></label>
+			<label><input id="auto_pop" type="checkbox" name="{{_name}}[auto_pop]" value="1" {{#if auto_pop}}checked="checked"{{/if}}><?php _e( 'Auto populate contact data with CiviCRM data if user is logged in.', 'cf-civicrm' ); ?></label>
 		</div>
+		<p class="description"><?php _e( 'For related Contacts (relationship based contacts) add another Contact Processor (you can add more than one) plus a Relationship Processor, and use the Contact 1 as the A or B relationship. Do not foget to enable this option for the related Contacts (Contact Processor 1, 2, 3, etc.).' ) ?></p>
 	</div>
 	<div class="caldera-config-group caldera-config-group-full">
 		<div class="caldera-config-field">
