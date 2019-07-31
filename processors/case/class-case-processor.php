@@ -250,7 +250,9 @@ class CiviCRM_Caldera_Forms_Case_Processor {
 
 			// get relationship type
 			$relationship_type = civicrm_api3( 'RelationshipType', 'getsingle', [
-				'name_b_a' => $relationship_name
+				'name_b_a' => $relationship_name,
+				'label_b_a' => $relationship_name,
+				'options' => ['or' => [['name_b_a', 'label_b_a']]]
 			] );
 
 		} catch ( CiviCRM_API3_Exception $e ) {
