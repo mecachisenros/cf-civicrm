@@ -1200,7 +1200,11 @@ class CiviCRM_Caldera_Forms_Helper {
 				'contact_id_b' => $contact_id,
 				'relationship_type_id' => $processor['config']['relationship_type'],
 				'is_active' => 1,
-				'options' => ['or' => [['contact_id_a', 'contact_id_b']]]
+				'options' => [
+					'or' => [['contact_id_a', 'contact_id_b']],
+					'limit' => 1,
+					'sort' => 'id desc'
+				]
 			] );
 
 			// bail if no relationship or we have more than one relationship
