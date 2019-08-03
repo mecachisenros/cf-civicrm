@@ -741,7 +741,12 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 						}
 					}
 
-				} elseif ( ! empty( $related_contacts ) && ! empty( $pr_id['config']['auto_pop'] ) ) {
+				} else {
+
+					if ( empty( $related_contacts ) && empty( $pr_id['config']['auto_pop'] ) ) continue;
+
+					// continue if we don't have contact data for this processor
+					if ( empty( $related_contacts[$pr_id['ID']] ) ) continue;
 
 					$contact = $related_contacts[$pr_id['ID']];
 
