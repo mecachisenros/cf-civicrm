@@ -84,11 +84,20 @@ foreach ( $caseFieldsResult['values'] as $key => $value ) {
 		</div>
 <?php } } ?>
 
-<!-- Case Manager -->
+<!-- Case Creator -->
 <div class="caldera-config-group">
 	<label><?php _e( 'Case Created By', 'cf-civicrm' ); ?></label>
 	<div class="caldera-config-field">
 		<select id="{{_id}}_creator_id" class="block-input field-config" style="width: 100%;" nonce="<?php echo wp_create_nonce('admin_get_civi_contact'); ?>" name="{{_name}}[creator_id]">
+		</select>
+	</div>
+</div>
+
+<!-- Case Manager -->
+<div class="caldera-config-group">
+	<label><?php _e( 'Case Manager', 'cf-civicrm' ); ?></label>
+	<div class="caldera-config-field">
+		<select id="{{_id}}_manager_id" class="block-input field-config" style="width: 100%;" nonce="<?php echo wp_create_nonce('admin_get_civi_contact'); ?>" name="{{_name}}[manager_id]">
 		</select>
 	</div>
 </div>
@@ -128,5 +137,6 @@ jQuery( document ).ready( function( $ ) {
 	} ).trigger( 'change' );
 
 	cfc_select2_defaults( '#{{_id}}_creator_id', '{{creator_id}}' );
+	cfc_select2_defaults( '#{{_id}}_manager_id', '{{manager_id}}' );
 } );
 </script>

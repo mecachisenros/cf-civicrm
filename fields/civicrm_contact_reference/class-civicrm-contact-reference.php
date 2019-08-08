@@ -135,7 +135,11 @@ class CiviCRM_Caldera_Forms_Contact_Reference {
 
 		if ( $field['type'] != 'civicrm_contact_reference' ) return $value;
 
-		if ( $civi_field != 'current_employer' ) return $value;
+		if ( ! in_array(
+				$civi_field,
+				['current_employer', 'organization_name']
+			)
+		) return $value;
 
 		$employer = civicrm_api3( 'Contact', 'get', [
 			'contact_type' => 'Organization',

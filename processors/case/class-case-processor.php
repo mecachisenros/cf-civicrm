@@ -150,11 +150,16 @@ class CiviCRM_Caldera_Forms_Case_Processor {
 		if( empty( $config['start_date'] ) )
 			$form_values['start_date'] = date( 'YmdHis', strtotime( 'now' ) ); // Date format YYYYMMDDhhmmss
 
-		if( isset( $existing_cases ) && $existing_cases['count'] > 0 ) {
-			// don't create case
+		if( ! empty( $config['dismiss_case'] ) && ! empty( $existing_cases['id'] ) ) {
+
+			// return exisiting case id magic tag
+			return [ 'case_id' => $existing_cases['id'] ];
+
 		} else {
 			try {
 				$create_case = civicrm_api3( 'Case', 'create', $form_values );
+
+				$this->maybe_add_case_manager( $config, $create_case );
 
 				/**
 				 * Broadcast case cretion
@@ -190,5 +195,89 @@ class CiviCRM_Caldera_Forms_Case_Processor {
 	public function custom_fields_extend_case( $extends ) {
 		$extends[] = 'Case';
 		return $extends;
+	}
+
+	/**
+	 * Creates the case manager relationship
+	 * if there's a case manager set.
+	 *
+	 * @since 1.0.4
+	 * @param array $config The processor config
+	 * @param array $case The case details
+	 */
+	public function maybe_add_case_manager( $config, $case ) {
+
+		// bail if case manager is not set
+		if ( empty( $config['manager_id'] ) ) return;
+
+		if ( ! is_array( $case ) || ! empty( $case['is_error'] ) ) return;
+
+		$transient = $this->plugin->transient->get();
+
+		// case manager contact id
+		$case_manager_id = strpos( $config['manager_id'], 'contact_' ) !== false
+			? $transient->contacts->{'cid_' . str_replace( 'contact_', '', $config['manager_id'] )}
+			: $config['manager_id'];
+
+		try {
+
+			// get case type definition
+			$case_type = civicrm_api3( 'CaseType', 'getsingle', [
+				'id' => $config['case_type_id'],
+				'return' => ['definition']
+			] );
+
+		} catch ( CiviCRM_API3_Exception $e ) {
+
+			// ignore exception
+			$case_type = false;
+
+		}
+
+		// bail if no case type
+		if ( ! $case_type ) return;
+
+		// get relationship name
+		$relationship_name = key(
+			array_column(
+				$case_type['definition']['caseRoles'],
+				'manager',
+				'name'
+			)
+		);
+
+		try {
+
+			// get relationship type
+			$relationship_type = civicrm_api3( 'RelationshipType', 'getsingle', [
+				'name_b_a' => $relationship_name,
+				'label_b_a' => $relationship_name,
+				'options' => ['or' => [['name_b_a', 'label_b_a']]]
+			] );
+
+		} catch ( CiviCRM_API3_Exception $e ) {
+
+			// ignore exception
+			$relationship_type = false;
+
+		}
+
+		if ( ! $relationship_type ) return;
+
+		try {
+
+			// create relationship
+			$manager_relationship = civicrm_api3( 'Relationship', 'create', [
+				'contact_id_a' => $transient->contacts->{$this->contact_link},
+				'contact_id_b' => $case_manager_id,
+				'relationship_type_id' => $relationship_type['id'],
+				'case_id' => $case['id'],
+				'start_date' => date( 'YmdHis', strtotime( 'now' ) )
+			] );
+
+		} catch ( CiviCRM_API3_Exception $e ) {
+			// ignore
+		}
+
 	}
 }
