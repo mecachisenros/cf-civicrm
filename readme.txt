@@ -3,7 +3,7 @@ Contributors: mecachisenros, needle
 Tags: civicrm, caldera, forms, integration
 Requires at least: 4.7
 Tested up to: 5.2.2
-Stable tag: 1.0.3
+Stable tag: 1.0.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -33,6 +33,13 @@ This plugin is in active development. For feature requests and bug reports (or i
 
 
 == Changelog ==
+
+= 1.0.4 =
+* Added 'cfc_contact_pre_processor_return' filter
+* Fix - 'missing case_id' when dismiss same case type is enabled
+* Groups processor adds contacts to groups at 'processor' stage instead of 'pre_processor'
+* Added Case Manager field (useful when the Case Manager is not the Case Creator)
+* Added support for related contacts auto-population using the Relationship processor
 
 = 1.0.3 =
 * Published to WP plugin directory, text domain has changed from 'caldera-forms-civicrm' to 'cf-civicrm'
