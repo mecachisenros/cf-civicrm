@@ -719,7 +719,7 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 
 			if ( ! $discount ) return;
 
-			$processor_id = $this->plugin->processors->processors['participant']->parse_processor_id( $processor_id );
+			$processor_id = $this->plugin->helper->parse_processor_id( $processor_id );
 
 			$event_id = $transient->events->$processor_id->event_id;
 

@@ -498,7 +498,7 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 
 			if ( $field_id != $field['ID'] ) return;
 
-			$processor_id = $this->parse_processor_id( $processor_id );
+			$processor_id = $this->plugin->helper->parse_processor_id( $processor_id );
 
 			$processor = $form['processors'][$processor_id];
 
@@ -556,7 +556,7 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 	 */
 	public function handle_discounted_events( $field, $form, $processor_id, $price_field ) {
 
-		$processor_id = $this->parse_processor_id( $processor_id );
+		$processor_id = $this->plugin->helper->parse_processor_id( $processor_id );
 
 		// processor config
 		$processor = $form['processors'][$processor_id];
@@ -611,7 +611,7 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 	 */
 	public function handle_max_count_participants( $field, $form, $processor_id, $price_field ) {
 
-		$processor_id = $this->parse_processor_id( $processor_id );
+		$processor_id = $this->plugin->helper->parse_processor_id( $processor_id );
 
 		// processor config
 		$processor = $form['processors'][$processor_id];
@@ -660,7 +660,7 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 		// only for logged in/checksum users
 		if ( ! $this->plugin->helper->current_contact_data_get() ) return $field;
 
-		$processor_id = $this->parse_processor_id( $processor_id );
+		$processor_id = $this->plugin->helper->parse_processor_id( $processor_id );
 
 		// processor config
 		$processor = $form['processors'][$processor_id];
@@ -788,7 +788,7 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 
 		if ( ! $discount_fields ) return $field;
 
-		$processor_id = $this->parse_processor_id( $processor_id );
+		$processor_id = $this->plugin->helper->parse_processor_id( $processor_id );
 
 		array_map( function( $discount_field_id, $discount_field ) use ( &$field, $form, $processor_id, $price_field ) {
 
@@ -897,7 +897,7 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 
 			if ( $field_id != $field['id'] ) return;
 
-			$processor_id = $this->parse_processor_id( $processor_id );
+			$processor_id = $this->plugin->helper->parse_processor_id( $processor_id );
 
 			// only paid events will have a price set/price field
 			if ( ! $processors[$processor_id]['config']['is_monetary'] ) return;
@@ -1245,17 +1245,6 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 	public function custom_fields_extend_participant( $extends ) {
 		$extends[] = 'Participant';
 		return $extends;
-	}
-
-	/**
-	 * Parse processor id string containing '#'.
-	 *
-	 * @since 1.0
-	 * @param string $processor_id The processor id
-	 * @return string $processor_id The processor id
-	 */
-	public function parse_processor_id( $processor_id ) {
-		return strpos( $processor_id, '#' ) ? substr( $processor_id, 0, strpos( $processor_id, '#' ) ) : $processor_id;
 	}
 
 	/**
