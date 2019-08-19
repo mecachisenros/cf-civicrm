@@ -1124,9 +1124,10 @@ class CiviCRM_Caldera_Forms_Helper {
 		// the magic tag has the format of processor_type:processor_id:<id>
 		// otherwise the format is processor_type:processor_id
 		if ( count( $parts ) > 2 ) {
-				return array_pop( $parts );
+			$processor_id = array_pop( $parts );
+			return $form['processors'][$processor_id];
 		} else {
-			return key( $this->get_processor_by_type( $parts[0], $form ) );
+			return $this->get_processor_by_type( $parts[0], $form );
 		}
 
 	}
