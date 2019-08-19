@@ -1232,4 +1232,98 @@ class CiviCRM_Caldera_Forms_Helper {
 
 	}
 
+	/**
+	 * Build Price Field fields references from Line Item processors
+	 * for paid events, memberships, and line items.
+	 *
+	 * @since 1.0.5
+	 * @param array $form The form config
+	 * @return array|boolean $price_field_ref References to [ <processor_id> => <field_id> ], or false
+	 */
+	public function build_price_field_refs( $form ) {
+
+		// line item processors
+		$line_items = $this->plugin->helper->get_processor_by_type( 'civicrm_line_item', $form );
+
+		if ( empty( $line_items ) ) return [];
+
+		$rendered_fields = array_reduce( $form['fields'], function( $fields, $field ) use ( $form ) {
+			$config = Caldera_Forms_Field_Util::get_field( $field['ID'], $form, true );
+			$fields[] = $config['slug'];
+			return $fields;
+		}, [] );
+
+		return array_reduce( $line_items, function( $refs, $line_item ) use ( $form, $rendered_fields ) {
+
+			if ( empty( $line_item['config']['entity_table'] ) ) return $refs;
+
+			$price_field_slug = $line_item['config']['price_field_value'];
+
+			if ( strpos( $price_field_slug, '%' ) !== false && substr_count( $price_field_slug, '%' ) > 2 ) {
+
+				$price_field_slug = array_filter( explode( '%', $price_field_slug ) );
+
+				$price_field_slug = array_intersect( $price_field_slug, $rendered_fields );
+
+			} else {
+
+				$price_field_slug = str_replace( '%', '', $price_field_slug );
+
+			}
+
+			$processor_id = $line_item['ID'];
+
+			// price_field field config
+			if ( is_array( $price_field_slug ) ) {
+
+				if ( count( $price_field_slug ) > 1 ) {
+					foreach ( $price_field_slug as $key => $field_id ) {
+
+						if ( $key == 0 ) {
+
+							$price_field_field = Caldera_Forms_Field_Util::get_field_by_slug( $field_id, $form );
+
+							$refs[$processor_id] = $price_field_field['ID'];
+						} else {
+
+							$price_field_field = Caldera_Forms_Field_Util::get_field_by_slug( $field_id, $form );
+
+							$refs[$processor_id . '#' . $key ] = $price_field_field['ID'];
+						}
+
+					}
+				} else {
+
+					$price_field_slug = array_pop( $price_field_slug );
+
+					$price_field_field = Caldera_Forms_Field_Util::get_field_by_slug( $price_field_slug, $form );
+
+					$refs[$processor_id] = $price_field_field['ID'];
+				}
+
+			} else {
+
+				$price_field_field = Caldera_Forms_Field_Util::get_field_by_slug( $price_field_slug, $form );
+
+				$refs[$processor_id] = $price_field_field['ID'];
+
+			}
+
+			return $refs;
+
+		}, [] );
+
+	}
+
+	/**
+	 * Parse processor id string containing '#'.
+	 *
+	 * @since 1.0.5
+	 * @param string $processor_id The processor id
+	 * @return string $processor_id The processor id
+	 */
+	public function parse_processor_id( $processor_id ) {
+		return strpos( $processor_id, '#' ) ? substr( $processor_id, 0, strpos( $processor_id, '#' ) ) : $processor_id;
+	}
+
 }
