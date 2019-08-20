@@ -345,14 +345,14 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 	 *
 	 * @since 1.0
 	 * @param array $form The form config
-	 * @return array|boolean $price_field_ref References to [ <processor_id> => <field_id> ], or false
+	 * @return array $price_field_ref References to [ <processor_id> => <field_id> ]
 	 */
 	public function build_price_field_refs( $form ) {
 
 		// line item processors
 		$line_items = $this->plugin->helper->get_processor_by_type( 'civicrm_line_item', $form );
 
-		if ( ! $line_items ) return false;
+		if ( empty( $line_items ) ) return [];
 
 		$rendered_fields = array_reduce( $form['fields'], function( $fields, $field ) use ( $form ) {
 			$config = Caldera_Forms_Field_Util::get_field( $field['ID'], $form, true );
@@ -711,12 +711,12 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 	 */
 	public function do_options_autodiscounts( $field, $form, $price_field, $current_filter ) {
 
-		if ( ! isset( $this->plugin->cividiscount ) ) return $field;
+		if ( empty( $this->plugin->cividiscount ) ) return $field;
 
 		// only for logged in/checksum users
-		if ( ! $this->plugin->helper->current_contact_data_get() ) return $field;
+		if ( empty( $this->plugin->helper->current_contact_data_get() ) ) return $field;
 
-		if ( ! $this->price_field_option_refs ) return $field;
+		if ( empty( $this->price_field_option_refs ) ) return $field;
 
 		if ( ! array_key_exists( $field['ID'], $this->price_field_option_refs ) ) return $field;
 
@@ -1008,7 +1008,7 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 		}
 
 		// is participant approval
-		if ( $event['requires_approval'] ) {
+		if ( ! empty( $event['requires_approval'] ) ) {
 			$notice = [
 				'type' => 'warning',
 				'note' => sprintf( __( '%s', 'cf-civicrm' ), $event['approval_req_text'] ),
@@ -1100,9 +1100,9 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 
 		if ( $config['status_id'] != 'default_status_id' ) return $config['status_id'];
 
-		if ( $event['requires_approval'] ) return 'Awaiting approval';
+		if ( ! empty( $event['requires_approval'] ) ) return 'Awaiting approval';
 
-		if ( $event['has_waitlist'] && $this->is_full( $event ) ) return 'On waitlist';
+		if ( ! empty( $event['has_waitlist'] ) && $this->is_full( $event ) ) return 'On waitlist';
 
 		return 'Registered';
 	}
