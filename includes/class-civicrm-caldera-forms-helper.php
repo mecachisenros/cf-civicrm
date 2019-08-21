@@ -71,6 +71,15 @@ class CiviCRM_Caldera_Forms_Helper {
 	public $tax_rates;
 
 	/**
+	 * Reference to the form fields set as price field options, indexed by processor id.
+	 *
+	 * @access public
+	 * @since 1.0.5
+	 * @var array $price_field_refs
+	 */
+	public $price_field_refs = [];
+
+	/**
 	 * Initialises this object.
 	 *
 	 * @since 0.4.4
@@ -1254,6 +1263,8 @@ class CiviCRM_Caldera_Forms_Helper {
 	 */
 	public function build_price_field_refs( $form ) {
 
+		if ( ! empty( $this->price_field_refs ) ) return $this->price_field_refs;
+
 		// line item processors
 		$line_items = $this->plugin->helper->get_processor_by_type( 'civicrm_line_item', $form );
 
@@ -1265,7 +1276,7 @@ class CiviCRM_Caldera_Forms_Helper {
 			return $fields;
 		}, [] );
 
-		return array_reduce( $line_items, function( $refs, $line_item ) use ( $form, $rendered_fields ) {
+		$this->price_field_refs = array_reduce( $line_items, function( $refs, $line_item ) use ( $form, $rendered_fields ) {
 
 			if ( empty( $line_item['config']['entity_table'] ) ) return $refs;
 
@@ -1322,6 +1333,61 @@ class CiviCRM_Caldera_Forms_Helper {
 			}
 
 			return $refs;
+
+		}, [] );
+
+		return $this->price_field_refs;
+
+	}
+
+	/**
+	 * Get entity ids (events, memberships, or contributions) for a set of processors.
+	 *
+	 * @since 1.0.5
+	 * @param array $form Array holding the processors config
+	 * @return array|boolean $entity_ids References to [ <processor_id> => <entity_id> ], or false
+	 */
+	public function get_entity_ids_from_line_items( $form ) {
+
+		$line_items = $this->get_processor_by_type( 'civicrm_line_item', $form );
+
+		if ( empty( $line_items ) ) return [];
+
+		return array_reduce( $line_items, function( $ids, $processor ) use ( $form ) {
+
+			if ( empty( $processor['config']['entity_table'] ) ) return $ids;
+
+			switch ( $processor['config']['entity_table'] ) {
+				case 'civicrm_participant':
+					$participant = $this->get_processor_from_magic(
+						$processor['config']['entity_params'],
+						$form,
+						true
+					);
+					$ids[$participant['ID']] = $participant['config']['id'];
+					break;
+
+				case 'civicrm_membership':
+					$membership = $this->get_processor_from_magic(
+						$processor['config']['entity_params'],
+						$form,
+						true
+					);
+					$ids[$membership['ID']] = $membership['config']['membership_type_id'];
+					break;
+
+				case 'civicrm_contribution':
+					$order = current(
+						$this->get_processor_by_type( 'civicrm_order', $form )
+					);
+
+					if ( empty( $order ) || empty( $order['config']['contribution_page_id'] ) ) return $ids;
+
+					$ids[$order['ID']] = $order['config']['contribution_page_id'];
+					break;
+			}
+
+			return $ids;
 
 		}, [] );
 

@@ -24,13 +24,14 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 	public $cividiscounts;
 
 	/**
-	 * Event CiviDisounts by processor.
+	 * CiviDisounts by processor references, including
+	 * memberships, events, and contributions.
 	 *
-	 * @since 1.0
+	 * @since 1.0.5
 	 * @access public
-	 * @var array $event_cividiscounts Reference to [ <processor_id> => <discount> ]
+	 * @var array $entities_cividiscounts Reference to [ <processor_id> => <discount> ]
 	 */
-	public $event_cividiscounts;
+	public $entities_cividiscounts;
 
 	/**
 	 * CiviDiscount criteria/filters,
@@ -43,12 +44,20 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 	public $event_autodiscounts;
 
 	/**
+	 * Reference to the discounts used for tracking.
+	 *
+	 * @since 1.0.5
+	 * @var array $discounts_used Reference to [ <processor_id> => <discount> ]
+	 */
+	public $discounts_used;
+
+	/**
 	 * CiviDiscount criteria/filters,
 	 * whether the criteria is met for a processor_id.
 	 *
 	 * @since 1.0
 	 * @access public
-	 * @var array $event_autodiscounts Reference to [ <processor_id> => true|false ]
+	 * @var array $options_ids_refs Reference to [ <processor_id> => <field_id> ]
 	 */
 	public $options_ids_refs;
 
@@ -59,6 +68,25 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 	 */
 	public function __construct( $plugin ) {
 		$this->plugin = $plugin;
+		$this->register_hooks();
+	}
+
+	/**
+	 * Register hooks.
+	 *
+	 * @since 1.0.5
+	 */
+	public function register_hooks() {
+
+		// do autodiscounts for logged in user
+		add_filter( 'caldera_forms_render_get_form', [ $this, 'do_autodiscount' ] );
+		add_filter( 'caldera_forms_submit_get_form', [ $this, 'do_autodiscount' ] );
+
+		// do code discounts at submission stage
+		add_filter( 'caldera_forms_submit_get_form', [ $this, 'apply_code_discount' ] );
+
+		// track discounts
+		// add_action( 'cfc_order_post_processor', [ $this, 'track_cividiscounts' ], 10, 3 );
 	}
 
 	/**
@@ -118,41 +146,6 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 	}
 
 	/**
-	 * Get CiviDiscounts for price field options.
-	 *
-	 * @since 1.0
-	 * @param array $event_ids The event ids to get discounts for
-	 * @return array $event_cividiscounts Discounts per processors array
-	 */
-	public function get_event_cividiscounts( $event_ids ) {
-
-		if ( is_array( $this->event_cividiscounts ) && ! empty( $this->event_cividiscounts ) ) return $this->event_cividiscounts;
-
-		$event_cividiscounts = $this->get_cividiscounts_by_entity( 'events' );
-
-		if ( ! isset( $event_discounts ) ) return;
-
-		$event_discounts = array_reduce( $event_ids, function( $discounts, $event_id ) use ( $event_ids, $event_cividiscounts ) {
-
-			$processor_id = array_search( $event_id, $event_ids );
-
-			foreach ( $event_cividiscounts as $discount_id => $discount ) {
-				if ( in_array( $event_id, $discount['events'] ) ) {
-					$discounts[$processor_id] = $discount;
-				}
-			}
-
-			return $discounts;
-
-		}, [] );
-
-		$this->event_cividiscounts = $event_discounts;
-
-		return $this->event_cividiscounts;
-
-	}
-
-	/**
 	 * Build options ids for price fields.
 	 *
 	 * @since 1.0
@@ -161,71 +154,48 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 	 */
 	public function build_options_ids_refs( $price_field_refs, $form = false ) {
 
+		if ( ! empty( $this->options_ids_refs ) ) return $this->options_ids_refs;
+
 		$discounted_options = $this->get_cividiscounts_by_entity( 'pricesets' );
 
-		if ( ! isset( $discounted_options ) ) return;
+		$discounted_options = empty( $discounted_options ) ? [] : $discounted_options;
 
-		$options_ids_refs = array_reduce( $price_field_refs, function( $refs, $field_id ) use ( $price_field_refs, $discounted_options, $form ) {
+		$this->options_ids_refs = array_reduce( $price_field_refs, function( $refs, $field_id ) use ( $price_field_refs, $discounted_options, $form ) {
 
 			$processor_id = array_search( $field_id, $price_field_refs );
 
-			$processor_id = $this->plugin->processors->processors['participant']->parse_processor_id( $processor_id );
+			$processor_id = $this->plugin->helper->parse_processor_id( $processor_id );
 
 			$price_field_field = Caldera_Forms_Field_Util::get_field( $field_id, $form, $apply_filters = true );
 
-			if ( ! $price_field_field || ! isset( $price_field_field['ID'] ) ) return $refs;
+			if ( empty( $price_field_field ) || empty( $price_field_field['ID'] ) ) return $refs;
 
-			foreach ( $discounted_options as $discount_id => $discount ) {
-				if ( ! empty( array_intersect( $discount['pricesets'], array_keys( $price_field_field['config']['option'] ) ) ) )
-					$refs[$field_id] = [
-						'field_id' => $field_id,
-						'processor_id' => $processor_id,
-						'field_options' => array_intersect( $discount['pricesets'], array_keys( $price_field_field['config']['option'] ) )
-					];
+			if ( empty( $discounted_options[$processor_id] ) ) {
+
+				$refs[$field_id] = [
+					'field_id' => $field_id,
+					'processor_id' => $processor_id,
+					'field_options' => array_keys( $price_field_field['config']['option'] )
+				];
+
+			} else {
+
+				foreach ( $discounted_options as $discount_id => $discount ) {
+					if ( ! empty( array_intersect( $discount['pricesets'], array_keys( $price_field_field['config']['option'] ) ) ) )
+						$refs[$field_id] = [
+							'field_id' => $field_id,
+							'processor_id' => $processor_id,
+							'field_options' => array_intersect( $discount['pricesets'], array_keys( $price_field_field['config']['option'] ) )
+						];
+				}
+
 			}
 
 			return $refs;
 
 		}, [] );
 
-		$this->options_ids_refs = $options_ids_refs;
-
-		return $options_ids_refs;
-
-	}
-
-	/**
-	 * Get option based CiviDiscounts.
-	 *
-	 * @since 1.0
-	 * @param array $options_ids_refs Field id with references to the discunted options (price_field_value ids)
-	 * @return array $options_cividiscounts The discounts
-	 */
-	public function get_options_cividiscounts( $options_ids_refs ) {
-
-		if ( ! isset( $options_ids_refs ) ) return;
-
-		if ( is_array( $this->options_cividiscounts ) && ! empty( $this->options_cividiscounts ) ) return $this->options_cividiscounts;
-
-		$options_cividiscounts = $this->get_cividiscounts_by_entity( 'pricesets' );
-
-		if ( ! isset( $options_cividiscounts ) ) return;
-
-		$discounts = [];
-		array_map( function( $field_id, $options ) use ( &$discounts, $options_ids_refs, $options_cividiscounts ) {
-
-			foreach ( $options_cividiscounts as $discount_id => $discount ) {
-				if ( ! empty( array_intersect( $options['field_options'], $discount['pricesets'] ) ) ) {
-					$discounts[$field_id] = $discount;
-					break;
-				}
-			}
-
-		}, array_keys( $options_ids_refs ), $options_ids_refs );
-
-		$this->options_cividiscounts = $discounts;
-
-		return $this->options_cividiscounts;
+		return $this->options_ids_refs;
 
 	}
 
@@ -249,7 +219,7 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 				$params['contact_id'] = $contact_id;
 				try {
 					$result = civicrm_api3( $entity, 'getsingle', $params );
-					if ( $result['count'] || isset( $result['id'] ) ) {
+					if ( ! empty( $result['id'] ) ) {
 						$is_autodiscount = true;
 						break;
 					}
@@ -280,13 +250,10 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 				'is_active' => 1
 			] );
 		} catch ( CiviCRM_API3_Exception $e ) {
-
+			$discount = false;
 		}
 
-		if ( $discount && ! $discount['is_error'] )
-			return $discount;
-
-		return false;
+		return $discount;
 	}
 
 	/**
@@ -300,6 +267,29 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 	 * @return array $option The filtered option config
 	 */
 	public function do_discounted_option( $option, $field, $price_field_value, $discount ) {
+
+		if ( empty( $discount['pricesets'] ) ) {
+			// if no discount priceset apply to all options
+			$option = $this->apply_discount_to_field_option( $option, $field, $price_field_value, $discount );
+		} elseif ( in_array( $price_field_value['id'], $discount['pricesets'] ) ) {
+			// otherwise make sure the option is included in the discount priceset
+			$option = $this->apply_discount_to_field_option( $option, $field, $price_field_value, $discount );
+		}
+
+		return $option;
+	}
+
+	/**
+	 * Apply discount to a fields option.
+	 *
+	 * @since 1.0.5
+	 * @param array $option The option config
+	 * @param array $field The field config
+	 * @param array $price_field_value The price field value
+	 * @param array $event_discount The discount config
+	 * @return array $option The filtered option config
+	 */
+	public function apply_discount_to_field_option( $option, $field, $price_field_value, $discount ) {
 
 		$label = sprintf( __( '%1$s (Includes automatic discount of: ', 'cf-civicrm' ), $price_field_value['label'] );
 
@@ -318,7 +308,7 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 			'value' => $price_field_value['id'],
 			'label' => sprintf( '%1$s - %2$s', $label, $this->plugin->helper->format_money( $discounted_amount ) ),
 			'calc_value' => $discounted_amount,
-			'disabled' => $option['disabled']
+			'disabled' => empty( $option['disabled'] ) ? '' : $option['disabled']
 		];
 
 		add_filter( 'cfc_filter_price_field_value_get', function( $field_value, $field_value_id ) use ( $price_field_value, $discounted_amount, $label ) {
@@ -355,130 +345,311 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 	 */
 	public function do_code_discount( $discount, $form ) {
 
-		if ( ! isset( $discount ) || empty( $discount ) ) return;
+		if ( empty( $discount ) ) return;
 
-		$options = $this->do_code_event_discount_options( $discount, $form );
-		$options = $this->do_code_options_discount_options( $discount, $form );
+		$options = $this->do_code_discount_options( $discount, $form );
 
 		return $options;
 	}
 
 	/**
-	 * Do code discounts for event based CiviDiscounts.
+	 * Applies the code discount at submission stage if applicable.
 	 *
-	 * @since 1.0
-	 * @param array $discount The discount config
-	 * @param array $form The forms config
-	 * @return array $options The field options
+	 * @since 1.0.5
+	 * @param array $form The form config
+	 * @return array $form The form config
 	 */
-	public function do_code_event_discount_options( $discount, $form ) {
+	public function apply_code_discount( $form ) {
 
-		if ( ! $discount ) return;
+		if ( empty( $this->options_ids_refs ) ) return $form;
 
-		// participant processors
-		$participants = $this->plugin->helper->get_processor_by_type( 'civicrm_participant', $form );
-		// price field references
-		$price_field_refs = $this->plugin->processors->processors['participant']->build_price_field_refs( $form );
-		// options fields refs
-		$price_field_option_refs = $this->build_options_ids_refs( $price_field_refs, $form );
-		// filter out option based discounts
-		$discounted_fields = array_filter( $price_field_refs, function( $field_id ) use ( $price_field_option_refs ) {
-			return ! array_key_exists( $field_id, $price_field_option_refs );
-		} );
-		// field configs
-		$fields = array_reduce( $discounted_fields, function( $fields, $field_id ) use ( $form ) {
-			$fields[$field_id] = Caldera_Forms_Field_Util::get_field( $field_id, $form, $apply_filters = true );
-			return $fields;
-		}, [] );
+		$discount_field = $this->plugin->cividiscount->get_discount_fields( $form );
+		if ( empty( $discount_field ) ) return $form;
 
-		return array_reduce( $discounted_fields, function( $discounted_options, $field_id ) use ( $fields, $form, $participants, $discount, $discounted_fields ) {
+		$discount_field_id = key( $discount_field );
 
-			$processor_id = array_search( $field_id, $discounted_fields );
+		$code = Caldera_Forms::get_field_data( $discount_field_id, $form );
+		if ( empty( $code ) ) return $form;
 
-			if ( ! in_array( $participants[$processor_id]['config']['id'], $discount['events'] ) ) return $discounted_options;
+		$discount = $this->get_by_code( $code );
+		if ( empty( $discount ) ) return $form;
 
-			$field = $fields[$field_id];
+		$discounted_entities = $this->plugin->helper->get_entity_ids_from_line_items( $form );
+		$entities_discounts = $this->get_entities_discounts( $discounted_entities, $form );
 
-			$price_field = $this->plugin->fields->presets_objects['civicrm_price_sets']->get_price_field_from_config( $field );
+		array_map(
+			function( $ref ) use ( $form, $discount, $entities_discounts ) {
 
-			// $field = $this->plugin->processors->processors['participant']->do_event_autodiscounts( $field, $form, $processor_id, $price_field );
+				$line_item = $form['processors'][$ref['processor_id']];
 
-			$field['config']['option'] = array_reduce( $price_field['price_field_values'], function( $options, $price_field_value ) use ( $field, $discount ) {
+				$this->apply_option_filter_discount( $line_item, $ref, $entities_discounts, $form );
 
-				$option = $field['config']['option'][$price_field_value['id']];
+			},
+			$this->options_ids_refs
+		);
 
-				// do discounted option
-				$options[$price_field_value['id']] = $this->do_discounted_option( $option, $field, $price_field_value, $discount );
-
-				return $options;
-
-			}, [] );
-
-			$options = array_reduce( $field['config']['option'], function( $options, $option ) use ( $field_id, $field, $form ) {
-				$field_option_id = $field_id . '_' . $form['form_count'] . '_' . $option['value'];
-				$options[$field_option_id] = $field['config']['option'][$option['value']];
-				$options[$field_option_id]['field_id'] = $field_id;
-				return $options;
-			}, [] );
-
-			return $discounted_options + $options;
-
-		}, [] );
+		return $form;
 	}
 
 	/**
-	 * Do code discounts for options based CiviDiscounts.
+	 * Do autodiscounts for logged in user.
+	 *
+	 * @since 1.0.5
+	 * @param array $form The form config
+	 * @return array $form The form config
+	 */
+	public function do_autodiscount( $form ) {
+
+		// only for logged in/checksum users
+		$contact = $this->plugin->helper->current_contact_data_get();
+		if ( ! $contact ) return $form;
+
+		$price_field_refs = $this->plugin->helper->build_price_field_refs( $form );
+		if ( empty( $price_field_refs ) ) return $form;
+
+		$price_field_option_refs = $this->build_options_ids_refs( $price_field_refs, $form );
+		if ( empty( $price_field_option_refs ) ) return $form;
+
+		$discounted_entities = $this->plugin->helper->get_entity_ids_from_line_items( $form );
+		if ( empty( $discounted_entities ) ) return $form;
+
+		$autodiscounts = $this->get_entities_discounts( $discounted_entities, $form, true );
+		if ( empty( $autodiscounts ) ) return $form;
+
+		array_map(
+			function( $field_id, $ref ) use ( $form, $autodiscounts ) {
+
+				$processor_id = $ref['processor_id'];
+
+				if ( empty( $processor_id ) ) return;
+
+				$processor = $form['processors'][$processor_id];
+
+				$this->apply_option_filter_discount( $processor, $ref, $autodiscounts, $form, true );
+
+			},
+			array_keys( $price_field_option_refs ),
+			$price_field_option_refs
+		);
+
+		return $form;
+	}
+
+	/**
+	 * Applies the 'cfc_filter_price_field_config' filter
+	 * for discounts if applicable.
+	 *
+	 * @since 1.0.5
+	 * @param array $line_item The line item processor config
+	 * @param array $ref The price field reference containing processor, field, and options data
+	 * @param array $discounts The discounts
+	 * @param array $form The form config
+	 * @param bool $autodiscount Wheather to apply for autodiscounts
+	 */
+	public function apply_option_filter_discount( $line_item, $ref, $discounts, $form, $autodiscount = false ) {
+
+		if ( $autodiscount ) {
+			$contact = $this->plugin->helper->current_contact_data_get();
+			if ( ! $contact ) return;
+		}
+
+		if ( $line_item['config']['entity_table'] != 'civicrm_contribution' ) {
+			$processor = $this->plugin->helper->get_processor_from_magic(
+				$line_item['config']['entity_params'],
+				false,
+				true
+			);
+		} else {
+			// get order processor, contributions line items
+			// don't have an entity_params (associated processor)
+			$processor = current(
+				$this->plugin->helper->get_processor_by_type( 'civicrm_order', $form )
+			);
+		}
+
+		$discount = $discounts[$processor['ID']];
+
+		$price_field_filter_function = function( $field, $form, $price_field ) use ( &$ref, &$discount ) {
+
+			if ( $field['ID'] != $ref['field_id'] ) return $field;
+
+			$field['config']['option'] = array_reduce(
+				$price_field['price_field_values'],
+				function( $options, $price_field_value ) use ( $field, $discount ) {
+
+					$option = $field['config']['option'][$price_field_value['id']];
+
+					// do discounted option
+					$options[$price_field_value['id']] = $this->do_discounted_option( $option, $field, $price_field_value, $discount );
+
+					return $options;
+
+			}, [] );
+
+			return $field;
+
+		};
+
+		if (
+			$autodiscount
+			&& ! empty( $discount['autodiscount'] )
+			&& $this->check_autodiscount(
+				$discount['autodiscount'],
+				$contact['contact_id'],
+				$processor['ID']
+			)
+		) {
+
+			add_filter(
+				'cfc_filter_price_field_config',
+				$price_field_filter_function,
+				50,
+				3
+			);
+
+			$this->discounts_used[$processor['ID']] = $discount;
+
+		} elseif ( ! $autodiscount ) {
+
+			add_filter(
+				'cfc_filter_price_field_config',
+				$price_field_filter_function,
+				50,
+				3
+			);
+
+			$this->discounts_used[$processor['ID']] = $discount;
+
+		}
+
+	}
+
+	/**
+	 * Do code discounts for all entities
+	 * including events, memberships, and contribution.
 	 *
 	 * @since 1.0
+	 * @since 1.0.5 Added support for memberships and contributions
 	 * @param array $discount The discount config
 	 * @param array $form The forms config
 	 * @return array $options The field options
 	 */
-	public function do_code_options_discount_options( $discount, $form ) {
+	public function do_code_discount_options( $discount, $form ) {
 
-		if ( ! $discount ) return;
+		if ( empty( $discount ) ) return;
 
 		// price field references
-		$price_field_refs = $this->plugin->processors->processors['participant']->build_price_field_refs( $form );
+		$price_field_refs = $this->plugin->helper->build_price_field_refs( $form );
 		// options fields refs
 		$price_field_option_refs = $this->build_options_ids_refs( $price_field_refs, $form );
+
 		// field configs
-		$fields = array_reduce( $price_field_option_refs, function( $fields, $ref ) use ( $form ) {
-			$fields[$ref['field_id']] = Caldera_Forms_Field_Util::get_field( $ref['field_id'], $form, $apply_filters = true );
-			return $fields;
-		}, [] );
+		$fields = array_reduce(
+			$price_field_refs,
+			function( $fields, $field_id ) use ( $form ) {
+				$fields[$field_id] = Caldera_Forms_Field_Util::get_field( $field_id, $form, $apply_filters = true );
+				return $fields;
+			},
+			[]
+		);
 
-		return array_reduce( $price_field_option_refs, function( $discounted_options, $ref ) use ( $fields, $form, $discount, $discounted_fields ) {
+		$options = array_reduce(
+			$price_field_option_refs,
+			function( $discounted_options, $ref ) use ( $fields, &$form, $discount ) {
 
-			$field = $fields[$ref['field_id']];
+				$processor_id = $ref['processor_id'];
 
-			if ( empty( array_intersect( $discount['pricesets'], array_keys( $field['config']['option'] ) ) ) ) return $discounted_options;
+				if ( empty( $processor_id ) ) return $discounted_options;
 
-			$price_field = $this->plugin->fields->presets_objects['civicrm_price_sets']->get_price_field_from_config( $field );
+				$processor = $form['processors'][$processor_id];
 
-			$field['config']['option'] = array_reduce( $price_field['price_field_values'], function( $options, $price_field_value ) use ( $field, $discount ) {
+				// discount entity for this line item
+				$discount_entity = $this->get_discount_entity_map(
+					$processor['config']['entity_table']
+				);
 
-				$option = $field['config']['option'][$price_field_value['id']];
+				if ( empty( $discount[$discount_entity] ) ) return $discounted_options;
 
-				// do discounted option
-				$options[$price_field_value['id']] = in_array( $price_field_value['id'], $discount['pricesets'] ) ?
-					$this->do_discounted_option( $option, $field, $price_field_value, $discount ) :
-					$option;
+				// check applied discount is for an event, membership or contribution present on the form
+				switch ( $processor['config']['entity_table'] ) {
+					// events based discount
+					case 'civicrm_participant':
+						$participant = $this->plugin->helper->get_processor_from_magic(
+							$processor['config']['entity_params'],
+							$form,
+							true
+						);
+						if (
+							! in_array(
+								$participant['config']['id'],
+								$discount[$discount_entity]
+							)
+						) return $discounted_options;
+						break;
 
-				return $options;
+					// membership based discount
+					case 'civicrm_membership':
+						$membership = $this->plugin->helper->get_processor_from_magic(
+							$processor['config']['entity_params'],
+							$form,
+							true
+						);
+						if (
+							! in_array(
+								$membership['config']['membership_type_id'],
+								$discount[$discount_entity]
+							)
+						) return $discounted_options;
+						break;
 
-			}, [] );
+					// contribution based discount
+					case 'civicrm_contribution':
+						$order = current(
+							$this->plugin->helper->get_processor_by_type( 'civicrm_order', $form )
+						);
 
-			$options = array_reduce( $field['config']['option'], function( $options, $option ) use ( $ref, $field, $form ) {
-				$field_option_id = $ref['field_id'] . '_' . $form['form_count'] . '_' . $option['value'];
-				$options[$field_option_id] = $field['config']['option'][$option['value']];
-				$options[$field_option_id]['field_id'] = $ref['field_id'];
-				return $options;
-			}, [] );
-			return $discounted_options + $options;
+						// bail if no order or no contribution page
+						if ( empty( $order ) || empty( $order['config']['contribution_page_id'] ) ) return $discounted_options;
 
-		}, [] );
+						if (
+							! in_array(
+								$order['config']['contribution_page_id'],
+								$discount[$discount_entity]
+							)
+						) return $discounted_options;
+						break;
+				}
 
+				$field = $fields[$ref['field_id']];
+
+				$price_field = $this->plugin->fields->presets_objects['civicrm_price_sets']->get_price_field_from_config( $field );
+
+				$field['config']['option'] = array_reduce( $price_field['price_field_values'], function( $options, $price_field_value ) use ( $field, $discount ) {
+
+					$option = $field['config']['option'][$price_field_value['id']];
+
+					// do discounted option
+					$options[$price_field_value['id']] = $this->do_discounted_option( $option, $field, $price_field_value, $discount );
+
+					return $options;
+
+				}, [] );
+
+				$options = array_reduce( $field['config']['option'], function( $options, $option ) use ( $ref, $field, $form ) {
+					$field_option_id = $ref['field_id'] . '_' . $form['form_count'] . '_' . $option['value'];
+					$options[$field_option_id] = $field['config']['option'][$option['value']];
+					$options[$field_option_id]['field_id'] = $ref['field_id'];
+					return $options;
+				}, [] );
+
+				$form['fields'][$ref['field_id']] = $discounted_options + $options;
+
+				return $discounted_options + $options;
+			},
+			[]
+		);
+
+		return $options;
 	}
 
 	/**
@@ -508,6 +679,77 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 		$expire_on = isset( $discount['expire_on'] ) && array_key_exists( 'expire_on', $discount ) ? $discount['expire_on'] : $now;
 
 		return ( $now >= $active_on ) && ( $now <= $expire_on );
+
+	}
+
+	/**
+	 * Get the discount entity for a processor type.
+	 *
+	 * @since 1.0.5
+	 * @param string $processor_type The processor type
+	 * @return string $entity The discount entity
+	 */
+	public function get_discount_entity_map( $processor_type ) {
+		$map = [
+			'civicrm_contribution' => 'contributions',
+			'civicrm_participant' => 'events',
+			'civicrm_membership' => 'memberships'
+		];
+
+		return $map[$processor_type];
+	}
+
+	/**
+	 * Retrieves the CiviDiscounts for each processor/entity.
+	 *
+	 * @since 1.0
+	 * @param array $entities_ids Array holding the processor id
+	 * and its entity (event, membership, or contribution id) [<processor_id> => <entity_id>]
+	 * @param array $form The form config
+	 * @return array $form
+	 */
+	public function get_entities_discounts( $entities_ids, $form, $autodiscount = false ) {
+
+		if ( ! empty( $this->entities_cividiscounts ) ) return $this->entities_cividiscounts;
+
+		$this->entities_cividiscounts = array_reduce( array_keys( $entities_ids ), function( $discounts, $processor_id ) use ( $entities_ids, $form, $autodiscount ) {
+
+			$processor = $form['processors'][$processor_id];
+
+			switch ( $processor['type'] ) {
+				case 'civicrm_participant':
+					$cividiscounts = $this->get_cividiscounts_by_entity( 'events', $autodiscount );
+					array_map( function( $discount ) use ( &$discounts, $processor ) {
+						if ( in_array( $processor['config']['id'], $discount['events'] ) ) {
+							$discounts[$processor['ID']] = $discount;
+						}
+					}, $cividiscounts );
+					break;
+
+				case 'civicrm_membership':
+					$cividiscounts = $this->get_cividiscounts_by_entity( 'memberships', $autodiscount );
+					array_map( function( $discount ) use ( &$discounts, $processor ) {
+						if ( in_array( $processor['config']['membership_type_id'], $discount['memberships'] ) ) {
+							$discounts[$processor['ID']] = $discount;
+						}
+					}, $cividiscounts );
+					break;
+
+				case 'civicrm_order':
+					$cividiscounts = $this->get_cividiscounts_by_entity( 'contributions', $autodiscount );
+					array_map( function( $discount ) use ( &$discounts, $processor ) {
+						if ( in_array( $processor['config']['contribution_page_id'], $discount['contributions'] ) ) {
+							$discounts[$processor['ID']] = $discount;
+						}
+					}, $cividiscounts );
+					break;
+			}
+
+			return $discounts;
+
+		}, [] );
+
+		return $this->entities_cividiscounts;
 
 	}
 
