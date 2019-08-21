@@ -1097,11 +1097,13 @@ class CiviCRM_Caldera_Forms_Helper {
 	 * Get processor id from magic tag.
 	 *
 	 * @since 1.0
+	 * @since 1.0.5 Addedd $return_config optional param to return the processor config
 	 * @param string $magic_tag The processor_id magig tag
 	 * @param array|boolean $form The form config or false
-	 * @return string|boolean $processor_id The processor_id or false otherwise
+	 * @param bool $return_config Whether to return the processor config array or the processor id string
+	 * @return string|array|boolean $processor_id The processor_id, the processor config array, or false
 	 */
-	public function get_processor_from_magic( $magic_tag, $form = false ) {
+	public function get_processor_from_magic( $magic_tag, $form = false, $return_config = false ) {
 
 		if ( ! is_string( $magic_tag ) ) return false;
 
@@ -1118,16 +1120,26 @@ class CiviCRM_Caldera_Forms_Helper {
 
 		// handle cf select field ({{{_field}}}) magic tags
 		// values which render as fp_123456:processor_id
-		if ( false !== strpos( $parts[0], 'fp_' ) ) return $form['processors'][$parts[0]];
-
-		// if form has more than one processor of same type
-		// the magic tag has the format of processor_type:processor_id:<id>
-		// otherwise the format is processor_type:processor_id
-		if ( count( $parts ) > 2 ) {
+		if ( false !== strpos( $parts[0], 'fp_' ) ) {
+			$processor = array_pop( $form['processors'][$parts[0]] );
+			$processor_id = key( $form['processors'][$parts[0]] );
+		} elseif ( count( $parts ) > 2 ) {
+			// if form has more than one processor of same type
+			// the magic tag has the format of processor_type:processor_id:<id>
+			// otherwise the format is processor_type:processor_id
 			$processor_id = array_pop( $parts );
-			return $form['processors'][$processor_id];
+			$processor = array_pop( $form['processors'][$processor_id] );
 		} else {
-			return $this->get_processor_by_type( $parts[0], $form );
+			// one processor, the format is processor_type:processor_id
+			$processor = $this->get_processor_by_type( $parts[0], $form );
+			$processor = array_pop( $processor );
+			$processor_id = key(  $processor );
+		}
+
+		if ( $return_config ) {
+			return $processor;
+		} else {
+			return $processor_id;
 		}
 
 	}
