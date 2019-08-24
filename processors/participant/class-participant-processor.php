@@ -141,10 +141,24 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 		// process one or multiple participants
 		if ( is_array( $config['id'] ) ) {
 			foreach ( $config['id'] as $event_id ) {
-				$this->process_participant( $event[$event_id], $form_values, $config, $form, $processid );
+				$return = $this->process_participant(
+					$event[$event_id],
+					$form_values,
+					$config,
+					$form,
+					$processid
+				);
+				if ( isset( $return ) && is_array( $return ) ) return $return;
 			}
 		} else {
-			$this->process_participant( $event, $form_values, $config, $form, $processid );
+			$return = $this->process_participant(
+				$event,
+				$form_values,
+				$config,
+				$form,
+				$processid
+			);
+			if ( isset( $return ) && is_array( $return ) ) return $return;
 		}
 
 	}
