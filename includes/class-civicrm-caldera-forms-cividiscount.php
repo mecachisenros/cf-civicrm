@@ -86,7 +86,7 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 		add_filter( 'caldera_forms_submit_get_form', [ $this, 'apply_code_discount' ] );
 
 		// track discounts
-		// add_action( 'cfc_order_post_processor', [ $this, 'track_cividiscounts' ], 10, 3 );
+		add_action( 'cfc_order_post_processor', [ $this, 'track_cividiscounts' ], 10, 3 );
 	}
 
 	/**
@@ -750,6 +750,142 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 		}, [] );
 
 		return $this->entities_cividiscounts;
+
+	}
+
+	/**
+	 * Track CiviDiscounts.
+	 *
+	 * @since 1.0.5
+	 * @param array $order The order with it's line items
+	 * @param array $config The order processor config
+	 * @param array $form The form config
+	 */
+	public function track_cividiscounts( $order, $config, $form ) {
+
+		if ( empty( $order ) || empty( $order['id'] ) || empty( $order['line_items'] ) ) return;
+
+		if ( empty( $this->discounts_used ) ) return;
+
+		if (
+			empty( $this->plugin->helper->price_field_refs )
+			|| empty( $this->options_ids_refs )
+		) return;
+
+		$price_field_refs = $this->plugin->helper->price_field_refs;
+		$price_field_option_refs = $this->options_ids_refs;
+
+		$discounted_entities = $this->plugin->helper->get_entity_ids_from_line_items( $form );
+		$entities_discounts = $this->get_entities_discounts( $discounted_entities, $form );
+
+		$processors = array_reduce(
+			array_keys($entities_discounts),
+			function( $processors, $processor_id ) use ( $form, $discounted_entities, $entities_discounts ) {
+				$processors[$processor_id] = [
+					'type' => $form['processors'][$processor_id]['type'],
+					'entity_id' => $discounted_entities[$processor_id],
+					'processor_id' => $processor_id,
+				];
+				return $processors;
+			},
+			[]
+		);
+
+		array_map( function( $line_item ) use ( $processors, $order, $entities_discounts ) {
+
+			$entity = str_replace( 'civicrm_', '', $line_item['entity_table'] );
+			$params = ['id' => $line_item['entity_id']];
+
+			if ( $line_item['entity_table'] == 'civicrm_contribution' ) {
+				$params['return'] = ['contribution_page_id'];
+			}
+
+			try {
+				$result = civicrm_api3( $entity, 'getsingle', $params );
+			} catch ( CiviCRM_API3_Exception $e ) {
+				$result = false;
+			}
+
+			if ( ! $result ) return;
+
+			array_map( function( $processor ) use ( $line_item, $result, $order, $entities_discounts ) {
+
+				if ( $processor['type'] == 'civicrm_membership' ) {
+
+					if ( empty( $result['membership_type_id'] ) ) return;
+					if ( $processor['entity_id'] != $result['membership_type_id'] ) return;
+					if ( $line_item['entity_id'] != $result['id'] ) return;
+
+					if ( empty( $entities_discounts[$processor['processor_id']] ) ) return;
+					$discount = $entities_discounts[$processor['processor_id']];
+					// safe to track discount
+					try {
+						$discount_track = civicrm_api3( 'DiscountTrack', 'create', [
+							'item_id' => $discount['id'],
+							'contact_id' => $order['contact_id'],
+							'contribution_id' => $order['id'],
+							'entity_table' => $line_item['entity_table'],
+							'entity_id' => $processor['entity_id'],
+							'description' => $result['membership_name']
+						] );
+					} catch ( CiviCRM_API3_Exception $e ) {
+						Civi::log()->debug( "Unable to track discount {$discount['code']} for contribution id {$order['id']} and item id {$line_item['id']}" );
+					}
+
+				} elseif ( $processor['type'] == 'civicrm_participant' ) {
+
+					if ( empty( $result['event_id'] ) ) return;
+					if ( $processor['entity_id'] != $result['event_id'] ) return;
+					if ( $line_item['entity_id'] != $result['id'] ) return;
+
+					if ( empty( $entities_discounts[$processor['processor_id']] ) ) return;
+					$discount = $entities_discounts[$processor['processor_id']];
+					// safe to track discount
+					try {
+						$discount_track = civicrm_api3( 'DiscountTrack', 'create', [
+							'item_id' => $discount['id'],
+							'contact_id' => $order['contact_id'],
+							'contribution_id' => $order['id'],
+							'entity_table' => $line_item['entity_table'],
+							'entity_id' => $processor['entity_id'],
+							'description' => $result['event_title']
+						] );
+					} catch ( CiviCRM_API3_Exception $e ) {
+						Civi::log()->debug( "Unable to track discount {$discount['code']} for contribution id {$order['id']} and item id {$line_item['id']}" );
+					}
+
+				} elseif ( $processor['type'] == 'civicrm_order' ) {
+
+					if ( empty( $result['contribution_page_id'] ) ) return;
+					if ( $processor['entity_id'] != $result['contribution_page_id'] ) return;
+					if ( $line_item['entity_id'] != $result['id'] ) return;
+
+					if ( empty( $entities_discounts[$processor['processor_id']] ) ) return;
+					$discount = $entities_discounts[$processor['processor_id']];
+
+					// safe to track discount
+					try {
+						$contribution_page = civicrm_api3( 'ContributionPage', 'getsingle', [
+							'id' => $result['contribution_page_id'],
+							'return' => ['title']
+						] );
+
+						$discount_track = civicrm_api3( 'DiscountTrack', 'create', [
+							'item_id' => $discount['id'],
+							'contact_id' => $order['contact_id'],
+							'contribution_id' => $order['id'],
+							'entity_table' => 'civicrm_contribution_page',
+							'entity_id' => $processor['entity_id'],
+							'description' => $contribution_page['title']
+						] );
+					} catch ( CiviCRM_API3_Exception $e ) {
+						Civi::log()->debug( "Unable to track discount {$discount['code']} for contribution id {$order['id']} and item id {$line_item['id']}" );
+					}
+				}
+
+			}, $processors );
+
+		}, $order['line_items'] );
 
 	}
 
