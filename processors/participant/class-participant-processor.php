@@ -450,6 +450,8 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 	 */
 	public function handle_discounted_events( $field, $form, $processor_id, $price_field ) {
 
+		if ( empty( $processor_id ) ) return $field;
+
 		$processor_id = $this->plugin->helper->parse_processor_id( $processor_id );
 
 		// processor config
@@ -504,6 +506,8 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 	 * @return array $field The filtered field
 	 */
 	public function handle_max_count_participants( $field, $form, $processor_id, $price_field ) {
+
+		if ( empty( $processor_id ) ) return $field;
 
 		$processor_id = $this->plugin->helper->parse_processor_id( $processor_id );
 
@@ -619,6 +623,8 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 	 * @return array $notice Notice data array
 	 */
 	public function get_notice( $processor_id, $form, $add_filter = false ) {
+
+		if ( empty( $processor_id ) ) return false;
 
 		$processor = $form['processors'][$processor_id];
 
