@@ -765,6 +765,16 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 
 				}
 
+				/**	
+				 * Filter form before rendering.
+				 * 
+				 * @since 1.0.5
+				 * @param array $form The form config
+				 * @param array $contact_processor The contact processor config
+				 * @param array $contact_data The contact data 
+				 */
+				$form = apply_filters( 'cfc_contact_processor_pre_render_form', $form, $pr_id, $contact );
+
 				// Clear Contact data
 				unset( $contact );
 
