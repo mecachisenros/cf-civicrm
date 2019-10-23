@@ -1130,19 +1130,18 @@ class CiviCRM_Caldera_Forms_Helper {
 		// handle cf select field ({{{_field}}}) magic tags
 		// values which render as fp_123456:processor_id
 		if ( false !== strpos( $parts[0], 'fp_' ) ) {
-			$processor = array_pop( $form['processors'][$parts[0]] );
-			$processor_id = key( $form['processors'][$parts[0]] );
+			$processor = $form['processors'][$parts[0]];
+			$processor_id = $parts[0];
 		} elseif ( count( $parts ) > 2 ) {
 			// if form has more than one processor of same type
 			// the magic tag has the format of processor_type:processor_id:<id>
 			// otherwise the format is processor_type:processor_id
-			$processor_id = array_pop( $parts );
-			$processor = array_pop( $form['processors'][$processor_id] );
+			$processor_id = $parts[2];
+			$processor = $form['processors'][$processor_id];
 		} else {
 			// one processor, the format is processor_type:processor_id
 			$processor = $this->get_processor_by_type( $parts[0], $form );
-			$processor = array_pop( $processor );
-			$processor_id = key(  $processor );
+			$processor_id = $processor['ID'];
 		}
 
 		if ( $return_config ) {
