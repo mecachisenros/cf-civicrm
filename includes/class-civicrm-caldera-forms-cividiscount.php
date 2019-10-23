@@ -375,7 +375,7 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 		if ( empty( $discount ) ) return $form;
 
 		$discounted_entities = $this->plugin->helper->get_entity_ids_from_line_items( $form );
-		$entities_discounts = $this->get_entities_discounts( $discounted_entities, $form );
+		$entities_discounts = $this->get_entities_discounts( $discounted_entities, $form, false, $discount );
 
 		array_map(
 			function( $ref ) use ( $form, $discount, $entities_discounts ) {
@@ -456,7 +456,7 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 		if ( $line_item['config']['entity_table'] != 'civicrm_contribution' ) {
 			$processor = $this->plugin->helper->get_processor_from_magic(
 				$line_item['config']['entity_params'],
-				false,
+				$form,
 				true
 			);
 		} else {
@@ -702,46 +702,66 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 	/**
 	 * Retrieves the CiviDiscounts for each processor/entity.
 	 *
-	 * @since 1.0
+	 * @since 1.0.5
 	 * @param array $entities_ids Array holding the processor id
 	 * and its entity (event, membership, or contribution id) [<processor_id> => <entity_id>]
 	 * @param array $form The form config
+	 * @param bool $autodiscount
+	 * @param array|bool $discount A cividiscount
 	 * @return array $form
 	 */
-	public function get_entities_discounts( $entities_ids, $form, $autodiscount = false ) {
+	public function get_entities_discounts( $entities_ids, $form, $autodiscount = false, $discount = false ) {
 
 		if ( ! empty( $this->entities_cividiscounts ) ) return $this->entities_cividiscounts;
 
-		$this->entities_cividiscounts = array_reduce( array_keys( $entities_ids ), function( $discounts, $processor_id ) use ( $entities_ids, $form, $autodiscount ) {
+		$this->entities_cividiscounts = array_reduce( array_keys( $entities_ids ), function( $discounts, $processor_id ) use ( $entities_ids, $form, $autodiscount, $discount ) {
 
 			$processor = $form['processors'][$processor_id];
 
 			switch ( $processor['type'] ) {
 				case 'civicrm_participant':
-					$cividiscounts = $this->get_cividiscounts_by_entity( 'events', $autodiscount );
-					array_map( function( $discount ) use ( &$discounts, $processor ) {
+					if ( $discount ) {
 						if ( in_array( $processor['config']['id'], $discount['events'] ) ) {
 							$discounts[$processor['ID']] = $discount;
 						}
-					}, $cividiscounts );
+					} else { 
+						$cividiscounts = $this->get_cividiscounts_by_entity( 'events', $autodiscount );
+						array_map( function( $discount ) use ( &$discounts, $processor ) {
+							if ( in_array( $processor['config']['id'], $discount['events'] ) ) {
+								$discounts[$processor['ID']] = $discount;
+							}
+						}, $cividiscounts );
+					}
 					break;
 
 				case 'civicrm_membership':
-					$cividiscounts = $this->get_cividiscounts_by_entity( 'memberships', $autodiscount );
-					array_map( function( $discount ) use ( &$discounts, $processor ) {
+					if ( $discount ) {
 						if ( in_array( $processor['config']['membership_type_id'], $discount['memberships'] ) ) {
 							$discounts[$processor['ID']] = $discount;
 						}
-					}, $cividiscounts );
+					} else {
+						$cividiscounts = $this->get_cividiscounts_by_entity( 'memberships', $autodiscount );
+						array_map( function( $discount ) use ( &$discounts, $processor ) {
+							if ( in_array( $processor['config']['membership_type_id'], $discount['memberships'] ) ) {
+								$discounts[$processor['ID']] = $discount;
+							}
+						}, $cividiscounts );
+					}
 					break;
 
 				case 'civicrm_order':
-					$cividiscounts = $this->get_cividiscounts_by_entity( 'contributions', $autodiscount );
-					array_map( function( $discount ) use ( &$discounts, $processor ) {
+					if ( $discount ) {
 						if ( in_array( $processor['config']['contribution_page_id'], $discount['contributions'] ) ) {
 							$discounts[$processor['ID']] = $discount;
 						}
-					}, $cividiscounts );
+					} else {
+						$cividiscounts = $this->get_cividiscounts_by_entity( 'contributions', $autodiscount );
+						array_map( function( $discount ) use ( &$discounts, $processor ) {
+							if ( in_array( $processor['config']['contribution_page_id'], $discount['contributions'] ) ) {
+								$discounts[$processor['ID']] = $discount;
+							}
+						}, $cividiscounts );
+					}
 					break;
 			}
 
