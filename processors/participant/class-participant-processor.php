@@ -261,6 +261,20 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 
 				if ( ( ! $config['is_monetary'] && ! $is_registered ) || ( ! $config['is_monetary'] && $this->is_registered_and_same_email_allowed( $is_registered, $event ) ) ) {
 					try {
+
+            /**
+             * Filter participant params before creating,
+             * note that only fires for free event registrations.
+             *
+             * @since 1.0.5
+             * @param array $params The Participnat params
+             * @param array $event The CiviCRM event config
+             * @param array $registrations Array hiolding current registrations indexed by processor id
+             * @param array $config The processor config
+             * @param array $form The form config
+             */
+						$form_values = apply_filters( 'cfc_participant_before_create_params', $form_values, $event, $this->registrations, $config, $form );
+
 						$create_participant = civicrm_api3( 'Participant', 'create', $form_values );
 
 						$participant = $create_participant['values'][$create_participant['id']];
