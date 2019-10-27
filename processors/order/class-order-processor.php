@@ -591,6 +591,39 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 			}, 10, 3 );
 		}
 
+		// authorize recurring
+		if ( Caldera_Forms::get_processor_by_type( 'auth-net-rec', $form ) && ( Caldera_Forms_Field_Util::has_field_type( 'civicrm_country', $form ) || Caldera_Forms_Field_Util::has_field_type( 'civicrm_state', $form ) ) ) {
+			/**
+			 * Filter Authorize recurring CC (not eCheck) payment customer data.
+			 *
+			 * @since 1.0.4
+			 *
+			 * @param object $customer Customer data
+			 * @param string $prefix processor slug prefix
+			 * @param object $data_object Processor data object
+			 * @return object $customer Customer data
+			 */
+			add_filter( 'cf_authorize_net_setup_customer', function( $customer, $prefix, $data_object ) use ( $form ) {
+
+				foreach ( $data_object->get_fields() as $name => $field ) {
+					if ( $name == $prefix . 'card_state' || $name == $prefix . 'card_country' ) {
+						if ( ! empty( $field['config_field'] ) ) {
+							// get field config
+							$field_config = Caldera_Forms_Field_Util::get_field( $field['config_field'], $form );
+
+							// replace country id with label
+							if ( $field_config['type'] == 'civicrm_country' )
+								$customer->country = $this->plugin->fields->field_objects['civicrm_country']->field_render_view( $customer->country, $field_config, $form );
+							// replace state id with label
+							if ( $field_config['type'] == 'civicrm_state' )
+								$customer->state = $this->plugin->fields->field_objects['civicrm_state']->field_render_view( $customer->state, $field_config, $form );
+						}
+					}
+				}
+				return $customer;
+			}, 10, 3 );
+		}
+
 		// stripe
 		if ( Caldera_Forms::get_processor_by_type( 'stripe', $form ) ) {
 			/**
