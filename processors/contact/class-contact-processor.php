@@ -178,7 +178,10 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 			if( $form_values['civicrm_contact']['contact_id'] ){
 				$existing_contact = $this->plugin->helper->get_civi_contact( $form_values['civicrm_contact']['contact_id'] );
 				if ( is_array( $existing_contact['contact_sub_type'] ) ) {
-					if ( ! empty( $config['civicrm_contact']['contact_sub_type'] ) ) {
+					if (
+						! empty( $config['civicrm_contact']['contact_sub_type'] )
+						&& ! in_array( $config['civicrm_contact']['contact_sub_type'], $existing_contact['contact_sub_type'] )
+					) {
 						array_push( $existing_contact['contact_sub_type'], $config['civicrm_contact']['contact_sub_type'] );
 					}
 					$form_values['civicrm_contact']['contact_sub_type'] = $existing_contact['contact_sub_type'];
@@ -765,13 +768,13 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 
 				}
 
-				/**	
+				/**
 				 * Filter form before rendering.
-				 * 
+				 *
 				 * @since 1.0.5
 				 * @param array $form The form config
 				 * @param array $contact_processor The contact processor config
-				 * @param array $contact_data The contact data 
+				 * @param array $contact_data The contact data
 				 */
 				$form = apply_filters( 'cfc_contact_processor_pre_render_form', $form, $pr_id, $contact );
 
