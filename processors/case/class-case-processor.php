@@ -150,7 +150,18 @@ class CiviCRM_Caldera_Forms_Case_Processor {
 		if( empty( $config['start_date'] ) )
 			$form_values['start_date'] = date( 'YmdHis', strtotime( 'now' ) ); // Date format YYYYMMDDhhmmss
 
-		if( ! empty( $config['dismiss_case'] ) && ! empty( $existing_cases['id'] ) ) {
+		/**
+		 * Filter exisiting case.
+		 *
+		 * @since 1.0.5
+		 * @param array $result The api result
+		 * @param array $params The api parameters
+		 * @param array $config The processor config
+		 * @param array $form The form config
+		 */
+		$existing_case = apply_filters( 'cfc_case_processor_existing_case', $existing_case, $form_values, $config, $form );
+
+		if( ! empty( $config['dismiss_case'] ) && ! empty( $existing_case['id'] ) ) {
 
 			// return exisiting case id magic tag
 			return [ 'case_id' => $existing_case['id'] ];
