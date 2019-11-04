@@ -1403,4 +1403,59 @@ class CiviCRM_Caldera_Forms_Helper {
 		return strpos( $processor_id, '#' ) ? substr( $processor_id, 0, strpos( $processor_id, '#' ) ) : $processor_id;
 	}
 
+	/**
+	 * Retrieves a list of all field ids that
+	 * are used for mapping to CiviCRM fields.
+	 *
+	 * @since 1.0.5
+	 * @param array $form The form config
+	 * @return array $mapped_fields_ids The mapped fields ids array
+	 */
+	public function get_all_mapped_fields_ids( $form ) {
+
+		if ( empty( $form['processors'] ) ) return [];
+
+		$civicrm_processors_config = array_reduce(
+			$form['processors'],
+			function ( $list, $processor ) {
+				if ( false === strpos( $processor['type'], 'civicrm_' ) ) return $list;
+				$list[$processor['ID']] = $processor['config'];
+				return $list;
+			},
+			[]
+		);
+
+		// create recuresive iterator with all processors fields
+		$processors_fields = new RecursiveIteratorIterator(
+			new RecursiveArrayIterator( $civicrm_processors_config )
+		);
+		// filter out empty fields
+		$processors_fields_array = array_filter( iterator_to_array( $processors_fields ) );
+
+		// array with field ids
+		return array_reduce(
+			$processors_fields_array,
+			function( $list, $field_id ) use ( $form ) {
+
+				if ( false !== strpos( $field_id, '%' ) ) {
+
+					$list[] = Caldera_Forms_Field_Util::get_field_by_slug(
+						str_replace('%', '', $field_id),
+						$form
+					)['ID'];
+
+				} elseif ( false !== strpos( $field_id, 'fld_' ) ) {
+
+					$list[] = $field_id;
+
+				}
+
+				return $list;
+
+			},
+			[]
+		);
+
+	}
+
 }
