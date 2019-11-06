@@ -274,39 +274,6 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 				}
 
 				/**
-				 * Handle File fields for attachments.
-				 * @since 0.4.2
-				 */
-				foreach ( $config['civicrm_contact'] as $c_field => $val ) {
-					if ( ! empty( $val ) && substr( $c_field, 0, 7 ) === 'custom_' ) {
-						// caldera forms field config
-						$cf_field = Caldera_Forms::get_field_by_slug(str_replace( '%', '', $val ), $form );
-						// files
-						$file_fields = $this->plugin->fields->field_objects['civicrm_file']->file_fields;
-
-						if ( ! empty( $file_fields[$cf_field['ID']]['files'] ) ) {
-							// custom field id
-							$c_field_id = preg_replace('/\D/', '', $c_field);
-							// custom field
-							$field_type = civicrm_api3( 'CustomField', 'getsingle', [
-								'id' => $c_field_id,
-								'return' => [ 'custom_group_id.table_name', 'custom_group_id', 'data_type' ],
-							] );
-
-							if ( $field_type['data_type'] == 'File' ) {
-								foreach ( $file_fields[$cf_field['ID']]['files'] as $file_id => $file ) {
-									$this->plugin->helper->create_civicrm_entity_file(
-										$field_type['custom_group_id.table_name'],
-										$transient->contacts->{$this->contact_link},
-										$file_id
-									);
-								}
-							}
-						}
-					}
-				}
-
-				/**
 				 * Process enabled entities.
 				 * @since 0.3
 				 */
