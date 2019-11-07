@@ -605,7 +605,7 @@ class CiviCRM_Caldera_Forms_Helper {
 				}
 			}
 
-		} elseif ( $field_type == 'advanced_file' ) { // advanced file
+		} elseif ( in_array( $field_type, ['advanced_file', 'cf2_file'] ) ) { // advanced file
 			global $transdata;
 			// get civicrm file ids from $transdata
 			if ( ! empty( $transdata['data'][$field_id] ) ) {
