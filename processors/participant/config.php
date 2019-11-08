@@ -22,7 +22,7 @@ foreach ( $fields['values'] as $key => $value ) {
 
 $ignore = [ 'event_id', 'contact_id', 'is_test', 'discount_amount', 'cart_id', 'must_wait', 'transferred_to_contact_id', 'id', 'status_id', 'role_id', 'register_date', 'fee_level', 'is_pay_later', 'fee_amount', 'register_by_id', 'discount_id', 'fee_currency', 'campaign_id' ];
 
-$current_fields = [ 'source' ];
+$current_fields = [ 'source', 'registered_by_id' ];
 
 $events = civicrm_api3( 'Event', 'get', [
 	'sequential' => 1,
@@ -129,16 +129,21 @@ $campaigns = civicrm_api3( 'Campaign', 'get', [
 
 <!-- Participant fields -->
 <h2><?php _e( 'Participant Fields', 'cf-civicrm' ); ?></h2>
-<?php foreach ( $participant_fields as $key => $value ) {
-	if( in_array( $key, $current_fields ) ) {
-	?>
-	<div id="<?php echo esc_attr( $key ); ?>" class="caldera-config-group">
-		<label><?php echo esc_html( $value ); ?> </label>
-		<div class="caldera-config-field">
-			<?php echo '{{{_field slug="' . $key . '"}}}'; ?>
+<?php foreach ( $participant_fields as $key => $value ): ?>
+	<?php if ( in_array( $key, $current_fields ) ): ?>
+		<div id="<?php echo esc_attr( $key ); ?>" class="caldera-config-group">
+			<label><?php echo esc_html( $value ); ?> </label>
+			<div class="caldera-config-field">
+				<?php if ( $key == 'registered_by_id' ): ?>
+					<select id="{{_id}}_<?php esc_attr_e( $key ); ?>" class="block-input field-config" style="width: 100%;" nonce="<?php echo wp_create_nonce('admin_get_civi_contact'); ?>" name="{{_name}}[<?php esc_attr_e( $key ); ?>]">
+					</select>
+				<?php else: ?>
+					<?php echo '{{{_field slug="' . $key . '"}}}'; ?>
+				<?php endif; ?>
+			</div>
 		</div>
-	</div>
-<?php } } ?>
+	<?php endif; ?>
+<?php endforeach; ?>
 
 <h2><?php _e( 'Custom Fields', 'cf-civicrm' ); ?></h2>
 <?php foreach ( caldera_forms_civicrm()->helper->get_participant_custom_fields() as $key => $custom_field ) { ?>
@@ -186,6 +191,8 @@ $campaigns = civicrm_api3( 'Campaign', 'get', [
 		$( '#{{_id}}_is_monetary' ).on( 'change', function( e ) {
 			$( '.{{_id}}_disable_all_fields' ).toggle( $( this ).prop( 'checked' ) );
 		} ).trigger( 'change' );
+
+		cfc_select2_defaults( '#{{_id}}_registered_by_id', '{{registered_by_id}}' );
 
 	} );
 

@@ -41,6 +41,9 @@ class CiviCRM_Caldera_Forms_AJAX {
 		add_action( 'wp_ajax_nopriv_do_code_cividiscount', [ $this, 'do_code_cividiscount' ] );
 		// premiums
 		add_action( 'wp_ajax_civicrm_get_premiums', [ $this, 'civicrm_get_premiums' ] );
+		// countries and states
+		add_action( 'wp_ajax_civicrm_get_state_province', [ $this, 'civicrm_get_state_province' ] );
+		add_action( 'wp_ajax_civicrm_get_countries', [ $this, 'civicrm_get_countries' ] );
 	}
 
 	/**
@@ -208,6 +211,18 @@ class CiviCRM_Caldera_Forms_AJAX {
 		$premiums = civicrm_api3( 'Product', 'get', $params );
 
 		echo json_encode( $premiums['values'] );
+		die;
+	}
+
+	public function civicrm_get_countries() {
+		$countries = $this->plugin->helper->get_countries();
+		echo json_encode( $countries );
+		die;
+	}
+
+	public function civicrm_get_state_province() {
+		$state_provinces = $this->plugin->helper->get_state_province();
+		echo json_encode( $state_provinces );
 		die;
 	}
 

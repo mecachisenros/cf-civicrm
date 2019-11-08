@@ -74,6 +74,9 @@ class CiviCRM_Caldera_Forms_Forms {
 		add_filter( 'caldera_forms_render_get_field', [ $this, 'rebuild_calculation_field_formula' ], 20, 2 );
 		add_filter( 'caldera_forms_render_setup_field', [ $this, 'rebuild_calculation_field_formula' ], 20, 2 );
 
+		// correct multiple options submission
+		add_filter( 'caldera_forms_submit_get_form', [ $this, 'prevent_multiple_options_submission_override' ] );
+
 	}
 
 	/**
@@ -374,4 +377,68 @@ class CiviCRM_Caldera_Forms_Forms {
 		return $field;
 
 	}
+
+	/**
+	 * Prevents multiple options data being overriden
+	 * by index/value filtering the submitted data.
+	 *
+	 * When a multiple slection/option field is submitted,
+	 * the $_POST data is checked on both the index and the value
+	 * of the $_POST[<field_id>] data, this can cause the submitted
+	 * data to be overriden during that check.
+	 *
+	 * @since 1.0.5
+	 * @param array $form The form config
+	 * @return array $form The form config
+	 */
+	public function prevent_multiple_options_submission_override( $form ) {
+
+		$mapped_fields = $this->plugin->helper->get_all_mapped_fields_ids( $form );
+
+		if ( empty( $mapped_fields ) ) return $form;
+
+		$field_types = Caldera_Forms::get_field_types();
+
+		// filter select field types with multiple options
+		$select_field_slugs = array_reduce(
+			array_keys( $field_types ),
+			function( $list, $slug ) use ( $field_types ) {
+
+				$field = $field_types[$slug];
+
+				if ( empty( $field['options'] ) || $field['options'] != 'multiple' ) {
+					return $list;
+				}
+
+				$list[] = $slug;
+
+				return $list;
+
+			}
+		);
+
+		array_map(
+			function( $slug ) use ( $mapped_fields ) {
+
+				add_filter(
+					'caldera_forms_process_field_' . $slug,
+					function ( $value, $field ) use ( $mapped_fields ) {
+
+						if ( ! in_array( $field['ID'], $mapped_fields ) ) return $value;
+						if ( ! is_array( $value ) ) return $value;
+
+						return array_combine(
+							array_values($value),
+							array_values($value)
+						);
+
+				}, 10, 3 );
+			},
+			$select_field_slugs
+		);
+
+		return $form;
+
+	}
+
 }

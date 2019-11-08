@@ -324,7 +324,7 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 
 			$line_item = $transient->line_items->$item_processor_id->params;
 
-			if ( isset( $line_item['line_item'][0]['tax_amount'] ) && $this->plugin->helper->get_tax_settings()['invoicing'] )
+			if ( isset( $line_item['line_item'][0]['tax_amount'] ) && $this->plugin->helper->get_tax_invoicing() )
 				$this->total_tax_amount += $line_item['line_item'][0]['tax_amount'];
 
 			// set membership as pending
@@ -719,7 +719,7 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 
 			if ( ! $discount ) return;
 
-			$processor_id = $this->plugin->processors->processors['participant']->parse_processor_id( $processor_id );
+			$processor_id = $this->plugin->helper->parse_processor_id( $processor_id );
 
 			$event_id = $transient->events->$processor_id->event_id;
 

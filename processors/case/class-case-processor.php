@@ -131,12 +131,12 @@ class CiviCRM_Caldera_Forms_Case_Processor {
 		$form_values = $this->plugin->helper->map_fields_to_processor( $config, $form, $form_values );
 
 		if ( isset( $config['dismiss_case'] ) ) {
-			$existing_cases = civicrm_api3( 'Case', 'get', [
+			$existing_case = civicrm_api3( 'Case', 'get', [
 				'sequential' => 1,
 				'contact_id' => $transient->contacts->{$this->contact_link},
 				'case_type_id' => $config['case_type_id'],
 				'is_deleted' => 0,
-				'options' => [ 'limit' => 0 ],
+				'options' => [ 'limit' => 1, 'sort' => 'id desc' ],
 			] );
 		}
 
@@ -150,10 +150,21 @@ class CiviCRM_Caldera_Forms_Case_Processor {
 		if( empty( $config['start_date'] ) )
 			$form_values['start_date'] = date( 'YmdHis', strtotime( 'now' ) ); // Date format YYYYMMDDhhmmss
 
-		if( ! empty( $config['dismiss_case'] ) && ! empty( $existing_cases['id'] ) ) {
+		/**
+		 * Filter exisiting case.
+		 *
+		 * @since 1.0.5
+		 * @param array $result The api result
+		 * @param array $params The api parameters
+		 * @param array $config The processor config
+		 * @param array $form The form config
+		 */
+		$existing_case = apply_filters( 'cfc_case_processor_existing_case', $existing_case, $form_values, $config, $form );
+
+		if( ! empty( $config['dismiss_case'] ) && ! empty( $existing_case['id'] ) ) {
 
 			// return exisiting case id magic tag
-			return [ 'case_id' => $existing_cases['id'] ];
+			return [ 'case_id' => $existing_case['id'] ];
 
 		} else {
 			try {

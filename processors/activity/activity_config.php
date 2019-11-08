@@ -91,7 +91,7 @@ foreach ( $activityFieldsResult['values'] as $key => $value ) {
 		<div class="caldera-config-field">
 			<?php
 				echo '{{{_field ';
-				if ( $key == 'file_id' ) echo 'type="advanced_file,file" ';
+				if ( $key == 'file_id' ) echo 'type="advanced_file,file,cf2_file" ';
 				echo 'slug="' . $key . '"}}}';
 			?>
 		</div>

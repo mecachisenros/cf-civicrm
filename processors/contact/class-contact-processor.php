@@ -178,7 +178,10 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 			if( $form_values['civicrm_contact']['contact_id'] ){
 				$existing_contact = $this->plugin->helper->get_civi_contact( $form_values['civicrm_contact']['contact_id'] );
 				if ( is_array( $existing_contact['contact_sub_type'] ) ) {
-					if ( ! empty( $config['civicrm_contact']['contact_sub_type'] ) ) {
+					if (
+						! empty( $config['civicrm_contact']['contact_sub_type'] )
+						&& ! in_array( $config['civicrm_contact']['contact_sub_type'], $existing_contact['contact_sub_type'] )
+					) {
 						array_push( $existing_contact['contact_sub_type'], $config['civicrm_contact']['contact_sub_type'] );
 					}
 					$form_values['civicrm_contact']['contact_sub_type'] = $existing_contact['contact_sub_type'];
@@ -267,39 +270,6 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 					} catch ( CiviCRM_API3_Exception $e ) {
 						$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
 						return [ 'note' => $error, 'type' => 'error' ];
-					}
-				}
-
-				/**
-				 * Handle File fields for attachments.
-				 * @since 0.4.2
-				 */
-				foreach ( $config['civicrm_contact'] as $c_field => $val ) {
-					if ( ! empty( $val ) && substr( $c_field, 0, 7 ) === 'custom_' ) {
-						// caldera forms field config
-						$cf_field = Caldera_Forms::get_field_by_slug(str_replace( '%', '', $val ), $form );
-						// files
-						$file_fields = $this->plugin->fields->field_objects['civicrm_file']->file_fields;
-
-						if ( ! empty( $file_fields[$cf_field['ID']]['files'] ) ) {
-							// custom field id
-							$c_field_id = preg_replace('/\D/', '', $c_field);
-							// custom field
-							$field_type = civicrm_api3( 'CustomField', 'getsingle', [
-								'id' => $c_field_id,
-								'return' => [ 'custom_group_id.table_name', 'custom_group_id', 'data_type' ],
-							] );
-
-							if ( $field_type['data_type'] == 'File' ) {
-								foreach ( $file_fields[$cf_field['ID']]['files'] as $file_id => $file ) {
-									$this->plugin->helper->create_civicrm_entity_file(
-										$field_type['custom_group_id.table_name'],
-										$transient->contacts->{$this->contact_link},
-										$file_id
-									);
-								}
-							}
-						}
 					}
 				}
 
@@ -764,6 +734,16 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 					);
 
 				}
+
+				/**
+				 * Filter form before rendering.
+				 *
+				 * @since 1.0.5
+				 * @param array $form The form config
+				 * @param array $contact_processor The contact processor config
+				 * @param array $contact_data The contact data
+				 */
+				$form = apply_filters( 'cfc_contact_processor_pre_render_form', $form, $pr_id, $contact );
 
 				// Clear Contact data
 				unset( $contact );

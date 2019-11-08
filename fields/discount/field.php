@@ -46,28 +46,46 @@
 				success: function( response ) {
 
 					var options = JSON.parse( response );
-					for ( var option_id in options ) {
-						// option
-						var option = options[option_id],
-						element = $( '#' + option_id );
-						// calc value
-						element.attr( 'data-calc-value', option.calc_value );
-						element.data( 'calc-value', option.calc_value );
-						// label text
-						element.parent().attr( 'data-label', option.label );
-						element.parent().contents().map( function( el ) {
-							// replace text node (type 3), the label
-							if ( this.nodeType == 3 ) {
-								// remove white spaces to avoid empty strings replacement
-								this.textContent = this.textContent.trim();
-								if ( this.textContent )
-									this.textContent = ' ' + option.label;
-							}
-						} );
+
+					if ( options ) {
+						for ( var option_id in options ) {
+							// option
+							var option = options[option_id],
+							element = $( '#' + option_id );
+							// calc value
+							element.attr( 'data-calc-value', option.calc_value );
+							element.data( 'calc-value', option.calc_value );
+							// label text
+							element.parent().attr( 'data-label', option.label );
+							element.parent().contents().map( function( el ) {
+								// replace text node (type 3), the label
+								if ( this.nodeType == 3 ) {
+									// remove white spaces to avoid empty strings replacement
+									this.textContent = this.textContent.trim();
+									if ( this.textContent )
+										this.textContent = ' ' + option.label;
+								}
+							} );
+
+						}
+
+						if ( !$( '.cfc-discount-success-message' ).length ) {
+							var success = '<div class="cfc-discount-success-message alert alert-success"><span><?php esc_html_e( 'Discount applied successfully.', 'cf-civicrm' ); ?></span></div>';
+							$( '.cfc-discount-error-message' ).remove();
+							discount_button.parent().parent().after( $( success ) );
+						}
+
+						$( 'body' ).trigger( 'cfc.discount.apply', { form_id: form_id_attr, instance: form_instance, options: options } );
+
+					} else {
+
+						if ( !$( '.cfc-discount-error-message' ).length ) {
+							var error = '<div class="cfc-discount-error-message alert alert-error"><span><?php esc_html_e( 'The code supplied is not valid.', 'cf-civicrm' ); ?></span></div>';
+							$( '.cfc-discount-success-message' ).remove();
+							discount_button.parent().parent().after( $( error ) );
+						}
 
 					}
-
-					$( 'body' ).trigger( 'cfc.discount.apply', { form_id: form_id_attr, instance: form_instance, options: options } );
 
 				}
 

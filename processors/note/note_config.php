@@ -33,7 +33,7 @@ $fields = [ 'note', 'subject' ];
 <div id="{{_id}}_note_attachment" class="caldera-config-group">
 	<label><?php _e( 'Attachment', 'cf-civicrm' ); ?></label>
 	<div id="note_attachment" class="caldera-config-field">
-		<?php echo '{{{_field type="file,advanced_file" slug="note_attachment"}}}'; ?>
+		<?php echo '{{{_field type="file,advanced_file,cf2_file" slug="note_attachment"}}}'; ?>
 	</div>
 </div>
 

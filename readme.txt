@@ -2,8 +2,8 @@
 Contributors: mecachisenros, needle
 Tags: civicrm, caldera, forms, integration
 Requires at least: 4.7
-Tested up to: 5.2.2
-Stable tag: 1.0.4
+Tested up to: 5.2.4
+Stable tag: 1.0.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -33,6 +33,20 @@ This plugin is in active development. For feature requests and bug reports (or i
 
 
 == Changelog ==
+
+= 1.0.5 =
+* Refactored CiviDiscount integration to also support Membership discounts, and Contribution Page based (contribution) discount using this branch (pending, submit PR upstream) https://github.com/mecachisenros/org.civicrm.module.cividiscount/tree/contribution-page-discounts
+* CiviDiscounts are now tracked
+* Discount field - added feedback messages when applying a discount code
+* Fix - nasty bug/error where exisiting contact_sub_type would be duplicated
+* Fix - prevention of multiple option fields overriding selected options based on index
+* Fix - contact custom file field throwing duplicate file error (because it was attempting to create it twice :/)
+* Added support for Advanced File Upload 2.0
+* Added Registered By ID participant field
+* Added Country and State/Province as conditional options
+* Added 'cfc_contact_processor_pre_render_form' filter
+* Added 'cfc_participant_before_create_params' filter
+* Minor fixes
 
 = 1.0.4 =
 * Added 'cfc_contact_pre_processor_return' filter
