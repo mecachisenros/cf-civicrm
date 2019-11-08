@@ -202,7 +202,7 @@ class CiviCRM_Caldera_Forms {
 
 		// Bail if unable to init CiviCRM
 		// FIXME This should only be called when needed
-		if ( ! civi_wp()->initialize() ) return $processors;
+		if ( ! civi_wp()->initialize() ) return false;
 
 		// we're good
 		return true;
