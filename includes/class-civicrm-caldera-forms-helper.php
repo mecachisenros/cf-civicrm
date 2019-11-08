@@ -648,6 +648,23 @@ class CiviCRM_Caldera_Forms_Helper {
 	}
 
 	/**
+	 * Get CiviCRM tax invoicing setting.
+	 *
+	 * @since 1.0.4
+	 * @return bool True if invoicing is set, false otherwise.
+	 */
+	public function get_tax_invoicing() {
+		$tax_settings = $this->get_tax_settings();
+		if ( ! array_key_exists( 'invoicing', $tax_settings ) ) {
+			return false;
+		}
+		if ( empty( $tax_settings['invoicing'] ) ) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
 	 * Get CiviCRM tax rates.
 	 *
 	 * @since 1.0
@@ -797,7 +814,7 @@ class CiviCRM_Caldera_Forms_Helper {
 				foreach ( $price_field_values as $value_id => $price_field_value) {
 					$price_field_value['price_field_value_id'] = $value_id;
 					if ( $price_field_id == $price_field_value['price_field_id'] ) {
-						if ( $tax_settings['invoicing'] && $tax_rates && array_key_exists( $price_field_value['financial_type_id'], $tax_rates ) ) {
+						if ( $this->get_tax_invoicing() && $tax_rates && array_key_exists( $price_field_value['financial_type_id'], $tax_rates ) ) {
 							$price_field_value['tax_rate'] = $tax_rates[$price_field_value['financial_type_id']];
 							$price_field_value['tax_amount'] = $this->calculate_percentage( $price_field_value['amount'], $price_field_value['tax_rate'] );
 						}

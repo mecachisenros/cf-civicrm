@@ -327,7 +327,7 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 		}, 10, 2 );
 
 		// has tax
-		if ( isset( $price_field_value['tax_amount'] ) && $this->plugin->helper->get_tax_settings()['invoicing'] ) {
+		if ( isset( $price_field_value['tax_amount'] ) && $this->plugin->helper->get_tax_invoicing() ) {
 			$option['calc_value'] += $price_field_value['tax_amount'];
 			$option['label'] = $this->plugin->helper->format_tax_label( $label, $discounted_amount, $price_field_value['tax_amount'] );
 		}
