@@ -34,6 +34,20 @@ This plugin is in active development. For feature requests and bug reports (or i
 
 == Changelog ==
 
+= 1.0.5 =
+* Refactored CiviDiscount integration to also support Membership discounts, and Contribution Page based (contribution) discount using this branch (pending, submit PR upstream) https://github.com/mecachisenros/org.civicrm.module.cividiscount/tree/contribution-page-discounts
+* CiviDiscounts are now tracked
+* Discount field - added feedback messages when applying a discount code
+* Fix - nasty bug/error where exisiting contact_sub_type would be duplicated
+* Fix - prevention of multiple option fields overriding selected options based on index
+* Fix - contact custom file field throwing duplicate file error (because it was attempting to create it twice :/)
+* Added support for Advanced File Upload 2.0
+* Added Registered By ID participant field
+* Added Country and State/Province as conditional options
+* Added 'cfc_contact_processor_pre_render_form' filter
+* Added 'cfc_participant_before_create_params' filter
+* Minor fixes
+
 = 1.0.4 =
 * Added 'cfc_contact_pre_processor_return' filter
 * Fix - 'missing case_id' when dismiss same case type is enabled
