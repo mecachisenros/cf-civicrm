@@ -63,10 +63,10 @@ class CiviCRM_Caldera_Forms_Field_Premium {
 	public function register_field_type( $field_types ) {
 
 		$field_types[$this->key_name] = [
-			'field' => __( 'CiviCRM Premium', 'caldera-forms-civicrm' ),
+			'field' => __( 'CiviCRM Premium', 'cf-civicrm' ),
 			'file' => CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_premium/field.php',
-			'category' => __( 'CiviCRM', 'caldera-forms-civicrm' ),
-			'description' => __( 'CiviCRM Premiums for Order processors', 'caldera-forms-civicrm' ),
+			'category' => __( 'CiviCRM', 'cf-civicrm' ),
+			'description' => __( 'CiviCRM Premiums for Order processors', 'cf-civicrm' ),
 			'setup' => [
 				'template' => CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_premium/config.php',
 				'preview' => CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_premium/preview.php',
@@ -125,7 +125,7 @@ class CiviCRM_Caldera_Forms_Field_Premium {
 			'desc' => $premium['description'],
 			'image' => $premium['image'] ? $premium['image'] : false,
 			'thumbnail' => $premium['thumbnail'] ? $premium['thumbnail'] : false,
-			'min' => sprintf( __( 'Minimum: %s', 'caldera-forms-civicrm' ), $premium['min_contribution'] ),
+			'min' => sprintf( __( 'Minimum: %s', 'cf-civicrm' ), $premium['min_contribution'] ),
 			'min_clean' => $premium['min_contribution'],
 			'options' => $premium['options'] ? $this->to_array( $premium['options'] ) : false
 		];

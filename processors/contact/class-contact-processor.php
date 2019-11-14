@@ -79,8 +79,8 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 	public function register_processor( $processors ) {
 
 		$processors[$this->key_name] = [
-			'name' =>  __( 'CiviCRM Contact', 'caldera-forms-civicrm' ),
-			'description' =>  __( 'Create CiviCRM contact', 'caldera-forms-civicrm' ),
+			'name' =>  __( 'CiviCRM Contact', 'cf-civicrm' ),
+			'description' =>  __( 'Create CiviCRM contact', 'cf-civicrm' ),
 			'author' =>  'Andrei Mondoc',
 			'template' =>  CF_CIVICRM_INTEGRATION_PATH . 'processors/contact/contact_config.php',
 			'pre_processor' =>  [ $this, 'pre_processor' ],
@@ -191,7 +191,10 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 			if( $form_values['civicrm_contact']['contact_id'] ){
 				$existing_contact = $this->plugin->helper->get_civi_contact( $form_values['civicrm_contact']['contact_id'] );
 				if ( is_array( $existing_contact['contact_sub_type'] ) ) {
-					if ( ! empty( $config['civicrm_contact']['contact_sub_type'] ) && !in_array( $config['civicrm_contact']['contact_sub_type'], $existing_contact['contact_sub_type'])) {
+					if (
+						! empty( $config['civicrm_contact']['contact_sub_type'] )
+						&& ! in_array( $config['civicrm_contact']['contact_sub_type'], $existing_contact['contact_sub_type'] )
+					) {
 						array_push( $existing_contact['contact_sub_type'], $config['civicrm_contact']['contact_sub_type'] );
 					}
 					$form_values['civicrm_contact']['contact_sub_type'] = $existing_contact['contact_sub_type'];
@@ -218,96 +221,89 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 				$form_values['civicrm_contact']['employer_id'] = $org['employer_id'];
 			}
 
-			try {
-				$create_contact = civicrm_api3( 'Contact', 'create', $form_values['civicrm_contact'] );
-			} catch ( CiviCRM_API3_Exception $e ) {
-				$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
-				return [ 'note' => $error, 'type' => 'error' ];
-			}
+			/**
+			 * Filter to abort contact processing.
+			 *
+			 * To abort a contact from being processed return true or,
+			 * to abort the form from processing return an array like:
+			 * [ 'note' => 'Some message', 'type' => 'success|error|info|warning|danger' ]
+			 * The form processing will stop displaying 'Some message'
+			 *
+			 * @since 1.0.4
+			 * @param bool|array $return Whether to abort the processing of a contact
+			 * @param array $form_values The submitted form values
+			 * @param array $config The processor config
+			 * @param array $form The form config
+			 * @param string $processid The process id
+			 */
+			$return = apply_filters( 'cfc_contact_pre_processor_return', false, $form_values, $config, $form, $processid );
 
-			// FIXME
-			// Civi's API doesn't update the primary email address doing a Contact.create,
-			// so do it manually
-			// check current contact is logged in and if primary email is set
-			if ( isset( $config['civicrm_contact']['email'] ) && isset( $contact ) && $create_contact['id'] == $contact['contact_id'] ) {
-				// update if email has changed
-				if ( $contact['email'] != $form_values['civicrm_contact']['email'] ) {
+			if ( ! $return ) {
+
+				try {
+					$create_contact = civicrm_api3( 'Contact', 'create', $form_values['civicrm_contact'] );
+				} catch ( CiviCRM_API3_Exception $e ) {
+					$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
+					return [ 'note' => $error, 'type' => 'error' ];
+				}
+
+				// FIXME
+				// Civi's API doesn't update the primary email address doing a Contact.create,
+				// so do it manually
+				// check current contact is logged in and if primary email is set
+				if ( isset( $config['civicrm_contact']['email'] ) && isset( $contact ) && $create_contact['id'] == $contact['contact_id'] ) {
+					// update if email has changed
+					if ( $contact['email'] != $form_values['civicrm_contact']['email'] ) {
+						try {
+							$new_email = civicrm_api3( 'Email', 'create', [
+								'id' => $contact['email_id'],
+								'email' => $form_values['civicrm_contact']['email'],
+								'is_primary' => 1,
+							] );
+						} catch ( CiviCRM_API3_Exception $e ) {
+							$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
+							return [ 'note' => $error, 'type' => 'error' ];
+						}
+					}
+				}
+
+				// Store $cid
+				$transient->contacts->{$this->contact_link} = $create_contact['id'];
+				$this->plugin->transient->save( $transient->ID, $transient );
+
+				// Add contact to Domain group if set, if not set 'domain_group_id' should be 0
+				$domain_group_id = $this->plugin->helper->get_civicrm_settings( 'domain_group_id' );
+				if( $domain_group_id ){
 					try {
-						$new_email = civicrm_api3( 'Email', 'create', [
-							'id' => $contact['email_id'],
-							'email' => $form_values['civicrm_contact']['email'],
-							'is_primary' => 1,
+						$group_contact = civicrm_api3( 'GroupContact', 'create', [
+							'sequential' => 1,
+							'group_id' => $domain_group_id,
+							'contact_id' => $create_contact['id'],
 						] );
 					} catch ( CiviCRM_API3_Exception $e ) {
 						$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
 						return [ 'note' => $error, 'type' => 'error' ];
 					}
 				}
-			}
 
-			// Store $cid
-			$transient->contacts->{$this->contact_link} = $create_contact['id'];
-			$this->plugin->transient->save( $transient->ID, $transient );
-
-			// Add contact to Domain group if set, if not set 'domain_group_id' should be 0
-			$domain_group_id = $this->plugin->helper->get_civicrm_settings( 'domain_group_id' );
-			if( $domain_group_id ){
-				try {
-					$group_contact = civicrm_api3( 'GroupContact', 'create', [
-						'sequential' => 1,
-						'group_id' => $domain_group_id,
-						'contact_id' => $create_contact['id'],
-					] );
-				} catch ( CiviCRM_API3_Exception $e ) {
-					$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
-					return [ 'note' => $error, 'type' => 'error' ];
-				}
-			}
-
-			/**
-			 * Handle File fields for attachments.
-			 * @since 0.4.2
-			 */
-			foreach ( $config['civicrm_contact'] as $c_field => $val ) {
-				if ( ! empty( $val ) && substr( $c_field, 0, 7 ) === 'custom_' ) {
-					// caldera forms field config
-					$cf_field = Caldera_Forms::get_field_by_slug(str_replace( '%', '', $val ), $form );
-					// files
-					$file_fields = $this->plugin->fields->field_objects['civicrm_file']->file_fields;
-
-					if ( ! empty( $file_fields[$cf_field['ID']]['files'] ) ) {
-						// custom field id
-						$c_field_id = preg_replace('/\D/', '', $c_field);
-						// custom field
-						$field_type = civicrm_api3( 'CustomField', 'getsingle', [
-							'id' => $c_field_id,
-							'return' => [ 'custom_group_id.table_name', 'custom_group_id', 'data_type' ],
-						] );
-
-						if ( $field_type['data_type'] == 'File' ) {
-							foreach ( $file_fields[$cf_field['ID']]['files'] as $file_id => $file ) {
-								$this->plugin->helper->create_civicrm_entity_file(
-									$field_type['custom_group_id.table_name'],
-									$transient->contacts->{$this->contact_link},
-									$file_id
-								);
-							}
+				/**
+				 * Process enabled entities.
+				 * @since 0.3
+				 */
+				if ( isset( $config['enabled_entities'] ) ){
+					foreach ( $config['enabled_entities'] as $entity => $value ) {
+						if( isset( $entity ) && $value == 1 ){
+							$this->$entity( $config, $form, $transient, $form_values );
 						}
 					}
 				}
+
+			} else {
+
+				return $return;
+
 			}
 
-			/**
-			 * Process enabled entities.
-			 * @since 0.3
-			 */
-			if ( isset( $config['enabled_entities'] ) ){
-				foreach ( $config['enabled_entities'] as $entity => $value ) {
-					if( isset( $entity ) && $value == 1 ){
-						$this->$entity( $config, $form, $transient, $form_values );
-					}
-				}
-			}
 
 		}
 
@@ -711,6 +707,9 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 					$transient->contacts->{$contact_link} = $contact['contact_id'];
 					$this->plugin->transient->save( $transient->ID, $transient );
 
+					// get related contacts
+					$related_contacts = $this->plugin->helper->get_contact_related_contacts( $contact, $form );
+
 					$form = $this->plugin->helper->map_fields_to_prerender(
 						$pr_id['config'],
 						$form,
@@ -729,7 +728,40 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 							$form['fields'][$preferred_language['ID']]['config']['default'] = CRM_Core_Config::singleton()->lcMessages;
 						}
 					}
+
+				} else {
+
+					if ( empty( $related_contacts ) && empty( $pr_id['config']['auto_pop'] ) ) continue;
+
+					// continue if we don't have contact data for this processor
+					if ( empty( $related_contacts[$pr_id['ID']] ) ) continue;
+
+					$contact = $related_contacts[$pr_id['ID']];
+
+					$contact_link = $pr_id['contact_link'] = 'cid_'.$pr_id['config']['contact_link'];
+					// set contact link in transient
+					$transient->contacts->{$contact_link} = $contact['contact_id'];
+					$this->plugin->transient->save( $transient->ID, $transient );
+
+					$form = $this->plugin->helper->map_fields_to_prerender(
+						$pr_id['config'],
+						$form,
+						$this->fields_to_ignore,
+						$contact,
+						'civicrm_contact'
+					);
+
 				}
+
+				/**
+				 * Filter form before rendering.
+				 *
+				 * @since 1.0.5
+				 * @param array $form The form config
+				 * @param array $contact_processor The contact processor config
+				 * @param array $contact_data The contact data
+				 */
+				$form = apply_filters( 'cfc_contact_processor_pre_render_form', $form, $pr_id, $contact );
 
 				// Clear Contact data
 				unset( $contact );

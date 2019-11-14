@@ -1,9 +1,9 @@
 === Caldera Forms CiviCRM ===
 Contributors: mecachisenros, needle
 Tags: civicrm, caldera, forms, integration
-Requires at least: 4.5
-Tested up to: 5.1
-Stable tag: 1.0.2
+Requires at least: 4.7
+Tested up to: 5.2.4
+Stable tag: 1.0.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -16,11 +16,11 @@ The Caldera Forms CiviCRM plugin contains a set of form processors that interact
 
 ### Requirements
 
-This plugin requires a minimum of *CiviCRM 4.6* and *Caldera Forms 1.7.3*.
+This plugin requires a minimum of *CiviCRM 4.6* although the latest version is recommended, and *Caldera Forms 1.8.1*.
 
 ### Plugin Development
 
-This plugin is in active development. For feature requests and bug reports (or if you're a plugin author and want to contribute) please visit the plugin's [GitHub repository](https://github.com/mecachisenros/caldera-forms-civicrm).
+This plugin is in active development. For feature requests and bug reports (or if you're a plugin author and want to contribute) please visit the plugin's [GitHub repository](https://github.com/mecachisenros/cf-civicrm).
 
 
 
@@ -33,6 +33,48 @@ This plugin is in active development. For feature requests and bug reports (or i
 
 
 == Changelog ==
+
+= 1.0.5 =
+* Refactored CiviDiscount integration to also support Membership discounts, and Contribution Page based (contribution) discount using this branch (pending, submit PR upstream) https://github.com/mecachisenros/org.civicrm.module.cividiscount/tree/contribution-page-discounts
+* CiviDiscounts are now tracked
+* Discount field - added feedback messages when applying a discount code
+* Fix - nasty bug/error where exisiting contact_sub_type would be duplicated
+* Fix - prevention of multiple option fields overriding selected options based on index
+* Fix - contact custom file field throwing duplicate file error (because it was attempting to create it twice :/)
+* Added support for Advanced File Upload 2.0
+* Added Registered By ID participant field
+* Added Country and State/Province as conditional options
+* Added 'cfc_contact_processor_pre_render_form' filter
+* Added 'cfc_participant_before_create_params' filter
+* Minor fixes
+
+= 1.0.4 =
+* Added 'cfc_contact_pre_processor_return' filter
+* Fix - 'missing case_id' when dismiss same case type is enabled
+* Groups processor adds contacts to groups at 'processor' stage instead of 'pre_processor'
+* Added Case Manager field (useful when the Case Manager is not the Case Creator)
+* Added support for related contacts auto-population using the Relationship processor
+
+= 1.0.3 =
+* Published to WP plugin directory, text domain has changed from 'caldera-forms-civicrm' to 'cf-civicrm'
+* Added 'cfc_participant_pre_processor_config' filter
+* Added 'cfc_participant_pre_processor_event_config' filter
+* Added 'cfc_participant_processor_config_template_before_link' action
+* Added 'cfc_participant_pre_processor_return' filter
+* Participant processor can handle multiple registrations for the same contact through the added hooks
+* Fix - Re-registration based on 'Allow same participant email'
+* Date pickers auto-population respects the date format, thanks @kirk-circle
+* Added 'cfc_membership_pre_processor_config' filter
+* Added 'cfc_membership_pre_processor_return' filter
+* Added 'cfc_membership_processor_config_template_before_link' action
+* Added Campaign field for Membership processor
+* Fix - Auto-population checkbox ignored, the form would always be autopopulated with the current user data
+* Case processor now supports custom fields, and custom fields autopopulation/presets
+* Contact Reference can be mapped for Organization Name
+* FIX - jQuery could not be defined breaking processor templates
+* Added 'cfc_case_processor_case_create' action
+* Added 'cfc_case_pre_processor_return' filter
+* Added 'cfc_case_processor_config_template_before_link' action
 
 = 1.0.2 =
 * Added Participant processor for free and paid events
@@ -52,8 +94,8 @@ This plugin is in active development. For feature requests and bug reports (or i
 * Added option to submit empty/blank values for Address entity
 * Moved scripts and styles to it's own Assets class
 * Added $helper property as a replacement for CiviCRM_Caldera_Forms_Helper static methods and properties
-* Moved Bulk insert/presets and Autopopulate options to their own classes 
-* Fixed usability issue in #61 https://github.com/mecachisenros/caldera-forms-civicrm/issues/61
+* Moved Bulk insert/presets and Autopopulate options to their own classes
+* Fixed usability issue in #61 https://github.com/mecachisenros/cf-civicrm/issues/61
 * Contact Reference custom field (with option to add new Organization)
 * Membership processor (for paid and free Memberships)
 * Order processor to process Contributions for Donations and Memberships (to process live transactions a payment add-on is needed see https://calderaforms.com/caldera-forms-add-ons/#/payment it currently integrates with the Stripe and Authorize.net add-ons)
@@ -62,7 +104,7 @@ This plugin is in active development. For feature requests and bug reports (or i
 
 = 0.4.3 =
 * Fix to prevent select2 conflicts if different vesions are present
-* Added Activity Target, Source, and Assignee fields as select2 widgets (entityRef-like field)  
+* Added Activity Target, Source, and Assignee fields as select2 widgets (entityRef-like field)
 * Show CiviCRM API errors in form
 * Added Contribution processor (code contributed by Agileware) needs documentation
 * Added Case Id magic tag (code contributed by Agileware)

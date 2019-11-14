@@ -6,13 +6,13 @@
  */
 
 return array(
-	'name' => __( 'CiviCRM Organisation', 'caldera-forms-civicrm' ),
-	'description' => __( 'Basic CiviCRM organisation form.', 'caldera-forms-civicrm' ),
+	'name' => __( 'CiviCRM Organisation', 'cf-civicrm' ),
+	'description' => __( 'Basic CiviCRM organisation form.', 'cf-civicrm' ),
 	'db_support' => 1,
 	'pinned' => 0,
 	'hide_form' => 1,
 	'check_honey' => 0,
-	'success' => __( 'Form has been successfully submitted. Thank you.', 'caldera-forms-civicrm' ),
+	'success' => __( 'Form has been successfully submitted. Thank you.', 'cf-civicrm' ),
 	'avatar_field' => '',
 	'form_ajax' => 1,
 	'custom_callback' => '',
@@ -37,7 +37,7 @@ return array(
 		array(
 			'ID' => 'organisation_name',
 			'type' => 'text',
-			'label' => __( 'Organisation Name', 'caldera-forms-civicrm' ),
+			'label' => __( 'Organisation Name', 'cf-civicrm' ),
 			'slug' => 'organisation_name',
 			'conditions' =>
 			array(
@@ -58,7 +58,7 @@ return array(
 		array(
 			'ID' => 'org_email',
 			'type' => 'email',
-			'label' => __( 'Contact Email', 'caldera-forms-civicrm' ),
+			'label' => __( 'Contact Email', 'cf-civicrm' ),
 			'slug' => 'org_email',
 			'conditions' =>
 			array(
@@ -77,7 +77,7 @@ return array(
 		array(
 			'ID' => 'street_address',
 			'type' => 'text',
-			'label' => __( 'Street Address', 'caldera-forms-civicrm' ),
+			'label' => __( 'Street Address', 'cf-civicrm' ),
 			'slug' => 'street_address',
 			'conditions' =>
 			array(
@@ -97,7 +97,7 @@ return array(
 		array(
 			'ID' => 'supplemental_address',
 			'type' => 'text',
-			'label' => __( 'Supplemental Address', 'caldera-forms-civicrm' ),
+			'label' => __( 'Supplemental Address', 'cf-civicrm' ),
 			'slug' => 'supplemental_address',
 			'conditions' =>
 			array(
@@ -117,7 +117,7 @@ return array(
 		array(
 			'ID' => 'city',
 			'type' => 'text',
-			'label' => __( 'City', 'caldera-forms-civicrm' ),
+			'label' => __( 'City', 'cf-civicrm' ),
 			'slug' => 'city',
 			'conditions' =>
 			array(
@@ -138,7 +138,7 @@ return array(
 		array(
 			'ID' => 'state',
 			'type' => 'civicrm_state',
-			'label' => __( 'State', 'caldera-forms-civicrm' ),
+			'label' => __( 'State', 'cf-civicrm' ),
 			'slug' => 'state',
 			'conditions' =>
 			array(
@@ -148,7 +148,7 @@ return array(
 			'config' =>
 			array(
 				'custom_class' => '',
-				'placeholder' => __( 'Select a State/Province', 'caldera-forms-civicrm' ),
+				'placeholder' => __( 'Select a State/Province', 'cf-civicrm' ),
 				'default' => '',
 			),
 		),
@@ -156,7 +156,7 @@ return array(
 		array(
 			'ID' => 'country',
 			'type' => 'civicrm_country',
-			'label' => __( 'Country', 'caldera-forms-civicrm' ),
+			'label' => __( 'Country', 'cf-civicrm' ),
 			'slug' => 'country',
 			'conditions' =>
 			array(
@@ -167,7 +167,7 @@ return array(
 			'config' =>
 			array(
 				'custom_class' => '',
-				'placeholder' => __( 'Select a Country', 'caldera-forms-civicrm' ),
+				'placeholder' => __( 'Select a Country', 'cf-civicrm' ),
 				'default' => '',
 			),
 		),
@@ -175,7 +175,7 @@ return array(
 		array(
 			'ID' => 'submit',
 			'type' => 'button',
-			'label' => __( 'Submit', 'caldera-forms-civicrm' ),
+			'label' => __( 'Submit', 'cf-civicrm' ),
 			'slug' => 'submit',
 			'conditions' =>
 			array(
@@ -198,13 +198,13 @@ return array(
 	'mailer' =>
 	array(
 		'on_insert' => 1,
-		'sender_name' => __( 'CiviCRM Caldera Forms', 'caldera-forms-civicrm' ),
+		'sender_name' => __( 'CiviCRM Caldera Forms', 'cf-civicrm' ),
 		'sender_email' => get_option( 'admin_email' ),
 		'reply_to' => '',
 		'email_type' => 'html',
 		'recipients' => '',
 		'bcc_to' => '',
-		'email_subject' => __( 'CiviCRM Caldera Forms Submission', 'caldera-forms-civicrm' ),
+		'email_subject' => __( 'CiviCRM Caldera Forms Submission', 'cf-civicrm' ),
 		'email_message' => '{summary}',
 	),
 	'processors' =>

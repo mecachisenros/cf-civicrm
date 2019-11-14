@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Caldera Forms CiviCRM - Agileware
  * Description: CiviCRM integration for Caldera Forms.
- * Version: 1.0.2-agileware-3
+ * Version: 1.0.5-agileware
  * Author: Agileware
  * Author URI: https://github.com/agileware
  * Plugin URI: https://github.com/agileware/caldera-forms-civicrm
@@ -16,7 +16,7 @@
  *
  * @since 0.1
  */
-define( 'CF_CIVICRM_INTEGRATION_VER', '1.0.2-agileware-3' );
+define( 'CF_CIVICRM_INTEGRATION_VER', '1.0.5-agileware' );
 define( 'CF_CIVICRM_INTEGRATION_URL', plugin_dir_url( __FILE__ ) );
 define( 'CF_CIVICRM_INTEGRATION_PATH', plugin_dir_path( __FILE__ ) );
 
@@ -202,7 +202,7 @@ class CiviCRM_Caldera_Forms {
 
 		// Bail if unable to init CiviCRM
 		// FIXME This should only be called when needed
-		if ( ! civi_wp()->initialize() ) return $processors;
+		if ( ! civi_wp()->initialize() ) return false;
 
 		// we're good
 		return true;
@@ -291,13 +291,13 @@ class CiviCRM_Caldera_Forms {
 
 	/**
 	 * Cladera Forms version notice.
-	 * 
+	 *
 	 * @since 0.4.4
 	 */
 	public function caldera_forms_version_notice() {
 		?>
 			<div class="notice notice-error">
-				<p><?php _e( 'Caldera Forms CiviCRM requires Caldera Forms v1.8.1 or higher.', 'caldera-forms-civicrm' ); ?></p>
+				<p><?php _e( 'Caldera Forms CiviCRM requires Caldera Forms v1.8.1 or higher.', 'cf-civicrm' ); ?></p>
 			</div>
 		<?php
 	}
@@ -314,7 +314,7 @@ class CiviCRM_Caldera_Forms {
 
 		// load translations if present
 		load_plugin_textdomain(
-			'caldera-forms-civicrm', // unique name
+			'cf-civicrm', // unique name
 			false, // deprecated argument
 			dirname( plugin_basename( __FILE__ ) ) . '/languages/' // relative path to translation files
 		);

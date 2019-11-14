@@ -15,10 +15,10 @@ class CiviCRM_Caldera_Forms_Group_Processor {
 	 * @var object $plugin The plugin instance
 	 */
 	public $plugin;
-	
+
 	/**
 	 * Contact link.
-	 * 
+	 *
 	 * @since 0.4.4
 	 * @access protected
 	 * @var string $contact_link The contact link
@@ -59,11 +59,11 @@ class CiviCRM_Caldera_Forms_Group_Processor {
 	public function register_processor( $processors ) {
 
 		$processors[$this->key_name] = [
-			'name' => __( 'CiviCRM Group', 'caldera-forms-civicrm' ),
-			'description' => __( 'Add CiviCRM contact to group', 'caldera-forms-civicrm' ),
+			'name' => __( 'CiviCRM Group', 'cf-civicrm' ),
+			'description' => __( 'Add CiviCRM contact to group', 'cf-civicrm' ),
 			'author' => 'Andrei Mondoc',
 			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/group/group_config.php',
-			'pre_processor' => [ $this, 'pre_processor' ],
+			'processor' => [ $this, 'processor' ],
 		];
 
 		return $processors;
@@ -78,7 +78,7 @@ class CiviCRM_Caldera_Forms_Group_Processor {
 	 * @param array $config Processor configuration
 	 * @param array $form Form configuration
 	 */
-	public function pre_processor( $config, $form ) {
+	public function processor( $config, $form ) {
 
 		// cfc transient object
 		$transient = $this->plugin->transient->get();
@@ -92,8 +92,11 @@ class CiviCRM_Caldera_Forms_Group_Processor {
 				'contact_id' => $transient->contacts->{$this->contact_link}, // Contact ID set in Contact Processor
 			] );
 		} catch ( CiviCRM_API3_Exception $e ) {
+			global $transdata;
 			$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
-			return [ 'note' => $error, 'type' => 'error' ];
+			$transdata['error'] = true;
+			$transdata['note'] = $error;
+			return;
 		}
 
 	}

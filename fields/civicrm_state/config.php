@@ -1,12 +1,12 @@
 <?php $state = caldera_forms_civicrm()->helper->get_state_province(); ?>
 <div class="caldera-config-group">
-	<label><?php _e( 'Placeholder', 'caldera-forms-civicrm' ); ?></label>
+	<label><?php _e( 'Placeholder', 'cf-civicrm' ); ?></label>
 	<div class="caldera-config-field">
 		<input type="text" id="{{_id}}_placeholder" class="block-input field-config" name="{{_name}}[placeholder]" value="{{placeholder}}">
 	</div>
 </div>
 	<div class="caldera-config-group">
-	<label><?php _e( 'Default', 'caldera-forms-civicrm' ); ?></label>
+	<label><?php _e( 'Default', 'cf-civicrm' ); ?></label>
 	<div class="caldera-config-field">
 		<select id="{{_id}}_default" class="block-input field-config" name="{{_name}}[default]" value="{{default}}">
 		<option value="" {{#is default value=""}}selected="selected"{{/is}}></option>
