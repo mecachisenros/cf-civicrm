@@ -1229,11 +1229,12 @@ class CiviCRM_Caldera_Forms_Helper {
 
 		$contact_id = is_array( $contact ) ? $contact['id'] : $contact;
 
-		return array_reduce( $relationship_configs, function( $contacts, $processor ) use ( $contact_id, $contact_link_relations ) {
+		$offset = 0;
+		return array_reduce( $relationship_configs, function( $contacts, $processor ) use ( $contact_id, $contact_link_relations, &$offset ) {
 
 			if ( empty( $processor['runtimes'] ) ) return $contacts;
 
-			$relationship = civicrm_api3( 'Relationship', 'get', [
+			$relationship_params = [
 				'contact_id_a' => $contact_id,
 				'contact_id_b' => $contact_id,
 				'relationship_type_id' => $processor['config']['relationship_type'],
@@ -1241,12 +1242,17 @@ class CiviCRM_Caldera_Forms_Helper {
 				'options' => [
 					'or' => [['contact_id_a', 'contact_id_b']],
 					'limit' => 1,
-					'sort' => 'id desc'
 				]
-			] );
+			];
 
-			// bail if no relationship or we have more than one relationship
-			if ( ! $relationship['count'] || $relationship['count'] > 1 ) return $contacts;
+			$relationship_count = civicrm_api3( 'Relationship', 'getcount', $relationship_params );
+
+			if ( ! $relationship_count ) return $contacts;
+
+			$offset = $relationship_count > 1 ? ++$offset : 0;
+			$relationship_params['options']['offset'] = $$offset;
+
+			$relationship = civicrm_api3( 'Relationship', 'get', $relationship_params );
 
 			$result = $relationship = $relationship['values'][$relationship['id']];
 			// unset relationship possible collisioning ids
