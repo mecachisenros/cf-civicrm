@@ -1249,10 +1249,12 @@ class CiviCRM_Caldera_Forms_Helper {
 
 			if ( ! $relationship_count ) return $contacts;
 
-			$offset = $relationship_count > 1 ? ++$offset : 0;
-			$relationship_params['options']['offset'] = $$offset;
+			$offset = $relationship_count > 1 ? empty( $contacts ) ? 0 : ++$offset : 0;
+			$relationship_params['options']['offset'] = $offset;
 
 			$relationship = civicrm_api3( 'Relationship', 'get', $relationship_params );
+
+			if ( ! $relationship['count'] ) return $contacts;
 
 			$result = $relationship = $relationship['values'][$relationship['id']];
 			// unset relationship possible collisioning ids
