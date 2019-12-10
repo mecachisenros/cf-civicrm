@@ -293,8 +293,8 @@ $campaigns = civicrm_api3( 'Campaign', 'get', [
 	function cfc_add_line_item( obj ) {
 
 		var id = obj.trigger.data( 'id' ),
-		config = JSON.parse( $( '#' + id + ' .processor_config_string' ).val() ),
-		item_id = 'line_item_' + ( $( '#' + id + ' .line-item' ).length + 1 ),
+		config = JSON.parse( jQuery( '#' + id + ' .processor_config_string' ).val() ),
+		item_id = 'line_item_' + ( jQuery( '#' + id + ' .line-item' ).length + 1 ),
 		_name = 'config[processors][' + id + '][config]';
 
 		if ( config.line_items ) {
@@ -315,14 +315,14 @@ $campaigns = civicrm_api3( 'Campaign', 'get', [
 	// can't figure out how to change the 'context' in the handlebars template
 	function cfc_line_item_built( obj ) {
 
-		var id = $( '#line_item_' ).data( 'id' ),
-		item_id = 'line_item_' + ( $( '#' + id + '_line_items_wrapper .line-item' ).length ),
+		var id = jQuery( '#line_item_' ).data( 'id' ),
+		item_id = 'line_item_' + ( jQuery( '#' + id + '_line_items_wrapper .line-item' ).length ),
 		name = 'config[processors][' + id + '][config][line_items][' + item_id + ']';
 
 		// update name
-		$( '.' + id + '_line_items #line_item_ .field-config' ).attr( 'name', name );
+		jQuery( '.' + id + '_line_items #line_item_ .field-config' ).attr( 'name', name );
 		// update id
-		$( '.' + id + '_line_items #line_item_' ).attr( 'id', item_id );
+		jQuery( '.' + id + '_line_items #line_item_' ).attr( 'id', item_id );
 	}
 </script>
 
