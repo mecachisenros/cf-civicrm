@@ -138,29 +138,68 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 		// event
 		$event = apply_filters( 'cfc_participant_pre_processor_event_config', $this->events[$config['processor_id']], $config, $form, $this->plugin );
 
+		/**
+		 * Filter to abort participant processing.
+		 *
+		 * To abort a participant from being processed return true or,
+		 * to abort the form from processing return an array like:
+		 * [ 'note' => 'Some message', 'type' => 'success|error|info|warning|danger' ]
+		 * The form processing will stop displaying 'Some message'
+		 *
+		 * @since 1.0.3
+		 * @param bool|array $return Whether to abort the processing of a participant
+		 * @param bool|array $event The current event
+		 * @param array $form_values The submitted form values
+		 * @param array $config The processor config
+		 * @param array $form The form config
+		 * @param string $processid The process id
+		 */
+		$return = apply_filters( 'cfc_participant_pre_processor_return', false, $event, $form_values, $config, $form, $processid );
+
+		if ( $return ) return $return;
+
+	}
+
+	/**
+	 * Form processor callback.
+	 *
+	 * @since 1.0
+	 * @param array $config Processor configuration
+	 * @param array $form Form configuration
+	 * @param string $processid The process id
+	 */
+	public function processor( $config, $form, $processid ) {
+
+		// Get form values
+		$form_values = $this->plugin->helper->map_fields_to_processor( $config, $form, $form_values );
+
+		$config = apply_filters( 'cfc_participant_processor_config', $config, $form, $form_values, $this->plugin );
+
+		// event
+		$event = apply_filters( 'cfc_participant_processor_event_config', $this->events[$config['processor_id']], $config, $form, $this->plugin );
+
 		// process one or multiple participants
 		if ( is_array( $config['id'] ) ) {
 			foreach ( $config['id'] as $event_id ) {
-				$return = $this->process_participant(
+				$this->process_participant(
 					$event[$event_id],
 					$form_values,
 					$config,
 					$form,
 					$processid
 				);
-				if ( isset( $return ) && is_array( $return ) ) return $return;
 			}
 		} else {
-			$return = $this->process_participant(
+			$this->process_participant(
 				$event,
 				$form_values,
 				$config,
 				$form,
 				$processid
 			);
-			if ( isset( $return ) && is_array( $return ) ) return $return;
 		}
 
+		return [ 'processor_id' => $config['processor_id'] ];
 	}
 
 	/**
@@ -187,7 +226,7 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 			if ( ! empty( $config['campaign_id'] ) ) $form_values['campaign_id'] = $config['campaign_id'];
 
 			if ( ! empty( $config['registered_by_id'] ) ) {
-				$form_values['registered_by_id'] = flase !== strpos( $config['registered_by_id'], 'contact_' )
+				$form_values['registered_by_id'] = false !== strpos( $config['registered_by_id'], 'contact_' )
 					? $transient->contacts->{'cid_' . str_replace( 'contact_', '', $config['creator_id'] )}
 					: $config['registered_by_id'];
 			}
@@ -213,112 +252,74 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 				return $notice;
 			}
 
-			/**
-			 * Filter to abort participant processing.
-			 *
-			 * To abort a participant from being processed return true or,
-			 * to abort the form from processing return an array like:
-			 * [ 'note' => 'Some message', 'type' => 'success|error|info|warning|danger' ]
-			 * The form processing will stop displaying 'Some message'
-			 *
-			 * @since 1.0.3
-			 * @param bool|array $return Whether to abort the processing of a participant
-			 * @param bool|array $event The current event
-			 * @param array $form_values The submitted form values
-			 * @param array $config The processor config
-			 * @param array $form The form config
-			 * @param string $processid The process id
-			 */
-			$return = apply_filters( 'cfc_participant_pre_processor_return', false, $event, $form_values, $config, $form, $processid );
+			// store data in transient if is not registered
+			if ( ! $is_registered || $this->is_registered_and_same_email_allowed( $is_registered, $event ) ) {
+				$transient->participants->{$config['processor_id']}->params = $form_values;
+				$this->plugin->transient->save( $transient->ID, $transient );
 
-			if ( ! $return ) {
+				if ( isset( $config['is_email_receipt'] ) ) {
 
-				// store data in transient if is not registered
-				if ( ! $is_registered || $this->is_registered_and_same_email_allowed( $is_registered, $event ) ) {
-					$transient->participants->{$config['processor_id']}->params = $form_values;
-					$this->plugin->transient->save( $transient->ID, $transient );
+					add_action( 'cfc_order_post_processor', function( $order, $order_config, $form, $processid ) use ( $event, $config ) {
 
-					if ( isset( $config['is_email_receipt'] ) ) {
+						if ( ! $order ) return;
 
-						add_action( 'cfc_order_post_processor', function( $order, $order_config, $form, $processid ) use ( $event, $config ) {
+						foreach ( $order['line_items'] as $key => $item ) {
 
-							if ( ! $order ) return;
+							if ( $item['entity_table'] == 'civicrm_participant' ) {
 
-							foreach ( $order['line_items'] as $key => $item ) {
+								$participant = civicrm_api3( 'Participant', 'get', [ 'id' => $item['entity_id'] ] );
 
-								if ( $item['entity_table'] == 'civicrm_participant' ) {
+								if ( is_array( $participant ) && ! $participant['is_error'] && $participant['values'][$item['entity_id']]['event_id'] == $event['id'] ) {
 
-									$participant = civicrm_api3( 'Participant', 'get', [ 'id' => $item['entity_id'] ] );
-
-									if ( is_array( $participant ) && ! $participant['is_error'] && $participant['values'][$item['entity_id']]['event_id'] == $event['id'] ) {
-
-										$this->send_mail( $participant['values'][$participant['id']], $event, $order );
-										break;
-									}
-
+									$this->send_mail( $participant['values'][$participant['id']], $event, $order );
+									break;
 								}
 
 							}
 
-						}, 10, 4 );
-
-					}
-				}
-
-				if ( ( ! $config['is_monetary'] && ! $is_registered ) || ( ! $config['is_monetary'] && $this->is_registered_and_same_email_allowed( $is_registered, $event ) ) ) {
-					try {
-
-						/**
-						 * Filter participant params before creating,
-						 * note that only fires for free event registrations.
-						 *
-						 * @since 1.0.5
-						 * @param array $params The Participnat params
-						 * @param array $event The CiviCRM event config
-						 * @param array $registrations Array hiolding current registrations indexed by processor id
-						 * @param array $config The processor config
-						 * @param array $form The form config
-						 */
-						$form_values = apply_filters( 'cfc_participant_before_create_params', $form_values, $event, $this->registrations, $config, $form );
-
-						$create_participant = civicrm_api3( 'Participant', 'create', $form_values );
-
-						$participant = $create_participant['values'][$create_participant['id']];
-
-						if ( ! $create_participant['is_error'] && $config['is_email_receipt'] ) {
-							$this->send_mail( $participant, $event );
 						}
 
-						// save participant data in transient
-						$transient->participants->{$config['processor_id']}->params = $participant;
-						$this->plugin->transient->save( $transient->ID, $transient );
+					}, 10, 4 );
 
-					} catch ( CiviCRM_API3_Exception $e ) {
-						$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
-						return [ 'note' => $error, 'type' => 'error' ];
-					}
 				}
+			}
 
-			} else {
+			if ( ( ! $config['is_monetary'] && ! $is_registered ) || ( ! $config['is_monetary'] && $this->is_registered_and_same_email_allowed( $is_registered, $event ) ) ) {
+				try {
 
-				return $return;
+					/**
+					 * Filter participant params before creating,
+					 * note that only fires for free event registrations.
+					 *
+					 * @since 1.0.5
+					 * @param array $params The Participnat params
+					 * @param array $event The CiviCRM event config
+					 * @param array $registrations Array hiolding current registrations indexed by processor id
+					 * @param array $config The processor config
+					 * @param array $form The form config
+					 */
+					$form_values = apply_filters( 'cfc_participant_before_create_params', $form_values, $event, $this->registrations, $config, $form );
 
+					$create_participant = civicrm_api3( 'Participant', 'create', $form_values );
+
+					$participant = $create_participant['values'][$create_participant['id']];
+
+					if ( ! $create_participant['is_error'] && $config['is_email_receipt'] ) {
+						$this->send_mail( $participant, $event );
+					}
+
+					// save participant data in transient
+					$transient->participants->{$config['processor_id']}->params = $participant;
+					$this->plugin->transient->save( $transient->ID, $transient );
+
+				} catch ( CiviCRM_API3_Exception $e ) {
+					$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
+					return [ 'note' => $error, 'type' => 'error' ];
+				}
 			}
 
 		}
 
-	}
-
-	/**
-	 * Form processor callback.
-	 *
-	 * @since 1.0
-	 * @param array $config Processor configuration
-	 * @param array $form Form configuration
-	 * @param string $processid The process id
-	 */
-	public function processor( $config, $form, $porcessid ) {
-		return [ 'processor_id' => $config['processor_id'] ];
 	}
 
 	/**
