@@ -472,6 +472,8 @@ class CiviCRM_Caldera_Forms_Helper {
 					Caldera_Forms_Field_Util::get_field( $field_id, $form ) :
 					Caldera_Forms::get_field_by_slug(str_replace( '%', '', $field_id ), $form );
 
+				if ( empty( $field ) || empty( $field['type'] ) ) continue;
+
 				// don't prerender hidden field values unless pre_render enable
 				if ( $field['type'] == 'hidden' && ! isset( $field['config']['pre_render'] ) ) continue;
 
@@ -494,9 +496,13 @@ class CiviCRM_Caldera_Forms_Helper {
 				 * @param array $entity The current entity, i.e. Contact, Address, etc
 				 * @param array $config processor config
 				 */
-				$form['fields'][$field['ID']]['config']['default'] = apply_filters( 'cfc_filter_mapped_field_to_prerender', $value, $civi_field, $field, $entity, $config );
+				$value = apply_filters( 'cfc_filter_mapped_field_to_prerender', $value, $civi_field, $field, $entity, $config );
 
-				if ( $field['type'] == 'radio' ) {
+				if ( $value !== '' ) {
+					$form['fields'][$field['ID']]['config']['default'] = $value;
+				}
+
+				if ( $field['type'] == 'radio' && $value !== '' ) {
 					$options = Caldera_Forms_Field_Util::find_option_values( $field );
 					$form['fields'][$field['ID']]['config']['default'] = array_search( $value, $options );
 				}
