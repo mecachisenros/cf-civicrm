@@ -313,8 +313,11 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 					$this->plugin->transient->save( $transient->ID, $transient );
 
 				} catch ( CiviCRM_API3_Exception $e ) {
-					$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
-					return [ 'note' => $error, 'type' => 'error' ];
+					// add error to notices, don't stop form processing
+					add_filter( 'caldera_forms_render_notices', function( $notices ) use ( $e ) {
+						$notices['error']['note'] = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
+						return $notices;
+					} );
 				}
 			}
 
