@@ -666,23 +666,54 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 			 * @param array $form The form config
 			 */
 			add_action( 'cf_stripe_post_successful_charge', function( $return_charge, $transdata, $config, $stripe_form ) {
-				// stripe charge object from the successful payment
-				$balance_transaction_id = $transdata['stripe']->balance_transaction;
 
-				\Stripe\Stripe::setApiKey( $config['secret'] );
-				$balance_transaction_object = \Stripe\BalanceTransaction::retrieve( $balance_transaction_id );
+				// stripe 1.4.7
+				if ( version_compare( CF_STRIPE_VER, '1.4.9', '<' ) ) {
 
-				$this->stripe_metadata = [
-					'trxn_id' => $return_charge['ID'],
-					'fee_amount' => $balance_transaction_object->fee / 100,
-					'card_type_id' => $this->get_option_by_label( $transdata['stripe']->source->brand ),
-					'credit_card_type' => $transdata['stripe']->source->brand,
-					'pan_truncation' => $transdata['stripe']->source->last4,
-					'credit_card_exp_date' => [
-						'M' => $transdata['stripe']->source->exp_month,
-						'Y' => $transdata['stripe']->source->exp_year
-					]
-				];
+					// stripe charge object from the successful payment
+					$balance_transaction_id = $transdata['stripe']->balance_transaction;
+
+					\Stripe\Stripe::setApiKey( $config['secret'] );
+					$balance_transaction_object = \Stripe\BalanceTransaction::retrieve( $balance_transaction_id );
+
+					$this->stripe_metadata = [
+						'trxn_id' => $return_charge['ID'],
+						'fee_amount' => $balance_transaction_object->fee / 100,
+						'card_type_id' => $this->get_option_by_label( $transdata['stripe']->source->brand ),
+						'credit_card_type' => $transdata['stripe']->source->brand,
+						'pan_truncation' => $transdata['stripe']->source->last4,
+						'credit_card_exp_date' => [
+							'M' => $transdata['stripe']->source->exp_month,
+							'Y' => $transdata['stripe']->source->exp_year
+						]
+					];
+
+				} else {
+
+					add_action( 'cf_stripe_post_single_capture', function( $referrer, $config, $form, $entry_transient, $status_transient, $session, $payment_intent ) use ( $charge_metadata ) {
+
+						$charge = $payment_intent->charges->data[0];
+						$balance_transaction_object = \Stripe\BalanceTransaction::retrieve( $charge->balance_transaction );
+						$payment_details = $charge->payment_method_details;
+
+						if ( $payment_details->type == 'card' ) {
+							$this->stripe_metadata = [
+								'trxn_id' => $charge->id,
+								'fee_amount' => $balance_transaction_object->fee / 100,
+								'card_type_id' => $this->get_option_by_label( $payment_details->card->brand ),
+								'credit_card_type' => $payment_details->card->brand,
+								'pan_truncation' => $payment_details->card->last4,
+								'credit_card_exp_date' => [
+									'M' => $payment_details->card->exp_month,
+									'Y' => $payment_details->card->exp_year
+								]
+							];
+						}
+
+					}, 10, 7 );
+
+				}
+
 			}, 10, 4 );
 		}
 	}
