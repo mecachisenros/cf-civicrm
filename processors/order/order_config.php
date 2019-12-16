@@ -11,6 +11,14 @@ $contribution_status = civicrm_api3( 'Contribution', 'getoptions', [
   'field' => 'contribution_status_id',
 ] );
 
+$contribution_status['values'] = array_merge(
+	[[
+		'key' => 'default_status_id',
+		'value' => __( 'Default Status (Pending)', 'cf-civicrm' )
+	]],
+	$contribution_status['values']
+);
+
 $payment_instruments = civicrm_api3( 'Contribution', 'getoptions', [
 	'field' => 'payment_instrument_id',
 ] );
