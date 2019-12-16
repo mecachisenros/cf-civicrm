@@ -1158,6 +1158,7 @@ class CiviCRM_Caldera_Forms_Helper {
 		} else {
 			// one processor, the format is processor_type:processor_id
 			$processor = $this->get_processor_by_type( $parts[0], $form );
+			$processor = array_pop( $processor );
 			$processor_id = $processor['ID'];
 		}
 
