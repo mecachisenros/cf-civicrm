@@ -313,7 +313,7 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 	 */
 	public function create_order_payment( $metadata, $order ) {
 
-		if ( empty( $metadata ) || ! is_array( $metadata ) || empty( $order['id'] ) ) return $order;
+		if ( empty( $order['id'] ) ) return $order;
 
 		try {
 			$current_order = civicrm_api3( 'Order', 'getsingle', [
@@ -324,18 +324,6 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 		}
 
 		if ( ! $current_order ) return $order;
-
-		// need to update contribution with charge metadata (fee, transaction id, etc.)
-		try {
-			$update_order = civicrm_api3( 'Order', 'create', array_merge(
-				[ 'id' => $order['id'] ],
-				$metadata
-			) );
-		} catch ( CiviCRM_API3_Exception $e ) {
-			$update_order = null;
-		}
-
-		if ( ! $update_order ) return $order;
 
 		// get all entities
 		$entities = array_column( $current_order['line_items'], 'entity_table', 'entity_id' );
@@ -371,22 +359,35 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 				}
 
 			}, $participant_ids );
+
 		}
 
-		// complete payment
-		if ( ! empty( $metadata ) && $current_order ) {
-			try {
-				$payment = civicrm_api3( 'Payment', 'create', array_merge(
-					[
-						'contribution_id' => $current_order['id'],
-						'total_amount' => $current_order['total_amount'],
-						'trxn_date' => date( 'YmdHis', strtotime( 'now' ) ),
-					],
-					$metadata
-				) );
-			} catch ( CiviCRM_API3_Exception $e ) {
+		if ( empty( $metadata ) || ! is_array( $metadata ) ) return $order;
 
-			}
+		// need to update contribution with charge metadata (fee, transaction id, etc.)
+		try {
+			$update_order = civicrm_api3( 'Order', 'create', array_merge(
+				[ 'id' => $order['id'] ],
+				$metadata
+			) );
+		} catch ( CiviCRM_API3_Exception $e ) {
+			$update_order = null;
+		}
+
+		if ( ! $update_order ) return $order;
+
+		// complete payment
+		try {
+			$payment = civicrm_api3( 'Payment', 'create', array_merge(
+				[
+					'contribution_id' => $current_order['id'],
+					'total_amount' => $current_order['total_amount'],
+					'trxn_date' => date( 'YmdHis', strtotime( 'now' ) ),
+				],
+				$metadata
+			) );
+		} catch ( CiviCRM_API3_Exception $e ) {
+
 		}
 
 		return array_merge( $current_order, $update_order );
