@@ -258,7 +258,7 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 
 		// need to update contribution with charge meta data (fee, transaction id, etc.)
 		try {
-			$update_order = civicrm_api3( 'Contribution', 'create', array_merge(
+			$update_order = civicrm_api3( 'Order', 'create', array_merge(
 				[ 'id' => $order['id'] ],
 				$charge_metadata
 			) );
@@ -272,21 +272,28 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 			return $entity == 'civicrm_participant';
 		} );
 
-		// updated participant registered_by_id
+		// updated participant registered_by_id and status
 		if ( is_array( $participant_entities ) && count( $participant_entities ) > 1 ) {
 
 			$participant_ids = array_keys( $participant_entities );
 			$main_participant_id = array_slice( $participant_ids, -1 )[0];
 
-			array_map( function( $participant_id ) use ( $main_participant_id ) {
+			array_map( function( $participant_id ) use ( $main_participant_id, $order ) {
 
-				if ( $participant_id == $main_participant_id ) return;
+				$params = [
+					'id' => $participant_id
+				];
+
+				if ( $this->is_pay_later ) {
+					$params['status_id'] = 'Pending from pay later';
+				}
+
+				if ( $participant_id != $main_participant_id ) {
+					$params['registered_by_id'] = $main_participant_id;
+				}
 
 				try {
-					$participant = civicrm_api3( 'Participant', 'create', [
-						'id' => $participant_id,
-						'registered_by_id' => $main_participant_id
-					] );
+					$participant = civicrm_api3( 'Participant', 'create', $params );
 				} catch ( CiviCRM_API3_Exception $e ) {
 
 				}
