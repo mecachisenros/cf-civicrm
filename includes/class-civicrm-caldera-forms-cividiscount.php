@@ -467,7 +467,9 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 			);
 		}
 
-		$discount = $discounts[$processor['ID']];
+		$discount = count( $discounts ) > 1 && isset( $discounts[$processor['ID']] )
+			? $discounts[$processor['ID']]
+			: current( $discounts );
 
 		$price_field_filter_function = function( $field, $form, $price_field ) use ( &$ref, &$discount ) {
 
@@ -563,15 +565,13 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 
 				$processor = $form['processors'][$processor_id];
 
-				// discount entity for this line item
-				$discount_entity = $this->get_discount_entity_map(
-					$processor['config']['entity_table']
-				);
-
-				if ( empty( $discount[$discount_entity] ) ) return $discounted_options;
-
 				// no need to check entities if options are set in discounted priceset options
 				if ( empty( array_intersect( $ref['field_options'], $discount['pricesets'] ) ) ) {
+
+					// discount entity for this line item
+					$discount_entity = $this->get_discount_entity_map(
+						$processor['config']['entity_table']
+					);
 
 					// check applied discount is for an event, membership or contribution present on the form
 					switch ( $processor['config']['entity_table'] ) {
