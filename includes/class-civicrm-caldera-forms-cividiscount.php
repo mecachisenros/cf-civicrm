@@ -570,54 +570,59 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 
 				if ( empty( $discount[$discount_entity] ) ) return $discounted_options;
 
-				// check applied discount is for an event, membership or contribution present on the form
-				switch ( $processor['config']['entity_table'] ) {
-					// events based discount
-					case 'civicrm_participant':
-						$participant = $this->plugin->helper->get_processor_from_magic(
-							$processor['config']['entity_params'],
-							$form,
-							true
-						);
-						if (
-							! in_array(
-								$participant['config']['id'],
-								$discount[$discount_entity]
-							)
-						) return $discounted_options;
-						break;
+				// no need to check entities if options are set in discounted priceset options
+				if ( empty( array_intersect( $ref['field_options'], $discount['pricesets'] ) ) ) {
 
-					// membership based discount
-					case 'civicrm_membership':
-						$membership = $this->plugin->helper->get_processor_from_magic(
-							$processor['config']['entity_params'],
-							$form,
-							true
-						);
-						if (
-							! in_array(
-								$membership['config']['membership_type_id'],
-								$discount[$discount_entity]
-							)
-						) return $discounted_options;
-						break;
+					// check applied discount is for an event, membership or contribution present on the form
+					switch ( $processor['config']['entity_table'] ) {
+						// events based discount
+						case 'civicrm_participant':
+							$participant = $this->plugin->helper->get_processor_from_magic(
+								$processor['config']['entity_params'],
+								$form,
+								true
+							);
+							if (
+								! in_array(
+									$participant['config']['id'],
+									$discount[$discount_entity]
+								)
+							) return $discounted_options;
+							break;
 
-					// contribution based discount
-					case 'civicrm_contribution':
-						$order = current(
-							$this->plugin->helper->get_processor_by_type( 'civicrm_order', $form )
-						);
+						// membership based discount
+						case 'civicrm_membership':
+							$membership = $this->plugin->helper->get_processor_from_magic(
+								$processor['config']['entity_params'],
+								$form,
+								true
+							);
+							if (
+								! in_array(
+									$membership['config']['membership_type_id'],
+									$discount[$discount_entity]
+								)
+							) return $discounted_options;
+							break;
 
-						// bail if no order or no contribution page
-						if ( empty( $order ) || empty( $order['config']['contribution_page_id'] ) ) return $discounted_options;
+						// contribution based discount
+						case 'civicrm_contribution':
+							$order = current(
+								$this->plugin->helper->get_processor_by_type( 'civicrm_order', $form )
+							);
 
-						if (
-							! in_array(
-								$order['config']['contribution_page_id'],
-								$discount[$discount_entity]
-							)
-						) return $discounted_options;
-						break;
+							// bail if no order or no contribution page
+							if ( empty( $order ) || empty( $order['config']['contribution_page_id'] ) ) return $discounted_options;
+
+							if (
+								! in_array(
+									$order['config']['contribution_page_id'],
+									$discount[$discount_entity]
+								)
+							) return $discounted_options;
+							break;
+					}
+
 				}
 
 				$field = $fields[$ref['field_id']];
@@ -724,7 +729,7 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 						if ( in_array( $processor['config']['id'], $discount['events'] ) ) {
 							$discounts[$processor['ID']] = $discount;
 						}
-					} else { 
+					} else {
 						$cividiscounts = $this->get_cividiscounts_by_entity( 'events', $autodiscount );
 						array_map( function( $discount ) use ( &$discounts, $processor ) {
 							if ( in_array( $processor['config']['id'], $discount['events'] ) ) {
