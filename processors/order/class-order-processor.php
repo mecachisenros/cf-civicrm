@@ -252,6 +252,14 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 
 		$this->order = $this->create_order_payment( $charge_metadata, $this->order );
 
+		if ( empty( $this->order['line_items'] ) ) {
+			try {
+				$this->order = civicrm_api3( 'Order', 'getsingle', ['contribution_id' => $this->order['id']] );
+			} catch ( CiviCRM_API3_Exception $e ) {
+				// log error?
+			}
+		}
+
 		if ( true ) { //$config['is_thank_you'] ) {
 			add_filter( 'caldera_forms_ajax_return', function( $out, $_form ) use ( $transdata, $transient ){
 
