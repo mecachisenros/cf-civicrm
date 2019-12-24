@@ -361,7 +361,11 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 	 */
 	public function apply_code_discount( $form ) {
 
-		if ( empty( $this->options_ids_refs ) ) return $form;
+		$price_field_refs = $this->plugin->helper->build_price_field_refs( $form );
+		if ( empty( $price_field_refs ) ) return $form;
+
+		$price_field_option_refs = $this->build_options_ids_refs( $price_field_refs, $form );
+		if ( empty( $price_field_option_refs ) ) return $form;
 
 		$discount_field = $this->plugin->cividiscount->get_discount_fields( $form );
 		if ( empty( $discount_field ) ) return $form;
@@ -385,7 +389,7 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 				$this->apply_option_filter_discount( $line_item, $ref, $entities_discounts, $form );
 
 			},
-			$this->options_ids_refs
+			$price_field_option_refs
 		);
 
 		return $form;
