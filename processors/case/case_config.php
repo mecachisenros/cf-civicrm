@@ -17,7 +17,7 @@ $caseFieldsResult = civicrm_api3( 'Case', 'getfields', [
 
 $caseFields = [];
 foreach ( $caseFieldsResult['values'] as $key => $value ) {
-	if ( in_array( $value['name'], [ 'details', 'subject', 'start_date', 'end_date', 'created_date', 'modified_date' ] ) ) {
+	if ( in_array( $value['name'], [ 'id', 'details', 'subject', 'start_date', 'end_date', 'created_date', 'modified_date' ] ) ) {
 		$caseFields[$value['name']] = $value['title'];
 	}
 }

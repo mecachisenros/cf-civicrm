@@ -154,6 +154,7 @@ class CiviCRM_Caldera_Forms_Case_Processor {
 		 * Filter existing case.
 		 *
 		 * @since 1.0.5
+		 *
 		 * @param array $result The api result
 		 * @param array $params The api parameters
 		 * @param array $config The processor config
@@ -163,8 +164,29 @@ class CiviCRM_Caldera_Forms_Case_Processor {
 
 		if( ! empty( $config['dismiss_case'] ) && ! empty( $existing_case['id'] ) ) {
 
-			// return exisiting case id magic tag
+			// return existing case id magic tag
 			return [ 'case_id' => $existing_case['id'] ];
+
+		} elseif ( !empty ( $config['id'] ) || !empty( $form_values['id'] ) ) {
+			// Did we specify case ID in processor config? Or via the form?
+			$caseContactParams = [
+				'case_id' => $config['id'] ?? $form_values['id'],
+				'contact_id' => $form_values['contact_id']
+			];
+			$add_contact_to_case = civicrm_api3( 'CaseContact', 'create', $caseContactParams);
+
+			/**
+			 * Broadcast case contact creation
+			 *
+			 * @since 1.0.6
+			 * @param array $result The api result
+			 * @param array $params The api parameters
+			 * @param array $config The processor config
+			 * @param array $form The form config
+			 */
+			do_action( 'cfc_case_processor_casecontact_create', $add_contact_to_case, $form_values, $config, $form );
+
+			return [ 'case_id' => $form_values['id'] ];
 
 		} else {
 			try {
