@@ -151,7 +151,7 @@ class CiviCRM_Caldera_Forms_Case_Processor {
 			$form_values['start_date'] = date( 'YmdHis', strtotime( 'now' ) ); // Date format YYYYMMDDhhmmss
 
 		/**
-		 * Filter exisiting case.
+		 * Filter existing case.
 		 *
 		 * @since 1.0.5
 		 * @param array $result The api result
@@ -173,7 +173,7 @@ class CiviCRM_Caldera_Forms_Case_Processor {
 				$this->maybe_add_case_manager( $config, $create_case );
 
 				/**
-				 * Broadcast case cretion
+				 * Broadcast case creation
 				 *
 				 * @since 1.0.3
 				 * @param array $result The api result
@@ -200,7 +200,7 @@ class CiviCRM_Caldera_Forms_Case_Processor {
 	 * Add Case to extend custom fields autopopulation/presets.
 	 *
 	 * @since 1.0.3
-	 * @param array $extends The entites array
+	 * @param array $extends The entities array
 	 * @return array $extends The filtered entities array
 	 */
 	public function custom_fields_extend_case( $extends ) {
