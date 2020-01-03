@@ -384,17 +384,40 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 
 		if ( ! $update_order ) return $order;
 
-		// complete payment
-		try {
-			$payment = civicrm_api3( 'Payment', 'create', array_merge(
-				[
-					'contribution_id' => $current_order['id'],
-					'total_amount' => $current_order['total_amount'],
-					'trxn_date' => date( 'YmdHis', strtotime( 'now' ) ),
-				],
-				$metadata
-			) );
-		} catch ( CiviCRM_API3_Exception $e ) {
+		$payment_params = array_merge(
+			[
+				'contribution_id' => $current_order['id'],
+				'total_amount' => $current_order['total_amount'],
+				'trxn_date' => date( 'YmdHis', strtotime( 'now' ) ),
+			],
+			$metadata
+		);
+
+		if ( $current_order['contribution_status'] == 'Pending' ) {
+			// complete payment
+			try {
+				$payment = civicrm_api3( 'Payment', 'create', $payment_params );
+			} catch ( CiviCRM_API3_Exception $e ) {
+
+			}
+
+		} else {
+			// get payment
+			$payment = civicrm_api3( 'Payment', 'get', [
+				'sequential' => 1,
+				'contribution_id' => $update_order['id']
+			] );
+
+			if ( $payment['count'] ) {
+				$payment_params['id'] = $payment['id'];
+
+				// update payment
+				try {
+					$update_payment = civicrm_api3( 'Payment', 'create', $payment_params );
+				} catch ( CiviCRM_API3_Exception $e ) {
+
+				}
+			}
 
 		}
 
