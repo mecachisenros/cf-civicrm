@@ -170,6 +170,8 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 
 			if ( empty( $price_field_field ) || empty( $price_field_field['ID'] ) ) return $refs;
 
+			if ( empty( $price_field_field['config']['option'] ) ) return $refs;
+
 			if ( empty( $discounted_options[$processor_id] ) ) {
 
 				$refs[$field_id] = [
