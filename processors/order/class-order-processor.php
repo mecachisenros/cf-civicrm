@@ -250,8 +250,10 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 			$charge_metadata = $this->stripe_metadata;
 		}
 
+		if ( ! empty( $charge_metadata ) ) {
 		// don't send confirmation, we are calling Contribution.sendconfirmation afterwards
 		$charge_metadata = array_merge( $charge_metadata, ['is_send_contribution_notification' => 0] );
+		}
 
 		$this->order = $this->create_order_payment( $charge_metadata, $this->order );
 
