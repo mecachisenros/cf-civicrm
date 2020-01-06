@@ -251,8 +251,8 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 		}
 
 		if ( ! empty( $charge_metadata ) ) {
-		// don't send confirmation, we are calling Contribution.sendconfirmation afterwards
-		$charge_metadata = array_merge( $charge_metadata, ['is_send_contribution_notification' => 0] );
+			// don't send confirmation, we are calling Contribution.sendconfirmation afterwards
+			$charge_metadata = array_merge( $charge_metadata, ['is_send_contribution_notification' => 0] );
 		}
 
 		$this->order = $this->create_order_payment( $charge_metadata, $this->order );
@@ -397,6 +397,10 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 			],
 			$metadata
 		);
+
+		if ( ! empty( $current_order['payment_instrument_id'] ) ) {
+			$payment_params['payment_instrument_id'] = $current_order['payment_instrument_id'];
+		}
 
 		if ( $current_order['contribution_status'] == 'Pending' ) {
 			// complete payment
