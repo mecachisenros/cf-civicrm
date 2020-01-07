@@ -393,7 +393,7 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 			[
 				'contribution_id' => $current_order['id'],
 				'total_amount' => $current_order['total_amount'],
-				'trxn_date' => date( 'YmdHis', strtotime( 'now' ) ),
+				'trxn_date' => 'now',
 			],
 			$metadata
 		);
@@ -402,31 +402,57 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 			$payment_params['payment_instrument_id'] = $current_order['payment_instrument_id'];
 		}
 
+		if ( ! empty( $order['contribution_page_id'] ) ) {
+			$contribution_page = civicrm_api3( 'ContributionPage', 'get', [
+				'sequential' => 1,
+				'id' => $order['contribution_page_id'],
+				'return' => ['payment_processor'],
+				'options' => ['limit' => 1]
+			] )['values'];
+
+			if ( ! empty( $contribution_page[0] ) ) {
+				$payment_params['payment_processor_id'] = $contribution_page[0]['payment_processor'];
+			}
+		}
+
 		if ( $current_order['contribution_status'] == 'Pending' ) {
+
 			// complete payment
 			try {
-				$payment = civicrm_api3( 'Payment', 'create', $payment_params );
-			} catch ( CiviCRM_API3_Exception $e ) {
+				// $payment = civicrm_api3( 'Payment', 'create', $payment_params );
+				$order_params= [
+					'id' => $update_order['id'],
+					'contact_id' => $update_order['contact_id'],
+					'contribution_id' => $update_order['id'],
+					'financial_type_id' => $update_order['financial_type_id'],
+					'contribution_status_id' => 'Completed',
+				];
 
+				$contribution = civicrm_api3( 'Contribution', 'create', $order_params );
+
+			} catch ( CiviCRM_API3_Exception $e ) {
+				$contribution = null;
 			}
 
-		} else {
-			// get payment
-			$payment = civicrm_api3( 'Payment', 'get', [
-				'sequential' => 1,
+		}
+
+		// get payment
+		try {
+			$payment = civicrm_api3( 'Payment', 'getsingle', [
 				'contribution_id' => $update_order['id']
 			] );
+		} catch ( CiviCRM_API3_Exception $e ) {
+			$payment = null;
+		}
 
-			if ( $payment['count'] ) {
-				$payment_params['id'] = $payment['id'];
+		if ( $payment && empty( $payment['trxn_id'] ) && ! empty( $payment_params['trxn_id'] ) ) {
 
-				// update payment
-				try {
-					$update_payment = civicrm_api3( 'Payment', 'create', $payment_params );
-				} catch ( CiviCRM_API3_Exception $e ) {
+			$payment_params = array_merge( $payment_params, $payment );
 
-				}
-			}
+			// update payment/financial_trxn to add transaction id
+			try {
+				$update_payment = civicrm_api3( 'FinancialTrxn', 'create', $payment_params );
+			} catch ( CiviCRM_API3_Exception $e ) {}
 
 		}
 
