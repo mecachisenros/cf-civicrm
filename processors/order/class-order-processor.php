@@ -428,6 +428,8 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 					'contribution_status_id' => 'Completed',
 				];
 
+				$order_params = array_merge( $order_params, $payment_params );
+
 				$contribution = civicrm_api3( 'Contribution', 'create', $order_params );
 
 			} catch ( CiviCRM_API3_Exception $e ) {
