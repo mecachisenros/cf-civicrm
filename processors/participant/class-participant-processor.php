@@ -231,20 +231,7 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 					: $config['registered_by_id'];
 			}
 
-			if ( is_array( $config['id'] ) ) {
-				$is_registered = civicrm_api3( 'Participant', 'get', [
-					'event_id' => $event['id'],
-					'contact_id' => $transient->contacts->{$this->contact_link}
-				] );
-
-				$is_registered = $is_registered['count'];
-			} else {
-
-				// if multiple participant processors, we need to update $this->registrations
-				$this->registrations = $this->get_participant_registrations( $this->event_ids, $form );
-				$is_registered = is_array( $this->registrations[$config['processor_id']] );
-
-			}
+			$is_registered = $this->is_registered( $event, $config, $form );
 
 			// prevent re-registrations based on event's 'allow_same_participant_emails' setting
 			if ( $is_registered && $event['allow_same_participant_emails'] != 1 ) {
@@ -680,7 +667,7 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 		};
 
 		// is registered
-		if ( $participant && $participant['event_id'] == $event['id'] && $event['allow_same_participant_emails'] != 1 ) {
+		if ( $this->is_registered( $event, $processor, $form ) ) {
 			$notice = [
 				'type' => 'warning',
 				'note' => sprintf( __( 'Oops. It looks like you are already registered for the event <strong>%1$s</strong>. If you want to change your registration, or you think that this is an error, please contact the site administrator.', 'cf-civicrm' ), $event['title'] ),
@@ -971,6 +958,72 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 	 */
 	public function is_registered_and_same_email_allowed( $is_registered, $event ) {
 		return $is_registered && isset( $event['allow_same_participant_emails'] ) && $event['allow_same_participant_emails'];
+	}
+
+	/**
+	 * Retrieves the participant statuses
+	 * considered as 'counted'.
+	 *
+	 * @since 1.0.5
+	 * @return array $counted_statuses
+	 */
+	public function get_counted_participant_statuses() {
+
+		$statuses = civicrm_api3( 'ParticipantStatusType', 'get', [
+			'sequential' => 1,
+			'return' => ['name'],
+			'is_counted' => 1,
+		] );
+
+		return array_column( $statuses['values'], 'name' );
+
+	}
+
+	/**
+	 * Check if a participnat is registerd
+	 * for an event/particiopant processor.
+	 *
+	 * @since 1.0.5
+	 * @param array $event The event config
+	 * @param array $config The participant processor config
+	 * @param array $form The form config
+	 * @return bool $is_registered
+	 */
+	public function is_registered( $event, $config, $form ) {
+
+		$transient = $this->plugin->transient->get();
+
+		$counted_statuses = $this->get_counted_participant_statuses();
+
+		$processor_id = empty( $config['processor_id'] ) ? $config['ID'] : $config['processor_id'];
+
+		$is_registered = false;
+
+		if ( is_array( $config['id'] ) ) {
+
+			$is_registered = civicrm_api3( 'Participant', 'get', [
+				'event_id' => $event['id'],
+				'contact_id' => $transient->contacts->{$this->contact_link},
+				'status_id' => ['IN' => $counted_statuses]
+			] );
+
+			$is_registered = $is_registered['count'];
+
+		} else {
+
+			// if multiple participant processors, we need to update $this->registrations
+			$this->registrations = $this->get_participant_registrations( $this->event_ids, $form );
+
+			$participant = $this->registrations[$processor_id];
+
+			if ( is_array( $participant ) && in_array( $participant['participant_status'], $counted_statuses ) ) {
+				$is_registered = true;
+			}
+
+		}
+
+		return (bool) $is_registered;
+
 	}
 
 }
