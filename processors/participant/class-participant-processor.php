@@ -971,11 +971,11 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 
 		$statuses = civicrm_api3( 'ParticipantStatusType', 'get', [
 			'sequential' => 1,
-			'return' => ['name'],
+			'return' => ['name', 'label'],
 			'is_counted' => 1,
 		] );
 
-		return array_column( $statuses['values'], 'name' );
+		return array_column( $statuses['values'], 'label' );
 
 	}
 
