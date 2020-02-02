@@ -975,10 +975,7 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 			'is_counted' => 1,
 		] );
 
-		return array_merge(
-			array_column( $statuses['values'], 'name' ),
-			['Pending (pay later)'] // participant_status comes as Pending (pay later) not Pending from pay later
-		);
+		return array_column( $statuses['values'], 'name' );
 
 	}
 
