@@ -175,14 +175,6 @@ $campaigns = civicrm_api3( 'Campaign', 'get', [
 	</p>
 </div>
 
-<!-- Recieve Date -->
-<div id="{{_id}}_receive_date" class="caldera-config-group">
-	<label><?php _e( 'Receive Date', 'cf-civicrm' ); ?></label>
-	<div class="caldera-config-field">
-		{{{_field slug="receive_date"}}}
-	</div>
-</div>
-
 <!-- Transaction ID -->
 <div id="{{_id}}_trxn_id" class="caldera-config-group">
 	<label><?php _e( 'Transaction ID', 'cf-civicrm' ); ?></label>

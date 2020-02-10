@@ -155,6 +155,7 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 			$form_values['mapped_payment_instrument_id'];
 
 		$form_values['currency'] = $config['currency'];
+		$form_values['receive_date'] = get_date_from_gmt( 'now' );
 
 		if ( ! empty( $config['campaign_id'] ) ) $form_values['campaign_id'] = $config['campaign_id'];
 
@@ -393,7 +394,7 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 			[
 				'contribution_id' => $current_order['id'],
 				'total_amount' => $current_order['total_amount'],
-				'trxn_date' => 'now',
+				'trxn_date' => get_date_from_gmt( 'now' ),
 			],
 			$metadata
 		);
