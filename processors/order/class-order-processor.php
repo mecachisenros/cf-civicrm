@@ -448,9 +448,11 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 			$payment = null;
 		}
 
-		if ( $payment && empty( $payment['trxn_id'] ) && ! empty( $payment_params['trxn_id'] ) ) {
+		if ( ( $payment && empty( $payment['trxn_id'] ) && ! empty( $payment_params['trxn_id'] ) )
+			|| ( $payment && $payment['trxn_date'] != $payment_params['trxn_date'] )
+		) {
 
-			$payment_params = array_merge( $payment_params, $payment );
+			$payment_params = array_merge( $payment, $payment_params );
 
 			// update payment/financial_trxn to add transaction id
 			try {
