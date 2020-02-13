@@ -157,6 +157,10 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 		$form_values['currency'] = $config['currency'];
 		$form_values['receive_date'] = get_date_from_gmt( 'now' );
 
+		if ( ! empty( $config['is_email_receipt'] ) ) {
+			$form_values['receipt_date'] = $form_values['receive_date'];
+		}
+
 		if ( ! empty( $config['campaign_id'] ) ) $form_values['campaign_id'] = $config['campaign_id'];
 
 		// contribution page for reciepts
