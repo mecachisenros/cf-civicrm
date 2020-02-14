@@ -356,7 +356,9 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 			$participant_ids = array_keys( $participant_entities );
 			$main_participant_id = array_slice( $participant_ids, -1 )[0];
 
-			array_map( function( $participant_id ) use ( $main_participant_id, $current_order ) {
+			$participant_statuses = [];
+
+			array_map( function( $participant_id ) use ( $main_participant_id, $current_order, &$participant_statuses ) {
 
 				$params = [
 					'id' => $participant_id
@@ -373,7 +375,11 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 				try {
 					$participant = civicrm_api3( 'Participant', 'create', $params );
 				} catch ( CiviCRM_API3_Exception $e ) {
+					$participant = null;
+				}
 
+				if ( $participant ) {
+					$participant_statuses[$participant_id] = $participant['values'][$participant_id]['status_id'];
 				}
 
 			}, $participant_ids );
@@ -439,6 +445,33 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 
 			} catch ( CiviCRM_API3_Exception $e ) {
 				$contribution = null;
+			}
+
+			// completed contribution, ensure participant have Registered status
+			if ( $contribution && ! empty( $participant_statuses ) ) {
+
+				array_map(
+					function( $participant_id, $participant_status ) use ( $contribution ) {
+
+						if ( $participant_status == 1 ) return;
+
+						$params = [
+							'id' => $participant_id,
+							'status_id' => 'Registered',
+							'register_date' => $contribution['receive_date']
+						];
+
+						try {
+							$participant = civicrm_api3( 'Participant', 'create', $params );
+						} catch ( CiviCRM_API3_Exception $e ) {
+							$participant = null;
+						}
+
+					},
+					array_keys( $participant_statuses ),
+					$participant_statuses
+				);
+
 			}
 
 		}
