@@ -451,14 +451,14 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 			if ( $contribution && ! empty( $participant_statuses ) ) {
 
 				array_map(
-					function( $participant_id, $participant_status ) use ( $contribution ) {
+					function( $participant_id, $participant_status ) use ( $current_order ) {
 
 						if ( $participant_status == 1 ) return;
 
 						$params = [
 							'id' => $participant_id,
 							'status_id' => 'Registered',
-							'register_date' => $contribution['receive_date']
+							'register_date' => $current_order['receive_date']
 						];
 
 						try {
