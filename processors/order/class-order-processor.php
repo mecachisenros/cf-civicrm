@@ -104,7 +104,7 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 			'pre_processor' =>  [ $this, 'pre_processor' ],
 			'processor' => [ $this, 'processor' ],
 			'post_processor' => [ $this, 'post_processor'],
-			'magic_tags' => [ 'order_id', 'processor_id' ]
+			'magic_tags' => [ 'order_id', 'processor_id', 'order_amount' ]
 		];
 
 		return $processors;
@@ -223,7 +223,8 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 		if ( is_array( $create_order ) && ! $create_order['is_error'] ){
 			return [
 				'order_id' => $create_order['id'],
-				'processor_id' => $config['processor_id']
+				'processor_id' => $config['processor_id'],
+				'order_amount' => $create_order['total_amount']
 			];
 		}
 

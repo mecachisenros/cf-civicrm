@@ -42,6 +42,15 @@ class CiviCRM_Caldera_Forms_Helper {
 	public $contribution_fields = [ 'financial_type_id', 'currency', 'total_amount', 'source', 'trxn_id', 'is_pay_later' ];
 
 	/**
+	 * Contribution_recur fields.
+	 *
+	 * @since 1.0.5
+	 * @access public
+	 * @var array $contribution_recur_fields The recurring contribution fields
+	 */
+	public $contribution_recur_fields = ['frequency_unit', 'frequency_interval', 'installments', 'payment_token_id', 'end_date', 'payment_processor_id'];
+
+	/**
 	 * Holds CiviCRM state/province data which only needs a single lookup.
 	 *
 	 * @since 0.2
