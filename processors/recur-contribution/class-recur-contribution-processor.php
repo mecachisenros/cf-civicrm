@@ -65,16 +65,48 @@ class CiviCRM_Caldera_forms_Recur_Contribution_Processor {
 		global $transdata;
 		$form_values = $this->plugin->helper->map_fields_to_processor( $config, $form, $form_values );
 		$contribution = new CRM_Contribute_BAO_Contribution();
-		$contribution->id = $config['contribution_id'];
+		$contribution->id = $form_values['contribution_id'];
 		$contribution->find(TRUE);
+
+		if ( $form_values['check_transaction'] ) {
+			civicrm_api3('Contribution', 'completetransaction', [
+				'id' => $contribution->id,
+				'trxn_id' => $form_values['trxn_id']
+			]);
+		} else {
+			civicrm_api3( 'Contribution', 'create', [
+				'id' => $contribution->id,
+				'contribution_status_id' => "Failed",
+				'trxn_id' => $form_values['trxn_id']
+			]);
+			$transdata['error'] = TRUE;
+			return;
+		}
+		if ( $config['create_recur'] ) {
+			$this->createRcurringContribution( $form_values, $contribution );
+		}
+	}
+
+	/**
+	 * @param array  $config    Processor configuration
+	 * @param array  $form      Form configuration
+	 * @param string $processid The process id
+	 */
+	public function post_processor($config, $form, $processid) {
+
+	}
+
+	private function createRcurringContribution($form_values, $baseContribution) {
 		$contributionRecur = [
-			'contact_id' => $contribution->contact_id,
-			'amount' => $contribution->total_amount,
-			'financial_type_id' => $contribution->financial_type_id,
+			'contact_id' => $baseContribution->contact_id,
+			'amount' => $baseContribution->total_amount,
+			'financial_type_id' => $baseContribution->financial_type_id,
 		];
+
 		foreach ($this->plugin->helper->contribution_recur_fields as $field) {
 			$contributionRecur[$field] = $form_values[$field];
 		}
+
 		// create recurring contribution
 		$contributionRecur_result = civicrm_api3( 'ContributionRecur', 'create', $contributionRecur );
 		$contributionRecur_result = array_shift( $contributionRecur_result['values'] );
@@ -85,18 +117,7 @@ class CiviCRM_Caldera_forms_Recur_Contribution_Processor {
 		$contributionRecur_result['next_sched_contribution_date'] = $next_sched;
 		civicrm_api3( 'ContributionRecur', 'create', $contributionRecur_result );
 		// update the base contribution
-		$contribution->contribution_recur_id = $contributionRecur_result['id'];
-		//fixme transaction id?
-		$contribution->contribution_status_id = "Completed";
-		$contribution->save();
-	}
-
-	/**
-	 * @param array  $config    Processor configuration
-	 * @param array  $form      Form configuration
-	 * @param string $processid The process id
-	 */
-	public function post_processor($config, $form, $processid) {
-
+		$baseContribution->contribution_recur_id = $contributionRecur_result['id'];
+		$baseContribution->save();
 	}
 }

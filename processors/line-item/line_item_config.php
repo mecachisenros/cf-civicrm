@@ -21,6 +21,18 @@ $price_sets = caldera_forms_civicrm()->helper->cached_price_sets();
 
 ?>
 
+<div id="{{_id}}_pre_processor" class="caldera-config-group caldera-config-group-full">
+    <div class="caldera-config-field">
+        <label><input type="checkbox" name="{{_name}}[pre_processor]" value="1" {{#if pre_processor}}checked="checked"{{/if}}><?php _e( 'Create order before payment.', 'cf-civicrm' ); ?></label>
+    </div>
+    <p class="description">
+        Tick this if you are using a payment processor in this form and you need some information from the order.
+        <strong>
+            Note: FIXME the link item processor will need to be set with the same settings. Some magic tags will become not available.
+        </strong>
+    </p>
+</div>
+
 <!-- Entity Table -->
 <div id="{{_id}}_entity_table" class="caldera-config-group entity">
 	<label><?php _e( 'Entity Table', 'cf-civicrm' );?></label>

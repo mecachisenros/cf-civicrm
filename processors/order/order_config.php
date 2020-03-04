@@ -43,6 +43,18 @@ $campaigns = civicrm_api3( 'Campaign', 'get', [
 <p class="description"><?php sprintf( _e( '<strong>Note:</strong> This processor does not process payment transactions on it\'s own, it just creates a Contribution in CiviCRM with single or multiple line items. In order to process live payment transaction, a Caldera Forms <a href="https://calderaforms.com/caldera-forms-add-ons/#/payment" target="_blank">add-on</a> is needed. Currently this processor intergrates with Caldera Forms\' Stripe and Authorize.net add-ons for <strong>single/one-off</strong> payments.', 'cf-civicrm' ) ); ?></p>
 <hr style="clear: both;" />
 
+<div id="{{_id}}_pre_processor" class="caldera-config-group caldera-config-group-full">
+    <div class="caldera-config-field">
+        <label><input type="checkbox" name="{{_name}}[pre_processor]" value="1" {{#if pre_processor}}checked="checked"{{/if}}><?php _e( 'Create order before payment.', 'cf-civicrm' ); ?></label>
+    </div>
+    <p class="description">
+        Tick this if you are using a payment processor in this form and you need some information from the order.
+        <strong>
+            Note: FIXME the link item processor will need to be set with the same settings. Some magic tags will become not available.
+        </strong>
+    </p>
+</div>
+
 <!-- Email receipt -->
 <div id="{{_id}}_is_email_receipt" class="caldera-config-group caldera-config-group-full">
 	<div class="caldera-config-field">
