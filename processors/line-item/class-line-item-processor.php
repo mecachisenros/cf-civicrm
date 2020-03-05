@@ -109,6 +109,7 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 	}
 
 	public function processor( $config, $form, $processid ) {
+		// TODO I think line item can always be created in the pre_processor
 		if ($config['pre_processor']) {
 			return;
 		}

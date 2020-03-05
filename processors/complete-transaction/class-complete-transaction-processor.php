@@ -77,6 +77,7 @@ class CiviCRM_Caldera_forms_Complete_transaction_Processor {
 				'contribution_status_id' => "Failed",
 				'trxn_id' => $form_values['trxn_id']
 			]);
+			// todo add the note to the contribution
 			$transdata['note'] = "Contribution failed: " . $transdata['note'];
 			$transdata['error'] = TRUE;
 			return;
@@ -96,6 +97,14 @@ class CiviCRM_Caldera_forms_Complete_transaction_Processor {
 
 	}
 
+	/**
+	 * Create recurring contribution based on the first contribution
+	 *
+	 * @param $form_values array
+	 * @param $baseContribution array
+	 *
+	 * @throws \CiviCRM_API3_Exception
+	 */
 	private function createRcurringContribution($form_values, $baseContribution) {
 		$contributionRecur = [
 			'contact_id' => $baseContribution['contact_id'],
@@ -123,6 +132,16 @@ class CiviCRM_Caldera_forms_Complete_transaction_Processor {
 		civicrm_api3( 'Contribution', 'create', $baseContribution );
 	}
 
+	/**
+	 * The input may be id or token, so convert it into id for creating recurring contribution
+	 * Currently, it assume the input is an id, if there is no record, save it as a token
+	 *
+	 * @param $form_values array
+	 * @param $contribution array
+	 *
+	 * @return mixed|string
+	 * @throws \CiviCRM_API3_Exception
+	 */
 	private function maybeSaveCustomerToken( $form_values, $contribution ) {
 		$id = $form_values['payment_token_id'];
 		if ( empty( $id ) ) {
@@ -134,7 +153,7 @@ class CiviCRM_Caldera_forms_Complete_transaction_Processor {
 		]);
 
 		if ( ! $tokenResult['count'] ) {
-			// create new
+			// create new token
 			$tokenResult = civicrm_api3( 'PaymentToken', 'create', [
 				'contact_id' => $contribution['contact_id'],
 				'payment_processor_id' => $form_values['payment_processor_id'],
