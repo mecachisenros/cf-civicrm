@@ -30,12 +30,21 @@ foreach ( $contribution_recur_fields_result['values'] as $key => $value ) {
 }
 ?>
 
-    <h2><?php _e( 'Contribution Link', 'cf-civicrm' ); ?></h2>
-    <div id="{{_id}}contribution" class="caldera-config-group">
+    <h2><?php _e( 'Contribution', 'cf-civicrm' ); ?></h2>
+    <div id="{{_id}}contribution_id" class="caldera-config-group">
         <label><?php _e( 'Link to', 'cf-civicrm' ); ?></label>
-		<?php echo '{{{_field required="true" slug="contribution_id"}}}' ?>
         <div class="caldera-config-field">
-            <p><?php _e( 'The base contribution to be recurred.', 'cf-civicrm' ); ?></p>
+	        <?php echo '{{{_field required="true" slug="contribution_id"}}}' ?>
+        </div>
+        <p class="description"><?php _e( 'The contribution to be validated.', 'cf-civicrm' ); ?></p>
+    </div>
+    <div id="{{_id}}contribution_status" class="caldera-config-group">
+        <label><?php _e('Contribution Status', 'cf-civicrm'); ?></label>
+        <div class="caldera-config-field">
+            {{{_field required="true" slug="contribution_status"}}}
+        </div>
+        <div class="caldera-config-field">
+            <label><input type="checkbox" name="{{_name}}[create_recur]" value="1" {{#if create_recur}}checked="checked"{{/if}}><?php _e( 'Create a recurring contribution if completed.', 'cf-civicrm' ); ?></label>
         </div>
     </div>
 

@@ -64,24 +64,23 @@ class CiviCRM_Caldera_forms_Recur_Contribution_Processor {
 	public function processor($config, $form, $processid) {
 		global $transdata;
 		$form_values = $this->plugin->helper->map_fields_to_processor( $config, $form, $form_values );
-		$contribution = new CRM_Contribute_BAO_Contribution();
-		$contribution->id = $form_values['contribution_id'];
-		$contribution->find(TRUE);
+		$form_values = array_merge( $config, $form_values );
 
-		if ( $form_values['check_transaction'] ) {
-			civicrm_api3('Contribution', 'completetransaction', [
-				'id' => $contribution->id,
+		if ( $form_values['contribution_status'] ) {
+			$contribution = civicrm_api3('Contribution', 'completetransaction', [
+				'id' => $form_values['contribution_id'],
 				'trxn_id' => $form_values['trxn_id']
 			]);
 		} else {
-			civicrm_api3( 'Contribution', 'create', [
-				'id' => $contribution->id,
+			$contribution = civicrm_api3( 'Contribution', 'create', [
+				'id' => $form_values['contribution_id'],
 				'contribution_status_id' => "Failed",
 				'trxn_id' => $form_values['trxn_id']
 			]);
 			$transdata['error'] = TRUE;
 			return;
 		}
+		$contribution = array_shift( $contribution['values'] );
 		if ( $config['create_recur'] ) {
 			$this->createRcurringContribution( $form_values, $contribution );
 		}
@@ -98,9 +97,10 @@ class CiviCRM_Caldera_forms_Recur_Contribution_Processor {
 
 	private function createRcurringContribution($form_values, $baseContribution) {
 		$contributionRecur = [
-			'contact_id' => $baseContribution->contact_id,
-			'amount' => $baseContribution->total_amount,
-			'financial_type_id' => $baseContribution->financial_type_id,
+			'contact_id' => $baseContribution['contact_id'],
+			'amount' => $baseContribution['total_amount'],
+			'financial_type_id' => $baseContribution['financial_type_id'],
+			'contribution_status_id' => "In Progress",
 		];
 
 		foreach ($this->plugin->helper->contribution_recur_fields as $field) {
@@ -115,9 +115,10 @@ class CiviCRM_Caldera_forms_Recur_Contribution_Processor {
 			strtotime("+{$contributionRecur_result['frequency_interval']} " .
 			          "{$contributionRecur_result['frequency_unit']}s"));
 		$contributionRecur_result['next_sched_contribution_date'] = $next_sched;
-		civicrm_api3( 'ContributionRecur', 'create', $contributionRecur_result );
+		$contributionRecur_result = civicrm_api3( 'ContributionRecur', 'create', $contributionRecur_result );
+		Civi::log()->info( '' . __FILE__ . '#' . __LINE__ . ': ' . print_r($contributionRecur_result , TRUE ) );
 		// update the base contribution
-		$baseContribution->contribution_recur_id = $contributionRecur_result['id'];
-		$baseContribution->save();
+		$baseContribution['contribution_recur_id'] = $contributionRecur_result['id'];
+		civicrm_api3( 'Contribution', 'create', $baseContribution );
 	}
 }

@@ -135,7 +135,9 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 		) {
 			// Cause when payment processed and back to this form, the pre_processor will run again
 			// So we don't want to create duplicated contribution
-			$saved_data = Caldera_Forms::get_submission_data( $config['processor_id']);
+			$saved_data = $transdata['processed_meta'];
+			$saved_data = array_shift( $saved_data );
+			$saved_data = $saved_data[ $config['processor_id'] ];
 			$form_values['id'] = array_shift($saved_data['order_id']);
 		}
 
@@ -197,7 +199,14 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 		$form_values['line_items'] = $line_items;
 
 		try {
-			$create_order = civicrm_api3( 'Order', 'create', $form_values );
+			if ( $form_values['id'] ) {
+				$create_order = civicrm_api3( 'Order', 'get', [
+					'id' => $form_values['id'],
+				] );
+
+			} else {
+				$create_order = civicrm_api3( 'Order', 'create', $form_values );
+			}
 
 			$this->order = ( $create_order['count'] && ! $create_order['is_error'] ) ? $create_order['values'][$create_order['id']] : false;
 
