@@ -73,10 +73,7 @@ foreach ( $contribution_recur_fields as $key => $value ) { ?>
 				?>
                 <select class="block-input field-config" name="{{_name}}[<?php echo $key ?>]" required>
 					<?php foreach ( $pp_result['values'] as $key => $value ) { ?>
-                        <option value="<?php echo esc_attr( $value['id'] ); ?>" {{#is payment_processor_id
-                                value="<?php echo $value['id']; ?>" }}selected="selected"
-                                {{/is}}><?php echo esc_html( $value['name'] . ( $value['is_test'] ? ' (TEST)'
-								: '' ) ); ?></option>
+                        <option value="<?php echo esc_attr( $value['id'] ); ?>" {{#is payment_processor_id value=<?php echo $value['id']; ?>}}selected="selected"{{/is}}><?php echo esc_html( $value['name'] . ( $value['is_test'] ? ' (TEST)' : '' ) ); ?></option>
 					<?php } ?>
                 </select>
 				<?php
