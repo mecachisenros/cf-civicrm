@@ -1,13 +1,13 @@
 <?php
 
-class CiviCRM_Caldera_forms_Recur_Contribution_Processor {
+class CiviCRM_Caldera_forms_Complete_transaction_Processor {
 
 	/**
 	 * @var \CiviCRM_Caldera_Forms
 	 */
 	public $plugin;
 
-	public $key_name = 'civicrm_recur_contribution';
+	public $key_name = 'civicrm_complete_transaction';
 
 	/**
 	 * CiviCRM_Caldera_forms_Recur_Contribution_Processor constructor.
@@ -31,10 +31,10 @@ class CiviCRM_Caldera_forms_Recur_Contribution_Processor {
 	public function register_processor( $processors ) {
 
 		$processors[ $this->key_name ] = [
-			'name'           => __( 'CiviCRM Recurring Contribution', 'cf-civicrm' ),
-			'description'    => __( 'Create recurring contribution.', 'cf-civicrm' ),
+			'name'           => __( 'CiviCRM Complete Transaction', 'cf-civicrm' ),
+			'description'    => __( 'Complete transaction with Caldera form payment processor.', 'cf-civicrm' ),
 			'author'         => 'Agileware',
-			'template'       => CF_CIVICRM_INTEGRATION_PATH . 'processors/recur-contribution/recur_contribution_config.php',
+			'template'       => CF_CIVICRM_INTEGRATION_PATH . 'processors/complete-transaction/complete_transaction_config.php',
 			'pre_processor'  => [ $this, 'pre_processor' ],
 			'processor'      => [ $this, 'processor' ],
 			'post_processor' => [ $this, 'post_processor' ],
@@ -77,6 +77,7 @@ class CiviCRM_Caldera_forms_Recur_Contribution_Processor {
 				'contribution_status_id' => "Failed",
 				'trxn_id' => $form_values['trxn_id']
 			]);
+			$transdata['note'] = "Contribution failed: " . $transdata['note'];
 			$transdata['error'] = TRUE;
 			return;
 		}
@@ -106,6 +107,7 @@ class CiviCRM_Caldera_forms_Recur_Contribution_Processor {
 		foreach ($this->plugin->helper->contribution_recur_fields as $field) {
 			$contributionRecur[$field] = $form_values[$field];
 		}
+		$contributionRecur['payment_token_id'] = $this->maybeSaveCustomerToken( $form_values, $baseContribution );
 
 		// create recurring contribution
 		$contributionRecur_result = civicrm_api3( 'ContributionRecur', 'create', $contributionRecur );
@@ -116,9 +118,31 @@ class CiviCRM_Caldera_forms_Recur_Contribution_Processor {
 			          "{$contributionRecur_result['frequency_unit']}s"));
 		$contributionRecur_result['next_sched_contribution_date'] = $next_sched;
 		$contributionRecur_result = civicrm_api3( 'ContributionRecur', 'create', $contributionRecur_result );
-		Civi::log()->info( '' . __FILE__ . '#' . __LINE__ . ': ' . print_r($contributionRecur_result , TRUE ) );
 		// update the base contribution
 		$baseContribution['contribution_recur_id'] = $contributionRecur_result['id'];
 		civicrm_api3( 'Contribution', 'create', $baseContribution );
+	}
+
+	private function maybeSaveCustomerToken( $form_values, $contribution ) {
+		$id = $form_values['payment_token_id'];
+		if ( empty( $id ) ) {
+			return '';
+		}
+		// check if the id exist
+		$tokenResult = civicrm_api3('PaymentToken', 'get', [
+			'id' => $id
+		]);
+
+		if ( ! $tokenResult['count'] ) {
+			// create new
+			$tokenResult = civicrm_api3( 'PaymentToken', 'create', [
+				'contact_id' => $contribution['contact_id'],
+				'payment_processor_id' => $form_values['payment_processor_id'],
+				'token' => $id
+			] );
+			$id = $tokenResult['id'];
+		}
+
+		return $id;
 	}
 }

@@ -38,6 +38,12 @@ foreach ( $contribution_recur_fields_result['values'] as $key => $value ) {
         </div>
         <p class="description"><?php _e( 'The contribution to be validated.', 'cf-civicrm' ); ?></p>
     </div>
+    <div id="{{_id}}transaction_id" class="caldera-config-group">
+        <label><?php _e( 'Transaction ID', 'cf-civicrm' ); ?></label>
+        <div class="caldera-config-field">
+			<?php echo '{{{_field slug="trxn_id"}}}' ?>
+        </div>
+    </div>
     <div id="{{_id}}contribution_status" class="caldera-config-group">
         <label><?php _e('Contribution Status', 'cf-civicrm'); ?></label>
         <div class="caldera-config-field">
