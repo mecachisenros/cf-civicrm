@@ -1017,21 +1017,21 @@ class CiviCRM_Caldera_Forms_Helper {
 		$contact = false;
 
 		// checksum links first
-		if ( isset( $_GET['cid'] ) && isset( $_GET['cs'] ) ) {
+		if ( isset( $_GET['cid'] ) ) {
 
 			$cid = $_GET['cid'];
-			$cs = $_GET['cs'];
+			$cs = isset( $_GET['cs'] ) ? $_GET['cs'] : '';
 
-			// Check for valid checksum
-			$valid_user = CRM_Contact_BAO_Contact_Utils::validChecksum( $cid, $cs );
+			// Check for contact permissions or valid checksum
+			$valid_user = CRM_Contact_BAO_Contact_Permission::allow($cid, CRM_Core_Permission::EDIT)
+			              || ($cs && CRM_Contact_BAO_Contact_Utils::validChecksum( $cid, $cs ));
 
 			if ( $valid_user )
 				$contact = $this->plugin->helper->get_civi_contact( $cid );
 
 		}
-
-		// logged in overrides checksum
-		if ( is_user_logged_in() ) {
+		// Try logged in user if no cid supplied
+		elseif ( is_user_logged_in() ) {
 			$contact = $this->get_current_contact();
 			$this->current_contact_data = $contact;
 		}
