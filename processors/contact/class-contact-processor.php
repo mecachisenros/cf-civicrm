@@ -161,7 +161,7 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 
 			if ( is_array( $first_contact_processor ) && $first_contact_processor['ID'] == $config['processor_id'] && isset( $config['auto_pop'] ) ) {
 				// logged in contact
-				$contact = $this->plugin->helper->get_current_contact();
+				$contact = $this->plugin->helper->current_contact_data_get();
 				// if not logged in, do dedupe
 				$contact_id = $contact ? $contact['contact_id'] : $this->plugin->helper->civi_contact_dedupe(
 					$form_values['civicrm_contact'], // contact data
