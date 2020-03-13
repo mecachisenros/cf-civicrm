@@ -43,6 +43,13 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 	 */
 	private $entities_to_prerender = [ 'process_address', 'process_phone', 'process_email', 'process_website', 'process_im' ];
 
+	/** Cache of relationships by Contact and Type
+	 *
+	 * @access private
+	 * @var array $relationships
+	 */
+	private static $relationships = [];
+
 	/**
 	 * Fields to ignore while prepopulating
 	 *
@@ -791,22 +798,28 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 	private function getRelatedContactOfLoggedInUser($relationshipTypeId) {
     $contact = $this->plugin->helper->current_contact_data_get();
     if ( isset( $contact ) && is_array( $contact ) ) {
-      $contactId = $contact['contact_id'];
+	    $contactId = $contact['contact_id'];
+	    $relationships =&  static::$relationships[$relationshipTypeId . ':' . $contactId];
 
-      $relationship = civicrm_api3('Relationship', 'get', [
-        'sequential'           => 1,
-        'contact_id_a'         => $contactId,
-        'contact_id_b'         => $contactId,
-        'relationship_type_id' => $relationshipTypeId,
-        'options'              => ['or' => [["contact_id_a", "contact_id_b"]]],
-      ]);
+	    if( !isset( $relationships ) ) {
+		    $relationships = civicrm_api3( 'Relationship', 'get', [
+			    'sequential'           => 1,
+			    'contact_id_a'         => $contactId,
+			    'contact_id_b'         => $contactId,
+			    'relationship_type_id' => $relationshipTypeId,
+			    'options'              => [
+				    'or'    => [[ "contact_id_a", "contact_id_b"]],
+				    'limit' => 0,
+			    ],
+		    ] )['values'];
+	    }
 
-      if (count($relationship) > 0) {
-        $relationship = $relationship['values'][0];
-        $otherContactId = ($relationship['contact_id_a'] == $contactId) ? $relationship['contact_id_b'] : $relationship['contact_id_a'];
-        $contact = $this->plugin->helper->get_civi_contact( $otherContactId );
-        return $contact;
-      }
+	    if (count($relationships) > 0) {
+		    $relationship = array_shift($relationships);
+		    $otherContactId = ($relationship['contact_id_a'] == $contactId) ? $relationship['contact_id_b'] : $relationship['contact_id_a'];
+		    $contact = $this->plugin->helper->get_civi_contact( $otherContactId );
+		    return $contact;
+	    }
     }
     return NULL;
   }
