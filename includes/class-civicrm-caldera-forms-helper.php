@@ -1042,8 +1042,9 @@ class CiviCRM_Caldera_Forms_Helper {
 		// Try logged in user if no cid supplied
 		elseif ( is_user_logged_in() ) {
 			$contact = $this->get_current_contact();
-			$this->current_contact_data = $contact;
 		}
+
+		$this->current_contact_data = $contact;
 
 		return $contact;
 
