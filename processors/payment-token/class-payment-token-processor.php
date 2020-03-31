@@ -8,6 +8,10 @@ class CiviCRM_Caldera_forms_Payment_Token_Processor {
 	public $plugin;
 
 	public $key_name = 'civicrm_payment_token';
+	/**
+	 * @var string
+	 */
+	private $contact_link;
 
 	/**
 	 * CiviCRM_Caldera_forms_Recur_Contribution_Processor constructor.
@@ -20,7 +24,7 @@ class CiviCRM_Caldera_forms_Payment_Token_Processor {
 		add_filter( 'caldera_forms_get_form_processors', [ $this, 'register_processor' ] );
 		// filter form before rendering
 		add_action( 'caldera_forms_autopopulate_types', [ $this, 'auto_fields_types' ] );
-		add_filter( 'caldera_forms_render_get_field', [ $this, 'auto_fields_values' ] );
+		add_filter( 'caldera_forms_render_get_field', [ $this, 'auto_fields_values' ], 10, 2 );
 	}
 
 	/**
@@ -114,11 +118,53 @@ class CiviCRM_Caldera_forms_Payment_Token_Processor {
 	}
 
 	/**
+	 * build the payment token dropdown
 	 * @see caldera_forms_render_get_field
 	 */
 	public function auto_fields_values( $field, $form ) {
 		// fixme implement
-		return $form;
+		if ( ! $field['config']['auto'] && $field['config']['auto_type'] !== 'payment_token_id' ) {
+			return $field;
+		}
+		$processor = NULL;
+		foreach ( $form['processors'] as $processor => $pr_id ) {
+			if ( $pr_id['type'] === $this->key_name ) {
+				$processor = $pr_id;
+				break;
+			}
+		}
+		if ( ! $processor ) {
+			return $field;
+		}
+		// the linked contact id
+		$transient          = $this->plugin->transient->get();
+		$this->contact_link = 'cid_' . $processor['config']['contact_link'];
+		$contactID          = $transient->contacts->{$this->contact_link} ?? NULL;
+		if ( ! $contactID ) {
+			return $field;
+		}
+		try {
+			$result = civicrm_api3( 'PaymentToken',
+				'get',
+				[
+					'contact_id' => $contactID,
+				]
+			);
+		} catch ( CiviCRM_API3_Exception $e ) {
+			return $field;
+		}
+		if ( $result['is_error'] ) {
+			return $field;
+		}
+		// adding tokens to option
+		foreach ( $result['values'] as $value ) {
+			$field['config']['option'][] = [
+				'value' => $value['id'],
+				'label' => $value['masked_account_number'],
+			];
+		}
+
+		return $field;
 	}
 
 	/**
