@@ -63,18 +63,8 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 
 	}
 
-	/**
-	 * Form processor callback.
-	 *
-	 * @since 0.4.4
-	 *
-	 * @param array $config Processor configuration
-	 * @param array $form Form configuration
-	 */
 	public function pre_processor( $config, $form, $processid ) {
-		if (!$config['pre_processor']) {
-			return;
-		}
+
 		$transient = $this->plugin->transient->get();
 
 		// price field value params aka 'line_item'
@@ -108,40 +98,15 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 		Caldera_Forms::set_submission_meta( 'processor_id', $config['processor_id'], $form, $config['processor_id'] );
 	}
 
+	/**
+	 * Form processor callback.
+	 *
+	 * @since 0.4.4
+	 *
+	 * @param array $config Processor configuration
+	 * @param array $form Form configuration
+	 */
 	public function processor( $config, $form, $processid ) {
-		// TODO I think line item can always be created in the pre_processor
-		if ($config['pre_processor']) {
-			return;
-		}
-		$transient = $this->plugin->transient->get();
-
-		// price field value params aka 'line_item'
-		$price_field_value = isset( $config['is_fixed_price_field'] ) ?
-			$this->plugin->helper->get_price_field_value( $config['fixed_price_field_value'] ) :
-			$this->plugin->helper->get_price_field_value( Caldera_Forms::do_magic_tags( $config['price_field_value'] ) );
-
-
-		if ( ! empty( $config['entity_table'] ) && $price_field_value ) {
-			if ( $config['entity_table'] == 'civicrm_membership' ) {
-				$price_field_value = $this->build_price_field_values_array( $price_field_value, $config['entity_table'] );
-				$this->process_membership( $config, $form, $transient, $price_field_value );
-			}
-
-			if ( $config['entity_table'] == 'civicrm_participant' ) {
-				$price_field_value = $this->build_price_field_values_array( $price_field_value, $config['entity_table'] );
-				$this->process_participant( $config, $form, $transient, $price_field_value );
-			}
-
-			if ( $config['entity_table'] == 'civicrm_contribution' ) {
-				$price_field_value = $this->build_price_field_values_array( $price_field_value, $config['entity_table'] );
-				$this->process_contribution( $config, $form, $transient, $price_field_value );
-			}
-		} elseif ( $price_field_value ) {
-			$price_field_value = $this->build_price_field_values_array( $price_field_value );
-			// get first one?
-			$entity = str_replace( 'civicrm_', '', $price_field_value[0]['entity_table'] );
-			$this->{'process_' . $entity}( $config, $form, $transient, $price_field_value );
-		}
 
 		return ['processor_id' => $config['processor_id']];
 	}

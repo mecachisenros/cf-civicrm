@@ -104,7 +104,7 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 			'pre_processor' =>  [ $this, 'pre_processor' ],
 			'processor' => [ $this, 'processor' ],
 			'post_processor' => [ $this, 'post_processor'],
-			'magic_tags' => [ 'order_id', 'processor_id', 'order_amount' ]
+			'magic_tags' => [ 'order_id', 'processor_id', 'order_amount', 'excl_amount', 'tax_amount' ]
 		];
 
 		return $processors;
@@ -121,9 +121,7 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 	 * @param string $processid The process id
 	 */
 	public function pre_processor( $config, $form, $processid ) {
-		if (!$config['pre_processor']) {
-			return;
-		}
+
 		global $transdata;
 
 		$transient = $this->plugin->transient->get();
@@ -143,7 +141,7 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 		}
 
 		$form_values['financial_type_id'] = $config['financial_type_id'];
-		$form_values['contribution_status_id'] = $config['contribution_status_id'];
+		$form_values['contribution_status_id'] = 'Pending'; // Always Create Pending.
 		$form_values['payment_instrument_id'] = ! isset( $config['is_mapped_field'] ) ?
 			$config['payment_instrument_id'] :
 			$form_values['mapped_payment_instrument_id'];
@@ -230,6 +228,8 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 			Caldera_Forms::set_submission_meta( 'order_id', $create_order['id'], $form, $config['processor_id'] );
 			Caldera_Forms::set_submission_meta( 'processor_id', $config['processor_id'], $form, $config['processor_id'] );
 			Caldera_Forms::set_submission_meta( 'order_amount', $this->order['total_amount'], $form, $config['processor_id'] );
+			Caldera_Forms::set_submission_meta( 'excl_amount', ($this->order['total_amount'] - $this->order['tax_amount']), $form, $config['processor_id'] );
+			Caldera_Forms::set_submission_meta( 'tax_amount', $this->order['tax_amount'], $form, $config['processor_id'] );
 		}
 	}
 
@@ -243,101 +243,15 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 	 * @param string $processid The process id
 	 */
 	public function processor( $config, $form, $processid ) {
-		if ($config['pre_processor']) {
-			return;
-		}
-		global $transdata;
 
-		$transient = $this->plugin->transient->get();
-		$this->contact_link = 'cid_' . $config['contact_link'];
-
-		// Get form values
-		$form_values = $this->plugin->helper->map_fields_to_processor( $config, $form, $form_values );
-
-		$form_values['financial_type_id'] = $config['financial_type_id'];
-		$form_values['contribution_status_id'] = $config['contribution_status_id'];
-		$form_values['payment_instrument_id'] = ! isset( $config['is_mapped_field'] ) ?
-			$config['payment_instrument_id'] :
-			$form_values['mapped_payment_instrument_id'];
-
-		$form_values['currency'] = $config['currency'];
-
-		if ( ! empty( $config['campaign_id'] ) ) $form_values['campaign_id'] = $config['campaign_id'];
-
-		// contribution page for reciepts
-		if ( isset( $config['contribution_page_id'] ) )
-			$form_values['contribution_page_id'] = $config['contribution_page_id'];
-
-		// is pay later
-		if ( isset( $config['is_pay_later'] ) && in_array( $form_values['payment_instrument_id'], [$config['is_pay_later']] ) ) {
-			$this->is_pay_later = true;
-			$form_values['contribution_status_id'] = 'Pending';
-			$form_values['is_pay_later'] = 1; // has to be set, if not we get a (Incomplete transaction)
-			unset( $form_values['trxn_id'] );
-		}
-
-		// source
-		if( ! isset( $form_values['source'] ) )
-			$form_values['source'] = $form['name'];
-
-		$form_values['contact_id'] = $transient->contacts->{$this->contact_link};
-
-		// line items
-		$line_items = $this->build_line_items_params( $transient, $config, $form );
-
-		if ( $this->has_participant_item( $line_items ) )
-			$line_items = $this->maybe_format_line_items_to_entity( $line_items, $config, $form );
-
-		// add tax amount
-		if ( $this->total_tax_amount )
-			$form_values['tax_amount'] = $this->total_tax_amount;
-
-		// stripe metadata
-		if ( $this->charge_metadata ) $form_values = array_merge( $form_values, $this->charge_metadata );
-
-		// FIXME
-		// move this into its own finction
-		//
-		// authorize metadata
-		if( isset( $transdata[$transdata['transient']]['transaction_data']->transaction_id ) ) {
-			$metadata = [
-				'trxn_id' => $transdata[$transdata['transient']]['transaction_data']->transaction_id,
-				'card_type_id' => $this->get_option_by_label( $transdata[$transdata['transient']]['transaction_data']->card_type ),
-				'credit_card_type' => $transdata[$transdata['transient']]['transaction_data']->card_type,
-				'pan_truncation' => str_replace( 'X', '', $transdata[$transdata['transient']]['transaction_data']->account_number ),
-			];
-			$form_values = array_merge( $form_values, $metadata );
-		}
-
-		$form_values['line_items'] = $line_items;
-
-		try {
-			$create_order = civicrm_api3( 'Order', 'create', $form_values );
-
-			$this->order = ( $create_order['count'] && ! $create_order['is_error'] ) ? $create_order['values'][$create_order['id']] : false;
-
-			// create product
-			if ( $this->order ) {
-				$this->create_premium( $this->order, $form_values, $config );
-
-				// save orde data in transient
-				$transient->orders->{$config['processor_id']}->params = $this->order;
-				$this->plugin->transient->save( $transient->ID, $transient );
-			}
-
-		} catch ( CiviCRM_API3_Exception $e ) {
-			$transdata['error'] = true;
-			$transdata['note'] = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
-		}
-
-		// return order_id magic tag
-		if ( is_array( $create_order ) && ! $create_order['is_error'] ){
-			return [
-				'order_id' => $create_order['id'],
-				'processor_id' => $config['processor_id'],
-				'order_amount' => $create_order['total_amount']
-			];
-		}
+        $payment_params = [
+            'contribution_id' => $this->order['id'],
+            'total_amount' => $this->order['total_amount'],
+            'payment_instrument_id' => $config['payment_instrument_id'],
+            'trxn_id' => $config['trxn_id'],
+        ];
+        
+        civicrm_api3('Payment', 'create', $payment_params);
 
 	}
 
@@ -423,6 +337,8 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 	 */
 	public function build_line_items_params( $transient, $config, $form ) {
 
+        d($config['line_items']);
+        
 		if ( empty( $config['line_items'] ) ) return [];
 
 		return array_reduce( $config['line_items'], function( $line_items, $item_processor_tag ) use ( $transient, $form ) {
