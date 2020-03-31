@@ -213,6 +213,8 @@ class CiviCRM_Caldera_Forms_Membership_Processor {
 		} elseif ( isset( $return['type'] ) && isset( $return['note'] ) ) {
 			return $return;
 		}
+
+        Caldera_Forms::set_submission_meta( 'processor_id', $config['processor_id'], $form, $config['processor_id'] );
 	}
 
 	/**
