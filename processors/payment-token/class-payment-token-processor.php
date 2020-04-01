@@ -43,6 +43,7 @@ class CiviCRM_Caldera_forms_Payment_Token_Processor {
 			'author'        => 'Agileware',
 			'template'      => CF_CIVICRM_INTEGRATION_PATH . 'processors/payment-token/payment_token_config.php',
 			'pre_processor' => [ $this, 'pre_processor' ],
+			'processor'     => [ $this, 'processor' ],
 			'magic_tags'    => [
 				'token_id',
 				'token',
@@ -70,15 +71,53 @@ class CiviCRM_Caldera_forms_Payment_Token_Processor {
 	 *
 	 */
 	public function pre_processor( $config, $form, $processid ) {
+		// Get form values
+		$form_values = $this->plugin->helper->map_fields_to_processor( $config, $form, $form_values );
+		/** We will try to get the meta values in the pre_processor.
+		 * This is only possible when the token id is provided.
+		 */
+		if ( ! $form_values['id'] ) {
+			return NULL;
+		}
+
+		try {
+			$token = civicrm_api3( 'PaymentToken',
+				'getsingle',
+				[
+					'id' => $form_values['id'],
+				] );
+		} catch ( CiviCRM_API3_Exception $e ) {
+			return $this->error( 'The given token ID is wrong.' );
+		}
+		Caldera_Forms::set_submission_meta( 'token_id', $token['id'], $form, $config['processor_id'] );
+		Caldera_Forms::set_submission_meta( 'token', $token['token'], $form, $config['processor_id'] );
+	}
+
+	public function processor( $config, $form, $processid ) {
+		$form_values = $this->plugin->helper->map_fields_to_processor( $config, $form, $form_values );
+		// delete token action
+		if ( $config['is_delete'] ) {
+			// must have the id set
+			if ( ! $form_values['id'] ) {
+				return NULL;
+			}
+			try{
+				$result = civicrm_api3( 'PaymentToken',
+					'delete',
+					[
+						'id' => $form_values['id'],
+					] );
+			} catch ( CiviCRM_API3_Exception $e ) {
+			}
+
+			return NULL;
+		}
 
 		// cfc transient object
 		$transient = $this->plugin->transient->get();
 		// contact id
-		$this->contact_link = 'cid_' . $config['contact_link'];
-		$contactID          = $transient->contacts->{$this->contact_link} ?? NULL;
-
-		// Get form values
-		$form_values               = $this->plugin->helper->map_fields_to_processor( $config, $form, $form_values );
+		$this->contact_link        = 'cid_' . $config['contact_link'];
+		$contactID                 = $transient->contacts->{$this->contact_link} ?? NULL;
 		$form_values['contact_id'] = $contactID;
 
 		if ( empty( $form_values['id'] ) ) {
@@ -87,11 +126,11 @@ class CiviCRM_Caldera_forms_Payment_Token_Processor {
 			     || empty( $form_values['token'] )
 			     || empty( $form_values['contact_id'] )
 			) {
-				return $this->error( 'Required fields missing.' );
+				return NULL;
 			}
 			// dedupe based on the required fields
 			try {
-				$result = civicrm_api( 'PaymentToken',
+				$result = civicrm_api3( 'PaymentToken',
 					'get',
 					[
 						'payment_processor_id' => $form_values['payment_processor_id'],
@@ -110,15 +149,19 @@ class CiviCRM_Caldera_forms_Payment_Token_Processor {
 			$result = civicrm_api3( 'PaymentToken', 'create', $form_values );
 			// Pass magic tags value
 			$token = array_shift( $result['values'] );
-			Caldera_Forms::set_submission_meta( 'token_id', $token['id'], $form, $config['processor_id'] );
-			Caldera_Forms::set_submission_meta( 'token', $token['token'], $form, $config['processor_id'] );
+
+			return [
+				'token_id' => $token['id'],
+				'token'    => $token['token'],
+			];
 		} catch ( CiviCRM_API3_Exception $e ) {
-			return $this->error( 'Failed to store the token.' );
+
 		}
 	}
 
 	/**
 	 * build the payment token dropdown
+	 *
 	 * @see caldera_forms_render_get_field
 	 */
 	public function auto_fields_values( $field, $form ) {
