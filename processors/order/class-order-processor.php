@@ -244,14 +244,16 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 	 */
 	public function processor( $config, $form, $processid ) {
 
-        $payment_params = [
-            'contribution_id' => $this->order['id'],
-            'total_amount' => $this->order['total_amount'],
-            'payment_instrument_id' => $config['payment_instrument_id'],
-            'trxn_id' => $config['trxn_id'],
-        ];
-        
-        civicrm_api3('Payment', 'create', $payment_params);
+        if ( !$this->is_pay_later ) {
+            $payment_params = [
+                'contribution_id' => $this->order['id'],
+                'total_amount' => $this->order['total_amount'],
+                'payment_instrument_id' => $config['payment_instrument_id'],
+                'trxn_id' => $config['trxn_id'],
+            ];
+
+            civicrm_api3('Payment', 'create', $payment_params);
+        }
 
 	}
 
@@ -337,8 +339,6 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 	 */
 	public function build_line_items_params( $transient, $config, $form ) {
 
-        d($config['line_items']);
-        
 		if ( empty( $config['line_items'] ) ) return [];
 
 		return array_reduce( $config['line_items'], function( $line_items, $item_processor_tag ) use ( $transient, $form ) {
@@ -355,13 +355,14 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 				$this->total_tax_amount += $line_item['line_item'][0]['tax_amount'];
 
 			// set membership as pending
-			if ( isset( $line_item['params']['membership_type_id'] ) && $this->is_pay_later ) {
+			if ( isset( $line_item['params']['membership_type_id'] ) ) {
+				$line_item['params']['is_pay_later'] = !! $this->is_pay_later;
+
 				if ( ! $line_item['params']['id'] ) {
 					$line_item['params']['status_id'] = 'Pending';
 				} else {
 					$line_item['params']['num_terms'] = 0;
-				}
-				$line_item['params']['is_pay_later'] = 1;
+                }
 				$line_item['params']['skipStatusCal'] = 1;
 			}
 
