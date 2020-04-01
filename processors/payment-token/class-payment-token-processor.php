@@ -73,7 +73,9 @@ class CiviCRM_Caldera_forms_Payment_Token_Processor {
 	public function pre_processor( $config, $form, $processid ) {
 		// Get form values
 		$form_values = $this->plugin->helper->map_fields_to_processor( $config, $form, $form_values );
-		/** We will try to get the meta values in the pre_processor.
+		$form_values['id'] = $form_values['payment_token_id'];
+		/**
+		 * We will try to get the meta values in the pre_processor.
 		 * This is only possible when the token id is provided.
 		 */
 		if ( ! $form_values['id'] ) {
@@ -95,6 +97,7 @@ class CiviCRM_Caldera_forms_Payment_Token_Processor {
 
 	public function processor( $config, $form, $processid ) {
 		$form_values = $this->plugin->helper->map_fields_to_processor( $config, $form, $form_values );
+		$form_values['id'] = $form_values['payment_token_id'];
 		// delete token action
 		if ( $config['is_delete'] ) {
 			// must have the id set
@@ -113,6 +116,7 @@ class CiviCRM_Caldera_forms_Payment_Token_Processor {
 			return NULL;
 		}
 
+		// create/update action
 		// cfc transient object
 		$transient = $this->plugin->transient->get();
 		// contact id
