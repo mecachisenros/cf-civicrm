@@ -148,7 +148,7 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 					$form,
 					$processid
 				);
-				if ( isset( $return ) && is_array( $return ) ) return $return;
+				if ( isset( $return ) && is_array( $return ) ) break;
 			}
 		} else {
 			$return = $this->process_participant(
@@ -158,9 +158,13 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 				$form,
 				$processid
 			);
-			if ( isset( $return ) && is_array( $return ) ) return $return;
 		}
 
+        if ( !isset( $return['error'] ) ) {
+            Caldera_Forms::set_submission_meta( 'processor_id', $config['processor_id'], $form, $config['processor_id'] );
+        }
+        
+        if ( isset( $return ) && is_array( $return ) ) return $return;               
 	}
 
 	/**
