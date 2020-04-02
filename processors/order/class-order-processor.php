@@ -131,13 +131,15 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 		$form_values = $this->plugin->helper->map_fields_to_processor( $config, $form, $form_values );
 		// Cause when payment processed and back to this form, the pre_processor will run again
 		// So we don't want to create duplicated contribution
-		if ( ! empty( $_GET['cf_tp'] )
+		if ( ! empty( $transdata['processed_meta'] )
 		) {
 			// may need a better way to get the processed meta
 			$saved_data = $transdata['processed_meta'];
 			$saved_data = array_shift( $saved_data );
 			$saved_data = $saved_data[ $config['processor_id'] ];
-			$form_values['id'] = array_shift($saved_data['order_id']);
+			if(!empty($saved_data['order_id'])) {
+				$form_values['id'] = array_shift($saved_data['order_id']);
+			}
 		}
 
 		$form_values['financial_type_id'] = $config['financial_type_id'];
