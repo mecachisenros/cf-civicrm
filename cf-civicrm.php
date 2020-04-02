@@ -2,11 +2,11 @@
 /**
  * Plugin Name: Caldera Forms CiviCRM - Agileware
  * Description: CiviCRM integration for Caldera Forms.
- * Version: 1.0.5-agileware
+ * Version: 1.0.5-agileware-3
  * Author: Agileware
  * Author URI: https://github.com/agileware
  * Plugin URI: https://github.com/agileware/caldera-forms-civicrm
- * Text Domain: caldera-forms-civicrm
+ * Text Domain: cf-civicrm
  * Domain Path: /languages
  * GitHub Plugin URI: https://github.com/agileware/caldera-forms-civicrm
  */
@@ -16,7 +16,7 @@
  *
  * @since 0.1
  */
-define( 'CF_CIVICRM_INTEGRATION_VER', '1.0.5-agileware' );
+define( 'CF_CIVICRM_INTEGRATION_VER', '1.0.5-agileware-3' );
 define( 'CF_CIVICRM_INTEGRATION_URL', plugin_dir_url( __FILE__ ) );
 define( 'CF_CIVICRM_INTEGRATION_PATH', plugin_dir_path( __FILE__ ) );
 
@@ -147,6 +147,15 @@ class CiviCRM_Caldera_Forms {
 	public $cividiscount;
 
 	/**
+	 * Define the maximum number of CiviCRM Contacts
+	 *
+	 * @since 1.0
+	 * @access public
+	 * @var int $maxcontacts
+	 */
+	public $maxcontacts;
+
+	/**
 	 * Returns a single instance of this object when called.
 	 *
 	 * @since 0.1.1
@@ -275,6 +284,8 @@ class CiviCRM_Caldera_Forms {
 		if ( $this->processors->enabled_extensions && in_array( 'org.civicrm.module.cividiscount', $this->processors->enabled_extensions ) )
 			$this->cividiscount = new CiviCRM_Caldera_Forms_CiviDiscount( $this );
 
+		// @TODO Expose this as a Caldera Forms CiviCRM Setting
+		$this->maxcontacts = 30;
 	}
 
 	/**

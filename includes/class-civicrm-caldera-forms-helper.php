@@ -107,23 +107,14 @@ class CiviCRM_Caldera_Forms_Helper {
 	public function contact_link_field() {
 
 		ob_start();
-		?>
-				<select class="block-input field-config" name="{{_name}}[contact_link]">
-					<option value="1" {{#is contact_link value=1}}selected="selected"{{/is}}><?php _e( 'Contact 1', 'cf-civicrm' ); ?></option>
-					<option value="2" {{#is contact_link value=2}}selected="selected"{{/is}}><?php _e( 'Contact 2', 'cf-civicrm' ); ?></option>
-					<option value="3" {{#is contact_link value=3}}selected="selected"{{/is}}><?php _e( 'Contact 3', 'cf-civicrm' ); ?></option>
-					<option value="4" {{#is contact_link value=4}}selected="selected"{{/is}}><?php _e( 'Contact 4', 'cf-civicrm' ); ?></option>
-					<option value="5" {{#is contact_link value=5}}selected="selected"{{/is}}><?php _e( 'Contact 5', 'cf-civicrm' ); ?></option>
-					<option value="6" {{#is contact_link value=6}}selected="selected"{{/is}}><?php _e( 'Contact 6', 'cf-civicrm' ); ?></option>
-					<option value="7" {{#is contact_link value=7}}selected="selected"{{/is}}><?php _e( 'Contact 7', 'cf-civicrm' ); ?></option>
-					<option value="8" {{#is contact_link value=8}}selected="selected"{{/is}}><?php _e( 'Contact 8', 'cf-civicrm' ); ?></option>
-					<option value="9" {{#is contact_link value=9}}selected="selected"{{/is}}><?php _e( 'Contact 9', 'cf-civicrm' ); ?></option>
-					<option value="10" {{#is contact_link value=10}}selected="selected"{{/is}}><?php _e( 'Contact 10', 'cf-civicrm' ); ?></option>
-				</select>
-		<?php
+		$maxcontacts = caldera_forms_civicrm()->maxcontacts;
+		echo '<select class="block-input field-config" name="{{_name}}[contact_link]">';
+		for ($count = 1; $count <= $maxcontacts; $count++) {
+            echo '<option value="' . $count . '" {{#is contact_link value=' . $count . '}}selected="selected"{{/is}}>' . sprintf(__('Contact %d', 'cf-civicrm'), $count) . '</option>';
+		}
+		echo '</select>';
 		$contact_link = ob_get_contents();
 		return $contact_link;
-
 	}
 
 	/**
@@ -1035,21 +1026,21 @@ class CiviCRM_Caldera_Forms_Helper {
 		$contact = false;
 
 		// checksum links first
-		if ( isset( $_GET['cid'] ) && isset( $_GET['cs'] ) ) {
+		if ( isset( $_GET['cid'] ) ) {
 
 			$cid = $_GET['cid'];
-			$cs = $_GET['cs'];
+			$cs = isset( $_GET['cs'] ) ? $_GET['cs'] : '';
 
-			// Check for valid checksum
-			$valid_user = CRM_Contact_BAO_Contact_Utils::validChecksum( $cid, $cs );
+			// Check for contact permissions or valid checksum
+			$valid_user = CRM_Contact_BAO_Contact_Permission::allow($cid, CRM_Core_Permission::EDIT)
+			              || ($cs && CRM_Contact_BAO_Contact_Utils::validChecksum( $cid, $cs ));
 
 			if ( $valid_user )
 				$contact = $this->plugin->helper->get_civi_contact( $cid );
 
 		}
-
-		// logged in overrides checksum
-		if ( is_user_logged_in() ) {
+		// Try logged in user if no cid supplied
+		elseif ( is_user_logged_in() ) {
 			$contact = $this->get_current_contact();
 			$this->current_contact_data = $contact;
 		}
