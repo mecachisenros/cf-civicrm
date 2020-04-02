@@ -1031,12 +1031,14 @@ class CiviCRM_Caldera_Forms_Helper {
 			$cid = $_GET['cid'];
 			$cs = isset( $_GET['cs'] ) ? $_GET['cs'] : '';
 
-			// Check for contact permissions or valid checksum
-			$valid_user = CRM_Contact_BAO_Contact_Permission::allow($cid, CRM_Core_Permission::EDIT)
-			              || ($cs && CRM_Contact_BAO_Contact_Utils::validChecksum( $cid, $cs ));
+			if( $cid ) {
+				// Check for contact permissions or valid checksum
+				$valid_user = CRM_Contact_BAO_Contact_Permission::allow($cid, CRM_Core_Permission::EDIT)
+				            || ($cs && CRM_Contact_BAO_Contact_Utils::validChecksum( $cid, $cs ));
 
-			if ( $valid_user )
-				$contact = $this->plugin->helper->get_civi_contact( $cid );
+				if ( $valid_user )
+					$contact = $this->plugin->helper->get_civi_contact( $cid );
+			}
 
 		}
 		// Try logged in user if no cid supplied
