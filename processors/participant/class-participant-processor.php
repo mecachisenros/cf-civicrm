@@ -92,6 +92,8 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 
 		add_filter( 'cfc_custom_fields_extends_entities', [ $this, 'custom_fields_extend_participant' ] );
 
+		add_filter( 'caldera_forms_get_form', [ $this, 'set_event_id_from_query_var' ] );
+
 	}
 
 	/**
@@ -133,10 +135,21 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 		// Get form values
 		$form_values = $this->plugin->helper->map_fields_to_processor( $config, $form, $form_values );
 
+		$event_id_query_var = Caldera_Forms::get_field_data( 'cfc_event_id', $form );
+		$event = ! empty( $event_id_query_var )
+			? $this->get_event( $event_id_query_var )
+			: $this->events[$config['processor_id']];
+
 		$config = apply_filters( 'cfc_participant_pre_processor_config', $config, $form, $form_values, $this->plugin );
 
 		// event
-		$event = apply_filters( 'cfc_participant_pre_processor_event_config', $this->events[$config['processor_id']], $config, $form, $this->plugin );
+		$event = apply_filters(
+			'cfc_participant_pre_processor_event_config',
+			$event,
+			$config,
+			$form,
+			$this->plugin
+		);
 
 		/**
 		 * Filter to abort participant processing.
@@ -173,10 +186,21 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 		// Get form values
 		$form_values = $this->plugin->helper->map_fields_to_processor( $config, $form, $form_values );
 
+		$event_id_query_var = Caldera_Forms::get_field_data( 'cfc_event_id', $form );
+		$event = ! empty( $event_id_query_var )
+			? $this->get_event( $event_id_query_var )
+			: $this->events[$config['processor_id']];
+
 		$config = apply_filters( 'cfc_participant_processor_config', $config, $form, $form_values, $this->plugin );
 
 		// event
-		$event = apply_filters( 'cfc_participant_processor_event_config', $this->events[$config['processor_id']], $config, $form, $this->plugin );
+		$event = apply_filters(
+			'cfc_participant_processor_event_config',
+			$event,
+			$config,
+			$form,
+			$this->plugin
+		);
 
 		// process one or multiple participants
 		if ( is_array( $config['id'] ) ) {
@@ -200,6 +224,63 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 		}
 
 		return [ 'processor_id' => $config['processor_id'] ];
+	}
+
+	/**
+	 * Adds a hidden cfc_event_id field and
+	 * sets the event_id for the participant
+	 * processor from $_GET/$_POST query var.
+	 *
+	 * @uses 'caldera_forms_get_form' filter
+	 *
+	 * @since 1.0.5
+	 *
+	 * @param array $form The form config
+	 * @param array $form The form config
+	 */
+	public function set_event_id_from_query_var( $form ) {
+
+		// add event_id hidden field
+		if (
+			! empty( $_GET['event_id'] )
+			|| ! empty( $_POST['event_id'] )
+			|| ! empty( $_POST['cfc_event_id'] )
+		) {
+
+			$processors = $this->plugin->helper->get_processor_by_type( $this->key_name, $form );
+
+			if ( empty( $processors ) || count( $processors ) > 1 ) {
+				return $form;
+			}
+
+			$event_id = $_GET['event_id'] ?? $_POST['event_id'] ?? $_POST['cfc_event_id'];
+			$processor = reset( $processors );
+			$processor['config']['id'] = $event_id;
+
+			$form['fields']['cfc_event_id'] = [
+				'ID' => 'cfc_event_id',
+				'type' => 'hidden',
+				'label' => 'cfc_event_id',
+				'slug' => 'cfc_event_id',
+				'conditions' => [
+					'type' => ''
+				],
+				'caption' => '',
+				'config' => [
+					'custom_class' => '',
+					'default' => $event_id
+				]
+			];
+
+			$form['processors'][$processor['ID']] = $processor;
+
+			$form['layout_grid']['structure'] .= '|12';
+			$form['layout_grid']['fields']['cfc_event_id'] = '1:1';
+
+		}
+
+		return $form;
+
 	}
 
 	/**
