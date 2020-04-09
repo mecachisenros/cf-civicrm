@@ -58,7 +58,7 @@ class CiviCRM_Caldera_forms_Payment_Token_Processor {
 	 */
 	public function auto_fields_types() {
 		echo "<option value=\"payment_token_id\"{{#is auto_type value=\"payment_token_id\"}} selected=\"selected\"{{/is}}>"
-		     . __( 'CiviCRM - Payment Token', 'cf-civicrm' ) . "</option>";
+			 . __( 'CiviCRM - Payment Token', 'cf-civicrm' ) . "</option>";
 	}
 
 	/**
@@ -127,8 +127,8 @@ class CiviCRM_Caldera_forms_Payment_Token_Processor {
 		if ( empty( $form_values['id'] ) ) {
 			// create new token
 			if ( empty( $form_values['payment_processor_id'] )
-			     || empty( $form_values['token'] )
-			     || empty( $form_values['contact_id'] )
+				 || empty( $form_values['token'] )
+				 || empty( $form_values['contact_id'] )
 			) {
 				return NULL;
 			}
@@ -159,7 +159,7 @@ class CiviCRM_Caldera_forms_Payment_Token_Processor {
 				'token'    => $token['token'],
 			];
 		} catch ( CiviCRM_API3_Exception $e ) {
-
+			CRM_Core_Error::debug_log_message($e->getMessage());
 		}
 	}
 

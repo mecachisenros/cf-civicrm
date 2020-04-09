@@ -101,7 +101,7 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 			'description' => __( 'Add CiviCRM Order (Contribution with multiple Line Items, ie Events registrations, Donations, Memberships, etc.)', 'cf-civicrm' ),
 			'author' => 'Andrei Mondoc',
 			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/order/order_config.php',
-			'pre_processor' =>  [ $this, 'pre_processor' ],
+			'pre_processor' => [ $this, 'pre_processor' ],
 			'processor' => [ $this, 'processor' ],
 			'post_processor' => [ $this, 'post_processor'],
 			'magic_tags' => [ 'order_id', 'processor_id', 'order_amount', 'excl_amount', 'tax_amount' ]
@@ -246,16 +246,16 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 	 */
 	public function processor( $config, $form, $processid ) {
 
-        if ( !$this->is_pay_later ) {
-            $payment_params = [
-                'contribution_id' => $this->order['id'],
-                'total_amount' => $this->order['total_amount'],
-                'payment_instrument_id' => $config['payment_instrument_id'],
-                'trxn_id' => $config['trxn_id'],
-            ];
+		if ( !$this->is_pay_later ) {
+			$payment_params = [
+				'contribution_id' => $this->order['id'],
+				'total_amount' => $this->order['total_amount'],
+				'payment_instrument_id' => $config['payment_instrument_id'],
+				'trxn_id' => $config['trxn_id'],
+			];
 
-            civicrm_api3('Payment', 'create', $payment_params);
-        }
+			civicrm_api3('Payment', 'create', $payment_params);
+		}
 
 	}
 
@@ -364,7 +364,7 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 					$line_item['params']['status_id'] = 'Pending';
 				} else {
 					$line_item['params']['num_terms'] = 0;
-                }
+				}
 				$line_item['params']['skipStatusCal'] = 1;
 			}
 
