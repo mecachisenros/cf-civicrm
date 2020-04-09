@@ -120,6 +120,10 @@ class CiviCRM_Caldera_forms_Payment_Token_Processor {
 		$contactID                 = $transient->contacts->{$this->contact_link} ?? NULL;
 		$form_values['contact_id'] = $contactID;
 
+		$form_values = array_filter($form_values + $config);
+
+		unset($form_values['process_id'], $form_values['contact_link']);
+
 		if ( empty( $form_values['id'] ) ) {
 			// create new token
 			if ( empty( $form_values['payment_processor_id'] )
