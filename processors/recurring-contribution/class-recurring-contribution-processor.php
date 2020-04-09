@@ -141,6 +141,8 @@ class CiviCRM_Caldera_Forms_Recurring_Contribution_Processor {
 		$baseContribution['contribution_recur_id'] = $contributionRecur_result['id'];
 		try {
 			civicrm_api3( 'Contribution', 'create', $baseContribution );
+
+			self::processLineItems($baseContribution);
 		} catch ( CiviCRM_API3_Exception $e ) {
 			return;
 		}
@@ -168,5 +170,51 @@ class CiviCRM_Caldera_Forms_Recurring_Contribution_Processor {
 			$contributionRecur_result = civicrm_api3( 'ContributionRecur', 'create', $contributionRecur_result );
 		} catch ( CiviCRM_API3_Exception $e ) {
 		}
+	}
+
+	/**
+	 * Adds the contribution_recur_id to applicable entities ( Membership )
+	 *
+	 * @param $contribution - The contribution to copy the contribution_recur_id from
+	 *
+	 * @returns int - The number of updated line items.
+	 *
+	 * @throws CiviCRM_API3_Exception.
+	 */
+	private static function processLineItems($contribution) {
+		if ( empty( $contribution['contribution_recur_id'] ) ) {
+			// There's no point if we don't have this.
+			return;
+		}
+
+		$n = 0;
+
+		// Check each line item for an entity that can recur
+		foreach ( civicrm_api3( 'LineItem', 'get', [ 'contribution_id' => $contribution['id'], 'sequential' => 1 ] )['values'] as $line_item ) {
+			switch ( $line_item['entity_table'] ) {
+				case 'civicrm_membership':
+					// Can the linked membership auto-renew?
+					$auto_renewal = civicrm_api3( 'Membership', 'getvalue', [
+						'id' => $line_item['entity_id'],
+						'return' => 'membership_type_id.auto_renew'
+					] );
+
+					// 0 means no, 1 or 2 for optional or mandatory respectively - assume they opted in if they got this far.
+					if( $auto_renew ) {
+						civicrm_api3( 'Membership', 'create', [
+							'id' => $line_item['entity_id'],
+							'contribution_recur_id' => $contribution['contribution_recur_id'],
+						]);
+
+						$n++;
+					}
+					break;
+
+				default:
+					break;
+			}
+		}
+
+		return $n;
 	}
 }
