@@ -91,22 +91,32 @@ class CiviCRM_Caldera_Forms_Recurring_Contribution_Processor {
 	public function pre_processor( $config, $form, $processid ) {
 		$form_values = $this->plugin->helper->map_fields_to_processor( $config, $form, $form_values );
 		$form_values = array_merge( $config, $form_values );
+
+		$transient = $this->plugin->transient->get();
+
 		try {
 			$contribution = civicrm_api3( 'Contribution',
 				'getsingle',
 				[
 					'id' => $form_values['contribution_id'],
 				] );
+
+			$transient->contributionRecur->{$processid} = $this->create( $form_values, $contribution );
+			$this->plugin->transient->save( $transient->ID, $transient );
 		} catch ( CiviCRM_API3_Exception $e ) {
 			return;
 		}
-		$recurContribution = $this->createRcurringContribution( $form_values, $contribution );
 	}
 
 	public function processor( $config, $form, $processid ) {
 		$form_values = $this->plugin->helper->map_fields_to_processor( $config, $form, $form_values );
-		if ( $form_values['contribution_id'] && $form_values['payment_token_id'] ) {
-			$this->activiateRecurringContribution( $form_values['contribution_id'], $form_values['payment_token_id'] );
+
+		$transient = $this->plugin->transient->get();
+
+		$contributionRecur = $transient->contributionRecur->{$processid};
+
+		if ( $contributionRecur && $contributionRecur['id'] && $form_values['payment_token_id'] ) {
+			$this->activate( $contributionRecur['id'], $form_values['payment_token_id'] );
 		}
 	}
 
@@ -116,7 +126,7 @@ class CiviCRM_Caldera_Forms_Recurring_Contribution_Processor {
 	 * @param $form_values array
 	 * @param $baseContribution array
 	 */
-	private function createRcurringContribution($form_values, $baseContribution) {
+	private function create($form_values, $baseContribution) {
 		$contributionRecur = [
 			'contact_id' => $baseContribution['contact_id'],
 			'amount' => $baseContribution['total_amount'],
@@ -157,7 +167,7 @@ class CiviCRM_Caldera_Forms_Recurring_Contribution_Processor {
 	 * may not ready yet.
 	 * @param $id string|int
 	 */
-	private function activiateRecurringContribution($id, $tokenID) {
+	private function activate($id, $tokenID) {
 		try{
 			$contributionRecur_result = civicrm_api3('ContributionRecur', 'getsingle', [
 				'id' => $id
