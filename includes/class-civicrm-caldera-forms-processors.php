@@ -72,6 +72,8 @@ class CiviCRM_Caldera_Forms_Processors {
 			include CF_CIVICRM_INTEGRATION_PATH . 'processors/order/class-order-processor.php';
 			include CF_CIVICRM_INTEGRATION_PATH . 'processors/line-item/class-line-item-processor.php';
 			include CF_CIVICRM_INTEGRATION_PATH . 'processors/contribution/class-contribution-processor.php';
+			include CF_CIVICRM_INTEGRATION_PATH . 'processors/recurring-contribution/class-recurring-contribution-processor.php';
+			include CF_CIVICRM_INTEGRATION_PATH . 'processors/payment-token/class-payment-token-processor.php';
 		}
 		if ( in_array( 'CiviMember', $this->enabled_components ) )
 			include CF_CIVICRM_INTEGRATION_PATH . 'processors/membership/class-membership-processor.php';
@@ -107,6 +109,8 @@ class CiviCRM_Caldera_Forms_Processors {
 			$this->processors['order'] = new CiviCRM_Caldera_Forms_Order_Processor( $this->plugin );
 			$this->processors['line_item'] = new CiviCRM_Caldera_Forms_Line_Item_Processor( $this->plugin );
 			$this->processors['contribution'] = new CiviCRM_Caldera_Forms_Contribution_Processor( $this->plugin );
+			$this->processors['recurring_contribution'] = new CiviCRM_Caldera_Forms_Recurring_Contribution_Processor( $this->plugin );
+			$this->processors['payment_token'] = new CiviCRM_Caldera_forms_Payment_Token_Processor( $this->plugin );
 		}
 		if ( in_array( 'CiviMember', $this->enabled_components ) )
 			$this->processors['membership'] = new CiviCRM_Caldera_Forms_Membership_Processor( $this->plugin );

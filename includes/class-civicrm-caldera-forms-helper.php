@@ -42,6 +42,15 @@ class CiviCRM_Caldera_Forms_Helper {
 	public $contribution_fields = [ 'financial_type_id', 'currency', 'total_amount', 'source', 'trxn_id', 'is_pay_later' ];
 
 	/**
+	 * Contribution_recur fields.
+	 *
+	 * @since 1.0.5
+	 * @access public
+	 * @var array $contribution_recur_fields The recurring contribution fields
+	 */
+	public $contribution_recur_fields = ['frequency_unit', 'frequency_interval', 'installments', 'payment_token_id', 'end_date', 'payment_processor_id'];
+
+	/**
 	 * Holds CiviCRM state/province data which only needs a single lookup.
 	 *
 	 * @since 0.2
@@ -1022,19 +1031,22 @@ class CiviCRM_Caldera_Forms_Helper {
 			$cid = $_GET['cid'];
 			$cs = isset( $_GET['cs'] ) ? $_GET['cs'] : '';
 
-			// Check for contact permissions or valid checksum
-			$valid_user = CRM_Contact_BAO_Contact_Permission::allow($cid, CRM_Core_Permission::EDIT)
-			              || ($cs && CRM_Contact_BAO_Contact_Utils::validChecksum( $cid, $cs ));
+			if( $cid ) {
+				// Check for contact permissions or valid checksum
+				$valid_user = CRM_Contact_BAO_Contact_Permission::allow($cid, CRM_Core_Permission::EDIT)
+				            || ($cs && CRM_Contact_BAO_Contact_Utils::validChecksum( $cid, $cs ));
 
-			if ( $valid_user )
-				$contact = $this->plugin->helper->get_civi_contact( $cid );
+				if ( $valid_user )
+					$contact = $this->plugin->helper->get_civi_contact( $cid );
+			}
 
 		}
 		// Try logged in user if no cid supplied
 		elseif ( is_user_logged_in() ) {
 			$contact = $this->get_current_contact();
-			$this->current_contact_data = $contact;
 		}
+
+		$this->current_contact_data = $contact;
 
 		return $contact;
 

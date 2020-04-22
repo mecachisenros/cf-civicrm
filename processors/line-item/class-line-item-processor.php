@@ -63,19 +63,7 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 
 	}
 
-	/**
-	 * Form processor callback.
-	 *
-	 * @since 0.4.4
-	 *
-	 * @param array $config Processor configuration
-	 * @param array $form Form configuration
-	 */
 	public function pre_processor( $config, $form, $processid ) {
-
-	}
-
-	public function processor( $config, $form, $processid ) {
 
 		$transient = $this->plugin->transient->get();
 
@@ -106,6 +94,19 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 			$entity = str_replace( 'civicrm_', '', $price_field_value[0]['entity_table'] );
 			$this->{'process_' . $entity}( $config, $form, $transient, $price_field_value );
 		}
+
+		Caldera_Forms::set_submission_meta( 'processor_id', $config['processor_id'], $form, $config['processor_id'] );
+	}
+
+	/**
+	 * Form processor callback.
+	 *
+	 * @since 0.4.4
+	 *
+	 * @param array $config Processor configuration
+	 * @param array $form Form configuration
+	 */
+	public function processor( $config, $form, $processid ) {
 
 		return ['processor_id' => $config['processor_id']];
 	}
@@ -177,8 +178,16 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 		$line_item = [
 			'processor_entity' => $processor_id,
 			'line_item' => $price_field_value,
-			'params' => $entity_params
-		];
+        ];
+
+        // If we put anything in the entity params for an existing membership, its status is changed to Pending.
+		// This is only correct for *new* memberships that have not been paid yet, so avoid it.
+        if ( ! empty( $entity_params['id'] ) ) {
+            $line_item['line_item'][0]['entity_id'] = $entity_params['id'];
+        }
+        else {
+            $line_item['params'] = $entity_params;
+		}
 
 		$transient->line_items->{$config['processor_id']}->params = $line_item;
 

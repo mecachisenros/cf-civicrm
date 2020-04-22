@@ -101,10 +101,10 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 			'description' => __( 'Add CiviCRM Order (Contribution with multiple Line Items, ie Events registrations, Donations, Memberships, etc.)', 'cf-civicrm' ),
 			'author' => 'Andrei Mondoc',
 			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/order/order_config.php',
-			'pre_processor' =>  [ $this, 'pre_processor' ],
+			'pre_processor' => [ $this, 'pre_processor' ],
 			'processor' => [ $this, 'processor' ],
 			'post_processor' => [ $this, 'post_processor'],
-			'magic_tags' => [ 'order_id', 'processor_id' ]
+			'magic_tags' => [ 'order_id', 'processor_id', 'order_amount', 'excl_amount', 'tax_amount' ]
 		];
 
 		return $processors;
@@ -122,19 +122,6 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 	 */
 	public function pre_processor( $config, $form, $processid ) {
 
-	}
-
-	/**
-	 * Form processor callback.
-	 *
-	 * @since 0.4.4
-	 *
-	 * @param array $config Processor configuration
-	 * @param array $form Form configuration
-	 * @param string $processid The process id
-	 */
-	public function processor( $config, $form, $processid ) {
-
 		global $transdata;
 
 		$transient = $this->plugin->transient->get();
@@ -142,9 +129,21 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 
 		// Get form values
 		$form_values = $this->plugin->helper->map_fields_to_processor( $config, $form, $form_values );
+		// Cause when payment processed and back to this form, the pre_processor will run again
+		// So we don't want to create duplicated contribution
+		if ( ! empty( $transdata['processed_meta'] )
+		) {
+			// may need a better way to get the processed meta
+			$saved_data = $transdata['processed_meta'];
+			$saved_data = array_shift( $saved_data );
+			$saved_data = $saved_data[ $config['processor_id'] ];
+			if(!empty($saved_data['order_id'])) {
+				$form_values['id'] = array_shift($saved_data['order_id']);
+			}
+		}
 
 		$form_values['financial_type_id'] = $config['financial_type_id'];
-		$form_values['contribution_status_id'] = $config['contribution_status_id'];
+		$form_values['contribution_status_id'] = 'Pending'; // Always Create Pending.
 		$form_values['payment_instrument_id'] = ! isset( $config['is_mapped_field'] ) ?
 			$config['payment_instrument_id'] :
 			$form_values['mapped_payment_instrument_id'];
@@ -201,7 +200,14 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 		$form_values['line_items'] = $line_items;
 
 		try {
-			$create_order = civicrm_api3( 'Order', 'create', $form_values );
+			if ( $form_values['id'] ) {
+				$create_order = civicrm_api3( 'Order', 'get', [
+					'id' => $form_values['id'],
+				] );
+
+			} else {
+				$create_order = civicrm_api3( 'Order', 'create', $form_values );
+			}
 
 			$this->order = ( $create_order['count'] && ! $create_order['is_error'] ) ? $create_order['values'][$create_order['id']] : false;
 
@@ -209,7 +215,7 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 			if ( $this->order ) {
 				$this->create_premium( $this->order, $form_values, $config );
 
-				// save orde data in transient
+				// save order data in transient
 				$transient->orders->{$config['processor_id']}->params = $this->order;
 				$this->plugin->transient->save( $transient->ID, $transient );
 			}
@@ -221,10 +227,34 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 
 		// return order_id magic tag
 		if ( is_array( $create_order ) && ! $create_order['is_error'] ){
-			return [
-				'order_id' => $create_order['id'],
-				'processor_id' => $config['processor_id']
+			Caldera_Forms::set_submission_meta( 'order_id', $create_order['id'], $form, $config['processor_id'] );
+			Caldera_Forms::set_submission_meta( 'processor_id', $config['processor_id'], $form, $config['processor_id'] );
+			Caldera_Forms::set_submission_meta( 'order_amount', $this->order['total_amount'], $form, $config['processor_id'] );
+			Caldera_Forms::set_submission_meta( 'excl_amount', ($this->order['total_amount'] - $this->order['tax_amount']), $form, $config['processor_id'] );
+			Caldera_Forms::set_submission_meta( 'tax_amount', $this->order['tax_amount'], $form, $config['processor_id'] );
+		}
+	}
+
+	/**
+	 * Form processor callback.
+	 *
+	 * @since 0.4.4
+	 *
+	 * @param array $config Processor configuration
+	 * @param array $form Form configuration
+	 * @param string $processid The process id
+	 */
+	public function processor( $config, $form, $processid ) {
+
+		if ( !$this->is_pay_later ) {
+			$payment_params = [
+				'contribution_id' => $this->order['id'],
+				'total_amount' => $this->order['total_amount'],
+				'payment_instrument_id' => $config['payment_instrument_id'],
+				'trxn_id' => $config['trxn_id'],
 			];
+
+			civicrm_api3('Payment', 'create', $payment_params);
 		}
 
 	}
@@ -327,13 +357,14 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 				$this->total_tax_amount += $line_item['line_item'][0]['tax_amount'];
 
 			// set membership as pending
-			if ( isset( $line_item['params']['membership_type_id'] ) && $this->is_pay_later ) {
+			if ( isset( $line_item['params']['membership_type_id'] ) ) {
+				$line_item['params']['is_pay_later'] = !! $this->is_pay_later;
+
 				if ( ! $line_item['params']['id'] ) {
 					$line_item['params']['status_id'] = 'Pending';
 				} else {
 					$line_item['params']['num_terms'] = 0;
 				}
-				$line_item['params']['is_pay_later'] = 1;
 				$line_item['params']['skipStatusCal'] = 1;
 			}
 
