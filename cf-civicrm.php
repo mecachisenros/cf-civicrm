@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Caldera Forms CiviCRM - Agileware
  * Description: CiviCRM integration for Caldera Forms.
- * Version: 1.0.5-agileware-3
+ * Version: 1.0.5-agileware-4
  * Author: Agileware
  * Author URI: https://github.com/agileware
  * Plugin URI: https://github.com/agileware/caldera-forms-civicrm
@@ -16,7 +16,7 @@
  *
  * @since 0.1
  */
-define( 'CF_CIVICRM_INTEGRATION_VER', '1.0.5-agileware-3' );
+define( 'CF_CIVICRM_INTEGRATION_VER', '1.0.5-agileware-4' );
 define( 'CF_CIVICRM_INTEGRATION_URL', plugin_dir_url( __FILE__ ) );
 define( 'CF_CIVICRM_INTEGRATION_PATH', plugin_dir_path( __FILE__ ) );
 
