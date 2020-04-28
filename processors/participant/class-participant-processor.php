@@ -1056,7 +1056,7 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 			'is_counted' => 1,
 		] );
 
-		return array_column( $statuses['values'], 'label' );
+		return array_column( $statuses['values'], 'name' );
 
 	}
 
