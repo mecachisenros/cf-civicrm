@@ -1103,7 +1103,24 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 
 		}
 
-		return (bool) $is_registered;
+		/**
+		 * Filter is_resgitered flag.
+		 *
+		 * @since 1.0.6
+		 * @param bool $is_registered
+		 * @param array $participant
+		 * @param array $event
+		 * @param array $config
+		 * @param array $form
+		 */
+		return apply_filters(
+			'cfc_participant_processor_is_registered',
+			(bool) $is_registered,
+			$participant,
+			$event,
+			$config,
+			$form
+		);
 
 	}
 
