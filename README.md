@@ -1,6 +1,6 @@
 # Agileware fork of the Caldera Forms CiviCRM plugin
 
-**IMPORTANT**: To ensure this fork is not overwritten by Caldera Forms CiviCRM plugin as published on wordpress.org. The plugin directory must NOT be named: cf-civicrm. Use directory name: **caldera-forms-civicrm* instead.
+**IMPORTANT**: To ensure this **Agileware fork** is not overwritten by Caldera Forms CiviCRM plugin as published on wordpress.org. The plugin directory must NOT be named: cf-civicrm. Use directory name: **caldera-forms-civicrm* instead.
 
 A WordPress plugin that integrates the [Caldera Forms](https://wordpress.org/plugins/caldera-forms/ "Caldera Forms WordPress plugin") plugin with [CiviCRM](https://civicrm.org/ "Open Source CRM").
 
