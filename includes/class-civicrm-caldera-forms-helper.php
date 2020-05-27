@@ -281,19 +281,17 @@ class CiviCRM_Caldera_Forms_Helper {
 
 		// send data back if already retrieved
 		if ( isset( $this->states ) ) return $this->states;
-
-		$query = 'SELECT name,id,country_id FROM civicrm_state_province';
+		if ( is_array( $this->get_civicrm_settings( 'countryLimit' ) ) ) {
+			$countries = implode( ',', $this->get_civicrm_settings( 'countryLimit' ) );
+			$query = "SELECT name,id,country_id FROM civicrm_state_province WHERE country_id IN (${countries})";
+		} else {
+			$query = 'SELECT name,id,country_id FROM civicrm_state_province';
+		}
 		$dao = CRM_Core_DAO::executeQuery( $query );
 		$this->states = [];
 
 		while ( $dao->fetch() ) {
 			$this->states[$dao->id] = [ 'name' => $dao->name, 'country_id' => $dao->country_id ];
-		}
-
-		foreach ( $this->states as $state_id => $state ) {
-			if ( ! in_array( $state['country_id'], $this->get_civicrm_settings( 'countryLimit' ) ) ) {
-				unset( $this->states[$state_id] );
-			}
 		}
 
 		return $this->states;
