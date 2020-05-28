@@ -57,7 +57,7 @@ class CiviCRM_Caldera_forms_Payment_Token_Processor {
 	 * @see caldera_forms_autopopulate_types
 	 */
 	public function auto_fields_types() {
-		echo "<option value=\"payment_token_id\"{{#is auto_type value=\"payment_token_id\"}} selected=\"selected\"{{/is}}>"
+		print "<option value=\"payment_token_id\"{{#is auto_type value=\"payment_token_id\"}} selected=\"selected\"{{/is}}>"
 			 . __( 'CiviCRM - Payment Token', 'cf-civicrm' ) . "</option>";
 	}
 
@@ -174,7 +174,7 @@ class CiviCRM_Caldera_forms_Payment_Token_Processor {
 	 */
 	public function auto_fields_values( $field, $form ) {
 		// fixme implement
-		if ( ! $field['config']['auto'] && $field['config']['auto_type'] !== 'payment_token_id' ) {
+		if ( ! ( $field['config']['auto'] && ( $field['config']['auto_type'] == 'payment_token_id' ) ) ) {
 			return $field;
 		}
 		$processor = NULL;
