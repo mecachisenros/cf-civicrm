@@ -150,7 +150,10 @@ class CiviCRM_Caldera_Forms_Recurring_Contribution_Processor {
 		// update the base contribution
 		$baseContribution['contribution_recur_id'] = $contributionRecur_result['id'];
 		try {
-			civicrm_api3( 'Contribution', 'create', $baseContribution );
+			civicrm_api3( 'Contribution', 'create', [
+				'id' => $baseContribution['id'],
+				'contribution_recur_id' => $contributionRecur_result['id'],
+            ] );
 
 			self::processLineItems($baseContribution);
 		} catch ( CiviCRM_API3_Exception $e ) {
