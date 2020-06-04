@@ -79,6 +79,8 @@ class CiviCRM_Caldera_forms_Payment_Token_Processor {
 		 * This is only possible when the token id is provided.
 		 */
 		if ( ! $form_values['id'] ) {
+			Caldera_Forms::set_submission_meta( 'token_id', '', $form, $config['processor_id'] );
+			Caldera_Forms::set_submission_meta( 'token', '', $form, $config['processor_id'] );
 			return NULL;
 		}
 
