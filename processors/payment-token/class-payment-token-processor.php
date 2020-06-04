@@ -210,12 +210,10 @@ class CiviCRM_Caldera_forms_Payment_Token_Processor {
 			return $field;
 		}
 		// adding tokens to option
-		foreach ( $result['values'] as $value ) {
-			$field['config']['option'][] = [
+		$field['config']['option'] = array_map(function($value) { return [
 				'value' => $value['id'],
-				'label' => $value['masked_account_number'],
-			];
-		}
+				'label' => $value['masked_account_number'] . ' ' . date('(m/y)', strtotime($value['expiry_date'])),
+        ]; }, $result['values']);
 
 		return $field;
 	}
