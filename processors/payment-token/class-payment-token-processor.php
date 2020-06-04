@@ -176,7 +176,7 @@ class CiviCRM_Caldera_forms_Payment_Token_Processor {
 	 */
 	public function auto_fields_values( $field, $form ) {
 		// fixme implement
-		if ( ! ( $field['config']['auto'] && ( $field['config']['auto_type'] == 'payment_token_id' ) ) ) {
+		if ( empty($field['config']['auto']) || ( $field['config']['auto_type'] != 'payment_token_id' ) ) {
 			return $field;
 		}
 		$processor = NULL;
