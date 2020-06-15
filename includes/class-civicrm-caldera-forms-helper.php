@@ -281,19 +281,26 @@ class CiviCRM_Caldera_Forms_Helper {
 
 		// send data back if already retrieved
 		if ( isset( $this->states ) ) return $this->states;
-
-		$query = 'SELECT name,id,country_id FROM civicrm_state_province';
-		$dao = CRM_Core_DAO::executeQuery( $query );
-		$this->states = [];
-
-		while ( $dao->fetch() ) {
-			$this->states[$dao->id] = [ 'name' => $dao->name, 'country_id' => $dao->country_id ];
+		$params = [
+			'sequential' => 1,
+		];
+		if ( is_array( $this->get_civicrm_settings( 'countryLimit' ) ) ) {
+			$params['country_id'] = ['IN' => $this->get_civicrm_settings( 'countryLimit' )];
 		}
 
-		foreach ( $this->states as $state_id => $state ) {
-			if ( ! in_array( $state['country_id'], $this->get_civicrm_settings( 'countryLimit' ) ) ) {
-				unset( $this->states[$state_id] );
-			}
+		try {
+			$states = civicrm_api3( 'StateProvince', 'get', $params );
+		} catch ( CiviCRM_API3_Exception $e ) {
+			Civi::log()->info( '' . __FILE__ . '#' . __LINE__ . ': ' . print_r($e->getMessage() , TRUE ) );
+			return [];
+		}
+		if ( ! $states['count'] ) {
+			return [];
+		}
+		$this->states = [];
+
+		foreach ($states['values'] as $state) {
+			$this->states[$state['id']] = [ 'name' => $state['name'], 'country_id' => $state['country_id'] ];
 		}
 
 		return $this->states;
