@@ -423,6 +423,10 @@ class CiviCRM_Caldera_Forms_Helper {
 
 				}
 
+				if ( in_array( $civi_field, [ 'first_name', 'middle_name', 'last_name' ] ) ) {
+					$mapped_field = trim( $mapped_field );
+				}
+
 				/**
 				 * Filter mapped field value, fires for every processor field.
 				 *
