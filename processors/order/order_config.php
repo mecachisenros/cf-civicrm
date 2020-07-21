@@ -11,6 +11,14 @@ $contribution_status = civicrm_api3( 'Contribution', 'getoptions', [
   'field' => 'contribution_status_id',
 ] );
 
+$contribution_status['values'] = array_merge(
+	[[
+		'key' => 'default_status_id',
+		'value' => __( 'Default Status (Pending)', 'cf-civicrm' )
+	]],
+	$contribution_status['values']
+);
+
 $payment_instruments = civicrm_api3( 'Contribution', 'getoptions', [
 	'field' => 'payment_instrument_id',
 ] );
@@ -165,14 +173,6 @@ $campaigns = civicrm_api3( 'Campaign', 'get', [
 	<p class="description">
 		<?php _e( 'Select a Payment Method considered as Pending (Pay later).', 'cf-civicrm' ); ?>
 	</p>
-</div>
-
-<!-- Recieve Date -->
-<div id="{{_id}}_receive_date" class="caldera-config-group">
-	<label><?php _e( 'Receive Date', 'cf-civicrm' ); ?></label>
-	<div class="caldera-config-field">
-		{{{_field slug="receive_date"}}}
-	</div>
 </div>
 
 <!-- Transaction ID -->

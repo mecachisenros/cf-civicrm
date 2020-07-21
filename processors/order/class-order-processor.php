@@ -26,13 +26,13 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 	protected $contact_link;
 
 	/**
-	 * Payment processor fee.
+	 * Stripe charge metadata.
 	 *
-	 * @since 0.4.4
+	 * @since 1.1
 	 * @access protected
 	 * @var string $fee The fee
 	 */
-	protected $charge_metadata;
+	protected $stripe_metadata;
 
 	/**
 	 * Is pay later.
@@ -81,6 +81,8 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 		add_filter( 'caldera_forms_get_form_processors', [ $this, 'register_processor' ] );
 		// add payment processor hooks
 		add_action( 'caldera_forms_submit_pre_process_start', [ $this, 'add_payment_processor_hooks' ], 10, 3 );
+		// add stripe v1.4.9 return charge hook
+		add_filter( 'caldera_forms_submit_redirect_complete', [ $this, 'handle_stripe_metadata_after_redirect' ], 9, 3 );
 
 	}
 
@@ -136,8 +138,6 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 	 */
 	public function processor( $config, $form, $processid ) {
 
-		global $transdata;
-
 		$transient = $this->plugin->transient->get();
 		$this->contact_link = 'cid_' . $config['contact_link'];
 
@@ -145,12 +145,21 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 		$form_values = $this->plugin->helper->map_fields_to_processor( $config, $form, $form_values );
 
 		$form_values['financial_type_id'] = $config['financial_type_id'];
-		$form_values['contribution_status_id'] = $config['contribution_status_id'];
+
+		$form_values['contribution_status_id'] = $config['contribution_status_id'] == 'default_status_id'
+			? 'Pending'
+			: $config['contribution_status_id'];
+
 		$form_values['payment_instrument_id'] = ! isset( $config['is_mapped_field'] ) ?
 			$config['payment_instrument_id'] :
 			$form_values['mapped_payment_instrument_id'];
 
 		$form_values['currency'] = $config['currency'];
+		$form_values['receive_date'] = get_date_from_gmt( 'now' );
+
+		if ( ! empty( $config['is_email_receipt'] ) ) {
+			$form_values['receipt_date'] = $form_values['receive_date'];
+		}
 
 		if ( ! empty( $config['campaign_id'] ) ) $form_values['campaign_id'] = $config['campaign_id'];
 
@@ -182,23 +191,6 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 		if ( $this->total_tax_amount )
 			$form_values['tax_amount'] = $this->total_tax_amount;
 
-		// stripe metadata
-		if ( $this->charge_metadata ) $form_values = array_merge( $form_values, $this->charge_metadata );
-
-		// FIXME
-		// move this into its own finction
-		//
-		// authorize metadata
-		if( isset( $transdata[$transdata['transient']]['transaction_data']->transaction_id ) ) {
-			$metadata = [
-				'trxn_id' => $transdata[$transdata['transient']]['transaction_data']->transaction_id,
-				'card_type_id' => $this->get_option_by_label( $transdata[$transdata['transient']]['transaction_data']->card_type ),
-				'credit_card_type' => $transdata[$transdata['transient']]['transaction_data']->card_type,
-				'pan_truncation' => str_replace( 'X', '', $transdata[$transdata['transient']]['transaction_data']->account_number ),
-			];
-			$form_values = array_merge( $form_values, $metadata );
-		}
-
 		$form_values['line_items'] = $line_items;
 
 		try {
@@ -207,17 +199,18 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 			$this->order = ( $create_order['count'] && ! $create_order['is_error'] ) ? $create_order['values'][$create_order['id']] : false;
 
 			// create product
-			if ( $this->order ) {
-				$this->create_premium( $this->order, $form_values, $config );
+			$this->create_premium( $this->order, $form_values, $config );
 
-				// save orde data in transient
-				$transient->orders->{$config['processor_id']}->params = $this->order;
-				$this->plugin->transient->save( $transient->ID, $transient );
-			}
+			// save orde data in transient
+			$transient->orders->{$config['processor_id']}->params = $this->order;
+			$this->plugin->transient->save( $transient->ID, $transient );
 
 		} catch ( CiviCRM_API3_Exception $e ) {
-			$transdata['error'] = true;
-			$transdata['note'] = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
+			// add error to notices, don's stop form processing
+			add_filter( 'caldera_forms_render_notices', function( $notices ) use ( $e ) {
+				$notices['error']['note'] = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
+				return $notices;
+			} );
 		}
 
 		// return order_id magic tag
@@ -247,11 +240,35 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 		// preserve join dates
 		$this->preserve_membership_join_date( $form );
 
-		$line_items = civicrm_api3( 'LineItem', 'get', [
-			'contribution_id' => $this->order['id']
-		] );
+		// charge metadata for updating contribution
+		$charge_metadata = [];
+		if ( isset( $transdata[$transdata['transient']]['transaction_data']->transaction_id ) ) {
+			// authorize.net
+			$charge_metadata = [
+				'trxn_id' => $transdata[$transdata['transient']]['transaction_data']->transaction_id,
+				'card_type_id' => $this->get_option_by_label( $transdata[$transdata['transient']]['transaction_data']->card_type ),
+				'credit_card_type' => $transdata[$transdata['transient']]['transaction_data']->card_type,
+				'pan_truncation' => str_replace( 'X', '', $transdata[$transdata['transient']]['transaction_data']->account_number ),
+			];
+		} elseif ( ! empty( $this->stripe_metadata ) ) {
+			// stripe 1.4.7
+			$charge_metadata = $this->stripe_metadata;
+		}
 
-		$this->order = array_merge( $this->order, [ 'line_items' => $line_items['values'] ] );
+		if ( ! empty( $charge_metadata ) ) {
+			// don't send confirmation, we are calling Contribution.sendconfirmation afterwards
+			$charge_metadata = array_merge( $charge_metadata, ['is_send_contribution_notification' => 0] );
+		}
+
+		$this->order = $this->create_order_payment( $charge_metadata, $this->order );
+
+		if ( empty( $this->order['line_items'] ) ) {
+			try {
+				$this->order = civicrm_api3( 'Order', 'getsingle', ['contribution_id' => $this->order['id']] );
+			} catch ( CiviCRM_API3_Exception $e ) {
+				// log error?
+			}
+		}
 
 		if ( true ) { //$config['is_thank_you'] ) {
 			add_filter( 'caldera_forms_ajax_return', function( $out, $_form ) use ( $transdata, $transient ){
@@ -302,6 +319,190 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 	}
 
 	/**
+	 * Completes an order creating a payment
+	 * and updates the necessary entites
+	 * statuses based on order status.
+	 *
+	 * @since 1.1
+	 *
+	 * @param array $metadata Charge/transaction metadata (fee, trxn_id, card_type, etc.)
+	 * @param array $order The CiviCRM Order
+	 * @return array $order The Order
+	 */
+	public function create_order_payment( $metadata, $order ) {
+
+		if ( empty( $order['id'] ) ) return $order;
+
+		try {
+			$current_order = civicrm_api3( 'Order', 'getsingle', [
+				'contribution_id' => $order['id']
+			] );
+		} catch ( CiviCRM_API3_Exception $e ) {
+			$current_order = null;
+		}
+
+		if ( ! $current_order ) return $order;
+
+		// get all entities
+		$entities = array_column( $current_order['line_items'], 'entity_table', 'entity_id' );
+		// get participant entites
+		$participant_entities = array_filter( $entities, function( $entity ) {
+			return $entity == 'civicrm_participant';
+		} );
+
+		// updated participant registered_by_id and status
+		if ( is_array( $participant_entities ) ) {
+
+			$participant_ids = array_keys( $participant_entities );
+			$main_participant_id = array_slice( $participant_ids, -1 )[0];
+
+			$participant_statuses = [];
+
+			array_map( function( $participant_id ) use ( $main_participant_id, $current_order, &$participant_statuses ) {
+
+				$params = [
+					'id' => $participant_id
+				];
+
+				if ( $this->is_pay_later || ! empty( $current_order['is_pay_later'] ) ) {
+					$params['status_id'] = 'Pending from pay later';
+				}
+
+				if ( $participant_id != $main_participant_id ) {
+					$params['registered_by_id'] = $main_participant_id;
+				}
+
+				try {
+					$participant = civicrm_api3( 'Participant', 'create', $params );
+				} catch ( CiviCRM_API3_Exception $e ) {
+					$participant = null;
+				}
+
+				if ( $participant ) {
+					$participant_statuses[$participant_id] = $participant['values'][$participant_id]['status_id'];
+				}
+
+			}, $participant_ids );
+
+		}
+
+		if ( empty( $metadata ) || ! is_array( $metadata ) ) return $order;
+
+		// need to update contribution with charge metadata (fee, transaction id, etc.)
+		try {
+			$update_order = civicrm_api3( 'Order', 'create', array_merge(
+				[ 'id' => $order['id'] ],
+				$metadata
+			) );
+		} catch ( CiviCRM_API3_Exception $e ) {
+			$update_order = null;
+		}
+
+		if ( ! $update_order ) return $order;
+
+		$payment_params = array_merge(
+			[
+				'contribution_id' => $current_order['id'],
+				'total_amount' => $current_order['total_amount'],
+				'trxn_date' => get_date_from_gmt( 'now' ),
+			],
+			$metadata
+		);
+
+		if ( ! empty( $current_order['payment_instrument_id'] ) ) {
+			$payment_params['payment_instrument_id'] = $current_order['payment_instrument_id'];
+		}
+
+		if ( ! empty( $order['contribution_page_id'] ) ) {
+			$contribution_page = civicrm_api3( 'ContributionPage', 'get', [
+				'sequential' => 1,
+				'id' => $order['contribution_page_id'],
+				'return' => ['payment_processor'],
+				'options' => ['limit' => 1]
+			] )['values'];
+
+			if ( ! empty( $contribution_page[0] ) ) {
+				$payment_params['payment_processor_id'] = $contribution_page[0]['payment_processor'];
+			}
+		}
+
+		if ( $current_order['contribution_status'] == 'Pending' ) {
+
+			// complete payment
+			try {
+				// $payment = civicrm_api3( 'Payment', 'create', $payment_params );
+				$order_params= [
+					'id' => $update_order['id'],
+					'contact_id' => $update_order['contact_id'],
+					'contribution_id' => $update_order['id'],
+					'financial_type_id' => $update_order['financial_type_id'],
+					'contribution_status_id' => 'Completed',
+				];
+
+				$order_params = array_merge( $order_params, $payment_params );
+
+				$contribution = civicrm_api3( 'Contribution', 'create', $order_params );
+
+			} catch ( CiviCRM_API3_Exception $e ) {
+				$contribution = null;
+			}
+
+			// completed contribution, ensure participant have Registered status
+			if ( $contribution && ! empty( $participant_statuses ) ) {
+
+				array_map(
+					function( $participant_id, $participant_status ) use ( $current_order ) {
+
+						if ( $participant_status == 1 ) return;
+
+						$params = [
+							'id' => $participant_id,
+							'status_id' => 'Registered',
+							'register_date' => $current_order['receive_date']
+						];
+
+						try {
+							$participant = civicrm_api3( 'Participant', 'create', $params );
+						} catch ( CiviCRM_API3_Exception $e ) {
+							$participant = null;
+						}
+
+					},
+					array_keys( $participant_statuses ),
+					$participant_statuses
+				);
+
+			}
+
+		}
+
+		// get payment
+		try {
+			$payment = civicrm_api3( 'Payment', 'getsingle', [
+				'contribution_id' => $update_order['id']
+			] );
+		} catch ( CiviCRM_API3_Exception $e ) {
+			$payment = null;
+		}
+
+		if ( ( $payment && empty( $payment['trxn_id'] ) && ! empty( $payment_params['trxn_id'] ) )
+			|| ( $payment && $payment['trxn_date'] != $payment_params['trxn_date'] )
+		) {
+
+			$payment_params = array_merge( $payment, $payment_params );
+
+			// update payment/financial_trxn to add transaction id
+			try {
+				$update_payment = civicrm_api3( 'FinancialTrxn', 'create', $payment_params );
+			} catch ( CiviCRM_API3_Exception $e ) {}
+
+		}
+
+		return array_merge( $current_order, $update_order );
+
+	}
+
+	/**
 	 * Builds line items parameters array formatted for Order.create.
 	 *
 	 * @since 1.0.1
@@ -314,7 +515,7 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 
 		if ( empty( $config['line_items'] ) ) return [];
 
-		return array_reduce( $config['line_items'], function( $line_items, $item_processor_tag ) use ( $transient, $form ) {
+		return array_reduce( $config['line_items'], function( $line_items, $item_processor_tag ) use ( $transient, $config ) {
 
 			if ( empty( $item_processor_tag ) ) return $line_items;
 
@@ -593,6 +794,12 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 
 		// stripe
 		if ( Caldera_Forms::get_processor_by_type( 'stripe', $form ) ) {
+
+			// bail if not stripe 1.4.7
+			if ( ! defined( 'CF_STRIPE_VER' ) || ! version_compare( CF_STRIPE_VER, '1.4.7', '<=' ) ) {
+				return;
+			}
+
 			/**
 			 * Process the Stripe balance transaction to get the fee and card detials.
 			 *
@@ -604,13 +811,15 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 			 * @param array $form The form config
 			 */
 			add_action( 'cf_stripe_post_successful_charge', function( $return_charge, $transdata, $config, $stripe_form ) {
+
 				// stripe charge object from the successful payment
 				$balance_transaction_id = $transdata['stripe']->balance_transaction;
 
 				\Stripe\Stripe::setApiKey( $config['secret'] );
 				$balance_transaction_object = \Stripe\BalanceTransaction::retrieve( $balance_transaction_id );
 
-				$charge_metadata = [
+				$this->stripe_metadata = [
+					'trxn_id' => $return_charge['ID'],
 					'fee_amount' => $balance_transaction_object->fee / 100,
 					'card_type_id' => $this->get_option_by_label( $transdata['stripe']->source->brand ),
 					'credit_card_type' => $transdata['stripe']->source->brand,
@@ -621,9 +830,56 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 					]
 				];
 
-				$this->charge_metadata = $charge_metadata;
 			}, 10, 4 );
+
 		}
+
+	}
+
+	/**
+	 * Creates order payment after Stripe (v1.4.9)
+	 * transaction is captured, i.e. after checkout completes
+	 * and form has finished processing.
+	 *
+	 * @since 1.1
+	 *
+	 * @param string $referrer The referrer url for redirection
+	 * @param array $form The form config
+	 * @param string $process_id The process id
+	 */
+	public function handle_stripe_metadata_after_redirect( $referrer, $form, $process_id ) {
+
+		// bail if not stripe, or stripe correct version
+		if ( ! defined( 'CF_STRIPE_VER' ) || ! version_compare( CF_STRIPE_VER, '1.4.9', '>=' ) ) return $referrer;
+
+		add_action( 'cf_stripe_post_single_capture', function( $referrer, $config, $form, $entry_transient, $status_transient, $session, $payment_intent ) {
+
+			$charge = $payment_intent->charges->data[0];
+			$balance_transaction_object = \Stripe\BalanceTransaction::retrieve( $charge->balance_transaction );
+			$payment_details = $charge->payment_method_details;
+
+			if ( $payment_details->type == 'card' ) {
+
+				$this->stripe_metadata = [
+					'trxn_id' => $charge->id,
+					'fee_amount' => $balance_transaction_object->fee / 100,
+					'card_type_id' => $this->get_option_by_label( $payment_details->card->brand ),
+					'credit_card_type' => $payment_details->card->brand,
+					'pan_truncation' => $payment_details->card->last4,
+					'credit_card_exp_date' => [
+						'M' => $payment_details->card->exp_month,
+						'Y' => $payment_details->card->exp_year
+					]
+				];
+
+				// create payment and update charge metadata
+				$this->create_order_payment( $this->stripe_metadata, $this->order );
+
+			}
+
+		}, 10, 7 );
+
+		return $referrer;
 	}
 
 	/**
