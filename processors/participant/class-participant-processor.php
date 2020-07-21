@@ -187,7 +187,7 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 			if ( ! empty( $config['campaign_id'] ) ) $form_values['campaign_id'] = $config['campaign_id'];
 
 			if ( ! empty( $config['registered_by_id'] ) ) {
-				$form_values['registered_by_id'] = flase !== strpos( $config['registered_by_id'], 'contact_' )
+				$form_values['registered_by_id'] = false !== strpos( $config['registered_by_id'], 'contact_' )
 					? $transient->contacts->{'cid_' . str_replace( 'contact_', '', $config['creator_id'] )}
 					: $config['registered_by_id'];
 			}
