@@ -23,7 +23,7 @@ class CiviCRM_Caldera_Forms_Address_Processor {
 	 */
 	public $key_name = 'civicrm_address';
 
-	public $fields = [ 'name', 'is_primary', 'is_billing', 'street_address', 'supplemental_address_1', 'supplemental_address_2', 'city', 'state_province_id', 'postal_code', 'country_id' ];
+	public $fields = [ 'name', 'is_primary', 'is_billing', 'street_address', 'supplemental_address_1', 'supplemental_address_2', 'city', 'state_province_id', 'postal_code', 'country_id', 'geo_code_1', 'geo_code_2' ];
 
 	/**
 	 * Fields to ignore while prepopulating
@@ -45,7 +45,8 @@ class CiviCRM_Caldera_Forms_Address_Processor {
 		add_filter( 'caldera_forms_get_form_processors', [ $this, 'register_processor' ] );
 		// filter form before rendering
 		add_filter( 'caldera_forms_render_get_form', [ $this, 'pre_render' ] );
-
+		// address custom fields
+		add_filter( 'cfc_custom_fields_extends_entities', [ $this, 'custom_fields_extend_address' ] );
 	}
 
 	/**
@@ -183,5 +184,17 @@ class CiviCRM_Caldera_Forms_Address_Processor {
 		}
 
 		return $form;
+	}
+
+	/**
+	 * Add Address to extend custom fields autopopulation/presets.
+	 *
+	 * @since 1.0
+	 * @param array $extends The entites array
+	 * @return array $extends The filtered entities array
+	 */
+	public function custom_fields_extend_address( $extends ) {
+	  $extends[] = 'Address';
+	  return $extends;
 	}
 }

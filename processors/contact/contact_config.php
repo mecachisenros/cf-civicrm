@@ -229,6 +229,20 @@ $indStandardFields = [ 'first_name', 'last_name', 'middle_name', 'prefix_id', 's
 			</div>
 		<?php } } ?>
 		<hr style="clear: both;" />
+
+	    <h2 style="display: inline-block;"><?php _e( 'Address Custom Fields', 'cf-civicrm' ); ?></h2>
+	    <?php
+	    $addressCustomFields = caldera_forms_civicrm()->helper->get_address_custom_fields();
+	    foreach( $addressCustomFields as $key => $value ) { ?>
+		<div id="<?php echo esc_attr( $key ); ?>" class="caldera-config-group" data-crm-type="<?php echo caldera_forms_civicrm()->helper->custom_field_extends( $key ); ?>">
+			<label><?php echo esc_html( $value['label'] ); ?></label>
+			<div class="caldera-config-field">
+			  <input type="text" class="block-input field-config magic-tag-enabled caldera-field-bind" id="{{_id}}" name="{{_name}}[civicrm_address][<?php echo $key; ?>]" value="{{<?php echo 'civicrm_address/' . $key; ?>}}">
+			</div>
+		</div>
+	    <?php } ?>
+	    <hr style="clear: both;" />
+
 	</div>
 </div>
 
