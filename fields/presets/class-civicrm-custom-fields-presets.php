@@ -129,19 +129,40 @@ class CiviCRM_Caldera_Forms_Custom_Fields_Presets {
 
 		if ( ! $custom_fields ) return;
 
+		$custom_groups = array_reduce(
+			$custom_fields,
+			function( $list, $field ) {
+				$list[$field['custom_group_id']][$field['id']] = $field;
+				return $list;
+			},
+			[]
+		);
+
 		$extends = $this->entities_extend_get();
 
-		array_map( function( $field ) use ( $extends ) {
+		array_map( function( $group ) use ( $extends ) {
 
-			if ( empty( $field['option_group_id'] ) ) return;
+			if ( ! count( $group ) ) return;
 
-			if ( ! in_array( $field['html_type'], $this->allowed_html_types ) ) return;
+			$field = array_pop( array_reverse( $group ) );
 
 			if ( ! in_array( $field['custom_group_id.extends'], $extends ) ) return;
 
-			echo "<option value=\"custom_{$field['id']}\"{{#is auto_type value=\"custom_{$field['id']}\"}} selected=\"selected\"{{/is}}>" . sprintf( __( 'CiviCRM - %1$s - %2$s', 'cf-civicrm' ), $field['custom_group_id.title'], $field['label'] ) . "</option>";
+			echo '<optgroup label="' . sprintf( __( 'CiviCRM Custom Data Set - %1$s', 'cf-civicrm' ), $field['custom_group_id.title'] ) . '">';
 
-		}, $custom_fields );
+			array_map( function( $field ) {
+
+				if ( empty( $field['option_group_id'] ) ) return;
+
+				if ( ! in_array( $field['html_type'], $this->allowed_html_types ) ) return;
+
+				echo "<option value=\"custom_{$field['id']}\"{{#is auto_type value=\"custom_{$field['id']}\"}} selected=\"selected\"{{/is}}>" . sprintf( __( '%1$s', 'cf-civicrm' ), $field['label'] ) . "</option>";
+
+			}, $group );
+
+			echo '</optgroup>';
+
+		}, $custom_groups );
 
 	}
 
