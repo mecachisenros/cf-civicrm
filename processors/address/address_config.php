@@ -58,3 +58,18 @@ $fields = caldera_forms_civicrm()->processors->processors['address']->fields;
 <?php } } ?>
 
 <hr style="clear: both;" />
+
+<h2><?php _e( 'Custom Fields', 'cf-civicrm' ); ?></h2>
+<?php foreach ( caldera_forms_civicrm()->helper->get_address_custom_fields() as $key => $custom_field ) { ?>
+	<div
+		id="{{_id}}_<?php echo esc_attr( $key ); ?>"
+		class="caldera-config-group"
+		data-entity-column-id="<?php echo esc_attr( $custom_field['extends_entity_column_id'] ); ?>"
+		data-entity-column-value="<?php echo esc_attr( json_encode( $custom_field['extends_entity_column_value'] ) ); ?>"
+		>
+		<label><?php echo esc_html( $custom_field['label'] ); ?> </label>
+		<div class="caldera-config-field">
+			<?php echo '{{{_field slug="' . $key . '"}}}'; ?>
+		</div>
+	</div>
+<?php } ?>
