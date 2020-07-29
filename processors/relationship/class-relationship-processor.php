@@ -72,27 +72,31 @@ class CiviCRM_Caldera_Forms_Relationship_Processor {
 		// cfc transient object
 		$transient = $this->plugin->transient->get();
 
-		$relationship = civicrm_api3( 'Relationship', 'get', [
-			'sequential' => 1,
+		$identifying_params = [
 			'contact_id_a' => $transient->contacts->{'cid_'.$config['contact_a']},
 			'contact_id_b' => $transient->contacts->{'cid_'.$config['contact_b']},
 			'relationship_type_id' => $config['relationship_type'],
-		] );
+		];
 
-		if ( $relationship['count'] ) {
-			return;
+		$relationship = civicrm_api3( 'Relationship', 'get', [ 'sequential' => 1 ] + $identifying_params );
+
+		// Get form values
+		$form_values = []; // Must always be an array, or adding another array will fail.
+		$form_values = $this->plugin->helper->map_fields_to_processor( $config, $form, $form_values );
+
+		if ( $relationship['count'] === 0 ) {
+			$form_values += $identifying_params;
+		} elseif ( $relationship['count'] === 1 ) {
+			$form_values['id'] = $relationship['values'][0]['id']; // Relationship ID
 		} else {
-			try {
-				$create_relationship = civicrm_api3( 'Relationship', 'create', [
-					'sequential' => 1,
-					'contact_id_a' => $transient->contacts->{'cid_'.$config['contact_a']},
-					'contact_id_b' => $transient->contacts->{'cid_'.$config['contact_b']},
-					'relationship_type_id' => $config['relationship_type'],
-				] );
-			} catch ( CiviCRM_API3_Exception $e ) {
-				$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
-				return [ 'note' => $error, 'type' => 'error' ];
-			}
+			return;
+		}
+
+		try {
+			$create_relationship = civicrm_api3( 'Relationship', 'create', $form_values );
+		} catch ( CiviCRM_API3_Exception $e ) {
+			$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
+			return [ 'note' => $error, 'type' => 'error' ];
 		}
 
 	}
