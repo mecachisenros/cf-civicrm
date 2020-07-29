@@ -6,6 +6,10 @@ $relationships = civicrm_api3( 'RelationshipType', 'get', [
 	'options' => [ 'limit' => 0 ],
 ] );
 
+$relationshipFields = civicrm_api3( 'Relationship', 'getfields', [] );
+
+$fields = [ 'start_date', 'end_date' ];
+
 ?>
 
 <div id="{{_id}}_relationship_type" class="caldera-config-group">
@@ -54,3 +58,17 @@ $relationships = civicrm_api3( 'RelationshipType', 'get', [
 		</select>
 	</div>
 </div>
+
+<?php
+foreach ( $relationshipFields['values'] as $value ) {
+	if ( in_array($value['name'], $fields ) ) {
+		?>
+		<div id="{{_id}}_<?= $value['name'] ?>" class="caldera-config-group">
+			<label><?= __($value['title'], 'cf-civicrm') ?></label>
+			<div class="caldera-config-field">
+				{{{_field slug="<?= $value['name'] ?>"}}}
+			</div>
+		</div>
+		<?php
+	}
+}
