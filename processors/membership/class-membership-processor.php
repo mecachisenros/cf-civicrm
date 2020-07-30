@@ -62,9 +62,6 @@ class CiviCRM_Caldera_Forms_Membership_Processor {
 		add_filter( 'caldera_forms_get_form_processors', [ $this, 'register_processor' ] );
 		// filter form before rendering
 		add_filter( 'caldera_forms_render_get_form', [ $this, 'pre_render' ] );
-		// render membership notices
-		add_action( 'cfc_notices_to_render', [ $this, 'render_notices' ] );
-
 	}
 
 	/**
@@ -340,29 +337,5 @@ class CiviCRM_Caldera_Forms_Membership_Processor {
 			$this->membership_statuses_current = array_column( $statuses['values'], 'name' );
 
 		return $this->membership_statuses_current;
-	}
-
-	/**
-	 * Membership notices.
-	 *
-	 * @since 1.0
-	 * @param array $notices The array of notices to render
-	 * @return array $notices The filtered notices
-	 */
-	public function render_notices( $notices ) {
-		// output
-		if ( isset( $this->has_memberships ) ) {
-			foreach ( $this->has_memberships as $key => $membership ) {
-				// FIXME
-				// use CiviCRM's date setting
-				$end_date = date_format( date_create( $membership['end_date'] ), 'F d, Y' );
-				$notices[] = [
-					'type' => 'warning',
-					'note' => sprintf( __( 'Your <strong>%1$s</strong> membership expires on %2$s.', 'cf-civicrm' ), $membership['membership_name'], $end_date )
-				];
-			}
-		}
-
-		return $notices;
 	}
 }
