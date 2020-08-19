@@ -35,6 +35,10 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 		// register this processor
 		add_filter( 'caldera_forms_get_form_processors', [ $this, 'register_processor' ] );
 
+		// filter form when it renders/submits
+		add_filter( 'caldera_forms_render_get_form', [ $this, 'maybe_load_price_set_for_event' ] );
+		add_filter( 'caldera_forms_submit_get_form', [ $this, 'maybe_load_price_set_for_event' ] );
+
 	}
 
 	/**
@@ -60,6 +64,66 @@ class CiviCRM_Caldera_Forms_Line_Item_Processor {
 		];
 
 		return $processors;
+
+	}
+
+	/**
+	 * Loads a price st/price field for an event
+	 * if an 'event_id' query var is present.
+	 *
+	 * @uses 'caldera_forms_render_get_form' filter
+	 * @uses 'caldera_forms_submit_get_form' filter
+	 *
+	 * @param array $form
+	 * @return array $form
+	 */
+	public function maybe_load_price_set_for_event( $form ) {
+
+		if (
+			! empty( $_GET['event_id'] )
+			|| ! empty( $_POST['event_id'] )
+			|| ! empty( $_POST['cfc_event_id'] )
+		) {
+
+			// get line items
+			$processors = $this->plugin->helper->get_processor_by_type( $this->key_name, $form );
+
+			if ( empty( $processors ) ) {
+				return $form;
+			}
+
+			$event_id = $_GET['event_id'] ?? $_POST['event_id'] ?? $_POST['cfc_event_id'];
+
+			array_map(
+				function( $processor ) use ( $event_id, &$form ) {
+
+					if ( $processor['config']['entity_table'] != 'civicrm_participant' ) {
+						return;
+					}
+
+					$price_field_slug = $processor['config']['price_field_value'];
+					$field = Caldera_Forms_Field_Util::get_field_by_slug( str_replace( '%', '', $price_field_slug ), $form );
+
+					$price_set_id = CRM_Price_BAO_PriceSet::getFor( 'civicrm_event', $event_id, $used_for = 1 );
+					$price_set = $this->plugin->helper->get_price_set_column_by_id( $price_set_id, 'price_set' );
+
+					if ( empty( $price_set['is_quick_config'] ) || count( $price_set['price_fields'] ) > 1 ) {
+						return;
+					}
+
+					$price_field = reset( $price_set['price_fields'] );
+
+					$field['config']['auto_type'] = 'cfc_price_field_' . $price_field['id'];
+
+					$form['fields'][$field['ID']] = $field;
+
+				},
+				$processors
+			);
+
+		}
+
+		return $form;
 
 	}
 

@@ -249,13 +249,23 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 
 			$processors = $this->plugin->helper->get_processor_by_type( $this->key_name, $form );
 
-			if ( empty( $processors ) || count( $processors ) > 1 ) {
+			if ( empty( $processors ) ) {
 				return $form;
 			}
 
 			$event_id = $_GET['event_id'] ?? $_POST['event_id'] ?? $_POST['cfc_event_id'];
-			$processor = reset( $processors );
-			$processor['config']['id'] = $event_id;
+
+			array_map(
+				function( $processor_id, $processor ) use ( $event_id, &$form ) {
+
+					$processor['config']['id'] = $event_id;
+
+					$form['processors'][$processor_id] = $processor;
+
+				},
+				array_keys( $processors ),
+				$processors
+			);
 
 			$form['fields']['cfc_event_id'] = [
 				'ID' => 'cfc_event_id',
@@ -271,8 +281,6 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 					'default' => $event_id
 				]
 			];
-
-			$form['processors'][$processor['ID']] = $processor;
 
 			$form['layout_grid']['structure'] .= '|12';
 			$form['layout_grid']['fields']['cfc_event_id'] = '1:1';
@@ -294,6 +302,8 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 	 * @param string $processid The process id
 	 */
 	function process_participant( $event, $form_values, $config, $form, $processid ) {
+
+		$this->contact_link = 'cid_' . $config['contact_link'];
 
 		$transient = $this->plugin->transient->get();
 
