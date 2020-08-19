@@ -65,6 +65,8 @@ class CiviCRM_Caldera_Forms_Core_Fields_Presets {
 		// payment instruments presets
 		add_filter( 'caldera_forms_field_option_presets', [ $this, 'payment_instrument_options_presets' ] );
 
+		add_filter( 'caldera_forms_field_option_presets', [ $this, 'relationship_types_options_presets' ] );
+
 	}
 
 	/**
@@ -90,6 +92,33 @@ class CiviCRM_Caldera_Forms_Core_Fields_Presets {
 		$presets['payment_instrument_id'] = [
 			'name' => __( 'CiviCRM Payment Methods', 'cf-civicrm' ),
 			'data' => $options,
+		];
+
+		return $presets;
+	}
+
+	/**
+	 * Adds Relationship Types options presets.
+	 *
+	 * @uses 'caldera_forms_field_option_presets' filter
+	 *
+	 * @since 1.0.6
+	 *
+	 * @param array $presets
+	 * @return array $presets
+	 */
+	public function relationship_types_options_presets( $presets ) {
+		$relationship_types = $this->get_relationship_types();
+		$options = array_map(
+			function( $relationship_type ) {
+				return "{$relationship_type['id']}|{$relationship_type['formattedLabel']}";
+			},
+			$relationship_types
+		);
+
+		$presets['relationship_type_id'] = [
+			'name' => __( 'CiviCRM Relationship Types', 'cf-civicrm' ),
+			'data' => $options
 		];
 
 		return $presets;
@@ -142,6 +171,8 @@ class CiviCRM_Caldera_Forms_Core_Fields_Presets {
 		echo "<option value=\"provider_id\"{{#is auto_type value=\"provider_id\"}} selected=\"selected\"{{/is}}>" . __( 'CiviCRM - Im Type', 'cf-civicrm' ) . "</option>";
 		// Preferred Language
 		echo "<option value=\"preferred_language\"{{#is auto_type value=\"preferred_language\"}} selected=\"selected\"{{/is}}>" . __( 'CiviCRM - Preferred Language', 'cf-civicrm' ) . "</option>";
+		// Relationship Types
+		echo "<option value=\"relationship_type_id\"{{#is auto_type value=\"relationship_type_id\"}} selected=\"selected\"{{/is}}>" . __( 'CiviCRM - Relationship Type', 'cf-civicrm' ) . "</option>";
 
 	}
 
@@ -419,6 +450,19 @@ class CiviCRM_Caldera_Forms_Core_Fields_Presets {
 							];
 					}
 					break;
+
+				case 'relationship_type_id':
+					$relationship_types = $this->get_relationship_types();
+					array_map(
+						function( $relationship_type ) use ( &$field ) {
+							$field['config']['option'][$relationship_type['id']] = [
+								'value' => $relationship_type['id'],
+								'label' => $relationship_type['formattedLabel']
+							];
+						},
+						$relationship_types
+					);
+					break;
 			}
 
 		}
@@ -427,5 +471,30 @@ class CiviCRM_Caldera_Forms_Core_Fields_Presets {
 
 	}
 
-}
+	/**
+	 * Retrieves the active relationship types.
+	 *
+	 * @return array $relationship_types
+	 */
+	public function get_relationship_types() {
+		$relationship_types = civicrm_api3( 'RelationshipType', 'get', [
+			'sequential' => 1,
+			'is_active' => 1,
+			'options.limit' => 0
+		] );
+		return array_map(
+			function( $relationship_type ) {
+				$relationship_type['formattedLabel'] = sprintf(
+					__( '%1$s [%2$s] / %3$s [%4$s]', 'cf-civicrm' ),
+					$relationship_type['label_a_b'],
+					$relationship_type['contact_type_a'],
+					$relationship_type['label_b_a'],
+					$relationship_type['contact_type_b']
+				);
+				return $relationship_type;
+			},
+			$relationship_types['values']
+		);
+	}
 
+}

@@ -6,6 +6,10 @@ $relationships = civicrm_api3( 'RelationshipType', 'get', [
 	'options' => [ 'limit' => 0 ],
 ] );
 
+$reltionship_fields = civicrm_api3( 'Relationship', 'getfields', [
+	'sequential' => 1
+] );
+
 ?>
 
 <div id="{{_id}}_relationship_type" class="caldera-config-group">
@@ -16,6 +20,17 @@ $relationships = civicrm_api3( 'RelationshipType', 'get', [
 			<option value="<?php echo esc_attr( $value['id'] ); ?>" {{#is relationship_type value=<?php echo $value['id']; ?>}}selected="selected"{{/is}}><?php echo esc_html( '[' . $value['contact_type_a'] . ']' . $value['label_a_b'] . ' - ['. $value['contact_type_b'] . ']' . $value['label_b_a'] ); ?></option>
 		<?php } ?>
 		</select>
+	</div>
+</div>
+
+<div class="caldera-config-group">
+	<div class="caldera-config-field">
+		<label>
+			<input id="{{_id}}_is_mapped_relationship" type="checkbox" name="{{_name}}[is_mapped_relationship]" value="1" {{#if is_mapped_relationship}}checked="checked"{{/if}}><?php _e( 'Use Relationship Type mapped field.', 'cf-civicrm' ); ?>
+		</label>
+	</div>
+	<div class="caldera-config-field">
+		{{{_field slug="mapped_relationship_type"}}}
 	</div>
 </div>
 
@@ -54,3 +69,29 @@ $relationships = civicrm_api3( 'RelationshipType', 'get', [
 		</select>
 	</div>
 </div>
+
+<hr style="clear: both;" />
+
+<h2 style="display: inline-block;"><?php _e( 'Relationship Fields', 'cf-civicrm' ); ?></h2>
+<?php foreach( $reltionship_fields['values'] as $key => $value ) {
+	if ( ! in_array( $value['name'], ['id', 'relationship_type_id', 'contact_id_a', 'contact_id_b'] ) ) { ?>
+	<div id="{{_id}}_<?php echo esc_attr( $value['name'] ); ?>" class="caldera-config-group">
+		<label><?php echo esc_html( $value['title'] ); ?> </label>
+		<div class="caldera-config-field">
+		  <?php echo '{{{_field slug="' . $value['name'] . '"}}}'; ?>
+		</div>
+	</div>
+<?php } } ?>
+
+<script>
+	jQuery( document ).ready( function( $ ) {
+		var prId = '{{_id}}',
+			use_mapped_field = '#' + prId + '_is_mapped_relationship',
+			mapped_relationship_type = '#' + prId + '_mapped_relationship_type';
+
+		$( use_mapped_field ).on( 'change', function( i, el ) {
+			var checked = $( this ).prop( 'checked' );
+			$( mapped_relationship_type ).toggle( checked );
+		} ).trigger( 'change' );
+	} );
+</script>
