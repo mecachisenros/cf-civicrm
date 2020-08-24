@@ -62,7 +62,7 @@ class CiviCRM_Caldera_Forms_Send_Email_Processor {
 			'description' => __( 'Send Email from CiviCRM (CiviCRM message templates, requires Email API)', 'cf-civicrm' ),
 			'author' => 'Andrei Mondoc',
 			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/send-email/send_email_config.php',
-			'pre_processor' =>  [ $this, 'pre_processor' ],
+			'processor' =>  [ $this, 'processor' ],
 		];
 
 		return $processors;
@@ -77,7 +77,7 @@ class CiviCRM_Caldera_Forms_Send_Email_Processor {
 	 * @param array $config Processor configuration
 	 * @param array $form Form configuration
 	 */
-	public function pre_processor( $config, $form, $processid ) {
+	public function processor( $config, $form, $processid ) {
 
 		// cfc transient object
 		$transient = $this->plugin->transient->get();
@@ -101,8 +101,10 @@ class CiviCRM_Caldera_Forms_Send_Email_Processor {
 		try {
 			$send_email = civicrm_api3( 'Email', 'send', $params );
 		} catch ( CiviCRM_API3_Exception $e ) {
+			global $transdata;
 			$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
-			return [ 'note' => $error, 'type' => 'error' ];
+			$transdata['error'] = true;
+			$transdata['note'] .= $error;
 		}
 	}
 }
