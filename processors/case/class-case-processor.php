@@ -297,16 +297,33 @@ class CiviCRM_Caldera_Forms_Case_Processor {
 
 		if ( ! $relationship_type ) return;
 
+		$manager_relationship_params = [
+			'contact_id_a' => $transient->contacts->{$this->contact_link},
+			'contact_id_b' => $case_manager_id,
+			'relationship_type_id' => $relationship_type['id'],
+			'case_id' => $case['id'],
+			'start_date' => date( 'YmdHis', strtotime( 'now' ) )
+		];
+
+		$existing_relationship = civicrm_api3( 'Relationship', 'get', [
+			'sequential' => 1,
+			'relationship_type_id' => $relationship_type['id'],
+			'case_id' => $case['id'],
+			'is_active' => 1
+		] );
+
+		if ( $existing_relationship['count'] == 1 ) {
+			$manager_relationship_params['id'] = $existing_relationship['id'];
+		}
+
 		try {
 
 			// create relationship
-			$manager_relationship = civicrm_api3( 'Relationship', 'create', [
-				'contact_id_a' => $transient->contacts->{$this->contact_link},
-				'contact_id_b' => $case_manager_id,
-				'relationship_type_id' => $relationship_type['id'],
-				'case_id' => $case['id'],
-				'start_date' => date( 'YmdHis', strtotime( 'now' ) )
-			] );
+			$manager_relationship = civicrm_api3(
+				'Relationship',
+				'create',
+				$manager_relationship_params
+			);
 
 		} catch ( CiviCRM_API3_Exception $e ) {
 			// ignore
