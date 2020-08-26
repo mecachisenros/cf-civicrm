@@ -220,8 +220,8 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 			foreach ( $autodiscount as $entity => $params ) {
 				$params['contact_id'] = $contact_id;
 				try {
-					$result = civicrm_api3( $entity, 'getsingle', $params );
-					if ( ! empty( $result['id'] ) ) {
+					$result = civicrm_api3( $entity, 'get', $params );
+					if ( $result['count'] ) {
 						$is_autodiscount = true;
 						break;
 					}
