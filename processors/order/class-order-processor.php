@@ -386,6 +386,17 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 
 		}
 
+		if ( empty( $metadata ) && $current_order['contribution_status'] == 'Pending' && $current_order['total_amount'] == 0 ) {
+
+			try {
+				civicrm_api3( 'Contribution', 'create', array_merge( $current_order, ['contribution_status_id' => 'Completed'] ) );
+				$this->transition_participants_for_order( $participant_statuses, $current_order );
+			} catch( CiviCRM_API3_Exception $e ) {
+
+			}
+
+		}
+
 		if ( empty( $metadata ) || ! is_array( $metadata ) ) return $order;
 
 		// need to update contribution with charge metadata (fee, transaction id, etc.)
@@ -450,27 +461,7 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 			// completed contribution, ensure participant have Registered status
 			if ( $contribution && ! empty( $participant_statuses ) ) {
 
-				array_map(
-					function( $participant_id, $participant_status ) use ( $current_order ) {
-
-						if ( $participant_status == 1 ) return;
-
-						$params = [
-							'id' => $participant_id,
-							'status_id' => 'Registered',
-							'register_date' => $current_order['receive_date']
-						];
-
-						try {
-							$participant = civicrm_api3( 'Participant', 'create', $params );
-						} catch ( CiviCRM_API3_Exception $e ) {
-							$participant = null;
-						}
-
-					},
-					array_keys( $participant_statuses ),
-					$participant_statuses
-				);
+				$this->transition_participants_for_order( $participant_statuses, $order );
 
 			}
 
@@ -500,6 +491,36 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 
 		return array_merge( $current_order, $update_order );
 
+	}
+
+	/**
+	 * Transition pariticiapnt status to 'Registered'.
+	 *
+	 * @param array $participant_statuses [participant_id => participant_status_id]
+	 * @param array $order The order
+	 */
+	public function transition_participants_for_order( $participant_statuses, $order ) {
+		array_map(
+			function( $participant_id, $participant_status ) use ( $order ) {
+
+				if ( $participant_status == 1 ) return;
+
+				$params = [
+					'id' => $participant_id,
+					'status_id' => 'Registered',
+					'register_date' => $order['receive_date']
+				];
+
+				try {
+					$participant = civicrm_api3( 'Participant', 'create', $params );
+				} catch ( CiviCRM_API3_Exception $e ) {
+					$participant = null;
+				}
+
+			},
+			array_keys( $participant_statuses ),
+			$participant_statuses
+		);
 	}
 
 	/**
