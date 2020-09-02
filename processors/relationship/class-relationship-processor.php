@@ -48,8 +48,8 @@ class CiviCRM_Caldera_Forms_Relationship_Processor {
 	public function register_processor( $processors ) {
 
 		$processors[$this->key_name] = [
-			'name' => __( 'CiviCRM Relationship', 'caldera-forms-civicrm' ),
-			'description' => __( 'Add CiviCRM relationship to contacts', 'caldera-forms-civicrm' ),
+			'name' => __( 'CiviCRM Relationship', 'cf-civicrm' ),
+			'description' => __( 'Add CiviCRM relationship to contacts', 'cf-civicrm' ),
 			'author' => 'Andrei Mondoc',
 			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/relationship/relationship_config.php',
 			'pre_processor' => [ $this, 'pre_processor' ],

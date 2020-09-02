@@ -71,6 +71,15 @@ class CiviCRM_Caldera_Forms_Helper {
 	public $tax_rates;
 
 	/**
+	 * Reference to the form fields set as price field options, indexed by processor id.
+	 *
+	 * @access public
+	 * @since 1.0.5
+	 * @var array $price_field_refs
+	 */
+	public $price_field_refs = [];
+
+	/**
 	 * Initialises this object.
 	 *
 	 * @since 0.4.4
@@ -91,16 +100,16 @@ class CiviCRM_Caldera_Forms_Helper {
 		ob_start();
 		?>
 				<select class="block-input field-config" name="{{_name}}[contact_link]">
-					<option value="1" {{#is contact_link value=1}}selected="selected"{{/is}}><?php _e( 'Contact 1', 'caldera-forms-civicrm' ); ?></option>
-					<option value="2" {{#is contact_link value=2}}selected="selected"{{/is}}><?php _e( 'Contact 2', 'caldera-forms-civicrm' ); ?></option>
-					<option value="3" {{#is contact_link value=3}}selected="selected"{{/is}}><?php _e( 'Contact 3', 'caldera-forms-civicrm' ); ?></option>
-					<option value="4" {{#is contact_link value=4}}selected="selected"{{/is}}><?php _e( 'Contact 4', 'caldera-forms-civicrm' ); ?></option>
-					<option value="5" {{#is contact_link value=5}}selected="selected"{{/is}}><?php _e( 'Contact 5', 'caldera-forms-civicrm' ); ?></option>
-					<option value="6" {{#is contact_link value=6}}selected="selected"{{/is}}><?php _e( 'Contact 6', 'caldera-forms-civicrm' ); ?></option>
-					<option value="7" {{#is contact_link value=7}}selected="selected"{{/is}}><?php _e( 'Contact 7', 'caldera-forms-civicrm' ); ?></option>
-					<option value="8" {{#is contact_link value=8}}selected="selected"{{/is}}><?php _e( 'Contact 8', 'caldera-forms-civicrm' ); ?></option>
-					<option value="9" {{#is contact_link value=9}}selected="selected"{{/is}}><?php _e( 'Contact 9', 'caldera-forms-civicrm' ); ?></option>
-					<option value="10" {{#is contact_link value=10}}selected="selected"{{/is}}><?php _e( 'Contact 10', 'caldera-forms-civicrm' ); ?></option>
+					<option value="1" {{#is contact_link value=1}}selected="selected"{{/is}}><?php _e( 'Contact 1', 'cf-civicrm' ); ?></option>
+					<option value="2" {{#is contact_link value=2}}selected="selected"{{/is}}><?php _e( 'Contact 2', 'cf-civicrm' ); ?></option>
+					<option value="3" {{#is contact_link value=3}}selected="selected"{{/is}}><?php _e( 'Contact 3', 'cf-civicrm' ); ?></option>
+					<option value="4" {{#is contact_link value=4}}selected="selected"{{/is}}><?php _e( 'Contact 4', 'cf-civicrm' ); ?></option>
+					<option value="5" {{#is contact_link value=5}}selected="selected"{{/is}}><?php _e( 'Contact 5', 'cf-civicrm' ); ?></option>
+					<option value="6" {{#is contact_link value=6}}selected="selected"{{/is}}><?php _e( 'Contact 6', 'cf-civicrm' ); ?></option>
+					<option value="7" {{#is contact_link value=7}}selected="selected"{{/is}}><?php _e( 'Contact 7', 'cf-civicrm' ); ?></option>
+					<option value="8" {{#is contact_link value=8}}selected="selected"{{/is}}><?php _e( 'Contact 8', 'cf-civicrm' ); ?></option>
+					<option value="9" {{#is contact_link value=9}}selected="selected"{{/is}}><?php _e( 'Contact 9', 'cf-civicrm' ); ?></option>
+					<option value="10" {{#is contact_link value=10}}selected="selected"{{/is}}><?php _e( 'Contact 10', 'cf-civicrm' ); ?></option>
 				</select>
 		<?php
 		$contact_link = ob_get_contents();
@@ -208,7 +217,7 @@ class CiviCRM_Caldera_Forms_Helper {
 			try {
 				$custom_fields = civicrm_api3( 'Contact', 'getsingle', $params );
 			} catch ( CiviCRM_API3_Exception $e ) {
-				
+
 			}
 
 			return array_merge( $fields, $custom_fields );
@@ -339,7 +348,7 @@ class CiviCRM_Caldera_Forms_Helper {
 
 		$custom_id = str_replace( 'custom_', '', $custom_id );
 		$id = (int)$custom_id;
-		
+
 		try {
 			$result = civicrm_api3( 'CustomField', 'getsingle', [
 				'sequential' => 1,
@@ -383,17 +392,17 @@ class CiviCRM_Caldera_Forms_Helper {
 					$mapped_field = Caldera_Forms_Magic_Doer::do_bracket_magic( $field_id, $form, NULL, NULL, NULL );
 
 				} elseif ( strpos( $field_id, '%' ) !== false && substr_count( $field_id, '%' ) > 2 ) {
-					
+
 					// multiple fields mapped
 					// explode and remove empty indexes
 					$field_slugs = array_filter( explode( '%', $field_id ) );
-					
+
 					$mapped_fields = [];
 					foreach ( $field_slugs as $k => $slug ) {
 						$field = Caldera_Forms::get_field_by_slug( $slug, $form );
 						$mapped_fields[] = Caldera_Forms::get_field_data( $field['ID'], $form );
 					}
-					
+
 					$mapped_fields = array_filter( $mapped_fields );
 					// expect one value, return first value
 					$mapped_field = reset( $mapped_fields );
@@ -408,17 +417,17 @@ class CiviCRM_Caldera_Forms_Helper {
 
 					// Get field data
 					$mapped_field = Caldera_Forms::get_field_data( $mapped_field['ID'], $form );
-					
+
 					// if not a magic tag nor field id, must be a fixed value
 					// $mapped_field = $mapped_field ? $mapped_field : $field_id;
 
 				}
-				
+
 				/**
 				 * Filter mapped field value, fires for every processor field.
 				 *
 				 * @since  0.4.4
-				 * 
+				 *
 				 * @param string|int $mapped_field The mapped value
 				 * @param string $civi_field The field for an entity i.e. 'contact_id', 'current_employer', etc.
 				 * @param array $field The field config
@@ -468,11 +477,17 @@ class CiviCRM_Caldera_Forms_Helper {
 
 				$value = ! empty( $entity[$civi_field] ) ? $entity[$civi_field] : '';
 
+				// If the CF field is a date picker, convert the date value to the date picker's format.
+				if ( $field['type'] == 'date_picker' && ! empty( $value ) ) {
+					$format = $this->translate_date_picker_format( $field['config']['format'] );
+					$value = date_create( $value )->format( $format );
+				}
+
 				/**
 				 * Filter prerenderd value (default value), fires for every processor field.
 				 *
 				 * @since  0.4.4
-				 * 
+				 *
 				 * @param string|int $value The default value
 				 * @param string $civi_field The field for an entity i.e. 'contact_id', 'current_employer', etc.
 				 * @param array $field The field config
@@ -489,6 +504,31 @@ class CiviCRM_Caldera_Forms_Helper {
 		}
 
 		return $form;
+	}
+
+	/**
+	 * Translate Caldera Forms date picker formats to PHP date formats.
+	 *
+	 * @since 1.0.2
+	 *
+	 * @param string $date_picker_format The Caldera Forms date picker format
+	 */
+	public function translate_date_picker_format( $date_picker_format ){
+		// Translate each token used in the CF date picker format to the corresponding PHP format character.
+		$token_map = [
+			'yyyy' => 'Y',
+			'yy'   => 'y',
+			'MM'   => 'F',
+			'M'    => 'M',
+			'mm'   => 'm',
+			'm'    => 'n',
+			'DD'   => 'l',
+			'D'    => 'D',
+			'dd'   => 'd',
+			'd'    => 'j',
+		];
+
+		return strtr( $date_picker_format, $token_map );
 	}
 
 	/**
@@ -565,7 +605,7 @@ class CiviCRM_Caldera_Forms_Helper {
 				}
 			}
 
-		} elseif ( $field_type == 'advanced_file' ) { // advanced file
+		} elseif ( in_array( $field_type, ['advanced_file', 'cf2_file'] ) ) { // advanced file
 			global $transdata;
 			// get civicrm file ids from $transdata
 			if ( ! empty( $transdata['data'][$field_id] ) ) {
@@ -608,6 +648,23 @@ class CiviCRM_Caldera_Forms_Helper {
 	}
 
 	/**
+	 * Get CiviCRM tax invoicing setting.
+	 *
+	 * @since 1.0.4
+	 * @return bool True if invoicing is set, false otherwise.
+	 */
+	public function get_tax_invoicing() {
+		$tax_settings = $this->get_tax_settings();
+		if ( ! array_key_exists( 'invoicing', $tax_settings ) ) {
+			return false;
+		}
+		if ( empty( $tax_settings['invoicing'] ) ) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
 	 * Get CiviCRM tax rates.
 	 *
 	 * @since 1.0
@@ -631,7 +688,7 @@ class CiviCRM_Caldera_Forms_Helper {
 			'financial_account_id.is_tax' => 1,
 			'options' => [ 'limit' => 0 ]
 		] );
-			
+
 		if ( $tax_financial_accounts['count'] ) {
 			// buils tax rates
 			$this->tax_rates = array_reduce( $tax_financial_accounts['values'], function( $tax_rates, $financial_account ) {
@@ -640,7 +697,7 @@ class CiviCRM_Caldera_Forms_Helper {
 			}, [] );
 
 			return $this->tax_rates;
-			
+
 		}
 
 		return false;
@@ -660,7 +717,7 @@ class CiviCRM_Caldera_Forms_Helper {
 
 	/**
 	 * Format tax label as per CiviCRM.
-	 * 
+	 *
 	 * @param string $label The label
 	 * @param string $amount The amount
 	 * @param string $tax_amount The tax amount
@@ -693,7 +750,7 @@ class CiviCRM_Caldera_Forms_Helper {
 	 * @return string $formated_amount The formated amount
 	 */
 	public function format_money( $amount, $currency = false ) {
-		return CRM_Utils_Money::format( $amount, $currency );		
+		return CRM_Utils_Money::format( $amount, $currency );
 	}
 
 	/**
@@ -703,7 +760,7 @@ class CiviCRM_Caldera_Forms_Helper {
 	 * @return array $price_sets The active price sets with their corresponding price fields and price filed values
 	 */
 	public function get_price_sets() {
-		
+
 		// get tax settings
 		$tax_settings = $this->get_tax_settings();
 		// get tax rates
@@ -757,7 +814,7 @@ class CiviCRM_Caldera_Forms_Helper {
 				foreach ( $price_field_values as $value_id => $price_field_value) {
 					$price_field_value['price_field_value_id'] = $value_id;
 					if ( $price_field_id == $price_field_value['price_field_id'] ) {
-						if ( $tax_settings['invoicing'] && $tax_rates && array_key_exists( $price_field_value['financial_type_id'], $tax_rates ) ) {
+						if ( $this->get_tax_invoicing() && $tax_rates && array_key_exists( $price_field_value['financial_type_id'], $tax_rates ) ) {
 							$price_field_value['tax_rate'] = $tax_rates[$price_field_value['financial_type_id']];
 							$price_field_value['tax_amount'] = $this->calculate_percentage( $price_field_value['amount'], $price_field_value['tax_rate'] );
 						}
@@ -782,7 +839,7 @@ class CiviCRM_Caldera_Forms_Helper {
 	public function cached_price_sets() {
 		$price_sets = get_transient( 'cfc_civicrm_price_sets' );
 		if ( $price_sets ) return $price_sets;
-		
+
 		// set transient only if we have price sets
 		if ( $this->get_price_sets() ) {
 			if ( set_transient( 'cfc_civicrm_price_sets', $this->get_price_sets(), DAY_IN_SECONDS ) )
@@ -790,14 +847,14 @@ class CiviCRM_Caldera_Forms_Helper {
 		}
 
 		return false;
-		
+
 	}
 
 	/**
 	 * Get Price Field Value by id.
 	 *
 	 * @since  0.4.4
-	 * 
+	 *
 	 * @param  int $id Price Field Value id
 	 * @return array $price_field_value The Price Field Value
 	 */
@@ -835,7 +892,7 @@ class CiviCRM_Caldera_Forms_Helper {
 	 * @since 1.0
 	 * @param int $id The entity id
 	 * @param string $column_name The column name, price_set|price_field|price_field_value
-	 * @return array $column The requested entity or false 
+	 * @return array $column The requested entity or false
 	 */
 	public function get_price_set_column_by_id( $id, $column_name ) {
 
@@ -875,7 +932,7 @@ class CiviCRM_Caldera_Forms_Helper {
 	 * Get membership types assocaited to an Organizaion.
 	 *
 	 * @since 0.4.4
-	 * 
+	 *
 	 * @param int $cid Organization contact id
 	 * @return array|boolean The membership types for that organization or false
 	 */
@@ -910,7 +967,7 @@ class CiviCRM_Caldera_Forms_Helper {
 	public function get_membership( $cid = false, $membership_type = false, $sort = 'DESC', $skip_status = false ) {
 
 		if ( ! $cid ) return false;
-		
+
 		$params = [
 			'sequential' => 1,
 			'contact_id' => $cid,
@@ -958,9 +1015,9 @@ class CiviCRM_Caldera_Forms_Helper {
 	 *
 	 * Checks for a valid checksum, and if the user is logged in,
 	 * logged in user data has precedence over checksum.
-	 * 
+	 *
 	 * @since 0.4.4
-	 * @return array|boolean $contact The Contact data, false otherwise 
+	 * @return array|boolean $contact The Contact data, false otherwise
 	 */
 	public function current_contact_data_get() {
 
@@ -1013,7 +1070,7 @@ class CiviCRM_Caldera_Forms_Helper {
 	 * @since 1.0
 	 * @return array $custom_fields The array of custom fields - e.g. ['custom_x' => 'Label of custom_x']
 	 */
-	public static function get_participant_custom_fields() {
+	public function get_participant_custom_fields() {
 
 		try {
 			$custom_groups = civicrm_api3( 'CustomGroup', 'get', [
@@ -1033,7 +1090,7 @@ class CiviCRM_Caldera_Forms_Helper {
 				$custom_fields['custom_' . $custom_field['id']] = [
 					'label' => $custom_field['label'],
 					'extends_entity_column_id' => $custom_group['extends_entity_column_id'],
-					'extends_entity_column_value' => $custom_group['extends_entity_column_value'] 
+					'extends_entity_column_value' => $custom_group['extends_entity_column_value']
 				];
 			}
 		}
@@ -1044,7 +1101,7 @@ class CiviCRM_Caldera_Forms_Helper {
 
 	/**
 	 * Get processor by type.
-	 * 
+	 *
 	 * @since 1.0
 	 * @param string $processor_type The processor type
 	 * @param array $form Form config
@@ -1066,17 +1123,19 @@ class CiviCRM_Caldera_Forms_Helper {
 	 * Get processor id from magic tag.
 	 *
 	 * @since 1.0
+	 * @since 1.0.5 Addedd $return_config optional param to return the processor config
 	 * @param string $magic_tag The processor_id magig tag
 	 * @param array|boolean $form The form config or false
-	 * @return string|boolean $processor_id The processor_id or false otherwise
+	 * @param bool $return_config Whether to return the processor config array or the processor id string
+	 * @return string|array|boolean $processor_id The processor_id, the processor config array, or false
 	 */
-	public function get_processor_from_magic( $magic_tag, $form = false ) {
+	public function get_processor_from_magic( $magic_tag, $form = false, $return_config = false ) {
 
 		if ( ! is_string( $magic_tag ) ) return false;
 
 		if ( strpos( $magic_tag, '{' ) === false ) return false;
 
-		if ( strpos( $magic_tag, 'processor_id' ) === false ) return false; 
+		if ( strpos( $magic_tag, 'processor_id' ) === false ) return false;
 
 		// clean up magic tag
 		$magic_tag = str_replace( [ '{', '}' ], '', $magic_tag );
@@ -1085,14 +1144,334 @@ class CiviCRM_Caldera_Forms_Helper {
 
 		if( ! $form ) global $form;
 
-		// if form has more than one processor of same type
-		// the magic tag has the format of processor_type:processor_id:<id>
-		// otherwise the format is processor_type:processor_id
-		if ( count( $parts ) > 2 ) {
-				return array_pop( $parts );
+		// handle cf select field ({{{_field}}}) magic tags
+		// values which render as fp_123456:processor_id
+		if ( false !== strpos( $parts[0], 'fp_' ) ) {
+			$processor = $form['processors'][$parts[0]];
+			$processor_id = $parts[0];
+		} elseif ( count( $parts ) > 2 ) {
+			// if form has more than one processor of same type
+			// the magic tag has the format of processor_type:processor_id:<id>
+			// otherwise the format is processor_type:processor_id
+			$processor_id = $parts[2];
+			$processor = $form['processors'][$processor_id];
 		} else {
-			return key( $this->get_processor_by_type( $parts[0], $form ) );
+			// one processor, the format is processor_type:processor_id
+			$processor = $this->get_processor_by_type( $parts[0], $form );
+			$processor_id = $processor['ID'];
 		}
+
+		if ( $return_config ) {
+			return $processor;
+		} else {
+			return $processor_id;
+		}
+
+	}
+
+	/**
+	 * Get Case custom fields.
+	 *
+	 * @since 1.0.3
+	 * @return array $custom_fields The array of custom fields
+	 */
+	public function get_case_custom_fields() {
+
+		try {
+			$custom_groups = civicrm_api3( 'CustomGroup', 'get', [
+				'sequential' => 1,
+				'is_active' => 1,
+				'extends' => 'Case',
+				'api.CustomField.get' => [ 'is_active' => 1, 'options' => [ 'limit' => 0 ] ],
+				'options' => [ 'limit' => 0 ],
+			] );
+		} catch ( CiviCRM_API3_Exception $e ) {
+			return [ 'note' => $e->getMessage(), 'type' => 'error' ];
+		}
+
+		$custom_fields = [];
+		foreach ( $custom_groups['values'] as $key => $custom_group ) {
+			foreach ( $custom_group['api.CustomField.get']['values'] as $k => $custom_field ) {
+				$custom_fields['custom_' . $custom_field['id']] = [
+					'label' => $custom_group['title'] . ' - ' . $custom_field['label'],
+					'extends_entity_column_id' => $custom_group['extends_entity_column_id'],
+					'extends_entity_column_value' => $custom_group['extends_entity_column_value']
+				];
+			}
+		}
+
+		return $custom_fields;
+
+	}
+
+	/**
+	 * Retrieves the related contacts for a given contact.
+	 *
+	 * @since 1.0.4
+	 * @param array|int $contact The contact data array or the contact_id
+	 * @param array $form The form config
+	 * @return array|bool $related_contacts The related contacts or false
+	 */
+	public function get_contact_related_contacts( $contact, $form ) {
+
+		// get relationship processors
+		$relationship_configs = $this->get_processor_by_type( 'civicrm_relationship', $form );
+
+		if ( empty( $relationship_configs ) ) return false;
+
+		$contact_configs = $this->get_processor_by_type( 'civicrm_contact', $form );
+
+		// processor id and its contact link
+		$contact_link_relations = array_reduce( $contact_configs, function( $relations, $processor ) {
+			$relations[$processor['ID']] = $processor['config']['contact_link'];
+			return $relations;
+		}, [] );
+
+		$contact_id = is_array( $contact ) ? $contact['id'] : $contact;
+
+		return array_reduce( $relationship_configs, function( $contacts, $processor ) use ( $contact_id, $contact_link_relations ) {
+
+			if ( empty( $processor['runtimes'] ) ) return $contacts;
+
+			$relationship = civicrm_api3( 'Relationship', 'get', [
+				'contact_id_a' => $contact_id,
+				'contact_id_b' => $contact_id,
+				'relationship_type_id' => $processor['config']['relationship_type'],
+				'is_active' => 1,
+				'options' => [
+					'or' => [['contact_id_a', 'contact_id_b']],
+					'limit' => 1,
+					'sort' => 'id desc'
+				]
+			] );
+
+			// bail if no relationship or we have more than one relationship
+			if ( ! $relationship['count'] || $relationship['count'] > 1 ) return $contacts;
+
+			$result = $relationship = $relationship['values'][$relationship['id']];
+			// unset relationship possible collisioning ids
+			unset( $result['id'], $result['relationship_type_id'], $result['case_id'] );
+			// get 'opposite' realtion, contact_id_a <=> contact_id_b
+			$relation = array_search( $contact_id , $result ) == 'contact_id_a'
+				? 'contact_id_b'
+				: 'contact_id_a';
+
+			$contact_processor_id = array_search(
+				$processor['config'][ str_replace( '_id', '', $relation ) ], // relation is stored as contact_a|b in the processor, stupid me
+				$contact_link_relations
+			);
+
+			$contacts[$contact_processor_id] = $this->get_civi_contact( $relationship[$relation] );
+
+			return $contacts;
+
+		}, [] );
+
+	}
+
+	/**
+	 * Build Price Field fields references from Line Item processors
+	 * for paid events, memberships, and line items.
+	 *
+	 * @since 1.0.5
+	 * @param array $form The form config
+	 * @return array|boolean $price_field_ref References to [ <processor_id> => <field_id> ], or false
+	 */
+	public function build_price_field_refs( $form ) {
+
+		if ( ! empty( $this->price_field_refs ) ) return $this->price_field_refs;
+
+		// line item processors
+		$line_items = $this->plugin->helper->get_processor_by_type( 'civicrm_line_item', $form );
+
+		if ( empty( $line_items ) ) return [];
+
+		$rendered_fields = array_reduce( $form['fields'], function( $fields, $field ) use ( $form ) {
+			$config = Caldera_Forms_Field_Util::get_field( $field['ID'], $form, true );
+			$fields[] = $config['slug'];
+			return $fields;
+		}, [] );
+
+		$this->price_field_refs = array_reduce( $line_items, function( $refs, $line_item ) use ( $form, $rendered_fields ) {
+
+			if ( empty( $line_item['config']['entity_table'] ) ) return $refs;
+
+			$price_field_slug = $line_item['config']['price_field_value'];
+
+			if ( strpos( $price_field_slug, '%' ) !== false && substr_count( $price_field_slug, '%' ) > 2 ) {
+
+				$price_field_slug = array_filter( explode( '%', $price_field_slug ) );
+
+				$price_field_slug = array_intersect( $price_field_slug, $rendered_fields );
+
+			} else {
+
+				$price_field_slug = str_replace( '%', '', $price_field_slug );
+
+			}
+
+			$processor_id = $line_item['ID'];
+
+			// price_field field config
+			if ( is_array( $price_field_slug ) ) {
+
+				if ( count( $price_field_slug ) > 1 ) {
+					foreach ( $price_field_slug as $key => $field_id ) {
+
+						if ( $key == 0 ) {
+
+							$price_field_field = Caldera_Forms_Field_Util::get_field_by_slug( $field_id, $form );
+
+							$refs[$processor_id] = $price_field_field['ID'];
+						} else {
+
+							$price_field_field = Caldera_Forms_Field_Util::get_field_by_slug( $field_id, $form );
+
+							$refs[$processor_id . '#' . $key ] = $price_field_field['ID'];
+						}
+
+					}
+				} else {
+
+					$price_field_slug = array_pop( $price_field_slug );
+
+					$price_field_field = Caldera_Forms_Field_Util::get_field_by_slug( $price_field_slug, $form );
+
+					$refs[$processor_id] = $price_field_field['ID'];
+				}
+
+			} else {
+
+				$price_field_field = Caldera_Forms_Field_Util::get_field_by_slug( $price_field_slug, $form );
+
+				$refs[$processor_id] = $price_field_field['ID'];
+
+			}
+
+			return $refs;
+
+		}, [] );
+
+		return $this->price_field_refs;
+
+	}
+
+	/**
+	 * Get entity ids (events, memberships, or contributions) for a set of processors.
+	 *
+	 * @since 1.0.5
+	 * @param array $form Array holding the processors config
+	 * @return array|boolean $entity_ids References to [ <processor_id> => <entity_id> ], or false
+	 */
+	public function get_entity_ids_from_line_items( $form ) {
+
+		$line_items = $this->get_processor_by_type( 'civicrm_line_item', $form );
+
+		if ( empty( $line_items ) ) return [];
+
+		return array_reduce( $line_items, function( $ids, $processor ) use ( $form ) {
+
+			if ( empty( $processor['config']['entity_table'] ) ) return $ids;
+
+			switch ( $processor['config']['entity_table'] ) {
+				case 'civicrm_participant':
+					$participant = $this->get_processor_from_magic(
+						$processor['config']['entity_params'],
+						$form,
+						true
+					);
+					$ids[$participant['ID']] = $participant['config']['id'];
+					break;
+
+				case 'civicrm_membership':
+					$membership = $this->get_processor_from_magic(
+						$processor['config']['entity_params'],
+						$form,
+						true
+					);
+					$ids[$membership['ID']] = $membership['config']['membership_type_id'];
+					break;
+
+				case 'civicrm_contribution':
+					$order = current(
+						$this->get_processor_by_type( 'civicrm_order', $form )
+					);
+
+					if ( empty( $order ) || empty( $order['config']['contribution_page_id'] ) ) return $ids;
+
+					$ids[$order['ID']] = $order['config']['contribution_page_id'];
+					break;
+			}
+
+			return $ids;
+
+		}, [] );
+
+	}
+
+	/**
+	 * Parse processor id string containing '#'.
+	 *
+	 * @since 1.0.5
+	 * @param string $processor_id The processor id
+	 * @return string $processor_id The processor id
+	 */
+	public function parse_processor_id( $processor_id ) {
+		return strpos( $processor_id, '#' ) ? substr( $processor_id, 0, strpos( $processor_id, '#' ) ) : $processor_id;
+	}
+
+	/**
+	 * Retrieves a list of all field ids that
+	 * are used for mapping to CiviCRM fields.
+	 *
+	 * @since 1.0.5
+	 * @param array $form The form config
+	 * @return array $mapped_fields_ids The mapped fields ids array
+	 */
+	public function get_all_mapped_fields_ids( $form ) {
+
+		if ( empty( $form['processors'] ) ) return [];
+
+		$civicrm_processors_config = array_reduce(
+			$form['processors'],
+			function ( $list, $processor ) {
+				if ( false === strpos( $processor['type'], 'civicrm_' ) ) return $list;
+				$list[$processor['ID']] = $processor['config'];
+				return $list;
+			},
+			[]
+		);
+
+		// create recuresive iterator with all processors fields
+		$processors_fields = new RecursiveIteratorIterator(
+			new RecursiveArrayIterator( $civicrm_processors_config )
+		);
+		// filter out empty fields
+		$processors_fields_array = array_filter( iterator_to_array( $processors_fields ) );
+
+		// array with field ids
+		return array_reduce(
+			$processors_fields_array,
+			function( $list, $field_id ) use ( $form ) {
+
+				if ( false !== strpos( $field_id, '%' ) ) {
+
+					$list[] = Caldera_Forms_Field_Util::get_field_by_slug(
+						str_replace('%', '', $field_id),
+						$form
+					)['ID'];
+
+				} elseif ( false !== strpos( $field_id, 'fld_' ) ) {
+
+					$list[] = $field_id;
+
+				}
+
+				return $list;
+
+			},
+			[]
+		);
 
 	}
 

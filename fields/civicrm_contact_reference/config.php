@@ -1,4 +1,4 @@
-<?php 
+<?php
 $contact_types = civicrm_api3( 'ContactType', 'get', [
 	'sequential' => 0,
 	'is_active' => 1,
@@ -28,7 +28,7 @@ $contact_sub_types = civicrm_api3( 'ContactType', 'get', [
 <!-- Contact Type -->
 <div class="{{_id}}_contact_type caldera-config-group">
 	<label for="{{_id}}_contact_type">
-		<?php esc_html_e( 'Contact Type', 'caldera-forms-civicrm' ); ?>
+		<?php esc_html_e( 'Contact Type', 'cf-civicrm' ); ?>
 	</label>
 	<div class="caldera-config-field">
 		<select class="block-input field-config" name="{{_name}}[contact_type]">
@@ -38,7 +38,7 @@ $contact_sub_types = civicrm_api3( 'ContactType', 'get', [
 		<?php } ?>
 		</select>
 		<p class="description" id="{{_id}}_contact_type">
-			<?php esc_html_e( 'Limit by Contacts Type.', 'caldera-forms-civicrm' ); ?>
+			<?php esc_html_e( 'Limit by Contacts Type.', 'cf-civicrm' ); ?>
 		</p>
 	</div>
 </div>
@@ -47,7 +47,7 @@ $contact_sub_types = civicrm_api3( 'ContactType', 'get', [
 <?php if ( $contact_sub_types['count'] ) : ?>
 <div class="{{_id}}_contact_sub_type caldera-config-group">
 	<label for="{{_id}}_contact_sub_type">
-		<?php esc_html_e( 'Contact Subtype', 'caldera-forms-civicrm' ); ?>
+		<?php esc_html_e( 'Contact Subtype', 'cf-civicrm' ); ?>
 	</label>
 	<div class="caldera-config-field">
 		<select class="block-input field-config" name="{{_name}}[contact_sub_type]">
@@ -57,7 +57,7 @@ $contact_sub_types = civicrm_api3( 'ContactType', 'get', [
 		<?php } ?>
 		</select>
 		<p class="description">
-			<?php esc_html_e( 'Limit by Contact Subtype.', 'caldera-forms-civicrm' ); ?>
+			<?php esc_html_e( 'Limit by Contact Subtype.', 'cf-civicrm' ); ?>
 		</p>
 	</div>
 </div>
@@ -66,25 +66,25 @@ $contact_sub_types = civicrm_api3( 'ContactType', 'get', [
 <!-- Groups -->
 <div class="caldera-config-group">
 	<label for="{{_id}}_civicrm_group">
-		<?php esc_html_e( 'Group', 'caldera-forms-civicrm' ); ?>
+		<?php esc_html_e( 'Group', 'cf-civicrm' ); ?>
 	</label>
 	<div class="caldera-config-field">
 		<select id="{{_id}}_civicrm_group" class="block-input field-config" name="{{_name}}[civicrm_group]" nonce="<?php echo wp_create_nonce('admin_get_groups'); ?>">
 		</select>
 		<p class="description">
-			<?php esc_html_e( 'Limit to contacts in group.', 'caldera-forms-civicrm' ); ?>
+			<?php esc_html_e( 'Limit to contacts in group.', 'cf-civicrm' ); ?>
 		</p>
 	</div>
 </div>
 
 <!-- New organization -->
 <div class="{{_id}}_new_organization caldera-config-group">
-	<label for="{{_id}}_new_organization"><?php esc_html_e( 'New organization', 'caldera-forms-civicrm' ); ?></label>
+	<label for="{{_id}}_new_organization"><?php esc_html_e( 'New organization', 'cf-civicrm' ); ?></label>
 	<div class="caldera-config-field">
 		<input type="checkbox" class="field-config field-checkbox" name="{{_name}}[new_organization]" value="1" {{#if new_organization}}checked="checked"{{/if}}>
 	</div>
 	<p class="description">
-			<?php esc_html_e( 'Enable to allow user to enter a new value (Oraganization).', 'caldera-forms-civicrm' ); ?>
+			<?php esc_html_e( 'Enable to allow user to enter a new value (Oraganization).', 'cf-civicrm' ); ?>
 		</p>
 </div>
 

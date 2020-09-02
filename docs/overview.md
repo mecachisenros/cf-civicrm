@@ -2,7 +2,7 @@
 
 Caldera Forms uses Processors to extend what can be done with forms. By installing and activating the Caldera Forms CiviCRM plugin new processors are added to allow information from forms to be added or updated in CiviCRM.
 
-![Caldera Forms CiviCRM Processors](./images/caldera-forms-civicrm-processors.jpg)
+![Caldera Forms CiviCRM Processors](./images/cf-civicrm-processors.jpg)
 
 Select and configure the processors needed for each form to send the wanted information to their CiviCRM contact record.
 

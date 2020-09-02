@@ -66,15 +66,15 @@ class CiviCRM_Caldera_Forms_Field_Country {
 	public function register_field_type( $field_types ) {
 
 		$field_types[$this->key_name] = [
-			'field' => __( 'CiviCRM Country', 'caldera-forms-civicrm' ),
+			'field' => __( 'CiviCRM Country', 'cf-civicrm' ),
 			'file' => CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_country/field.php',
-			'category' => __( 'CiviCRM', 'caldera-forms-civicrm' ),
-			'description' => __( 'CiviCRM Country dropdown', 'caldera-forms-civicrm' ),
+			'category' => __( 'CiviCRM', 'cf-civicrm' ),
+			'description' => __( 'CiviCRM Country dropdown', 'cf-civicrm' ),
 			'setup' => [
 				'template' => CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_country/config.php',
 				'preview' => CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_country/preview.php',
 				'default' => [
-					'placeholder' => __( 'Select a Country', 'caldera-forms-civicrm' ),
+					'placeholder' => __( 'Select a Country', 'cf-civicrm' ),
 					'default' => $this->plugin->helper->get_civicrm_settings( 'defaultContactCountry' )
 				],
 			],
@@ -133,12 +133,12 @@ class CiviCRM_Caldera_Forms_Field_Country {
 	 * Enqueue scripts
 	 *
 	 * @since 0.4.4
-	 * 
+	 *
 	 * @param array $form Form config
 	 * @return array $form Form config
 	 */
 	public function enqueue_scripts( $form ) {
-		
+
 		foreach ( $form['fields'] as $field_id => $field ) {
 			if ( $field['type'] == $this->key_name ) {
 				wp_enqueue_style( 'cfc-select2' );

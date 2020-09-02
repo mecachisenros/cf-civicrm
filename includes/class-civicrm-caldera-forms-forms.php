@@ -15,7 +15,7 @@ class CiviCRM_Caldera_Forms_Forms {
 	 * @var object $plugin The plugin instance
 	 */
 	public $plugin;
-	
+
 	/**
 	 * Transient Id reference.
 	 *
@@ -53,11 +53,11 @@ class CiviCRM_Caldera_Forms_Forms {
 		add_filter( 'caldera_forms_presave_form', [ $this, 'reorder_contact_processors' ], 20 );
 
 		/**
-		 * The transients are set and destroyed twice, 
-		 * one for the rendering of the form (autopopulation), 
+		 * The transients are set and destroyed twice,
+		 * one for the rendering of the form (autopopulation),
 		 * and another one for the form submission.
 		 */
-		
+
 		// form render transient
 		add_filter( 'caldera_forms_render_get_form', [ $this, 'set_form_transient' ], 1 );
 		add_action( 'caldera_forms_render_end', [ $this, 'delete_form_transient' ], 1 );
@@ -71,9 +71,9 @@ class CiviCRM_Caldera_Forms_Forms {
 		add_action( 'caldera_forms_submit_complete', [ $this, 'reset_timezone' ], 10, 4 );
 		
 		// add CiviCRM panel
-		if ( in_array( 'CiviContribute', $this->plugin->processors->enabled_components ) )  
+		if ( in_array( 'CiviContribute', $this->plugin->processors->enabled_components ) )
 			add_filter( 'caldera_forms_get_panel_extensions', [ $this, 'add_civicrm_tab' ], 10 );
-		
+
 		// use label in summary
 		add_filter( 'caldera_forms_magic_summary_should_use_label', [ $this, 'summary_use_label' ], 10, 3 );
 		// exclude hidden fields from summary
@@ -85,11 +85,14 @@ class CiviCRM_Caldera_Forms_Forms {
 		add_filter( 'caldera_forms_render_get_field', [ $this, 'rebuild_calculation_field_formula' ], 20, 2 );
 		add_filter( 'caldera_forms_render_setup_field', [ $this, 'rebuild_calculation_field_formula' ], 20, 2 );
 
+		// correct multiple options submission
+		add_filter( 'caldera_forms_submit_get_form', [ $this, 'prevent_multiple_options_submission_override' ] );
+
 	}
 
 	/**
 	 * Set form transient.
-	 * 
+	 *
 	 * @since 0.4.4
 	 * @access public
 	 * @param array $form The form config
@@ -103,13 +106,13 @@ class CiviCRM_Caldera_Forms_Forms {
 		if ( Caldera_Forms::get_processor_by_type( 'civicrm_contact', $form ) )
 			// set transient structure
 			$this->set_transient_structure( $form );
-		
+
 		return $form;
 	}
 
 	/**
 	 * Delete form transient.
-	 * 
+	 *
 	 * @access public
 	 * @since 0.4.4
 	 */
@@ -142,7 +145,7 @@ class CiviCRM_Caldera_Forms_Forms {
 	 * Transient structure.
 	 *
 	 * @since 0.4.4
-	 * 
+	 *
 	 * @param array $form Form config
 	 * @return array $form Form config
 	 */
@@ -239,7 +242,7 @@ class CiviCRM_Caldera_Forms_Forms {
 			],
 			'caption' => '',
 			'config' => [
-				'custom_calss' => '',
+				'custom_class' => '',
 				'default' => $html
 			]
 		];
@@ -270,14 +273,14 @@ class CiviCRM_Caldera_Forms_Forms {
 	 * Add CiviCRM panel.
 	 *
 	 * @since 0.4.4
-	 * 
+	 *
 	 * @param array $panels Panels
 	 * @return array $panels Panels
 	 */
 	public function add_civicrm_tab( $panels ) {
 		$panels['form_layout']['tabs'][ 'civicrm' ] = [
-			'name' => __( 'CiviCRM', 'caldera-forms-civicrm' ),
-			'label' => __( 'Caldera Forms CiviCRM', 'caldera-forms-civicrm' ),
+			'name' => __( 'CiviCRM', 'cf-civicrm' ),
+			'label' => __( 'Caldera Forms CiviCRM', 'cf-civicrm' ),
 			'location' => 'lower',
 			'actions' => [],
 			'side_panel' => null,
@@ -296,7 +299,7 @@ class CiviCRM_Caldera_Forms_Forms {
 	 * @return boolean $use
 	 */
 	public function summary_use_label( $use, $field, $form ) {
-		
+
 		if ( Caldera_Forms::get_processor_by_type( 'civicrm_contact', $form ) )
 			return true;
 
@@ -312,7 +315,7 @@ class CiviCRM_Caldera_Forms_Forms {
 	 * @param array $form Form config
 	 */
 	public function exclude_hidden_fields_in_summary( $fields, $form ) {
-		
+
 		if ( Caldera_Forms::get_processor_by_type( 'civicrm_contact', $form ) )
 			return array_filter( $fields, function( $field ) {
 				return $field['type'] !== 'hidden';
@@ -352,7 +355,7 @@ class CiviCRM_Caldera_Forms_Forms {
 	 * Rebuild calculation field formular.
 	 *
 	 * When fields are removed/hidden through 'caldera_forms_render_get_field' and
-	 * 'caldera_forms_render_setup_field' filters, if the removed field is part of the 
+	 * 'caldera_forms_render_setup_field' filters, if the removed field is part of the
 	 * Calculation field formula, it breaks. The formula becomes ( 10+fld_123456 ).
 	 *
 	 * This method filters the calculation field to check for
@@ -406,4 +409,68 @@ class CiviCRM_Caldera_Forms_Forms {
 		return $field;
 
 	}
+
+	/**
+	 * Prevents multiple options data being overriden
+	 * by index/value filtering the submitted data.
+	 *
+	 * When a multiple slection/option field is submitted,
+	 * the $_POST data is checked on both the index and the value
+	 * of the $_POST[<field_id>] data, this can cause the submitted
+	 * data to be overriden during that check.
+	 *
+	 * @since 1.0.5
+	 * @param array $form The form config
+	 * @return array $form The form config
+	 */
+	public function prevent_multiple_options_submission_override( $form ) {
+
+		$mapped_fields = $this->plugin->helper->get_all_mapped_fields_ids( $form );
+
+		if ( empty( $mapped_fields ) ) return $form;
+
+		$field_types = Caldera_Forms::get_field_types();
+
+		// filter select field types with multiple options
+		$select_field_slugs = array_reduce(
+			array_keys( $field_types ),
+			function( $list, $slug ) use ( $field_types ) {
+
+				$field = $field_types[$slug];
+
+				if ( empty( $field['options'] ) || $field['options'] != 'multiple' ) {
+					return $list;
+				}
+
+				$list[] = $slug;
+
+				return $list;
+
+			}
+		);
+
+		array_map(
+			function( $slug ) use ( $mapped_fields ) {
+
+				add_filter(
+					'caldera_forms_process_field_' . $slug,
+					function ( $value, $field ) use ( $mapped_fields ) {
+
+						if ( ! in_array( $field['ID'], $mapped_fields ) ) return $value;
+						if ( ! is_array( $value ) ) return $value;
+
+						return array_combine(
+							array_values($value),
+							array_values($value)
+						);
+
+				}, 10, 3 );
+			},
+			$select_field_slugs
+		);
+
+		return $form;
+
+	}
+
 }

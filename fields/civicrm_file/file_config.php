@@ -3,7 +3,7 @@
 	<div class="caldera-config-field">
 	<label for="{{_id}}_civicrm_file_upload">
 		<input id="{{_id}}_civicrm_file_upload" type="checkbox" class="field-config" name="{{_name}}[civicrm_file_upload]" {{#if civicrm_file_upload}}checked="checked"{{/if}} value="1">
-		<?php _e( 'CiviCRM File Upload', 'caldera-forms-civicrm' ); ?></label>
+		<?php _e( 'CiviCRM File Upload', 'cf-civicrm' ); ?></label>
 	</div>
 </div>
 {{#script}}

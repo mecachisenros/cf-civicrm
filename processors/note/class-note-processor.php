@@ -15,10 +15,10 @@ class CiviCRM_Caldera_Forms_Note_Processor {
 	 * @var object $plugin The plugin instance
 	 */
 	public $plugin;
-	
+
 	/**
 	 * Contact link.
-	 * 
+	 *
 	 * @since 0.4.4
 	 * @access protected
 	 * @var string $contact_link The contact link
@@ -59,8 +59,8 @@ class CiviCRM_Caldera_Forms_Note_Processor {
 	public function register_processor( $processors ) {
 
 		$processors[$this->key_name] = [
-			'name' => __( 'CiviCRM Note', 'caldera-forms-civicrm' ),
-			'description' => __( 'Add CiviCRM note to contacts', 'caldera-forms-civicrm' ),
+			'name' => __( 'CiviCRM Note', 'cf-civicrm' ),
+			'description' => __( 'Add CiviCRM note to contacts', 'cf-civicrm' ),
 			'author' => 'Andrei Mondoc',
 			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/note/note_config.php',
 			'pre_processor' => [ $this, 'pre_processor' ],
@@ -102,7 +102,7 @@ class CiviCRM_Caldera_Forms_Note_Processor {
 			 * @since 0.4.2
 			 */
 			if ( ! empty( $config['note_attachment'] ) )
-				$this->plugin->helper->handle_file_attachments_core( 
+				$this->plugin->helper->handle_file_attachments_core(
 					'civicrm_note',
 					$note['id'],
 					$config['note_attachment'],

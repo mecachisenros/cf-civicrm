@@ -15,10 +15,10 @@ class CiviCRM_Caldera_Forms_Email_Processor {
 	 * @var object $plugin The plugin instance
 	 */
 	public $plugin;
-	
+
 	/**
 	 * Contact link.
-	 * 
+	 *
 	 * @since 0.4.4
 	 * @access protected
 	 * @var string $contact_link The contact link
@@ -70,8 +70,8 @@ class CiviCRM_Caldera_Forms_Email_Processor {
 	public function register_processor( $processors ) {
 
 		$processors[$this->key_name] = [
-			'name' => __( 'CiviCRM Email', 'caldera-forms-civicrm' ),
-			'description' => __( 'Add CiviCRM email to contacts', 'caldera-forms-civicrm' ),
+			'name' => __( 'CiviCRM Email', 'cf-civicrm' ),
+			'description' => __( 'Add CiviCRM email to contacts', 'cf-civicrm' ),
 			'author' => 'Andrei Mondoc',
 			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/email/email_config.php',
 			'pre_processor' => [ $this, 'pre_processor' ],
@@ -152,7 +152,7 @@ class CiviCRM_Caldera_Forms_Email_Processor {
 
 		foreach ( $form['processors'] as $processor => $pr_id ) {
 			if( $pr_id['type'] == $this->key_name ){
-				
+
 				$contact_link = $pr_id['contact_link'] = 'cid_'.$pr_id['config']['contact_link'];
 
 				if ( isset( $transient->contacts->{$contact_link} ) ) {

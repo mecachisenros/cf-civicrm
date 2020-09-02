@@ -48,6 +48,8 @@ class CiviCRM_Caldera_Forms_Field_File {
 		// add civicrm file upload config template for file field
 		add_action( 'caldera_forms_field_settings_template', [ $this, 'civicrm_upload_config_template' ], 20, 2 );
 
+		// handle advanced file 2.0 cf2_file
+		add_filter( 'rest_dispatch_request', [ $this, 'handle_cf2_advanced_file_upload' ], 10, 3 );
 
 	}
 
@@ -129,6 +131,79 @@ class CiviCRM_Caldera_Forms_Field_File {
 	}
 
 	/**
+	 * Filters the rest resquest for cf2 advanced file uploads.
+	 *
+	 * The adcnaved file upload (2.0) doesn't trigger the
+	 * 'caldera_forms_file_upload_handler' filter hence this workaround,
+	 * we filter the rest request for the file route, grab the necessary
+	 * params, and hook twice in wp_handle_upload() function to create
+	 * and pass on our file id.
+	 *
+	 * @since 1.0.5
+	 * @param mixed $result The result
+	 * @param WP_REST_Request $request The request
+	 * @param string $route The route
+	 * @return mixed $result
+	 */
+	public function handle_cf2_advanced_file_upload( $result, WP_REST_Request $request, $route ) {
+
+		if ( $route != '/cf-api/v3/file' ) return $result;
+
+		$params = $request->get_params();
+
+		if ( empty( $params['formId'] ) || empty( $params['fieldId'] ) || empty( $params['hashes'] ) ) return $result;
+
+		$form = Caldera_Forms::get_form( $params['formId'] );
+		$field = Caldera_Forms_Field_Util::get_field( $params['fieldId'], $form );
+
+		if ( empty( $field['config']['civicrm_file_upload'] ) ) return $result;
+
+		if ( empty( $_FILES ) ) return $result;
+
+		if ( empty( $_FILES['file'] ) ) return $result;
+
+		if ( ! Caldera_Forms_Render_Nonce::verify_nonce( $params['verify'], $params['formId'] ) ) return $result;
+
+		$file_to_move = $_FILES['file'];
+
+		if ( ! hash_equals( md5_file( $file_to_move['tmp_name'] ), $params['hashes'] ) ) return $result;
+
+		$args = [
+			'form_id' => $params['formId'],
+			'field_id' => $params['fieldId'],
+		];
+
+		$file_id = null;
+
+		// filter file upload before wp handles it
+		add_filter( 'pre_move_uploaded_file', function( $abort, $file ) use ( $file_to_move, $args, &$file_id ) {
+
+			if ( $file !== $file_to_move ) return $abort;
+
+			// its a civicrm file, create it
+			$upload = $this->handle_civicrm_uploads( $file, $args );
+			$file_id = $upload['url'];
+
+			return true;
+
+		}, 10, 2 );
+
+		// pass our file id as the url once wp has handled the file
+		add_filter( 'wp_handle_upload', function( $upload ) use ( &$file_id ) {
+
+			if ( $file_id ) {
+				$upload['url'] = $file_id;
+			}
+
+			return $upload;
+
+		} );
+
+		return $result;
+
+	}
+
+	/**
 	 * Adds CiviCRM File Uplad config template.
 	 *
 	 * @uses 'caldera_forms_field_settings_template' action
@@ -140,8 +215,8 @@ class CiviCRM_Caldera_Forms_Field_File {
 	 */
 	public function civicrm_upload_config_template( $config, $field_slug ) {
 
-		if( $config['field'] == 'File' ) include CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_file/file_config.php';
-		if( $config['field'] == 'Advanced File Uploader' ) include CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_file/advanced_file_config.php';
+		if( $field_slug == 'file' ) include CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_file/file_config.php';
+		if( in_array( $field_slug, [ 'advanced_file', 'cf2_file' ] ) ) include CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_file/advanced_file_config.php';
 
 	}
 }

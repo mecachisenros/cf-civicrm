@@ -61,8 +61,8 @@ class CiviCRM_Caldera_Forms_Address_Processor {
 	public function register_processor( $processors ) {
 
 		$processors[$this->key_name] = [
-			'name' => __( 'CiviCRM Address', 'caldera-forms-civicrm' ),
-			'description' => __( 'Add CiviCRM address to contacts', 'caldera-forms-civicrm' ),
+			'name' => __( 'CiviCRM Address', 'cf-civicrm' ),
+			'description' => __( 'Add CiviCRM address to contacts', 'cf-civicrm' ),
 			'author' => 'Andrei Mondoc',
 			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/address/address_config.php',
 			'pre_processor' => [ $this, 'pre_processor' ],
@@ -164,7 +164,7 @@ class CiviCRM_Caldera_Forms_Address_Processor {
 						] );
 
 					} catch ( CiviCRM_API3_Exception $e ) {
-						// Ignore if we have more than one address with same location type						
+						// Ignore if we have more than one address with same location type
 					}
 				}
 
