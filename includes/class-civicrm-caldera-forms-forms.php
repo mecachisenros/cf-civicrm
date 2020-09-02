@@ -26,6 +26,13 @@ class CiviCRM_Caldera_Forms_Forms {
 	protected $transient_id;
 
 	/**
+	 * @since  1.0.5
+	 * @access protected
+	 * @var string the timezone string before changing
+	 */
+	protected $original_timezone;
+
+	/**
 	 * Initialises this object.
 	 *
 	 * @since 0.4
@@ -58,6 +65,10 @@ class CiviCRM_Caldera_Forms_Forms {
 		// form submission transient
 		add_filter( 'caldera_forms_submit_get_form', [ $this, 'set_form_transient' ] );
 		add_action( 'caldera_forms_submit_complete', [ $this, 'delete_form_transient' ] );
+
+		// set PHP default timezone for CiviCRM and reset for WordPress after processors done
+		add_action( 'caldera_forms_submit_start_processors', [ $this, 'set_timezone' ], 10, 3 );
+		add_action( 'caldera_forms_submit_complete', [ $this, 'reset_timezone' ], 10, 4 );
 		
 		// add CiviCRM panel
 		if ( in_array( 'CiviContribute', $this->plugin->processors->enabled_components ) )  
@@ -104,6 +115,27 @@ class CiviCRM_Caldera_Forms_Forms {
 	 */
 	public function delete_form_transient() {
 		return $this->plugin->transient->delete();
+	}
+
+	/**
+	 * Set timezone to WP timezone
+	 *
+	 * @access public
+	 * @since 1.0.5
+	 */
+	public function set_timezone($form, $referrer, $process_id) {
+		$this->original_timezone = date_default_timezone_get();
+		date_default_timezone_set( wp_timezone_string() );
+	}
+
+	/**
+	 * Reset timezone
+	 *
+	 * @access public
+	 * @since 1.0.5
+	 */
+	public function reset_timezone($form, $referrer, $process_id, $entryid) {
+		date_default_timezone_set( $this->original_timezone );
 	}
 
 	/**
