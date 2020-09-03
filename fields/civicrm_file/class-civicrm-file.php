@@ -105,7 +105,13 @@ class CiviCRM_Caldera_Forms_Field_File {
 			'uri' => CRM_Utils_File::makeFileName( str_replace( ' ', '_', $file['name'] ) )
 		];
 
-		move_uploaded_file( $file['tmp_name'], $upload_directory . $params['uri'] );
+		// check is a valid upload
+		if ( false === is_uploaded_file( $file['tmp_name'] ) ) {
+			return new WP_Error( 422, __( 'There was a problem with your upload.', 'cf-civicrm' ) );
+		}
+
+		// copy file to civi directory
+		copy( $file['tmp_name'], $upload_directory . $params['uri'] );
 
 		// this triggers more than once per form
 		if ( empty( $this->file_fields[$args['field_id']]['files'] ) ) {
@@ -182,9 +188,14 @@ class CiviCRM_Caldera_Forms_Field_File {
 
 			// its a civicrm file, create it
 			$upload = $this->handle_civicrm_uploads( $file, $args );
+
+			if ( is_wp_error( $upload ) ) {
+				return $upload;
+			}
+
 			$file_id = $upload['url'];
 
-			return true;
+			return $abort;
 
 		}, 10, 2 );
 
