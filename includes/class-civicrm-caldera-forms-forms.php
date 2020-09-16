@@ -67,9 +67,9 @@ class CiviCRM_Caldera_Forms_Forms {
 		add_action( 'caldera_forms_submit_complete', [ $this, 'delete_form_transient' ] );
 
 		// set PHP default timezone for CiviCRM and reset for WordPress after processors done
-		add_action( 'caldera_forms_submit_start_processors', [ $this, 'set_timezone' ], 10, 3 );
-		add_action( 'caldera_forms_submit_complete', [ $this, 'reset_timezone' ], 10, 4 );
-		
+		add_action( 'caldera_forms_submit_start_processors', [ $this, 'set_timezone_wrapper' ], 10, 3 );
+		add_action( 'caldera_forms_submit_complete', [ $this, 'reset_timezone_wrapper' ], 10, 4 );
+
 		// add CiviCRM panel
 		if ( in_array( 'CiviContribute', $this->plugin->processors->enabled_components ) )
 			add_filter( 'caldera_forms_get_panel_extensions', [ $this, 'add_civicrm_tab' ], 10 );
@@ -126,9 +126,8 @@ class CiviCRM_Caldera_Forms_Forms {
 	 * @access public
 	 * @since 1.0.5
 	 */
-	public function set_timezone($form, $referrer, $process_id) {
-		$this->original_timezone = date_default_timezone_get();
-		date_default_timezone_set( wp_timezone_string() );
+	public function set_timezone_wrapper($form, $referrer, $process_id) {
+		Civi::Dispatcher()->addListener(\Civi\API\Events::PREPARE, [ $this, 'wrap_timezone' ], -100);
 	}
 
 	/**
@@ -137,8 +136,23 @@ class CiviCRM_Caldera_Forms_Forms {
 	 * @access public
 	 * @since 1.0.5
 	 */
-	public function reset_timezone($form, $referrer, $process_id, $entryid) {
-		date_default_timezone_set( $this->original_timezone );
+	public function reset_timezone_wrapper($form, $referrer, $process_id, $entryid) {
+		Civi::Dispatcher()->removeListener(\Civi\API\Events::PREPARE, [ $this, 'wrap_timezone' ]);
+	}
+
+	public function wrap_timezone($event) {
+		$event->wrapApi( [ $this, 'api_timezone_wrapper' ] );
+	}
+
+	public function api_timezone_wrapper($apiRequest, $callsame) {
+		$original_timezone = date_default_timezone_get();
+		date_default_timezone_set( wp_timezone_string() );
+
+		$result = $callsame($apiRequest);
+
+		date_default_timezone_set( $original_timezone );
+
+		return $result;
 	}
 
 	/**
