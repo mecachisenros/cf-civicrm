@@ -800,7 +800,7 @@ class CiviCRM_Caldera_Forms_Helper {
 			$all_price_field_values = civicrm_api3( 'PriceFieldValue', 'get', [
 				'sequential' => 0,
 				'is_active' => 1,
-				'options' => [ 'limit' => 0 ],
+				'options' => [ 'limit' => 0, 'sort' => 'weight ASC' ],
 			] );
 		} catch ( CiviCRM_API3_Exception $e ) {
 			return [ 'note' => $e->getMessage(), 'type' => 'error' ];
