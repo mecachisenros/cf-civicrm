@@ -1146,6 +1146,41 @@ class CiviCRM_Caldera_Forms_Helper {
 	}
 
 	/**
+	 * Get a Contribution custom fields.
+	 *
+	 * @since 1.0.6
+	 * @return array $custom_fields The array of custom fields - e.g. ['custom_x' => 'Label of custom_x']
+	 */
+	public function get_contribution_custom_fields() {
+
+		try {
+			$custom_groups = civicrm_api3( 'CustomGroup', 'get', [
+				'sequential' => 1,
+				'is_active' => 1,
+				'extends' => 'Contribution',
+				'api.CustomField.get' => [ 'is_active' => 1, 'options' => [ 'limit' => 0 ] ],
+				'options' => [ 'limit' => 0 ],
+			] );
+		} catch ( CiviCRM_API3_Exception $e ) {
+			return [ 'note' => $e->getMessage(), 'type' => 'error' ];
+		}
+
+		$custom_fields = [];
+		foreach ( $custom_groups['values'] as $key => $custom_group ) {
+			foreach ( $custom_group['api.CustomField.get']['values'] as $k => $custom_field ) {
+				$custom_fields['custom_' . $custom_field['id']] = [
+					'label' => $custom_field['label'],
+					'extends_entity_column_id' => $custom_group['extends_entity_column_id'] ?? null,
+					'extends_entity_column_value' => $custom_group['extends_entity_column_value'] ?? null
+				];
+			}
+		}
+
+		return $custom_fields;
+
+	}
+
+	/**
 	 * Get processor by type.
 	 *
 	 * @since 1.0

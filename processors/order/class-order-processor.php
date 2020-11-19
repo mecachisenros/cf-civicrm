@@ -84,6 +84,8 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 		// add stripe v1.4.9 return charge hook
 		add_filter( 'caldera_forms_submit_redirect_complete', [ $this, 'handle_stripe_metadata_after_redirect' ], 9, 3 );
 
+		add_filter( 'cfc_custom_fields_extends_entities', [ $this, 'custom_fields_extend_contribution' ] );
+
 	}
 
 	/**
@@ -1085,5 +1087,17 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 		if ( isset( $option_value ) && is_array( $option_value ) )
 			return $option_value['value'];
 		return null;
+	}
+
+	/**
+	 * Add Contribution to extend custom fields autopopulation/presets.
+	 *
+	 * @since 1.0.6
+	 * @param array $extends The entites array
+	 * @return array $extends The filtered entities array
+	 */
+	public function custom_fields_extend_contribution( $extends ) {
+		$extends[] = 'Contribution';
+		return $extends;
 	}
 }

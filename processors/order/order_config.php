@@ -260,6 +260,46 @@ $campaigns = civicrm_api3( 'Campaign', 'get', [
 	{{/unless}}
 </div>
 
+<h2><?php _e( 'Custom Fields', 'cf-civicrm' ); ?></h2>
+<?php foreach ( caldera_forms_civicrm()->helper->get_contribution_custom_fields() as $key => $custom_field ) { ?>
+	<div
+		id="{{_id}}_<?php echo esc_attr( $key ); ?>"
+		class="caldera-config-group"
+		data-entity-column-id="<?php echo esc_attr( $custom_field['extends_entity_column_id'] ); ?>"
+		data-entity-column-value="<?php echo esc_attr( json_encode( $custom_field['extends_entity_column_value'] ) ); ?>"
+		>
+		<label><?php echo esc_html( $custom_field['label'] ); ?> </label>
+		<div class="caldera-config-field">
+			<?php echo '{{{_field slug="' . $key . '"}}}'; ?>
+		</div>
+	</div>
+<?php } ?>
+
+{{#script}}
+	jQuery( document ).ready( function( $ ) {
+
+		$('#{{_id}}_financial_type_id select').on( 'change', function() {
+			var financial_type_id = $( this ).val();
+
+			$( '[id^={{_id}}_custom]' ).map( function( i, el ) {
+				if ( $( this ).data( 'entity-column-value' ) != undefined ) {
+
+					var column_value = $( el ).data( 'entity-column-value' ).toString(),
+					column_id = $( el ).data( 'entity-column-id' );
+
+					if( column_value.indexOf( financial_type_id ) !== -1 ) {
+						$( el ).show()
+					} else {
+						$( el ).hide();
+					}
+				}
+			} ).trigger( 'change' );
+
+		} ).trigger( 'change' );
+
+	} );
+{{/script}}
+
 <script>
 	jQuery( document ).ready( function( $ ) {
 		$( '.cfc-select2' ).cfcSelect2({width: '100%'});
