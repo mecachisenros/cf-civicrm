@@ -34,16 +34,6 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 	public $entities_cividiscounts;
 
 	/**
-	 * CiviDiscount criteria/filters,
-	 * whether the criteria is met for a processor_id.
-	 *
-	 * @since 1.0
-	 * @access public
-	 * @var array $event_autodiscounts Reference to [ <processor_id> => true|false ]
-	 */
-	public $event_autodiscounts;
-
-	/**
 	 * Reference to the discounts used for tracking.
 	 *
 	 * @since 1.0.5
@@ -212,8 +202,6 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 	 */
 	public function check_autodiscount( $autodiscount, $contact_id, $processor_id ) {
 
-		if ( isset( $this->event_autodiscounts[$processor_id] ) ) return $this->event_autodiscounts[$processor_id];
-
 		$is_autodiscount = false;
 
 		if ( ! empty( $autodiscount ) ) {
@@ -230,7 +218,6 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 				}
 			}
 		}
-		$this->event_autodiscounts[$processor_id] = $is_autodiscount;
 
 		return $is_autodiscount;
 	}
@@ -725,7 +712,9 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 
 		if ( ! empty( $this->entities_cividiscounts ) ) return $this->entities_cividiscounts;
 
-		$this->entities_cividiscounts = array_reduce( array_keys( $entities_ids ), function( $discounts, $processor_id ) use ( $entities_ids, $form, $autodiscount, $discount ) {
+		$contact = $this->plugin->helper->current_contact_data_get();
+
+		$this->entities_cividiscounts = array_reduce( array_keys( $entities_ids ), function( $discounts, $processor_id ) use ( $form, $autodiscount, $discount, $contact ) {
 
 			$processor = $form['processors'][$processor_id];
 
@@ -737,8 +726,9 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 						}
 					} else {
 						$cividiscounts = $this->get_cividiscounts_by_entity( 'events', $autodiscount );
-						array_map( function( $discount ) use ( &$discounts, $processor ) {
-							if ( in_array( $processor['config']['id'], $discount['events'] ) ) {
+						array_map( function( $discount ) use ( &$discounts, $processor, $contact ) {
+							$is_autodiscount = $this->check_autodiscount( $discount['autodiscount'], $contact['id'], $processor['config']['id'] );
+							if ( in_array( $processor['config']['id'], $discount['events'] ) && $is_autodiscount ) {
 								$discounts[$processor['ID']] = $discount;
 							}
 						}, $cividiscounts );
@@ -752,8 +742,9 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 						}
 					} else {
 						$cividiscounts = $this->get_cividiscounts_by_entity( 'memberships', $autodiscount );
-						array_map( function( $discount ) use ( &$discounts, $processor ) {
-							if ( in_array( $processor['config']['membership_type_id'], $discount['memberships'] ) ) {
+						array_map( function( $discount ) use ( &$discounts, $processor, $contact ) {
+							$is_autodiscount = $this->check_autodiscount( $discount['autodiscount'], $contact['id'], $processor['config']['id'] );
+							if ( in_array( $processor['config']['membership_type_id'], $discount['memberships'] ) && $is_autodiscount ) {
 								$discounts[$processor['ID']] = $discount;
 							}
 						}, $cividiscounts );
@@ -767,8 +758,9 @@ class CiviCRM_Caldera_Forms_CiviDiscount {
 						}
 					} else {
 						$cividiscounts = $this->get_cividiscounts_by_entity( 'contributions', $autodiscount );
-						array_map( function( $discount ) use ( &$discounts, $processor ) {
-							if ( in_array( $processor['config']['contribution_page_id'], $discount['contributions'] ) ) {
+						array_map( function( $discount ) use ( &$discounts, $processor, $contact ) {
+							$is_autodiscount = $this->check_autodiscount( $discount['autodiscount'], $contact['id'], $processor['config']['id'] );
+							if ( in_array( $processor['config']['contribution_page_id'], $discount['contributions'] ) && $is_autodiscount ) {
 								$discounts[$processor['ID']] = $discount;
 							}
 						}, $cividiscounts );
