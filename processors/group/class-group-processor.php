@@ -39,11 +39,10 @@ class CiviCRM_Caldera_Forms_Group_Processor {
 	 *
 	 * @since 0.2
 	 */
-	public function __construct( $plugin ) {
+	public function __construct($plugin) {
 		$this->plugin = $plugin;
 		// register this processor
-		add_filter( 'caldera_forms_get_form_processors', [ $this, 'register_processor' ] );
-
+		add_filter('caldera_forms_get_form_processors', [$this, 'register_processor']);
 	}
 
 	/**
@@ -56,18 +55,17 @@ class CiviCRM_Caldera_Forms_Group_Processor {
 	 * @param array $processors The existing processors
 	 * @return array $processors The modified processors
 	 */
-	public function register_processor( $processors ) {
+	public function register_processor($processors) {
 
 		$processors[$this->key_name] = [
-			'name' => __( 'CiviCRM Group', 'cf-civicrm' ),
-			'description' => __( 'Add CiviCRM contact to group', 'cf-civicrm' ),
+			'name' => __('CiviCRM Group', 'cf-civicrm'),
+			'description' => __('Add CiviCRM contact to group', 'cf-civicrm'),
 			'author' => 'Andrei Mondoc',
 			'template' => CF_CIVICRM_INTEGRATION_PATH . 'processors/group/group_config.php',
-			'processor' => [ $this, 'processor' ],
+			'processor' => [$this, 'processor'],
 		];
 
 		return $processors;
-
 	}
 
 	/**
@@ -78,7 +76,7 @@ class CiviCRM_Caldera_Forms_Group_Processor {
 	 * @param array $config Processor configuration
 	 * @param array $form Form configuration
 	 */
-	public function processor( $config, $form ) {
+	public function processor($config, $form) {
 
 		// cfc transient object
 		$transient = $this->plugin->transient->get();
@@ -86,18 +84,34 @@ class CiviCRM_Caldera_Forms_Group_Processor {
 
 		// Add Contact to group
 		try {
-			$result = civicrm_api3( 'GroupContact', 'create', [
-				'sequential' => 1,
-				'group_id' => $config['contact_group'], // Group ID from processor config
-				'contact_id' => $transient->contacts->{$this->contact_link}, // Contact ID set in Contact Processor
-			] );
-		} catch ( CiviCRM_API3_Exception $e ) {
+			if (empty($config['double_optin'])) {
+				$result = civicrm_api3('GroupContact', 'create', [
+					'sequential' => 1,
+					'group_id' => $config['contact_group'], // Group ID from processor config
+					'contact_id' => $transient->contacts->{$this->contact_link}, // Contact ID set in Contact Processor
+				]);
+			} else {
+				$contactId = $transient->contacts->{$this->contact_link};
+				$emailResult = civicrm_api3('Email', 'get', [
+					'sequential' => 1,
+					'return' => ["email"],
+					'contact_id' => $contactId,
+					'is_primary' => 1,
+				]);
+
+				$result = civicrm_api3('MailingEventSubscribe', 'create', [
+					'sequential' => 1,
+					'group_id' => $config['contact_group'], // Group ID from processor config
+					'contact_id' => $contactId, // Contact ID set in Contact Processor
+					'email' => $emailResult['values'][0]['email']
+				]);
+			}
+		} catch (CiviCRM_API3_Exception $e) {
 			global $transdata;
 			$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
 			$transdata['error'] = true;
 			$transdata['note'] = $error;
 			return;
 		}
-
 	}
 }
