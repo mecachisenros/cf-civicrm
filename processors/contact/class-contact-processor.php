@@ -331,9 +331,10 @@ class CiviCRM_Caldera_Forms_Contact_Processor {
 				// Pass address ID if we got one
 				if ( isset( $address ) && is_array( $address ) ) {
 					$form_values['civicrm_address']['id'] = $address['id']; // Address ID
-				} else {
-					$form_values['civicrm_address']['location_type_id'] = $config['civicrm_address']['location_type_id'];
 				}
+
+				// Always add Location Type ID
+				$form_values['civicrm_address']['location_type_id'] = $config['civicrm_address']['location_type_id'];
 
 				// FIXME
 				// Concatenate DATE + TIME
