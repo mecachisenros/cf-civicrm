@@ -1021,9 +1021,12 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 		$values['event'] = $event;
 		$values['participant'] = $participant;
 		$values['location'] = CRM_Core_BAO_Location::getValues( [ 'entity_id' => $event['id'], 'entity_table' => 'civicrm_event' ] );
-		$value['register_date'] = $participant['participant_register_date'];
+		$values['register_date'] = $participant['participant_register_date'];
+		$values['custom_pre_id'] = null;
+		$values['custom_post_id'] = null;
+		$values['params'] = [];
 
-		$sent = CRM_Event_BAO_Event::sendMail( $participant['contact_id'], $values, $participant['participant_id'] );
+		$sent = CRM_Event_BAO_Event::sendMail( $participant['contact_id'], $values, $participant['id'] );
 
 	}
 
