@@ -25,7 +25,7 @@ jQuery( document ).ready( function( $ ) {
 			return out;
 
 	}
-	$( '.caldera-editor-body' ).on( 'change', '.caldera-conditional-field-set', function( e ) {
+	$( '.caldera-editor-body' ).on( 'change', '.condition-line-field', function( e ) {
 
 		var field = $( this ),
 			field_compare = field.parent().find( '.compare-type' ),
