@@ -36,7 +36,7 @@
 <?php
 	$script_template = ob_get_clean();
 	if( ! empty( $form[ 'grid_object' ] ) && is_object( $form[ 'grid_object' ] ) ){
-		$form[ 'grid_object' ]->after( $script_template, $field[ 'grid_location' ] );
+		$form[ 'grid_object' ]->append( $script_template, $field[ 'grid_location' ] );
 	}else{
 		echo $script_template;
 	}

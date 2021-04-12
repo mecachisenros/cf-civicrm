@@ -31,12 +31,12 @@ if ( isset( $field['config']['civicrm_country'] ) ) {
 <?php ob_start(); ?>
 <script type="text/javascript">
 	jQuery( document ).ready( function( $ ) {
-		
+
 		var countryFieldId = '<?php isset( $country_field ) ? esc_attr_e( $country_field['ID'] ) : print( 'false' ); ?>',
 		placeholder = '<?php echo esc_attr( $field['config']['placeholder'] ); ?>';
 
 		var init = function( stateField ) {
-			
+
 			var countryField = countryFieldId ? $( 'select[data-field="' + countryFieldId + '"]' ) : $( 'select[id*="_cf_civicrm_country"]' ),
 			allStates = $( 'option', stateField );
 
@@ -45,7 +45,7 @@ if ( isset( $field['config']['civicrm_country'] ) ) {
 			countryField.on( 'change', function() {
 
 				var countryId = $( this ).val();
-				
+
 				var states;
 				if ( ! stateField.data( 'states' ) ) {
 					stateField.data( 'states', allStates );
@@ -53,7 +53,7 @@ if ( isset( $field['config']['civicrm_country'] ) ) {
 				} else {
 					states = stateField.data( 'states' );
 				}
-				
+
 				var options = states.filter( function( index, option ) {
 					return option.dataset.crmCountryId == countryId;
 				} );
@@ -79,7 +79,7 @@ if ( isset( $field['config']['civicrm_country'] ) ) {
 			if ( data && data.fieldIds && data.fieldIds.indexOf( fieldId ) != -1 ) {
 				init( stateField ).val( defaultValue ).cfcSelect2();
 			}
-			// add event 
+			// add event
 			if ( data && data.field && data.field == fieldId ) {
 				init( stateField ).val( defaultValue ).cfcSelect2();
 			}
@@ -90,7 +90,7 @@ if ( isset( $field['config']['civicrm_country'] ) ) {
 <?php
 	$script_template = ob_get_clean();
 	if( ! empty( $form[ 'grid_object' ] ) && is_object( $form[ 'grid_object' ] ) ){
-		$form[ 'grid_object' ]->after( $script_template, $field[ 'grid_location' ] );
+		$form[ 'grid_object' ]->append( $script_template, $field[ 'grid_location' ] );
 	}else{
 		echo $script_template;
 	}
