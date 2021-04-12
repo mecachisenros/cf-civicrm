@@ -66,6 +66,7 @@ class CiviCRM_Caldera_Forms_Fields {
 		// include field class files
 		include CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_country/class-civicrm-country.php';
 		include CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_state/class-civicrm-state.php';
+		include CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_county/class-civicrm-county.php';
 		include CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_file/class-civicrm-file.php';
 		include CF_CIVICRM_INTEGRATION_PATH . 'fields/civicrm_contact_reference/class-civicrm-contact-reference.php';
 		// include civicrm field presets
@@ -90,9 +91,10 @@ class CiviCRM_Caldera_Forms_Fields {
 		// add to custom fields array
 		$this->field_objects['civicrm_country'] = new CiviCRM_Caldera_Forms_Field_Country( $this->plugin );
 		$this->field_objects['civicrm_state'] = new CiviCRM_Caldera_Forms_Field_State( $this->plugin );
+		$this->field_objects['civicrm_county'] = new CiviCRM_Caldera_Forms_Field_County( $this->plugin );
 		$this->field_objects['civicrm_file'] = new CiviCRM_Caldera_Forms_Field_File( $this->plugin );
 		$this->field_objects['civicrm_contact_reference'] = new CiviCRM_Caldera_Forms_Contact_Reference( $this->plugin );
-		
+
 		// autopopulate and bulk insert/presets
 		$this->presets_objects['civicrm_core_fields'] = new CiviCRM_Caldera_Forms_Core_Fields_Presets( $this->plugin );
 		$this->presets_objects['civicrm_custom_fields'] = new CiviCRM_Caldera_Forms_Custom_Fields_Presets( $this->plugin );
