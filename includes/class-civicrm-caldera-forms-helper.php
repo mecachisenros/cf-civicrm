@@ -455,6 +455,17 @@ class CiviCRM_Caldera_Forms_Helper {
 					$mapped_field = trim( $mapped_field );
 				}
 
+				// Convert field options like ['opt123' => '3'] to ['3' => '3'].
+				if (
+					is_array( $mapped_field )
+					&& empty( array_filter( $mapped_field, 'is_numeric', ARRAY_FILTER_USE_KEY ) )
+				) {
+					$mapped_field = array_combine(
+						array_values( $mapped_field ),
+						array_values( $mapped_field )
+					);
+				}
+
 				/**
 				 * Filter mapped field value, fires for every processor field.
 				 *
