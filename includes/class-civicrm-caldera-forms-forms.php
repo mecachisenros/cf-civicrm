@@ -426,6 +426,7 @@ class CiviCRM_Caldera_Forms_Forms {
 
 						if ( ! in_array( $field['ID'], $mapped_fields ) ) return $value;
 						if ( ! is_array( $value ) ) return $value;
+						if ( empty( array_filter( $value, 'is_numeric', ARRAY_FILTER_USE_KEY ) ) ) return $value;
 
 						return array_combine(
 							array_values($value),
