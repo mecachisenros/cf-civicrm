@@ -353,7 +353,7 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 		} );
 
 		// updated participant registered_by_id and status
-		if ( is_array( $participant_entities ) ) {
+		if ( ! empty( $participant_entities ) ) {
 
 			$participant_ids = array_keys( $participant_entities );
 			$main_participant_id = array_slice( $participant_ids, -1 )[0];
@@ -407,6 +407,7 @@ class CiviCRM_Caldera_Forms_Order_Processor {
 				[ 'id' => $order['id'] ],
 				$metadata
 			) );
+			$update_order = $update_order['values'][$update_order['id']];
 		} catch ( CiviCRM_API3_Exception $e ) {
 			$update_order = null;
 		}

@@ -1090,10 +1090,11 @@ class CiviCRM_Caldera_Forms_Participant_Processor {
 		$counted_statuses = $this->get_counted_participant_statuses();
 
 		$processor_id = empty( $config['processor_id'] ) ? $config['ID'] : $config['processor_id'];
+		$event_ids = empty( $config['id'] ) ? $config['config']['id'] : $config['id'];
 
 		$is_registered = false;
 
-		if ( is_array( $config['id'] ) ) {
+		if ( is_array( $event_ids ) ) {
 
 			$is_registered = civicrm_api3( 'Participant', 'get', [
 				'event_id' => $event['id'],

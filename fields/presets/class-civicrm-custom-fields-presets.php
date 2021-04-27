@@ -144,7 +144,8 @@ class CiviCRM_Caldera_Forms_Custom_Fields_Presets {
 
 			if ( ! count( $group ) ) return;
 
-			$field = array_pop( array_reverse( $group ) );
+			$reverse_group = array_reverse( $group );
+			$field = array_pop( $reverse_group );
 
 			if ( ! in_array( $field['custom_group_id.extends'], $extends ) ) return;
 

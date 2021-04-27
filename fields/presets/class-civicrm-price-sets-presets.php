@@ -193,7 +193,7 @@ class CiviCRM_Caldera_Forms_Price_Sets_Presets {
 
 		if ( empty( $field['field']['config']['auto'] ) ) return $field;
 
-		if ( strpos( $field['field']['config']['auto_type'], 'cfc_price_field_' === false ) ) return $field;
+		if ( strpos( $field['field']['config']['auto_type'], 'cfc_price_field_' ) === false ) return $field;
 
 		/**
 		 * if we reach here, current $field is a 'price_field' field
