@@ -30,3 +30,11 @@ $groupsResult = civicrm_api3( 'Group', 'get', [
 		</select>
 	</div>
 </div>
+
+<hr style="clear: both;" />
+
+<div class="caldera-config-group">
+	<div class="caldera-config-field">
+		<label><input id="{{_id}}_double_optin" type="checkbox" name="{{_name}}[double_optin]" value="1" {{#if double_optin}}checked="checked" {{/if}}><?php _e('Enable double opt-in?', 'cf-civicrm'); ?></label>
+	</div>
+</div>

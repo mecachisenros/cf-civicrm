@@ -86,11 +86,28 @@ class CiviCRM_Caldera_Forms_Group_Processor {
 
 		// Add Contact to group
 		try {
-			$result = civicrm_api3( 'GroupContact', 'create', [
-				'sequential' => 1,
-				'group_id' => $config['contact_group'], // Group ID from processor config
-				'contact_id' => $transient->contacts->{$this->contact_link}, // Contact ID set in Contact Processor
-			] );
+			if ( empty($config['double_optin']) ) {
+				$result = civicrm_api3( 'GroupContact', 'create', [
+					'sequential' => 1,
+					'group_id' => $config['contact_group'], // Group ID from processor config
+					'contact_id' => $transient->contacts->{$this->contact_link}, // Contact ID set in Contact Processor
+				] );
+			} else {
+				$contactId = $transient->contacts->{$this->contact_link};
+				$emailResult = civicrm_api3( 'Email', 'get', [
+					'sequential' => 1,
+					'return' => ["email"],
+					'contact_id' => $contactId,
+					'is_primary' => 1,
+				] );
+
+				$result = civicrm_api3( 'MailingEventSubscribe', 'create', [
+					'sequential' => 1,
+					'group_id' => $config['contact_group'], // Group ID from processor config
+					'contact_id' => $contactId, // Contact ID set in Contact Processor
+					'email' => $emailResult['values'][0]['email']
+				] );
+			}
 		} catch ( CiviCRM_API3_Exception $e ) {
 			global $transdata;
 			$error = $e->getMessage() . '<br><br><pre>' . $e->getTraceAsString() . '</pre>';
