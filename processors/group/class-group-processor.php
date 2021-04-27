@@ -93,19 +93,19 @@ class CiviCRM_Caldera_Forms_Group_Processor {
 					'contact_id' => $transient->contacts->{$this->contact_link}, // Contact ID set in Contact Processor
 				] );
 			} else {
-				$contactId = $transient->contacts->{$this->contact_link};
-				$emailResult = civicrm_api3( 'Email', 'get', [
+				$contact_id = $transient->contacts->{$this->contact_link};
+				$email_result = civicrm_api3( 'Email', 'get', [
 					'sequential' => 1,
-					'return' => ["email"],
-					'contact_id' => $contactId,
+					'return' => ['email'],
+					'contact_id' => $contact_id,
 					'is_primary' => 1,
 				] );
 
 				$result = civicrm_api3( 'MailingEventSubscribe', 'create', [
 					'sequential' => 1,
 					'group_id' => $config['contact_group'], // Group ID from processor config
-					'contact_id' => $contactId, // Contact ID set in Contact Processor
-					'email' => $emailResult['values'][0]['email']
+					'contact_id' => $contact_id, // Contact ID set in Contact Processor
+					'email' => $email_result['values'][0]['email']
 				] );
 			}
 		} catch ( CiviCRM_API3_Exception $e ) {
