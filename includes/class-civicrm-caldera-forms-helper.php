@@ -301,6 +301,34 @@ class CiviCRM_Caldera_Forms_Helper {
 	}
 
 	/**
+	 * Get Counties from CiviCRM.
+	 *
+	 * @since 1.1
+	 *
+	 * @return array $counties The counties array
+	 */
+	public function get_counties() {
+
+		// send data back if already retrieved
+		if ( ! empty( $this->counties ) ) return $this->counties;
+
+		$query = 'SELECT name,id,state_province_id,abbreviation FROM civicrm_county';
+		$dao = CRM_Core_DAO::executeQuery( $query );
+		$this->counties = [];
+
+		while ( $dao->fetch() ) {
+			$this->counties[$dao->id] = [
+				'name' => $dao->name,
+				'state_province_id' => $dao->state_province_id,
+				'abbreviation' => $dao->abbreviation
+			];
+		}
+
+		return $this->counties;
+
+	}
+
+	/**
 	 * Get CiviCRM settings.
 	 *
 	 * @since 0.1
@@ -425,6 +453,17 @@ class CiviCRM_Caldera_Forms_Helper {
 
 				if ( in_array( $civi_field, [ 'first_name', 'middle_name', 'last_name' ] ) ) {
 					$mapped_field = trim( $mapped_field );
+				}
+
+				// Convert field options like ['opt123' => '3'] to ['3' => '3'].
+				if (
+					is_array( $mapped_field )
+					&& empty( array_filter( $mapped_field, 'is_numeric', ARRAY_FILTER_USE_KEY ) )
+				) {
+					$mapped_field = array_combine(
+						array_values( $mapped_field ),
+						array_values( $mapped_field )
+					);
 				}
 
 				/**

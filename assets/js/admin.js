@@ -6,7 +6,7 @@ function cfc_contact_link_options( id ) {
 	}
 	// add empty option for placeholder to work
 	options.unshift( {id: '', text: '' } )
-	
+
 	if( ! id ) return options;
 
 	return options.filter( function( option ) {
@@ -79,28 +79,27 @@ function cfc_select2_defaults( selector, value ) {
 
 	jQuery( selector ).on( 'select2:open', function() {
 		if ( jQuery( selector + '_contact_link' ).length == 0 ) {
-			jQuery( this ).data( 'select2' ).dropdown.$dropdown.append( 
+			jQuery( this ).data( 'select2' ).dropdown.$dropdown.append(
 				'<strong style="padding: 6px;">Or link to a Contact processor</strong>' +
-				'<div style="padding: 6px;"><select style="padding: 6px;" id="' + 
+				'<div style="padding: 6px;"><select style="padding: 6px;" id="' +
 				selector.replace( '#', '' ) + '_contact_link"></select></div>' );
 		}
 
 		var options = cfc_contact_link_options()
 		var selected_options = options.map( function( option, index ) {
-			if ( option.id == value ) options[index]['selected'] = true; 
+			if ( option.id == value ) options[index]['selected'] = true;
 		} );
 
 		jQuery( selector + '_contact_link' )
-			.cfcSelect2( { 
+			.cfcSelect2( {
 				data: options,
 				placeholder: 'Select Contact processor',
 				width: '100%'
-			} )
-			.on( 'select2:select', function( e ) {
+			} ).on( 'select2:select', function( e ) {
 				jQuery( selector )
 					.empty()
 					.append( new Option( e.params.data.text, e.params.data.id, false, false ) )
-					.trigger( 'select2:close' );
+					.cfcSelect2( 'close' );
 			} )
 	});
 }
@@ -109,7 +108,7 @@ function cfc_select2_defaults( selector, value ) {
 jQuery( document ).ready( function( $ ) {
 
 	$.fn.originalFormJSON = $.fn.formJSON;
-	
+
 	$.fn.formJSON = function() {
 
 		var form = $( this ).originalFormJSON();

@@ -314,7 +314,15 @@ class CiviCRM_Caldera_Forms_Forms {
 			return $a['config']['contact_link'] - $b['config']['contact_link'];
 		} );
 
-		$form['processors'] = array_merge( $contacts, array_diff_assoc( $form['processors'], $contacts ) );
+		$diff = array_filter(
+			$form['processors'],
+			function( $processor_id ) use ( $contacts ) {
+				return ! in_array( $processor_id, array_keys( $contacts ) );
+			},
+			ARRAY_FILTER_USE_KEY
+		);
+
+		$form['processors'] = array_merge( $contacts, $diff );
 
 		return $form;
 	}
@@ -426,6 +434,7 @@ class CiviCRM_Caldera_Forms_Forms {
 
 						if ( ! in_array( $field['ID'], $mapped_fields ) ) return $value;
 						if ( ! is_array( $value ) ) return $value;
+						if ( empty( array_filter( $value, 'is_numeric', ARRAY_FILTER_USE_KEY ) ) ) return $value;
 
 						return array_combine(
 							array_values($value),

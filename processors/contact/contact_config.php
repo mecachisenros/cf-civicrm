@@ -533,9 +533,9 @@ jQuery(document).ready( function($) {
 	var prContainer = '#' + prId + '_settings_pane .caldera-config-processor-setup';
 
 	// Show/hide accordions
-	$( prContainer + ' .civicrm-entity-fields' ).click( function(){
+	$( prContainer + ' .civicrm-entity-fields' ).on( 'click', function(){
 		$( prContainer + ' .civicrm-entity-fields input' ).each( function(i, el){
-			if( $( el ).attr('checked') == 'checked' ){
+			if( $( el ).prop('checked') ){
 				$( prContainer + ' .' + $( this ).attr('data-entity-accordion') ).show();
 			} else {
 				$( prContainer + ' .' + $( this ).attr('data-entity-accordion') ).hide();
@@ -545,7 +545,7 @@ jQuery(document).ready( function($) {
 
 	// Toggle fields sections in accordion style
 	$( prContainer + ' .civicrm-accordion' ).each( function( i, el ){
-		$( this ).click( function(){
+		$( this ).on( 'click', function(){
 			$( prContainer + ' .' + $( this ).attr('id').replace( '-button', '' ) ).toggle('slow');
 			$( this ).toggleClass('button-primary');
 		})
@@ -571,7 +571,7 @@ jQuery(document).ready( function($) {
 	});
 
 	var cTypes = typeOptions.concat(subTypeOptions);
-	cType.change( function(){
+	cType.on('change', function(){
 		$(prContainer + ' [data-crm-type]').each(function(i, el){
 			if( $.inArray($(el).attr('data-crm-type'), cTypes) != -1 && $(el).attr('data-crm-type') != 'Contact' && $(el).attr('data-crm-type') == cType.val())
 				$(el).show();
@@ -580,7 +580,7 @@ jQuery(document).ready( function($) {
 		})
 	}).trigger('change');
 
-	cSubType.change( function(){
+	cSubType.on('change', function(){
 		$(prContainer + ' .civicrm-custom-fields [data-crm-type]').filter(function(i, el){
 			if($(el).attr('data-crm-type').indexOf(',') != -1){
 				var types = $(el).attr('data-crm-type').split(',');
@@ -600,7 +600,7 @@ jQuery(document).ready( function($) {
 	}).trigger('change');
 
 	// Append Contact number
-	$( prContainer + ' #contact_link select' ).change( function(){
+	$( prContainer + ' #contact_link select' ).on( 'change', function(){
 		$('#processors-config-panel .' + prId + ' a span').text( $( prContainer + ' #contact_link select' ).val() );
 	}).trigger( 'change' );
 });

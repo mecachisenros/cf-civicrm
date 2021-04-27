@@ -248,10 +248,15 @@ class CiviCRM_Caldera_Forms_Membership_Processor {
 			}
 		}
 
-		return [
+		$magic_tags = [
 			'processor_id' => $config['processor_id'],
-			'membership_id' => $create_member['id'],
 		];
+
+		if ( ! empty( $create_member['id'] ) ) {
+			$magic_tags['membership_id'] = $create_member['id'];
+		}
+
+		return $magic_tags;
 
 	}
 

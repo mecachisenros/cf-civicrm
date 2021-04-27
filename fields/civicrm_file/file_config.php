@@ -8,7 +8,7 @@
 </div>
 {{#script}}
 jQuery( document ).ready( function( $ ){
-	$('#{{_id}}_civicrm_file_upload').change(function(){
+	$('#{{_id}}_civicrm_file_upload').on('change', function(){
 			if( $(this).prop('checked') ){
 				$('#{{_id}}_attach').prop('checked', false);
 				$('#{{_id}}_allow_multiple').prop('checked', false);

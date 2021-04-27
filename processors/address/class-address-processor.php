@@ -23,7 +23,7 @@ class CiviCRM_Caldera_Forms_Address_Processor {
 	 */
 	public $key_name = 'civicrm_address';
 
-	public $fields = [ 'name', 'is_primary', 'is_billing', 'street_address', 'supplemental_address_1', 'supplemental_address_2', 'city', 'state_province_id', 'postal_code', 'country_id', 'geo_code_1', 'geo_code_2' ];
+	public $fields = [ 'name', 'is_primary', 'is_billing', 'street_address', 'supplemental_address_1', 'supplemental_address_2', 'city', 'state_province_id', 'postal_code', 'county_id', 'country_id', 'geo_code_1', 'geo_code_2' ];
 
 	/**
 	 * Fields to ignore while prepopulating
